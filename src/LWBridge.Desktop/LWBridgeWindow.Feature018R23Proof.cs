@@ -64,6 +64,56 @@ internal sealed partial class LWBridgeWindow
                 (item.TryGetProperty("heroUuid", out JsonElement hero) && hero.ValueKind == JsonValueKind.String
                     ? hero.GetString() : ""))
             .OrderBy(value => value, StringComparer.Ordinal).ToArray();
+        static string[] SelectorValues(JsonElement snapshot) => snapshot.GetProperty("squads").EnumerateArray()
+            .SelectMany(squad => squad.GetProperty("positions").EnumerateArray().SelectMany(position =>
+                position.GetProperty("equips").EnumerateArray().Select(equip =>
+                    $"{squad.GetProperty("squadIndex").GetInt32()}:{position.GetProperty("position").GetInt32()}:" +
+                    $"{equip.GetProperty("slot").GetInt32()}={equip.GetProperty("equipUuid").GetString()}")))
+            .OrderBy(value => value, StringComparer.Ordinal).ToArray();
+        static string[] ScriptStringArray(string scriptResult)
+        {
+            using JsonDocument outer = JsonDocument.Parse(scriptResult);
+            if (outer.RootElement.ValueKind == JsonValueKind.Array)
+                return outer.RootElement.Deserialize<string[]>(JsonOptions.Default) ?? Array.Empty<string>();
+            if (outer.RootElement.ValueKind == JsonValueKind.String)
+            {
+                string? inner = outer.RootElement.GetString();
+                return string.IsNullOrEmpty(inner)
+                    ? Array.Empty<string>()
+                    : JsonSerializer.Deserialize<string[]>(inner, JsonOptions.Default) ?? Array.Empty<string>();
+            }
+            throw new InvalidDataException("R24 Equipment WebView returned an invalid string-array snapshot.");
+        }
+        static JsonArray MinimalSquads(JsonElement snapshot)
+        {
+            var squads = new JsonArray();
+            foreach (JsonElement squad in snapshot.GetProperty("squads").EnumerateArray())
+            {
+                var positions = new JsonArray();
+                foreach (JsonElement position in squad.GetProperty("positions").EnumerateArray())
+                {
+                    var equips = new JsonArray();
+                    foreach (JsonElement equip in position.GetProperty("equips").EnumerateArray())
+                        equips.Add(new JsonObject
+                        {
+                            ["slot"] = equip.GetProperty("slot").GetInt32(),
+                            ["equipUuid"] = equip.GetProperty("equipUuid").GetString(),
+                        });
+                    positions.Add(new JsonObject
+                    {
+                        ["position"] = position.GetProperty("position").GetInt32(),
+                        ["heroUuid"] = position.GetProperty("heroUuid").GetString(),
+                        ["equips"] = equips,
+                    });
+                }
+                squads.Add(new JsonObject
+                {
+                    ["squadIndex"] = squad.GetProperty("squadIndex").GetInt32(),
+                    ["positions"] = positions,
+                });
+            }
+            return squads;
+        }
         async Task Capture(string name)
         {
             Owned();
@@ -76,6 +126,24 @@ internal sealed partial class LWBridgeWindow
 
         JsonElement original = await Snapshot();
         string[] originalSlots = Slots(original), originalWearers = Wearers(original);
+        string[] originalSelectorValues = SelectorValues(original);
+        if (equipmentConfigService is null)
+            throw new InvalidDataException("R24 Equipment config service is unavailable.");
+        using var noPayload = JsonDocument.Parse("{}");
+        object? savedConfigObject = await equipmentConfigService.InvokeAsync(
+            "equipment_config_get", noPayload.RootElement, token);
+        JsonObject proofConfig = JsonNode.Parse(
+            JsonSerializer.Serialize(savedConfigObject, JsonOptions.Default)) as JsonObject
+            ?? throw new InvalidDataException("R24 Equipment saved config is unavailable.");
+        proofConfig["initialEquipmentConfig"] = new JsonObject
+        {
+            ["ownerUid"] = uid,
+            ["serverId"] = serverId,
+            ["capturedAt"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            ["squads"] = MinimalSquads(original),
+        };
+        await equipmentConfigService.InvokeAsync("equipment_config_save",
+            JsonSerializer.SerializeToElement(proofConfig, JsonOptions.Default), token);
         object receipt = new
         {
             schemaVersion = 1,
@@ -107,7 +175,7 @@ internal sealed partial class LWBridgeWindow
             int loadedSelects = JsonDocument.Parse(await core.ExecuteScriptAsync(
                 "document.querySelectorAll('[data-native-equipment=true] select').length"))
                 .RootElement.GetInt32();
-            await Capture("r23-equipment-tab-loaded.png");
+            await Capture("r24-equipment-tab-loaded.png");
 
             // The page-level Refresh uses the same production snapshot path that
             // was broken in R21. Require the remount to return with live rows.
@@ -117,31 +185,120 @@ internal sealed partial class LWBridgeWindow
             await WaitDom("(()=>{const p=document.querySelector('[data-native-equipment=true]');return !!p&&!p.hasAttribute('data-equipment-busy')&&!p.querySelector('[role=alert]')&&p.querySelectorAll('[data-equipment-position]').length>0;})()",
                 "Equipment Refresh");
 
+            // Save current squads first. The production component must copy all
+            // four native slot types for every live formation position and the
+            // instructional hint must disappear after that capture.
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const b=document.querySelector('[data-equipment-action=capture]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R24 Save current squads was unavailable.");
+            await WaitDom("(()=>{const p=document.querySelector('[data-native-equipment=true]');return !!p&&!p.hasAttribute('data-equipment-busy')&&!p.querySelector('[role=alert]')&&!p.querySelector('.equipment-preset-hint')&&!!p.querySelector('.equipment-result-success');})()",
+                "capture current squads");
+            string capturedSelectorsRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] select')].filter(s=>s.value).map(s=>s.getAttribute('aria-label')+'='+s.value).sort())");
+            string[] capturedSelectors = ScriptStringArray(capturedSelectorsRaw);
+            if (!capturedSelectors.SequenceEqual(originalSelectorValues, StringComparer.Ordinal))
+                throw new InvalidDataException("R24 Save current squads did not capture every equipped native slot.");
+            await Capture("r24-equipment-current-squads-saved.png");
+
+            string beforeDragRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] select')].map(s=>s.getAttribute('aria-label')+'='+s.value).sort())");
+            string[] beforeDrag = ScriptStringArray(beforeDragRaw);
+            string heroMapRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] [data-equipment-position]')].map(p=>p.getAttribute('data-equipment-position')+'='+((p.querySelector('.equipment-position-hero strong')||{}).textContent||'')).sort())");
+            string[] heroMap = ScriptStringArray(heroMapRaw);
+
+            // Single-item drag: same native slot type only. Reverse it after a
+            // screenshot so the later Apply remains a separately bounded
+            // dropdown mutation.
+            string itemDragRaw = await core.ExecuteScriptAsync(
+                "(()=>{const all=[...document.querySelectorAll('[data-native-equipment=true] [data-equipment-slot]')];const src=all.find(e=>e.querySelector('select')?.value);if(!src)return null;const slot=src.getAttribute('data-equipment-slot').split(':')[2];const dst=all.find(e=>e!==src&&e.getAttribute('data-equipment-slot').split(':')[2]===slot);if(!dst)return null;src.dispatchEvent(new Event('dragstart',{bubbles:true,cancelable:true}));return {source:src.getAttribute('data-equipment-slot'),target:dst.getAttribute('data-equipment-slot')};})()");
+            using JsonDocument itemDragDoc = JsonDocument.Parse(itemDragRaw);
+            if (itemDragDoc.RootElement.ValueKind != JsonValueKind.Object)
+                throw new InvalidDataException("R24 single equipment drag had no same-slot target.");
+            string itemSource = itemDragDoc.RootElement.GetProperty("source").GetString()!;
+            string itemTarget = itemDragDoc.RootElement.GetProperty("target").GetString()!;
+            await Task.Delay(100, token);
+            string itemDrop = "(()=>{const all=[...document.querySelectorAll('[data-equipment-slot]')];const src=all.find(e=>e.getAttribute('data-equipment-slot')===" +
+                JsonSerializer.Serialize(itemSource) + ");const dst=all.find(e=>e.getAttribute('data-equipment-slot')===" +
+                JsonSerializer.Serialize(itemTarget) + ");if(!src||!dst)return false;dst.dispatchEvent(new Event('dragover',{bubbles:true,cancelable:true}));dst.dispatchEvent(new Event('drop',{bubbles:true,cancelable:true}));src.dispatchEvent(new Event('dragend',{bubbles:true,cancelable:true}));return true;})()";
+            if (await core.ExecuteScriptAsync(itemDrop) != "true")
+                throw new InvalidDataException("R24 single equipment drag could not be dropped.");
+            await Task.Delay(100, token);
+            string afterItemRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] select')].map(s=>s.getAttribute('aria-label')+'='+s.value).sort())");
+            string[] afterItem = ScriptStringArray(afterItemRaw);
+            if (afterItem.SequenceEqual(beforeDrag, StringComparer.Ordinal))
+                throw new InvalidDataException("R24 single equipment drag did not change the saved draft.");
+            await Capture("r24-equipment-single-item-drag.png");
+            string reverseItemStart = "(()=>{const src=[...document.querySelectorAll('[data-equipment-slot]')].find(e=>e.getAttribute('data-equipment-slot')===" +
+                JsonSerializer.Serialize(itemTarget) + ");if(!src)return false;src.dispatchEvent(new Event('dragstart',{bubbles:true,cancelable:true}));return true;})()";
+            if (await core.ExecuteScriptAsync(reverseItemStart) != "true")
+                throw new InvalidDataException("R24 single equipment reverse drag could not start.");
+            await Task.Delay(100, token);
+            string reverseItemDrop = "(()=>{const all=[...document.querySelectorAll('[data-equipment-slot]')];const src=all.find(e=>e.getAttribute('data-equipment-slot')===" +
+                JsonSerializer.Serialize(itemTarget) + ");const dst=all.find(e=>e.getAttribute('data-equipment-slot')===" +
+                JsonSerializer.Serialize(itemSource) + ");if(!src||!dst)return false;dst.dispatchEvent(new Event('dragover',{bubbles:true,cancelable:true}));dst.dispatchEvent(new Event('drop',{bubbles:true,cancelable:true}));src.dispatchEvent(new Event('dragend',{bubbles:true,cancelable:true}));return true;})()";
+            if (await core.ExecuteScriptAsync(reverseItemDrop) != "true")
+                throw new InvalidDataException("R24 single equipment drag could not be reversed.");
+            await Task.Delay(100, token);
+
+            // Full-set drag between two live hero positions, again reversed
+            // before the real native mutation. Hero cards must stay fixed.
+            string loadoutDragRaw = await core.ExecuteScriptAsync(
+                "(()=>{const cards=[...document.querySelectorAll('[data-native-equipment=true] [data-equipment-position]')];const src=cards.find(p=>[...p.querySelectorAll('select')].some(s=>s.value));const dst=cards.find(p=>p!==src);const h=src&&src.querySelector('[data-equipment-drag^=\"loadout:\"]');if(!src||!dst||!h)return null;h.dispatchEvent(new Event('dragstart',{bubbles:true,cancelable:true}));return {source:src.getAttribute('data-equipment-position'),target:dst.getAttribute('data-equipment-position')};})()");
+            using JsonDocument loadoutDragDoc = JsonDocument.Parse(loadoutDragRaw);
+            if (loadoutDragDoc.RootElement.ValueKind != JsonValueKind.Object)
+                throw new InvalidDataException("R24 full equipment-set drag had no second equipped hero.");
+            string loadoutSource = loadoutDragDoc.RootElement.GetProperty("source").GetString()!;
+            string loadoutTarget = loadoutDragDoc.RootElement.GetProperty("target").GetString()!;
+            await Task.Delay(100, token);
+            string loadoutDrop = "(()=>{const all=[...document.querySelectorAll('[data-equipment-position]')];const src=all.find(e=>e.getAttribute('data-equipment-position')===" +
+                JsonSerializer.Serialize(loadoutSource) + ");const dst=all.find(e=>e.getAttribute('data-equipment-position')===" +
+                JsonSerializer.Serialize(loadoutTarget) + ");const h=src&&src.querySelector('[data-equipment-drag^=\"loadout:\"]');if(!h||!dst)return false;dst.dispatchEvent(new Event('dragover',{bubbles:true,cancelable:true}));dst.dispatchEvent(new Event('drop',{bubbles:true,cancelable:true}));h.dispatchEvent(new Event('dragend',{bubbles:true,cancelable:true}));return true;})()";
+            if (await core.ExecuteScriptAsync(loadoutDrop) != "true")
+                throw new InvalidDataException("R24 full equipment-set drag could not be dropped.");
+            await Task.Delay(100, token);
+            string afterLoadoutRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] select')].map(s=>s.getAttribute('aria-label')+'='+s.value).sort())");
+            string[] afterLoadout = ScriptStringArray(afterLoadoutRaw);
+            if (afterLoadout.SequenceEqual(beforeDrag, StringComparer.Ordinal))
+                throw new InvalidDataException("R24 full equipment-set drag did not change the saved draft.");
+            string heroAfterDragRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] [data-equipment-position]')].map(p=>p.getAttribute('data-equipment-position')+'='+((p.querySelector('.equipment-position-hero strong')||{}).textContent||'')).sort())");
+            string[] heroAfterDrag = ScriptStringArray(heroAfterDragRaw);
+            if (!heroAfterDrag.SequenceEqual(heroMap, StringComparer.Ordinal))
+                throw new InvalidDataException("R24 equipment drag changed a fixed hero position.");
+            await Capture("r24-equipment-full-set-drag.png");
+            string reverseLoadoutStart = "(()=>{const src=[...document.querySelectorAll('[data-equipment-position]')].find(e=>e.getAttribute('data-equipment-position')===" +
+                JsonSerializer.Serialize(loadoutTarget) + ");const h=src&&src.querySelector('[data-equipment-drag^=\"loadout:\"]');if(!h)return false;h.dispatchEvent(new Event('dragstart',{bubbles:true,cancelable:true}));return true;})()";
+            if (await core.ExecuteScriptAsync(reverseLoadoutStart) != "true")
+                throw new InvalidDataException("R24 full equipment-set reverse drag could not start.");
+            await Task.Delay(100, token);
+            string reverseLoadoutDrop = "(()=>{const all=[...document.querySelectorAll('[data-equipment-position]')];const src=all.find(e=>e.getAttribute('data-equipment-position')===" +
+                JsonSerializer.Serialize(loadoutTarget) + ");const dst=all.find(e=>e.getAttribute('data-equipment-position')===" +
+                JsonSerializer.Serialize(loadoutSource) + ");const h=src&&src.querySelector('[data-equipment-drag^=\"loadout:\"]');if(!h||!dst)return false;dst.dispatchEvent(new Event('dragover',{bubbles:true,cancelable:true}));dst.dispatchEvent(new Event('drop',{bubbles:true,cancelable:true}));h.dispatchEvent(new Event('dragend',{bubbles:true,cancelable:true}));return true;})()";
+            if (await core.ExecuteScriptAsync(reverseLoadoutDrop) != "true")
+                throw new InvalidDataException("R24 full equipment-set drag could not be reversed.");
+            await Task.Delay(100, token);
+            string restoredDraftRaw = await core.ExecuteScriptAsync(
+                "JSON.stringify([...document.querySelectorAll('[data-native-equipment=true] select')].map(s=>s.getAttribute('aria-label')+'='+s.value).sort())");
+            string[] restoredDraft = ScriptStringArray(restoredDraftRaw);
+            if (!restoredDraft.SequenceEqual(beforeDrag, StringComparer.Ordinal))
+                throw new InvalidDataException("R24 drag reversals did not restore the captured draft exactly.");
+
             string editRaw = await core.ExecuteScriptAsync(
-                "(()=>{const all=[...document.querySelectorAll('[data-native-equipment=true] select')];if(all.some(s=>s.value))return null;const s=all.find(s=>!s.disabled&&[...s.options].some(o=>o.value));const option=s&&[...s.options].find(o=>o.value);if(!s||!option)return null;const label=s.getAttribute('aria-label');s.value=option.value;s.dispatchEvent(new Event('change',{bubbles:true}));return {picked:option.value,label};})()");
+                "(()=>{const s=[...document.querySelectorAll('[data-native-equipment=true] select')].find(s=>!s.disabled&&s.value);if(!s)return null;const picked=s.value,label=s.getAttribute('aria-label');s.value='';s.dispatchEvent(new Event('change',{bubbles:true}));return {picked,label};})()");
             using JsonDocument editDoc = JsonDocument.Parse(editRaw);
             if (editDoc.RootElement.ValueKind != JsonValueKind.Object)
-                throw new InvalidDataException("R23 fresh preset was not empty/editable with owned gear.");
+                throw new InvalidDataException("R24 native dropdown had no equipped slot to change.");
             string selectedEquipUuid = editDoc.RootElement.GetProperty("picked").GetString()!;
             string editedSlot = editDoc.RootElement.GetProperty("label").GetString()!;
-            // Keep the native mutation bounded: use the dropdowns to restore
-            // all other slots in the fresh draft, then leave just one slot empty.
-            foreach (JsonElement squad in original.GetProperty("squads").EnumerateArray())
-                foreach (JsonElement position in squad.GetProperty("positions").EnumerateArray())
-                    foreach (JsonElement equip in position.GetProperty("equips").EnumerateArray())
-                    {
-                        string label = $"{squad.GetProperty("squadIndex").GetInt32()}:{position.GetProperty("position").GetInt32()}:{equip.GetProperty("slot").GetInt32()}";
-                        string code = "(()=>{const s=[...document.querySelectorAll('[data-native-equipment=true] select')].find(s=>s.getAttribute('aria-label')===" + JsonSerializer.Serialize(label) + ");if(!s||s.disabled)return false;s.value=" + JsonSerializer.Serialize(equip.GetProperty("equipUuid").GetString()) + ";s.dispatchEvent(new Event('change',{bubbles:true}));return true;})()";
-                        if (await core.ExecuteScriptAsync(code) != "true") throw new InvalidDataException("R23 native dropdown missing while filling fresh preset.");
-                        await Task.Delay(35, token);
-                    }
-            await core.ExecuteScriptAsync("(()=>{const s=[...document.querySelectorAll('[data-native-equipment=true] select')].find(s=>s.value);if(!s)return false;s.value='';s.dispatchEvent(new Event('change',{bubbles:true}));return true})()");
             await Task.Delay(100, token);
             if (await core.ExecuteScriptAsync(
                     "(()=>{const b=document.querySelector('[data-equipment-action=save]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
-                throw new InvalidDataException("R23 Equipment Save was unavailable.");
-            await WaitDom("(()=>{const p=document.querySelector('[data-native-equipment=true]');return !!p&&!p.hasAttribute('data-equipment-busy')&&!p.querySelector('[role=alert]')&&!!p.querySelector('.equipment-result-success');})()", "save fresh edited preset");
-            await Capture("r23-equipment-fresh-preset-saved.png");
+                throw new InvalidDataException("R24 Equipment Save was unavailable.");
+            await WaitDom("(()=>{const p=document.querySelector('[data-native-equipment=true]');return !!p&&!p.hasAttribute('data-equipment-busy')&&!p.querySelector('[role=alert]')&&!!p.querySelector('.equipment-result-success');})()", "save dropdown edit");
+            await Capture("r24-equipment-dropdown-saved.png");
 
             if (await core.ExecuteScriptAsync(
                     "(()=>{const b=document.querySelector('[data-equipment-action=apply]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
@@ -153,11 +310,12 @@ internal sealed partial class LWBridgeWindow
             string[] appliedSlots = Slots(afterApply), appliedWearers = Wearers(afterApply);
             if (appliedSlots.SequenceEqual(originalSlots, StringComparer.Ordinal) &&
                 appliedWearers.SequenceEqual(originalWearers, StringComparer.Ordinal))
-                throw new InvalidDataException("R23 Equipment Apply reported success but native gear did not change.");
+                throw new InvalidDataException("R24 Equipment Apply reported success but native gear did not change.");
+            await Capture("r24-equipment-applied.png");
 
             if (await core.ExecuteScriptAsync(
                     "(()=>{const b=document.querySelector('[data-equipment-action=restore]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
-                throw new InvalidDataException("R23 Equipment Restore was unavailable.");
+                throw new InvalidDataException("R24 Equipment Restore was unavailable.");
             await WaitDom("(()=>{const p=document.querySelector('[data-native-equipment=true]');return !!p&&!p.hasAttribute('data-equipment-busy')&&!p.querySelector('[role=alert]')&&!!p.querySelector('.equipment-result-success');})()",
                 "restore initial equipment", 500);
             JsonElement final = await Snapshot();
@@ -165,22 +323,26 @@ internal sealed partial class LWBridgeWindow
             bool slotsRestored = finalSlots.SequenceEqual(originalSlots, StringComparer.Ordinal);
             bool wearersRestored = finalWearers.SequenceEqual(originalWearers, StringComparer.Ordinal);
             if (!slotsRestored || !wearersRestored)
-                throw new InvalidDataException("R23 Equipment Restore did not return the exact starting loadout.");
+                throw new InvalidDataException("R24 Equipment Restore did not return the exact starting loadout.");
             restoredExactly = true;
-            await Capture("r23-equipment-tab-restored.png");
+            await Capture("r24-equipment-tab-restored.png");
             await Save(new
             {
                 schemaVersion = 1,
                 state = "proven",
-                proof = "actual_packaged_equipment_tab_webview_buttons",
+                proof = "r24_actual_packaged_equipment_tab_webview_buttons_and_drag",
                 game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
                 loadedPositions,
                 loadedGearSelectors = loadedSelects,
                 refreshSucceeded = true,
                 preset1SavedFromTab = true,
+                capturedEveryEquippedNativeSlot = true,
+                captureHintCleared = true,
+                singleItemDrag = new { source = itemSource, target = itemTarget, sameSlotOnly = true, reversedExactly = true },
+                fullSetDrag = new { source = loadoutSource, target = loadoutTarget, heroesStayedFixed = true, reversedExactly = true },
                 editedSlot,
                 selectedEquipUuid,
-                freshPresetEditedBeforeCapture = true,
+                dropdownEditedAfterCapture = true,
                 appliedNativeChange = true,
                 restoredFromTab = true,
                 slotsRestoredExactly = slotsRestored,
@@ -214,7 +376,7 @@ internal sealed partial class LWBridgeWindow
             {
                 schemaVersion = 1,
                 state = "partial",
-                proof = "actual_packaged_equipment_tab_webview_buttons",
+                proof = "r24_actual_packaged_equipment_tab_webview_buttons_and_drag",
                 game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
                 error = error.Message,
                 originalSlots,

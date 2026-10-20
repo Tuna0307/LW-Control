@@ -279,6 +279,38 @@ local function inventory_for_target(manager, uuid, hero, slot)
     return {item=item,wearer=wearer_id,alreadyWorn=wearer_id == hero.uuid}
 end
 
+-- The client updates HeroInfo.equipUids and EquipInfo.heroUuid from separate
+-- native pushes. Immediately after moving gear, GetEquipBySlotType can still
+-- expose the old slot while EquipDataManager already exposes the new wearer
+-- (or vice versa). Treat that first disagreement as stale read evidence only:
+-- re-read the exact formation hero, slot and inventory once. A disagreement
+-- that survives the fresh read is a real precondition failure.
+local function current_slot_with_fresh_inventory(manager, squad_index, position, slot, first_hero)
+    local hero=first_hero
+    for attempt=1,2 do
+        local ok_current,current_item=invoke(hero.object,"GetEquipBySlotType",slot)
+        if not ok_current then
+            return nil,nil,nil,"Native current hero equipment-slot state unavailable"
+        end
+        local current_id=current_item and exact_id(member(current_item,"uuid"))
+        if current_item~=nil and current_id==nil then
+            return nil,nil,nil,"Current hero slot equipment has invalid native UUID"
+        end
+        if current_id==nil then return hero,nil,nil,nil end
+        local stock,reason=inventory_for_target(manager,current_id,hero,slot)
+        if stock and stock.alreadyWorn then return hero,current_id,stock,nil end
+        -- Slot/type/inventory identity errors are structural, not cache lag.
+        if not stock then return nil,nil,nil,reason end
+        if attempt==1 then
+            local fresh,fresh_reason=read_hero(squad_index,position)
+            if not fresh then return nil,nil,nil,fresh_reason end
+            hero=fresh
+        else
+            return nil,nil,nil,"wearer mismatch"
+        end
+    end
+end
+
 function M.Preflight(fields, confirmed_presets, game_input_clear)
     local preset, error_receipt = selected_preset(fields,confirmed_presets)
     if preset == nil then return error_receipt end
@@ -317,21 +349,16 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
                     end
                     for slot = 1, 4 do
                         local target = requested[slot]
-                        local ok_current, current_item = invoke(hero.object,"GetEquipBySlotType",slot)
-                        if not ok_current then
-                            return unavailable("Native current hero equipment-slot state unavailable")
+                        local fresh_hero,current_id,current_stock,current_reason =
+                            current_slot_with_fresh_inventory(
+                                equips,squad_index,position,slot,hero)
+                        if not fresh_hero then
+                            return blocked("Current equipped item disagrees with native inventory: " ..
+                                (current_reason or "wearer mismatch"))
                         end
-                        local current_id = current_item and exact_id(member(current_item,"uuid"))
-                        if current_item ~= nil and current_id == nil then
-                            return blocked("Current hero slot equipment has invalid native UUID")
-                        end
-                        if current_id ~= nil then
-                            local current_stock, current_reason =
-                                inventory_for_target(equips,current_id,hero,slot)
-                            if current_stock == nil or not current_stock.alreadyWorn then
-                                return blocked("Current equipped item disagrees with native inventory: " ..
-                                    (current_reason or "wearer mismatch"))
-                            end
+                        hero=fresh_hero
+                        if saved_hero and hero.uuid~=saved_hero then
+                            return blocked("Saved equipment hero UUID no longer matches its native formation position")
                         end
                         local status = "alreadyEmpty"
                         if target ~= nil then
@@ -419,9 +446,14 @@ end
 local function observe_step(step)
     local hero, why = read_hero(step.squadIndex,step.position)
     if not hero or hero.uuid ~= step.heroUuid then return false,why or "Native hero identity changed" end
-    local ok, item = invoke(hero.object,"GetEquipBySlotType",step.slot)
-    if not ok then return false,"Native slot reader failed" end
-    local current = item and exact_id(member(item,"uuid")) or ""
+    local manager=member(rawget(_G,"DataCenter"),"EquipDataManager")
+    local fresh,current_id,_,fresh_reason=current_slot_with_fresh_inventory(
+        manager,step.squadIndex,step.position,step.slot,hero)
+    if not fresh or fresh.uuid~=step.heroUuid then
+        return false,fresh_reason or "Native equipment wearer still disagrees after fresh read"
+    end
+    hero=fresh
+    local current=current_id or ""
     if current ~= step.after then
         if current ~= step.before then
             -- The native push/slot has changed to a THIRD item, not this
@@ -432,9 +464,8 @@ local function observe_step(step)
         return nil
     end
     if step.after ~= "" then
-        local inv, reason = inventory_for_target(
-            member(rawget(_G,"DataCenter"),"EquipDataManager"),step.after,hero,step.slot)
-        if not inv or not inv.alreadyWorn then return false,reason or "Equipment wearer push pending" end
+        -- current_slot_with_fresh_inventory already verified this exact
+        -- equipped UUID and wearer against a fresh native read.
     elseif step.before ~= "" then
         local ok_item, old = invoke(member(rawget(_G,"DataCenter"),"EquipDataManager"),
             "GetEquipByUuid",tonumber(step.before))
@@ -503,15 +534,17 @@ function M.Snapshot(fields)
                         iconPath=hero_icon_path(hero.object),
                         level=member(hero.object,"level")}
                     for slot=1,4 do
-                        local ok_item,item=invoke(hero.object,"GetEquipBySlotType",slot)
-                        if not ok_item then return unavailable("Native gear slot lookup unavailable") end
-                        if item then
-                            local id=exact_id(member(item,"uuid"))
-                            local stock,reason=id and inventory_for_target(
-                                member(center,"EquipDataManager"),id,hero,slot)
-                            if not stock or not stock.alreadyWorn then return blocked(reason or "Native slot inventory mismatch") end
-                            entry.equips[#entry.equips+1]={slot=slot,equipUuid=id}
+                        local fresh,id,_,reason=current_slot_with_fresh_inventory(
+                            member(center,"EquipDataManager"),index,position,slot,hero)
+                        if not fresh then
+                            return blocked("Current equipped item disagrees with native inventory after fresh snapshot read: " ..
+                                (reason or "wearer mismatch"))
                         end
+                        hero=fresh
+                        if hero.uuid~=entry.heroUuid then
+                            return blocked("Native hero changed during fresh equipment snapshot read")
+                        end
+                        if id then entry.equips[#entry.equips+1]={slot=slot,equipUuid=id} end
                     end
                     group.positions[#group.positions+1]=entry
                 end

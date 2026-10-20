@@ -204,6 +204,47 @@ class OriginalV26Evidence(unittest.TestCase):
 
 
 class EquipmentPreflight(unittest.TestCase):
+    def test_transient_wearer_mismatch_refreshes_exact_native_slot_before_blocking(self):
+        lua, module, state, confirmed = setup()
+        lua.execute("""
+          state.inventoryReads=0
+          function DataCenter.EquipDataManager:GetEquipByUuid(id)
+            if id==501 then
+              state.inventoryReads=state.inventoryReads+1
+              if state.inventoryReads==1 then
+                return {uuid=501,slot=1,heroUuid=0,config={heroType=7}}
+              end
+            end
+            return state.items[id]
+          end
+        """)
+        result=status(lua,module,confirmed,1)
+        self.assertEqual(result["state"],"confirmed")
+        self.assertGreaterEqual(state["inventoryReads"],2)
+        self.assertEqual(result["data"]["slots"][1]["currentEquipUuid"],"501")
+        self.assertEqual(state["sent"],0)
+
+    def test_fresh_slot_read_accepts_real_item_move_between_heroes(self):
+        lua,module,state,confirmed=setup()
+        lua.execute("""
+          state.slotReads=0
+          state.items[501].heroUuid=202
+          state.items[502].heroUuid=101
+          function state.hero101:GetEquipBySlotType(slot)
+            if slot~=1 then return nil end
+            state.slotReads=state.slotReads+1
+            if state.slotReads==1 then return state.items[501] end
+            return state.items[502]
+          end
+        """)
+        result=status(lua,module,confirmed,1)
+        self.assertEqual(result["state"],"confirmed")
+        self.assertGreaterEqual(state["slotReads"],2)
+        self.assertEqual(result["data"]["slots"][1]["currentEquipUuid"],"502")
+        self.assertEqual(result["data"]["slots"][1]["targetEquipUuid"],"501")
+        self.assertEqual(result["data"]["slots"][1]["state"],"wornByOtherHero")
+        self.assertEqual(state["sent"],0)
+
     def test_verified_equipped_inventory_preflight_has_no_side_effect(self):
         lua, module, state, confirmed = setup()
         result = status(lua, module, confirmed, 1)
@@ -389,6 +430,27 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(stock['level'],7)
         self.assertEqual(len(data['items']),4);self.assertEqual(state['sent'],0)
         self.assertTrue(data['readOnly']);self.assertFalse(data['requestDispatched'])
+
+    def test_native_snapshot_refreshes_transient_wearer_mismatch_once(self):
+        lua,module,state,_,_=self.fixture()
+        lua.execute('''
+        state.inventoryReads=0
+        function DataCenter.EquipDataManager:GetEquipByUuid(id)
+          if id==501 then
+            state.inventoryReads=state.inventoryReads+1
+            if state.inventoryReads==1 then
+              return {uuid=501,slot=1,heroUuid=0,config={heroType=7}}
+            end
+          end
+          return state.items[id]
+        end
+        function DataCenter.EquipDataManager:GetAllEquipList()return state.items end
+        ''')
+        result=module.Snapshot(fields(lua,authorizedUid='2553945035002288'))
+        self.assertEqual(result['state'],'confirmed')
+        self.assertGreaterEqual(state['inventoryReads'],2)
+        self.assertEqual(result['data']['squads'][1]['positions'][1]['equips'][1]['equipUuid'],'501')
+        self.assertEqual(state['sent'],0)
 
     def test_native_snapshot_pictures_use_native_skin_and_item_icon(self):
         lua,module,state,_,_=self.fixture()

@@ -8,9 +8,81 @@ export function equipmentPositionSnapshot(snapshot) {
     squadIndex: squad.squadIndex,
     positions: list(squad.positions).map((position) => ({
       position: position.position, heroUuid: position.heroUuid,
-      equips: list(position.equips).map((item) => ({ slot: item.slot, equipUuid: String(item.equipUuid) })),
+      // Walk the four native slot types explicitly so a capture never becomes
+      // "whatever entries happened to be present in an old rendered array".
+      // Empty slots remain empty (the persisted native schema intentionally
+      // stores no fake UUID), while every equipped slot is copied once.
+      equips: equipmentSlots.flatMap((slot) => {
+        const item = list(position.equips).find((entry) => entry.slot === slot);
+        return item ? [{ slot, equipUuid: String(item.equipUuid) }] : [];
+      }),
     })),
   }));
+}
+export function equipmentPresetCoversSnapshot(preset, snapshot) {
+  const liveSquads = equipmentPositionSnapshot(snapshot);
+  if (!preset || !liveSquads.length) return false;
+  return liveSquads.every((liveSquad) => {
+    const savedSquad = list(preset.squads).find((entry) => entry.squadIndex === liveSquad.squadIndex);
+    return savedSquad && savedSquad.positions.length === liveSquad.positions.length &&
+      liveSquad.positions.every((livePosition) => {
+        const saved = savedSquad.positions.find((entry) => entry.position === livePosition.position);
+        return saved?.heroUuid === livePosition.heroUuid;
+      });
+  }) && list(preset.squads).length === liveSquads.length;
+}
+function savedPosition(preset, squadIndex, position) {
+  return list(preset?.squads).find((entry) => entry.squadIndex === squadIndex)
+    ?.positions.find((entry) => entry.position === position);
+}
+export function swapNativeEquipmentTarget(config, presetIndex, dragged, target) {
+  if (!dragged || !target || dragged.kind !== target.kind || dragged.kind === "squad")
+    return { config, handled: false, error: "" };
+  if (dragged.squadIndex === target.squadIndex && dragged.position === target.position)
+    return { config, handled: false, error: "" };
+  if (dragged.kind === "equip" && dragged.slot !== target.slot)
+    return { config, handled: true, error: "squad.sameSlotRequired" };
+  const next = clone(config), preset = next.equipmentPresets[presetIndex];
+  const source = savedPosition(preset, dragged.squadIndex, dragged.position);
+  const destination = savedPosition(preset, target.squadIndex, target.position);
+  if (!source || !destination || !source.heroUuid || !destination.heroUuid)
+    return { config, handled: false, error: "" };
+  if (dragged.kind === "loadout") {
+    [source.equips, destination.equips] = [destination.equips, source.equips];
+    return { config: next, handled: true, error: "" };
+  }
+  const slot = Number(dragged.slot);
+  const sourceIndex = source.equips.findIndex((entry) => entry.slot === slot);
+  if (sourceIndex < 0) return { config, handled: false, error: "" };
+  const targetIndex = destination.equips.findIndex((entry) => entry.slot === slot);
+  const sourceItem = source.equips[sourceIndex], targetItem = targetIndex >= 0 ? destination.equips[targetIndex] : null;
+  if (targetItem) source.equips[sourceIndex] = targetItem;
+  else source.equips.splice(sourceIndex, 1);
+  if (targetIndex >= 0) destination.equips[targetIndex] = sourceItem;
+  else destination.equips.push(sourceItem);
+  source.equips.sort((left, right) => left.slot - right.slot);
+  destination.equips.sort((left, right) => left.slot - right.slot);
+  return { config: next, handled: true, error: "" };
+}
+export function swapNativeEquipmentSquads(config, presetIndex, sourceSquadIndex, targetSquadIndex, snapshot) {
+  if (sourceSquadIndex === targetSquadIndex) return { config, handled: false };
+  const next = clone(config), preset = next.equipmentPresets[presetIndex];
+  if (!preset || !equipmentPresetCoversSnapshot(preset, snapshot)) return { config, handled: false };
+  const sourceLive = list(snapshot?.squads).find((entry) => entry.squadIndex === sourceSquadIndex);
+  const targetLive = list(snapshot?.squads).find((entry) => entry.squadIndex === targetSquadIndex);
+  const targetPositions = new Set(list(targetLive?.positions).map((entry) => entry.position));
+  const shared = list(sourceLive?.positions).map((entry) => entry.position).filter((position) => targetPositions.has(position)).slice(0, 5);
+  if (!shared.length) return { config, handled: false };
+  for (const position of shared) {
+    const source = savedPosition(preset, sourceSquadIndex, position);
+    const destination = savedPosition(preset, targetSquadIndex, position);
+    const sourceHero = sourceLive.positions.find((entry) => entry.position === position)?.heroUuid;
+    const targetHero = targetLive.positions.find((entry) => entry.position === position)?.heroUuid;
+    if (!source || !destination || source.heroUuid !== sourceHero || destination.heroUuid !== targetHero)
+      return { config, handled: false };
+    [source.equips, destination.equips] = [destination.equips, source.equips];
+  }
+  return { config: next, handled: true };
 }
 export function normalizeEquipmentConfig(value, presetName = (index) => `Preset ${index}`) {
   const saved = list(value?.equipmentPresets).slice(0, 4);

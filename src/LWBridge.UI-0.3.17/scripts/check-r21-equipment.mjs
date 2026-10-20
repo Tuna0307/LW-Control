@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { createEquipmentRuntime, equipmentPositionSnapshot, normalizeEquipmentConfig, setEquipmentSlot } from "../src/equipmentRuntime.js";
+import { createEquipmentRuntime, equipmentPositionSnapshot, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
 const baseline = {
   readOnly: true, ownerUid: "10001", serverId: 999,
   squads: [{ squadIndex: 1, positions: [
@@ -48,6 +48,29 @@ function fakeBridge() {
   return bridge;
 }
 const bridge = fakeBridge(), runtime = createEquipmentRuntime(bridge, "A", { wait: async () => {} });
+const fourSlot = equipmentPositionSnapshot({ squads: [{ squadIndex: 4, positions: [{
+  position: 3, heroUuid: "90003", equips: [1, 2, 3, 4].map((slot) => ({ slot, equipUuid: String(800 + slot) })),
+}] }] });
+assert.deepEqual(fourSlot[0].positions[0].equips.map((entry) => entry.slot), [1, 2, 3, 4], "Save current squads must capture all four native slot types");
+const dragConfig = normalizeEquipmentConfig({ equipmentPresets: [{ id: "drag", name: "Drag", squads: [
+  { squadIndex: 1, positions: [{ position: 1, heroUuid: "h11", equips: [{ slot: 1, equipUuid: "a1" }, { slot: 2, equipUuid: "a2" }] }] },
+  { squadIndex: 2, positions: [{ position: 1, heroUuid: "h21", equips: [{ slot: 1, equipUuid: "b1" }, { slot: 2, equipUuid: "b2" }] }] },
+] }] });
+const dragSnapshot = { squads: [
+  { squadIndex: 1, positions: [{ position: 1, heroUuid: "h11", equips: [] }] },
+  { squadIndex: 2, positions: [{ position: 1, heroUuid: "h21", equips: [] }] },
+] };
+const wrongSlot = swapNativeEquipmentTarget(dragConfig, 0,
+  { kind: "equip", squadIndex: 1, position: 1, slot: 1 },
+  { kind: "equip", squadIndex: 2, position: 1, slot: 2 });
+assert.equal(wrongSlot.error, "squad.sameSlotRequired");
+assert.deepEqual(wrongSlot.config, dragConfig, "Wrong-slot drag must be a no-op");
+const squadSwap = swapNativeEquipmentSquads(dragConfig, 0, 1, 2, dragSnapshot);
+assert.equal(squadSwap.handled, true);
+assert.equal(squadSwap.config.equipmentPresets[0].squads[0].positions[0].heroUuid, "h11", "Squad drag must keep source hero fixed");
+assert.equal(squadSwap.config.equipmentPresets[0].squads[1].positions[0].heroUuid, "h21", "Squad drag must keep target hero fixed");
+assert.deepEqual(squadSwap.config.equipmentPresets[0].squads[0].positions[0].equips.map((entry) => entry.equipUuid), ["b1", "b2"]);
+assert.deepEqual(squadSwap.config.equipmentPresets[0].squads[1].positions[0].equips.map((entry) => entry.equipUuid), ["a1", "a2"]);
 const fresh = await runtime.snapshot();
 const config = normalizeEquipmentConfig(await runtime.readConfig());
 const editedFresh = setEquipmentSlot(config, 0, 1, 5, 1, "502", fresh);
@@ -130,6 +153,23 @@ assert.deepEqual([...new Set(imageCalls)].sort(), ["Assets/Hero/native.png", "As
 await flush(() => document.querySelector('[data-equipment-action="capture"]').click());
 assert.equal(mountedBridge.saved.equipmentPresets[0].squads[0].positions[0].position, 2);
 assert.equal(mountedBridge.saved.initialEquipmentConfig.ownerUid, baseline.ownerUid);
+assert.equal(document.querySelector(".equipment-preset-hint"), null, "Save current squads hint must disappear after capture");
+const sourceItem = document.querySelector('[data-equipment-slot="1:2:1"]');
+const targetItem = document.querySelector('[data-equipment-slot="1:5:1"]');
+await flush(() => sourceItem.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
+await flush(() => targetItem.dispatchEvent(new window.Event("dragover", { bubbles: true, cancelable: true })));
+await flush(() => targetItem.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
+await flush(() => sourceItem.dispatchEvent(new window.Event("dragend", { bubbles: true })));
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "", "Single-item drag must move only the matching slot");
+assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "501", "Single-item drag target did not receive source slot");
+const sourceLoadout = document.querySelector('[data-equipment-drag="loadout:1:5"]');
+const targetPosition = document.querySelector('[data-equipment-position="1:2"]');
+await flush(() => sourceLoadout.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
+await flush(() => targetPosition.dispatchEvent(new window.Event("dragover", { bubbles: true, cancelable: true })));
+await flush(() => targetPosition.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
+await flush(() => sourceLoadout.dispatchEvent(new window.Event("dragend", { bubbles: true })));
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Full-set drag did not move the saved loadout");
+assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "", "Full-set drag did not swap the source loadout");
 const select = document.querySelector('select[aria-label="1:2:1"]');
 await flush(() => { Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(select, "502"); select.dispatchEvent(new window.Event("change", { bubbles: true })); });
 await flush(() => { document.querySelector('[data-equipment-action="apply"]').click(); });

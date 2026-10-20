@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { backendBridge } from "./backendBridge.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
-import { createEquipmentRuntime, equipmentPositionSnapshot, equipmentSlots, normalizeEquipmentConfig, setEquipmentSlot } from "./equipmentRuntime.js";
+import { createEquipmentRuntime, equipmentPositionSnapshot, equipmentPresetCoversSnapshot, equipmentSlots, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "./equipmentRuntime.js";
 
 const clone = (value) => structuredClone(value);
 const itemCount = (preset) => preset?.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) || 0;
@@ -12,6 +12,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
   const [snapshot, setSnapshot] = useState(null), [config, setConfig] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0), [busy, setBusy] = useState("");
   const [error, setError] = useState(""), [notice, setNotice] = useState(""), [localized, setLocalized] = useState({ context: "", values: {} });
+  const [dragged, setDragged] = useState(null), [dropTarget, setDropTarget] = useState("");
   const [revision, setRevision] = useState(0);
   const runtime = useMemo(() => {
     if (!profileId || !bridge.available) return null;
@@ -76,6 +77,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
   const name = (key, fallback) => texts[key] && texts[key] !== key ? texts[key] : fallback;
   const items = useMemo(() => new Map((snapshot?.items || []).map((item) => [String(item.equipUuid), item])), [snapshot]);
   const selected = config?.equipmentPresets[selectedIndex];
+  const capturedCurrentSquads = useMemo(() => equipmentPresetCoversSnapshot(selected, snapshot), [selected, snapshot]);
   const disabled = Boolean(busy || !online || !runtime || !snapshot || !config);
   const operation = async (kind, action) => {
     if (disabled) return;
@@ -97,6 +99,25 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
     return { config: await runtime.save(next, fresh), snapshot: fresh };
   });
   const save = () => operation("save", async () => ({ config: await runtime.save(config, snapshot) }));
+  const apply = () => operation("apply", async () => {
+    // Refresh the native owner snapshot immediately before Apply. The game can
+    // move an item between heroes after the tab was rendered; a stale rendered
+    // snapshot must never be the baseline for a mutation.
+    const fresh = await runtime.snapshot();
+    setSnapshot(fresh);
+    return runtime.apply(selectedIndex + 1, config, fresh);
+  });
+  const dragTarget = (target) => {
+    if (!dragged || !capturedCurrentSquads || disabled || runtime?.pending) return;
+    const result = swapNativeEquipmentTarget(config, selectedIndex, dragged, target);
+    if (result.error) { setNotice(t(result.error)); return; }
+    if (result.handled) { setConfig(result.config); setNotice(""); }
+  };
+  const dragSquad = (targetSquadIndex) => {
+    if (dragged?.kind !== "squad" || !capturedCurrentSquads || disabled || runtime?.pending) return;
+    const result = swapNativeEquipmentSquads(config, selectedIndex, dragged.squadIndex, targetSquadIndex, snapshot);
+    if (result.handled) { setConfig(result.config); setNotice(""); }
+  };
   const editName = (value) => setConfig((current) => {
     const next = clone(current); next.equipmentPresets[selectedIndex].name = value; return next;
   });
@@ -114,26 +135,50 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
           <button type="button" disabled={Boolean(busy) || !runtime} onClick={() => setRevision((value) => value + 1)}>{t("common.refresh")}</button>
           <button type="button" data-equipment-action="capture" disabled={disabled || runtime?.pending} onClick={capture}>{t("squad.overwritePreset")}</button>
           <button type="button" data-equipment-action="save" disabled={disabled || !selected?.name.trim() || runtime?.pending} onClick={save}>{t("squad.saveEquipmentConfig")}</button>
-          <button type="button" className="primary" data-equipment-action="apply" disabled={disabled || !selected?.name.trim() || !positionCount(selected) || runtime?.pending} onClick={() => operation("apply", () => runtime.apply(selectedIndex + 1, config, snapshot))}>{t(busy === "apply" ? "squad.equipmentApplying" : "squad.saveAndApplyEquipmentConfig")}</button>
+          <button type="button" className="primary" data-equipment-action="apply" disabled={disabled || !selected?.name.trim() || !positionCount(selected) || runtime?.pending} onClick={apply}>{t(busy === "apply" ? "squad.equipmentApplying" : "squad.saveAndApplyEquipmentConfig")}</button>
           <button type="button" data-equipment-action="restore" disabled={disabled || !config?.initialEquipmentConfig || runtime?.pending} onClick={() => operation("restore", () => runtime.restore())}>{t("squad.restoreInitialEquipment")}</button>
           {runtime?.pending ? <button type="button" disabled={disabled} data-equipment-action="resume" onClick={() => operation("confirm", () => runtime.resume())}>{t("common.retry")}</button> : null}
         </div>
       </div>
       {selected ? <label className="equipment-preset-actions">{t("squad.presetNamePrompt")}<input aria-label={t("squad.presetNamePrompt")} value={selected.name} disabled={disabled || runtime?.pending} onChange={(event) => editName(event.target.value)} /></label> : null}
-      {selected ? <p className="equipment-preset-hint">{t("squad.equipmentCaptureHint")}</p> : null}
-      <div className="equipment-preset-squads">{(snapshot?.squads || []).map((squad) => <section className="equipment-preset-squad" key={squad.squadIndex}>
-        <div className="equipment-preset-squad-header"><strong>{t("squad.number", { number: squad.squadIndex })}</strong></div>
+      {selected && !capturedCurrentSquads ? <p className="equipment-preset-hint">{t("squad.equipmentCaptureHint")}</p> : null}
+      <div className="equipment-preset-squads">{(snapshot?.squads || []).map((squad) => {
+        const squadDropKey = `squad-${squad.squadIndex}`;
+        return <section className={`equipment-preset-squad ${dropTarget === squadDropKey ? "drop-target" : ""}`} key={squad.squadIndex}
+          onDragOver={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(squadDropKey); } }}
+          onDragLeave={() => setDropTarget((current) => current === squadDropKey ? "" : current)}
+          onDrop={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(""); dragSquad(squad.squadIndex); } }}>
+        <div className="equipment-preset-squad-header"><strong>{t("squad.number", { number: squad.squadIndex })}</strong>
+          <div className="equipment-squad-drag-handle" data-equipment-drag={`squad:${squad.squadIndex}`} draggable={capturedCurrentSquads && !disabled && !runtime?.pending}
+            onDragStart={() => setDragged({ kind: "squad", squadIndex: squad.squadIndex })}
+            onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{t("squad.dragSquadLoadout")}</div>
+        </div>
         <div className="equipment-preset-positions">{squad.positions.map((position) => {
           const saved = selected?.squads.find((entry) => entry.squadIndex === squad.squadIndex)?.positions.find((entry) => entry.position === position.position);
           const heroName = name(position.heroNameKey || position.nameKey, position.heroName || `#${position.heroItemId || position.heroUuid}`);
-          return <article className="equipment-position-card" key={position.position} data-equipment-position={`${squad.squadIndex}:${position.position}`}>
+          const loadoutDropKey = `loadout-${squad.squadIndex}:${position.position}`;
+          return <article className={`equipment-position-card ${dropTarget === loadoutDropKey ? "drop-target" : ""}`} key={position.position} data-equipment-position={`${squad.squadIndex}:${position.position}`}
+            onDragOver={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); setDropTarget(loadoutDropKey); } }}
+            onDragLeave={() => setDropTarget((current) => current === loadoutDropKey ? "" : current)}
+            onDrop={(event) => { if (dragged?.kind === "loadout") { event.preventDefault(); setDropTarget(""); dragTarget({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position }); } }}>
             <div className="equipment-position-header"><strong>{t("squad.position", { number: position.position })}</strong><span>{t("squad.heroFixed")}</span></div>
             <div className="equipment-position-hero">{position.iconPath ? <GameAssetImage assetPath={position.iconPath} alt={heroName} className="equipment-position-hero-icon" /> : null}<div><strong title={heroName}>{heroName}</strong>{position.level != null ? <span>Lv.{position.level}</span> : null}</div></div>
+            <div className="equipment-loadout-handle" data-equipment-drag={`loadout:${squad.squadIndex}:${position.position}`} draggable={capturedCurrentSquads && !disabled && !runtime?.pending}
+              onDragStart={() => setDragged({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position })}
+              onDragEnd={() => { setDragged(null); setDropTarget(""); }}><span>{t("squad.dragLoadout")}</span></div>
             <div className="equipment-position-items" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))" }}>{equipmentSlots.map((slot) => {
               const item = saved?.equips.find((entry) => entry.slot === slot), gear = items.get(String(item?.equipUuid));
               const current = position.equips.find((entry) => entry.slot === slot), currentGear = items.get(String(current?.equipUuid));
               const gearName = (value) => value ? name(value.nameKey, value.name || `#${value.itemId || value.equipUuid}`) : t("squad.emptyEquipment");
-              return <label className={`preset-equipment-slot quality-${gear?.quality || 0}`} key={slot} title={`${t(`squad.equipmentSlot${slot}`)} · ${t("squad.currentEquipmentPreset", { name: gearName(currentGear) })}`}>
+              const equipDropKey = `equip-${squad.squadIndex}:${position.position}:${slot}`;
+              return <label className={`preset-equipment-slot quality-${gear?.quality || 0} ${dropTarget === equipDropKey ? "drop-target" : ""}`} key={slot} title={`${t(`squad.equipmentSlot${slot}`)} · ${t("squad.currentEquipmentPreset", { name: gearName(currentGear) })}`}
+                data-equipment-slot={`${squad.squadIndex}:${position.position}:${slot}`}
+                draggable={capturedCurrentSquads && !!item && !disabled && !runtime?.pending}
+                onDragStart={(event) => { if (!item) return; event.stopPropagation(); setDragged({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); }}
+                onDragOver={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(equipDropKey); } }}
+                onDragLeave={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.stopPropagation(); setDropTarget((current) => current === equipDropKey ? "" : current); } }}
+                onDrop={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(""); dragTarget({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); } }}
+                onDragEnd={() => { setDragged(null); setDropTarget(""); }}>
                 <strong style={{ maxWidth: "100%", overflowWrap: "anywhere", fontSize: "var(--font-footnote)" }}>{t(`squad.equipmentSlot${slot}`)}</strong>
                 {gear?.iconPath ? <GameAssetImage assetPath={gear.iconPath} alt={gearName(gear)} className="equipment-icon" /> : null}
                 <select style={{ width: "100%", minWidth: 0, maxWidth: "100%" }} title={`${gearName(gear)}${item ? ` · ${item.equipUuid}` : ""}`} aria-label={`${squad.squadIndex}:${position.position}:${slot}`} value={String(item?.equipUuid || "")} disabled={disabled || runtime?.pending} onChange={(event) => setConfig(setEquipmentSlot(config, selectedIndex, squad.squadIndex, position.position, slot, event.target.value, snapshot))}>
@@ -146,7 +191,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
             })}</div>
           </article>;
         })}</div>
-      </section>)}</div>
+      </section>;})}</div>
       {!snapshot?.squads.length && !busy ? <div className="map-empty">{t("squad.empty")}</div> : null}
       {busy ? <div className="equipment-apply-progress" role="status">{t(busy === "apply" || busy === "restore" || busy === "confirm" ? "squad.equipmentApplying" : "common.processing")}</div> : null}
       {notice ? <div className="equipment-result equipment-result-success" role="status">{notice}</div> : null}
