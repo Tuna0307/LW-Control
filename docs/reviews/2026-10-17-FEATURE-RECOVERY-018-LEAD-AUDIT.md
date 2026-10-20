@@ -1159,3 +1159,21 @@ Note: the "R23 progress checkpoint" block above appears twice (worker paste dupl
 
 - **Final R23 regression gate complete:** attack actions, hotkey actions/game, City game/candidate/swap/grid-audit/live-driver, relocation (**81/81**), equipment actions (**32/32**) + integration, and Chat engine suites all PASS. Full UI `npm ... run check` PASSes through `FEATURE018_R21_CITY_NAMES_UI_OK`; R23 package-boundary checks PASS; full `tests/LWBridge.Desktop.Checks` PASSes through `HOME_FEATURE_DELIVERY_CHECKS_OK`. No game was launched by the regression suites. Final source-pinned Windows publish/package is next.
 - **Final delivery source checkpoint:** a verification R23 Windows publish/ZIP from the preceding pushed checkpoint passed ProductVersion/source identity, canonical ProductionUi fingerprint, **21** linked bridge-source hashes, ZIP CRC/per-entry SHA checks and every-entry ASCII/UTF-16LE/UTF-16BE scans for every retained test UID; its generated README/FULL assessment accurately records Q/F10/Equipment/City proof, UNKNOWN historical reconnect cause, Red Packet/Fireworks live-listener boundary and fail-closed Treasure limitation. This audit-only checkpoint is pushed next, then the owner ZIP is regenerated once from that exact final HEAD; the external `r23-package-receipt.json` beside that final ZIP is the authoritative delivered artifact identity. No task-owned game/app remains running; installed scripts are exact v26 originals and no recovery journal exists.
+
+## Lead audit of R23 (CoS) — 2026-10-20 (source 66f1dbe8): ACCEPTED for owner test
+HEAD = remote 66f1dbe8, nothing uncommitted (Codex's Chat work reviewed and committed in 5f567f9e). No game/app
+running; live game scripts exact v26; no journal. Attack, hotkey, City, relocation, equipment and Chat Lua checks,
+Desktop.Checks and UI check PASS (lead re-run). Lead viewed `r23-city-100-percent.png`: building pictures and names
+show (HQ, Tank Center, Hospital…).
+- F10: hex-alliance fix works live (174251): one send, city 572199 → 966030, item 7 → 6. The game's reply was not
+  caught, so the app reports "awaiting confirmation" rather than "Confirmed" — the move itself happened.
+- Equipment tab: real-tab fresh preset → dropdown → save → apply → restore, exact start state (proven).
+  Reconnect reload proven by mounted check only.
+- City pictures: 109/109 decoded, full-view screenshots.
+- Chat: Red Packet and Fireworks/Egg engines real (listener saw 227–254 messages); no claimable item appeared, so no
+  live claim. Treasure: automatic claim DISABLED on purpose (the game's reply cannot be matched to our request);
+  one earlier Treasure claim was sent and left unconfirmed, not retried.
+- Automation status list written: every card except Chat has NO real engine (preview only).
+- Disconnect: app restarts the game on purpose; first trigger unknown; logging added for next time.
+ZIP `artifacts/feature018-r23-final-66f1dbe8/release/LW-Control-FEATURE-018-R23-OWNER-TEST-66f1dbe834ce.zip`
+SHA-256 aef365c1…2d93fa1: re-hashed, CRC ok, 120 entries, SOURCE-COMMIT = 66f1dbe8, no test UID.
