@@ -485,15 +485,17 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 break;
             case "feature018_equipment_preflight":
             {
-                // Only a slot ordinal is admitted. Reject even apparently
-                // benign extra fields; a forged equipmentPresets, owner UID,
-                // item use or stale client snapshot must not enter Lua.
-                if (payload.EnumerateObject().Count() != 1 ||
+                // The real profile-scoped WebView adds profileId. It is only
+                // routing metadata; all gear and native authority stay trusted.
+                var keys = new HashSet<string>(StringComparer.Ordinal);
+                if (payload.EnumerateObject().Any(p => p.Name is not ("slot" or "profileId") || !keys.Add(p.Name)) ||
+                    (payload.TryGetProperty("profileId", out JsonElement profile) &&
+                     (profile.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(profile.GetString()) || profile.GetString()!.Length > 128)) ||
                     !payload.TryGetProperty("slot", out JsonElement requestedSlot) ||
                     requestedSlot.ValueKind != JsonValueKind.Number ||
                     !requestedSlot.TryGetInt32(out int slot) || slot is < 1 or > 4)
                     throw new BridgeCommandException("INVALID_REQUEST",
-                        "Equipment preflight accepts only the preset slot number 1–4.");
+                        "Equipment preflight accepts the preset slot 1–4 and profile routing only.");
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
                 break;
             }

@@ -94,6 +94,17 @@ internal static class Feature018EquipmentProviderChecks
 
     internal static async Task RunAsync()
     {
+        var routedPreflight = Feature018GameCommandService.ReadFields("feature018_equipment_preflight",
+            JsonSerializer.SerializeToElement(new { slot = 2, profileId = "real-webview-profile" }));
+        Require(routedPreflight.Count == 1 && routedPreflight["slot"] == "2" && !routedPreflight.ContainsKey("profileId"),
+            "WebView equipment preflight must accept routing without forwarding it as native authority");
+        foreach (var forged in new object[] { new { slot = 2, profileId = "profile", authorizedUid = "123" }, new { slot = 2, profileId = "" } })
+        {
+            bool rejected = false;
+            try { Feature018GameCommandService.ReadFields("feature018_equipment_preflight", JsonSerializer.SerializeToElement(forged)); }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { rejected = true; }
+            Require(rejected, "preflight accepted forged authority or invalid routing");
+        }
         var live = new JsonObject { ["operationId"] = new string('a', 32), ["heroUuid"] = "101", ["equipSlot"] = 2,
             ["equipUuid"] = "501", ["expectedEquipUuid"] = "", ["expectedWearerUuid"] = "" };
         var parsed = Feature018GameCommandService.ReadFields("feature018_equipment_edit", Element(live));
