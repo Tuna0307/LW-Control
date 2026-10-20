@@ -1177,3 +1177,36 @@ show (HQ, Tank Center, Hospital…).
 - Disconnect: app restarts the game on purpose; first trigger unknown; logging added for next time.
 ZIP `artifacts/feature018-r23-final-66f1dbe8/release/LW-Control-FEATURE-018-R23-OWNER-TEST-66f1dbe834ce.zip`
 SHA-256 aef365c1…2d93fa1: re-hashed, CRC ok, 120 entries, SOURCE-COMMIT = 66f1dbe8, no test UID.
+
+## Owner test of R23 and R24 assignment — 2026-10-20
+Owner results (R23 ZIP, own account):
+1. Q: "Previous native attack is still awaiting confirmation; fresh order not sent". Owner: the first Q was sent
+   while the squad was inside BLACK TILES (the game does not allow changing a march's target there). After the squad
+   left the black tiles, every new Q kept failing with this message. So a redirect the game silently refused leaves
+   our "uncertain" fence up forever.
+   Fix: (a) before sending a redirect, use the game's own check (can this march change target now — black tile /
+   blocked state) and refuse with a clear message WITHOUT sending; (b) an uncertain redirect must settle within a few
+   seconds by reading the march: target/startTime unchanged ⇒ game refused it ⇒ clear the fence and say so; the next
+   press must work. Never replay automatically.
+2. F10: relocation SUCCEEDED, but the app showed the error "AllianceRelocate:
+   game_message_sent_without_independent_state_confirmation" (Feature018HotkeyNativeProviders.cs ~239). R23 live proof
+   already showed the reliable evidence (city position changed + one relocation item used). Fix: confirm F10 (and F9)
+   from that after-state and show success; never show raw internal codes to the owner — use a plain message.
+3. Equipment Schemes:
+   - error "Current equipped item disagrees with native inventory: wearer mismatch" when changing a dropdown
+     (tools/feature018_equipment_actions.lua); the tab then shows Preset 1 with only 1 item. Find which data
+     disagree (snapshot cache vs live inventory after a change; item moved between heroes) and fix — refresh the
+     snapshot instead of failing, and only block when the game really disagrees after a fresh read.
+   - drag and drop does not work: the original 0.3.17 tab lets you drag a single item or a full set between
+     positions/squads (texts "Drag squad equipment", "Drag equipment set"). The native tab (NativeEquipmentContent.jsx)
+     has no drag handlers. Recover drag-and-drop with the original rules (same slot only; hero stays fixed).
+   - "Save current squads" should fill all 4 slots for all positions; the hint should disappear after saving.
+4. REMOVE the Space shield countdown feature (owner decision, OWNER_DIRECTION): Hotkeys card, Space key capture,
+   overlay and native visible-city shield reader, locale text, checks. Keep F6/F7/F8 shield items.
+R24: fix 1–4, owner-test ZIP (R24 package). Background only; owner tests keys. Prove 1 via native commands (a
+blocked-redirect case if a black-tile march can be arranged; otherwise offline + timing proof), 2 via a background
+F10 on 4799432499002212 if an item and rally remain (else offline), 3 through the real tab (change → save → apply →
+restore; drag one item; drag a full set). Owner reminder: close your own LW-Control app and game first.
+
+### R24 progress (worker updates this)
+- (none yet)
