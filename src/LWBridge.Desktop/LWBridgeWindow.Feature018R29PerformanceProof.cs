@@ -10,7 +10,7 @@ internal sealed partial class LWBridgeWindow
     // Land, shields, event claims, relocation or an equipment/building edit.
     private async Task RunFeature018R29PerformanceProofAsync(CoreWebView2 core,
         string outputPath, string directory, OverviewMapScanSession owner,
-        string uid, int serverId, CancellationToken token, bool scrollOnly = false)
+        string uid, int serverId, CancellationToken token, bool scrollOnly = false, bool memoryOnly = false)
     {
         var lifecycle = overviewLifecycleService!;
         var approved = new Feature018HotkeySession(owner.ProfileId, owner.SessionId, uid, serverId);
@@ -79,6 +79,16 @@ internal sealed partial class LWBridgeWindow
         }
         await R29SweepSwitchLanguageAsync(core, "en", token, IsOwner);
         await R29SweepSetViewportAsync(core, 1600, token, IsOwner);
+        if (memoryOnly)
+        {
+            await R29SweepNavigateAsync(core, R29SweepSurfaces.First(s => s.Key == "home"), token, IsOwner);
+            await Hold("memory-idle-30m", 1800);
+            await R29SweepClearViewportAsync(core);
+            await File.WriteAllTextAsync(phaseFile, "{\"phase\":\"finished\"}", token);
+            await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new { state = "proven", uid, serverId,
+                osInputUsed = false, phases, finishedAtUtc = DateTimeOffset.UtcNow }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
+            return;
+        }
         if (scrollOnly)
         {
             foreach (string surface in new[] { "squads-equipment", "map-data", "city-layout" })

@@ -96,7 +96,8 @@ internal sealed partial class LWBridgeWindow
                     ShieldUse = true, Equipment = true,
                     RandomRelocate = true, AllianceRelocate = true }, JsonOptions.Default), token);
             await Save();
-            DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(35);
+            DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(
+                Environment.GetEnvironmentVariable("LWBRIDGE_R29_PERF_PROOF") == "1" ? 43 : 35);
             DateTimeOffset? missingOwnerSince = null;
             while (DateTimeOffset.UtcNow < expires)
             {
@@ -156,6 +157,7 @@ internal sealed partial class LWBridgeWindow
                                 "r29-sweep" => Path.Combine(directory, "r29-sweep-connected.json"),
                                 "r29-performance" => Path.Combine(directory, "r29-performance.json"),
                                 "r29-scroll" => Path.Combine(directory, "r29-scroll.json"),
+                                "r29-memory" => Path.Combine(directory, "r29-memory.json"),
                                 _ => Path.Combine(directory, "r23-" + surface + "-ui.json"),
                             };
                             if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
@@ -172,6 +174,8 @@ internal sealed partial class LWBridgeWindow
                                 await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "r29-scroll")
                                 await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token, scrollOnly: true);
+                            else if (surface == "r29-memory")
+                                await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token, memoryOnly: true);
                             else if (surface == "equipment")
                                 await RunFeature018R28EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "city")
