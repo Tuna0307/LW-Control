@@ -1580,6 +1580,17 @@ internal sealed partial class LWBridgeWindow : Form
         }
         if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
 
+        // R29 runs its genuine disconnected production matrix before this proof
+        // owns any game process. The harness then clicks the production Home
+        // Start control; the ordinary lifecycle loop below must still observe
+        // and authenticate that exact instance before connected work is admitted.
+        if (ownerFixNativeProof && !ownerFixRemoteProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_R29_SWEEP_PROOF") == "1")
+        {
+            using var disconnectedSweepCts = new CancellationTokenSource(TimeSpan.FromMinutes(4));
+            await RunFeature018R29DisconnectedSweepAsync(core, directory, disconnectedSweepCts.Token);
+        }
+
         // MAP-016 always chooses the fastest qualified scanner. The speed radio
         // group is gone, so verify the real owner UI reflects its removal.
         if (await core.ExecuteScriptAsync("document.querySelector('[name=map-scan-speed]') === null") != "true")

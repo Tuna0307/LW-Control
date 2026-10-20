@@ -42,7 +42,7 @@ function M.Pump()
     if not api.Owned(run.owner) then run.state='waiting';run.step='account_changed';return end
     local snapshot,error=api.Snapshot()
     if not snapshot or not snapshot.stamina then run.state='waiting';run.step='inventory_unavailable';run.lastError=error;return end
-    run.stamina=snapshot.stamina
+    run.stamina=snapshot.stamina;run.lastError=nil
     if run.pending then
         local pending=run.pending;local count=0
         for _,item in ipairs(snapshot.items or {})do if item.id==pending.item.id then count=item.count end end

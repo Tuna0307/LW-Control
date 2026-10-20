@@ -122,7 +122,7 @@ end
 function M.Pump()
     if not run or not run.running then return end
     if not api.Owned(run.owner) then run.state='waiting';run.step='account_changed';return end
-    run.state='running';run.rows={}
+    run.state='running';run.rows={};run.lastError=nil
     local profiles=enabled_profiles(run.config)
     local configured={};for _,p in ipairs(profiles)do configured[p.id]=true end
     for _,job in pairs(run.pending)do

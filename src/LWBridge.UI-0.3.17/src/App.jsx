@@ -205,7 +205,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [mapSummary, setMapSummary] = useState(null);
   const [serverTarget, setServerTarget] = useState("");
   const [serverJumpBusy, setServerJumpBusy] = useState(0);
-  const [serverJumpError, setServerJumpError] = useState("");
+  const [serverJumpErrorKey, setServerJumpErrorKey] = useState("");
   const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
   const [statusPairReady, setStatusPairReady] = useState(backendBridge.mode === "preview");
@@ -995,7 +995,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     let closed = false;
     serverHistoryRef.current = [];
     setServerHistory([]);
-    setServerJumpError("");
+    setServerJumpErrorKey("");
     mapApi.importServerJumpHistory(legacyServerHistory()).then((history) => {
       if (!closed) {
         serverHistoryRef.current = history;
@@ -1003,7 +1003,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
       try { localStorage.removeItem(LEGACY_SERVER_HISTORY_KEY); } catch {}
     }).catch(() => {
-      if (!closed) setServerJumpError(t("common.actionFailed"));
+      if (!closed) setServerJumpErrorKey("common.actionFailed");
     });
     return () => { closed = true; };
   }, [selectedProfileId]);
@@ -1294,19 +1294,19 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const jumpServer = useCallback(async (serverId) => {
     if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {
-      setServerJumpError(t("server.invalidId"));
+      setServerJumpErrorKey("server.invalidId");
       return;
     }
     if (!online) {
-      setServerJumpError(t("status.gameDisconnected"));
+      setServerJumpErrorKey("status.gameDisconnected");
       return;
     }
     if (mapRuntime.isReading) {
-      setServerJumpError(t("server.stopScanFirst"));
+      setServerJumpErrorKey("server.stopScanFirst");
       return;
     }
     setServerJumpBusy(serverId);
-    setServerJumpError("");
+    setServerJumpErrorKey("");
     try {
       const result = await requestServerJump(serverId);
       if (result.changed) {
@@ -1318,11 +1318,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       setServerTarget("");
       setServerJumpOpen(false);
     } catch {
-      setServerJumpError(t("common.actionFailed"));
+      setServerJumpErrorKey("common.actionFailed");
     } finally {
       setServerJumpBusy(0);
     }
-  }, [mapRuntime.isReading, online, requestServerJump, t]);
+  }, [mapRuntime.isReading, online, requestServerJump]);
 
   const serverJumpBlockedText = online
     ? mapRuntime.isReading ? t("server.stopScanFirst") : ""
@@ -1348,7 +1348,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     disconnected: t("status.disconnected"),
     stopped: t("setup.gameStopped"),
     preview: "Preview",
-    unavailable: "Unavailable",
+    unavailable: t("status.componentUnavailable"),
     checking: t("status.checking"),
   }[bridgeState] || t("status.checking");
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
@@ -1407,6 +1407,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       profileId: selectedProfileId,
       ...(showProfiles ? { activeTab: squadTab, onActiveTabChange: setSquadTab } : {}),
     },
+    settings: { nativeUpdateStatus: shellUpdateStatus },
   };
 
   return (
@@ -1514,7 +1515,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
                   <div className="server-jump-home"><span>{t("server.home", { server: mapRuntime.homeServerId })}</span><button type="button" disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(mapRuntime.homeServerId)}>{t("server.returnHome")}</button></div>
                 ) : null}
                 {serverJumpBlockedText ? <p className="server-jump-error">{serverJumpBlockedText}</p> : null}
-                {serverJumpError ? <p className="server-jump-error">{serverJumpError}</p> : null}
+                {serverJumpErrorKey ? <p className="server-jump-error">{t(serverJumpErrorKey)}</p> : null}
                 {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>{t("server.seasonServers")}</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
                 {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>{t("server.plunderableServers")}</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
                 {serverHistory.length ? <div className="server-jump-history"><span>{t("server.recent")}</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}

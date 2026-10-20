@@ -22,7 +22,7 @@ import {
 } from "./mapAutoConfig.js";
 import { useI18n } from "./i18n.jsx";
 import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskState, otherTypeName, suppliesNameKey, validMapJumpCoordinates } from "./mapTablePresentation.js";
-import { isNameFilterKind, translateActionError } from "./mapInteractions.js";
+import { isNameFilterKind, plainErrorDetail, translateActionError } from "./mapInteractions.js";
 import { MapTreasureTypeFilter } from "./MapTreasureTypeFilter.jsx";
 import { MapRetainedGoodsFilter } from "./MapRetainedGoodsFilter.jsx";
 import { MapGhostRewardFilter } from "./MapGhostRewardFilter.jsx";
@@ -78,10 +78,7 @@ function decodeAllianceFilter(value) {
 }
 
 function errorText(error) {
-  if (!error) return "";
-  const code = typeof error.code === "string" ? error.code : "";
-  const message = typeof error.message === "string" ? error.message : String(error);
-  return [code, message].filter(Boolean).join(": ");
+  return plainErrorDetail(error);
 }
 
 function coordinateText(row) {
@@ -452,7 +449,7 @@ export function MapDataPage({
         }
         if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: "" });
       } catch (error) {
-        if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: errorText(error) });
+        if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: translateActionError(t, error) });
       }
     })();
     return () => { retired = true; localeRequestGeneration.current += 1; };
@@ -540,7 +537,7 @@ export function MapDataPage({
       setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
       setOtherSubtype((current) => !current || (loaded.otherTypes || []).some((item) => item.key === current) ? current : "");
     } catch (error) {
-      if (generation === optionsGeneration.current && mountedOwnerRef.current) setQueryError(errorText(error));
+      if (generation === optionsGeneration.current && mountedOwnerRef.current) setQueryError(translateActionError(t, error));
     }
   }, [backendAvailable, mapApi, onCounts, allServers]);
 
@@ -565,7 +562,7 @@ export function MapDataPage({
       }
     } catch (error) {
       if (generation !== summaryGeneration.current || !mountedOwnerRef.current) return;
-      setScanError(errorText(error));
+      setScanError(translateActionError(t, error));
     }
   }, [backendAvailable, commitScanState, mapApi]);
 
@@ -742,7 +739,7 @@ export function MapDataPage({
         setTotal(0);
         // An aggregate Saved-server query can fail independently of its cached
         // options. Surface the real rejection instead of claiming zero rows.
-        setQueryError(errorText(error));
+        setQueryError(translateActionError(t, error));
       }
     }).finally(() => {
       if (generation === searchGeneration.current && mountedOwnerRef.current) setLoading(false);
@@ -825,7 +822,7 @@ export function MapDataPage({
       setScanStateAvailable(true);
       if (next.isReading && next.serverId > 0) setBrowseServerId(next.serverId);
     } catch (error) {
-      setScanError(errorText(error));
+      setScanError(translateActionError(t, error));
     }
   }
 
@@ -841,7 +838,7 @@ export function MapDataPage({
       // choice; startScan/active-status already select an actual new target.
       if (!externallyManaged) await refreshSummary();
     } catch (error) {
-      setScanError(errorText(error));
+      setScanError(translateActionError(t, error));
     }
   }
 
@@ -885,7 +882,7 @@ export function MapDataPage({
       setSearchRevision((value) => value + 1);
       setOptionsRevision((value) => value + 1);
     } catch (error) {
-      setScanError(errorText(error));
+      setScanError(translateActionError(t, error));
     }
   }
 
@@ -1002,7 +999,7 @@ export function MapDataPage({
         setFollowing({ key: followKey, kind: tab, serverId: row.serverId, marchUuid, arriveTs: Number(row.arriveTs) || 0, mapApi });
       } else await mapApi.coordinateJump(row);
     }
-    catch (error) { if (currentNavigation()) setQueryError(errorText(error)); }
+    catch (error) { if (currentNavigation()) setQueryError(translateActionError(t, error)); }
     finally { if (currentNavigation()) setActionBusy(""); }
   }
 
@@ -1034,7 +1031,7 @@ export function MapDataPage({
         await following.mapApi.marchFollow(following);
       } catch (error) {
         if (!retired && token === followGeneration.current && mountedOwnerRef.current) {
-          setQueryError(errorText(error));
+          setQueryError(translateActionError(t, error));
           followGeneration.current += 1;
           setFollowing(null);
         }
@@ -1049,7 +1046,7 @@ export function MapDataPage({
     try {
       await mapApi.setPlayerMark(row, !row.marked);
       setSearchRevision((value) => value + 1);
-    } catch (error) { setQueryError(errorText(error)); }
+    } catch (error) { setQueryError(translateActionError(t, error)); }
     finally { setActionBusy(""); }
   }
 
@@ -1146,7 +1143,7 @@ export function MapDataPage({
         setSearchRevision((value) => value + 1);
       }
     } catch (error) {
-      if (currentPreviewOperation(operation)) setActionMessage(errorText(error));
+      if (currentPreviewOperation(operation)) setActionMessage(translateActionError(t, error));
     } finally {
       retirePreviewOperation(operation);
     }

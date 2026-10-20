@@ -9,6 +9,7 @@ const {JSDOM}=req("jsdom"),{build}=req("esbuild"),React=req("react");
 const dom=new JSDOM('<div id="root"></div><button role="tab" aria-selected="false">Next tab</button>',{url:"http://localhost"});
 for(const key of ["window","document","HTMLElement","Node","localStorage"])globalThis[key]=key==="window"?dom.window:dom.window[key];
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+localStorage.setItem("lwbridge.language","en");
 let listener,owner="A",nextTimer=0;const timers=new Map();
 window.setTimeout=(fn,ms)=>{assert.equal(ms,6000);timers.set(++nextTimer,fn);return nextTimer;};
 window.clearTimeout=id=>timers.delete(id);
@@ -33,6 +34,9 @@ await emitRelocation("RandomRelocate","Confirmed","verified_native_game_state_ob
 await flush(()=>[...timers.values()][0]());assert.ok(!shown());
 await emitRelocation("AllianceRelocate","Submitted","game_message_sent_without_independent_state_confirmation");assert.ok(shown());assert.doesNotMatch(document.body.textContent,/game_message_sent_without_independent_state_confirmation/);assert.match(document.body.textContent,/F10: Relocation was sent/);
 await flush(()=>document.querySelector(".hotkey-feedback button").click());assert.ok(!shown());
+await flush(()=>listener({profileId:"A",payload:{status:"Failed",kind:"ApplyEquipmentPreset",slot:2,reason:"raw internal equipment failure"}}));
+assert.match(document.body.textContent,/Alt\+2: The shortcut action could not be confirmed/);assert.doesNotMatch(document.body.textContent,/ApplyEquipmentPreset|raw internal equipment failure/);
+await flush(()=>document.querySelector(".hotkey-feedback button").click());assert.ok(!shown());
 owner="B";await emit();assert.ok(!shown(),"Retired owner event must stay silent");
 await flush(()=>mounted.unmount());dom.window.close();
-console.log("R21_HOTKEY_FEEDBACK_OK: six-second expiry, close, route/subtab clear, attack silent success, relocation success/plain pending, retired owner");
+console.log("R21_HOTKEY_FEEDBACK_OK: six-second expiry, close, route/subtab clear, attack silent success, localized/plain feedback, owner-facing keys, retired owner");

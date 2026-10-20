@@ -471,9 +471,11 @@ assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
   const profileRunControl = sidebarSource.slice(profileRunStart,
     sidebarSource.indexOf('</button>', profileRunStart) + '</button>'.length);
   assert.match(profileRunControl, /disabled=\{!!batchBusy \|\| runBusyIds\.has\(profile\.id\)/,
-    "F-07 selected A metadata/view busy must not block B's independent Start/Stop");
+    "sidebar lifecycle control must retain exact-owner busy fencing");
+  assert.match(profileRunControl, /!running && \(runBusyIds\.size > 0 \|\| stopIds\.length > 0 \|\| \(!!readInstance && !instanceKnown\)/,
+    "one-game owner direction must fence idle Starts while lifecycle ownership is unknown, pending or already held");
   assert.doesNotMatch(profileRunControl, /disabled=\{busy \|\|/,
-    "F-07 global profile busy cannot replace exact-owner admission gating");
+    "global profile metadata busy cannot replace exact-owner lifecycle admission gating");
 }
 {
   const homeControls = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");

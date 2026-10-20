@@ -3,10 +3,19 @@ import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 const clone = (value) => structuredClone(value);
 const list = (value) => Array.isArray(value) ? value : [];
 export const equipmentSlots = Object.freeze([1, 2, 3, 4]);
+const livePendingByBridge = new WeakMap();
+function livePendingStore(bridge) {
+  let store = livePendingByBridge.get(bridge);
+  if (!store) { store = new Map(); livePendingByBridge.set(bridge, store); }
+  return store;
+}
 export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), now = Date.now, timeoutMs = 30000 } = {}) {
   assertBridgeProfileOwner(bridge, profileId);
   const owner = bridge.currentProfileOwner();
-  let identity = "", pending = null;
+  let identity = "";
+  const pendingStore = livePendingStore(bridge);
+  const getPending = () => pendingStore.get(profileId) || null;
+  const setPending = (value) => { if (value) pendingStore.set(profileId, value); else pendingStore.delete(profileId); };
   const assertOwner = () => {
     assertBridgeProfileOwner(bridge, profileId);
     if (!bridge.isCurrentProfileOwner(owner)) throw Object.assign(new Error("Equipment profile changed."), { code: "PROFILE_GENERATION_RETIRED" });
@@ -29,24 +38,26 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
     while (!result?.equipmentApplied) {
       if (now() >= deadline) throw Object.assign(new Error("Equipment confirmation is pending. Resume confirmation before another change."), { code: "EQUIPMENT_CONFIRMATION_PENDING" });
       await wait(150); assertOwner();
+      const pending = getPending();
+      if (!pending) throw Object.assign(new Error("No equipment change is pending."), { code: "EQUIPMENT_EDIT_REJECTED" });
       try { result = await invoke(pending.command, { ...pending.query, queryOnly: true }); }
       catch (error) {
         // The native editor uses this code only when it has no transaction
         // for this operation (or rejects it before dispatch). A failed local
         // mailbox publication can therefore be released without replaying it.
-        if (error.code === "EQUIPMENT_EDIT_REJECTED") pending = null;
+        if (error.code === "EQUIPMENT_EDIT_REJECTED") setPending(null);
         if (!interrupted(error)) throw error;
       }
     }
     // Completion is already authenticated. A subsequent read failure must not
     // leave an equipment transaction fenced forever; normal sync can retry it.
-    pending = null; return snapshot();
+    setPending(null); return snapshot();
   };
   return {
     snapshot, assertOwner,
     readPresets: () => invoke("equipment_config_get"),
     async savePreset(slot, name, defaultPresetName) {
-      if (pending) throw new Error("Wait for the current equipment change to finish.");
+      if (getPending()) throw new Error("Wait for the current equipment change to finish.");
       if (!equipmentSlots.includes(slot) || !name.trim()) throw new Error("Choose a preset from 1 to 4 and enter its name.");
       const fresh = await snapshot();
       const config = normalizeEquipmentConfig(await invoke("equipment_config_get"), defaultPresetName);
@@ -55,7 +66,7 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
       return { snapshot: fresh, config: normalizeEquipmentConfig(await invoke("equipment_config_save", config)) };
     },
     async applyPreset(slot) {
-      if (pending) throw new Error("Wait for the current equipment change to finish.");
+      if (getPending()) throw new Error("Wait for the current equipment change to finish.");
       if (!equipmentSlots.includes(slot)) throw new Error("Equipment preset slot must be 1–4.");
       const fresh = await snapshot();
       // Validate the trusted saved ordinal read-only before establishing an
@@ -68,37 +79,37 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
         }
       }
       const payload = { action: "equipment", slot, expectedGameUid: fresh.ownerUid, expectedServerId: fresh.serverId };
-      pending = { command: "feature018_hotkey_action", query: payload };
+      setPending({ command: "feature018_hotkey_action", query: payload });
       let first;
-      try { first = await invoke(pending.command, payload); }
+      try { first = await invoke("feature018_hotkey_action", payload); }
       catch (error) {
-        if (definitelyNotSent(error)) { pending = null; throw error; }
+        if (definitelyNotSent(error)) { setPending(null); throw error; }
         if (interrupted(error) || error.code === "INTERNAL_ERROR") return confirm(null);
         throw error;
       }
       return confirm(first);
     },
     async edit(position, slot, equipUuid, displayed) {
-      if (pending) throw new Error("Wait for the current equipment change to finish.");
+      if (getPending()) throw new Error("Wait for the current equipment change to finish.");
       assertOwner();
       const current = position.equips.find((item) => item.slot === slot)?.equipUuid || "";
       const item = displayed.items.find((item) => item.equipUuid === equipUuid);
       const operationId = globalThis.crypto.randomUUID().replaceAll("-", "");
-      pending = { command: "feature018_equipment_edit", query: { operationId } };
+      setPending({ command: "feature018_equipment_edit", query: { operationId } });
       let first;
       try { first = await invoke("feature018_equipment_edit", { operationId, heroUuid: position.heroUuid, equipSlot: slot, equipUuid, expectedEquipUuid: current, expectedWearerUuid: item?.heroUuid || "", expectedGameUid: displayed.ownerUid, expectedServerId: displayed.serverId }); }
       catch (error) {
-        if (definitelyNotSent(error)) { pending = null; throw error; }
+        if (definitelyNotSent(error)) { setPending(null); throw error; }
         if (interrupted(error) || error.code === "INTERNAL_ERROR") return confirm(null);
         throw error;
       }
       return confirm(first);
     },
     async resume() {
-      if (!pending) throw new Error("No equipment change is pending.");
+      if (!getPending()) throw new Error("No equipment change is pending.");
       return confirm(null);
     },
-    get pending() { return Boolean(pending); },
+    get pending() { return Boolean(getPending()); },
     localize: (language, keys) => invoke("lastwar_map_localize", { language, keys }),
   };
 }

@@ -1431,3 +1431,8 @@ active journal. (Node processes running are the owner's CoS/Codex/REA tool serve
 - ZIP: not built.
 Next worker: review + commit the Part B work (do not discard), finish the live sweep and its table, do Part C with
 real numbers, then the R29 ZIP.
+
+### R29 progress - resumed worker checkpoint (2026-10-20)
+- Reviewed and retained all inherited Part B source, locale, mounted-check and Lua recovery fixes. Added the three new R29 checks to the canonical UI command. The unfinished packaged sweep harness and passive Part C sampler are preserved; live sweep and performance acceptance remain OPEN. The owner-created `.claude/launch.json` is unrelated and remains untouched/untracked.
+- Current verification: full canonical UI check and the three R29 checks PASS; Release Desktop.Checks PASS through HOME_FEATURE_DELIVERY_CHECKS_OK; all FEATURE018 Lua/offline suites PASS; original-package roundtrip PASS with the installed admitted v26 originals unchanged; passive sampler selftest PASS. Logs: `artifacts/r29-resume-{ui,desktop,lua}-check.log` and `artifacts/r29-resume-original-package-check.log`. The initial concurrent UI check raced the desktop build's npm-ci removal of node_modules; rerunning after that build passed. No live game started at this checkpoint.
+- Next: correct sweep-harness asynchronous click/state observations, run the genuine packaged connected/disconnected matrix, then collect and fix measured Part C costs. No completion, merge or ZIP claim yet.

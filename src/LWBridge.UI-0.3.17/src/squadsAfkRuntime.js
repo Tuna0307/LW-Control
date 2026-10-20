@@ -16,8 +16,11 @@ export function normalizeMonsterAfkConfig(value) {
 export function normalizeAfkCatalog(value = {}) {
   return { ...value, options: (Array.isArray(value.options) ? value.options : []).map((target) => ({ ...target, monsterIds: Array.isArray(target.monsterIds) ? target.monsterIds : [] })), unlockedSquads: Array.isArray(value.unlockedSquads) ? value.unlockedSquads : [] };
 }
-export function createMonsterAfkAdapter(bridge, profileId, valid) {
-  const invoke = (command, payload = {}) => { assertBridgeProfileOwner(bridge, profileId); return bridge.invokeProfileScoped(command, payload); };
+function connectionUnavailableError() {
+  return Object.assign(new Error("Game connection is unavailable."), { code: "GAME_CONNECTION_UNAVAILABLE" });
+}
+export function createMonsterAfkAdapter(bridge, profileId, valid, isOnline = () => true) {
+  const invoke = (command, payload = {}) => { assertBridgeProfileOwner(bridge, profileId); if (!isOnline()) throw connectionUnavailableError(); return bridge.invokeProfileScoped(command, payload); };
   return {
     valid,
     read: async () => normalizeMonsterAfkConfig((await invoke("get_status"))?.config?.tasks?.monsterSweep),
@@ -38,8 +41,8 @@ export function createMonsterAfkAdapter(bridge, profileId, valid) {
     },
   };
 }
-export function createStaminaPotionAdapter(bridge, profileId, valid) {
-  const invoke = (command, payload = {}) => { assertBridgeProfileOwner(bridge, profileId); return bridge.invokeProfileScoped(command, payload); };
+export function createStaminaPotionAdapter(bridge, profileId, valid, isOnline = () => true) {
+  const invoke = (command, payload = {}) => { assertBridgeProfileOwner(bridge, profileId); if (!isOnline()) throw connectionUnavailableError(); return bridge.invokeProfileScoped(command, payload); };
   return {
     valid,
     read: async () => ({ ...emptyStaminaConfig(), ...((await invoke("get_status"))?.config?.tasks?.staminaPotion || {}) }),

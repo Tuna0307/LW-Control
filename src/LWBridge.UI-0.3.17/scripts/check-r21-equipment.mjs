@@ -9,7 +9,7 @@ import { liveEquipmentTexts } from "../src/locales/feature018-equipment-live.js"
 import { equipmentPresetTexts } from "../src/locales/feature018-equipment-presets.js";
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
   assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
-  assert.equal(Object.keys(liveEquipmentTexts[language]).length, 9);
+  assert.equal(Object.keys(liveEquipmentTexts[language]).length, 14);
   assert.equal(Object.keys(equipmentPresetTexts[language]).length, 10);
   for (const value of Object.values(equipmentPresetTexts[language])) assert.ok(value.length > 0);
   for (const value of Object.values(liveEquipmentTexts[language])) assert.ok(value.length > 0);
@@ -160,6 +160,35 @@ await assert.rejects(() => noTransaction.edit(baseline.squads[0].positions[0], 1
 assert.equal(noTransaction.pending, false);
 assert.equal(starts, 1, "Failed publication may only be queried, never automatically replayed");
 
+// A profile-generation retirement after the native edit was accepted must not
+// orphan the operation ID. A fresh runtime for the same bridge/profile resumes
+// by querying the exact original ID and never sends a second mutation.
+let orphanGeneration = 1, orphanStarts = 0, orphanQueries = 0, orphanOperationId = "";
+const orphanBridge = {
+  available: true, profileId: "A",
+  currentProfileOwner: () => ({ profileId: "A", generation: orphanGeneration }),
+  isCurrentProfileOwner: (owner) => owner?.profileId === "A" && owner.generation === orphanGeneration,
+  async invokeProfileScoped(command, payload = {}) {
+    if (command === "feature018_equipment_snapshot") return structuredClone(baseline);
+    if (command !== "feature018_equipment_edit") throw new Error(`Unexpected orphan command ${command}`);
+    if (!payload.queryOnly) {
+      orphanStarts += 1; orphanOperationId = payload.operationId; orphanGeneration += 1;
+      return { equipmentApplied: false };
+    }
+    orphanQueries += 1; assert.equal(payload.operationId, orphanOperationId);
+    return { equipmentApplied: true };
+  },
+};
+const orphaned = createLiveEquipmentRuntime(orphanBridge, "A", { wait: async () => {} });
+await assert.rejects(() => orphaned.edit(baseline.squads[0].positions[0], 1, "502", baseline), (error) => error.code === "PROFILE_GENERATION_RETIRED");
+assert.equal(orphaned.pending, true, "Retired runtime must retain only the original confirmation identity");
+const remountedOrphan = createLiveEquipmentRuntime(orphanBridge, "A", { wait: async () => {} });
+assert.equal(remountedOrphan.pending, true, "Remounted profile must see the unresolved original edit");
+await remountedOrphan.resume();
+assert.equal(orphanStarts, 1, "Remount recovery must never replay an equipment edit");
+assert.equal(orphanQueries, 1);
+assert.equal(remountedOrphan.pending, false);
+
 for (const preset of [false, true]) {
   const failedBridge = fakeBridge(); let edits = 0, queries = 0;
   failedBridge.invokeProfileScoped = async (command, payload = {}) => {
@@ -203,11 +232,14 @@ const current = structuredClone(baseline);
 current.items[0].heroUuid = "20002"; current.items[1].heroUuid = "";
 const calls = []; let pending, retired = false, savedPresets = { equipmentPresets: [{ id: "legacy-preset", name: "Existing preset", squads: equipmentPositionSnapshot(baseline) }] };
 const liveBridge = {
-  available: true, profileId: "A", currentProfileOwner: () => ({ profileId: "A", generation: 1 }),
+  available: true, profileId: "A", configFailures: 1, currentProfileOwner: () => ({ profileId: "A", generation: 1 }),
   isCurrentProfileOwner: () => !retired,
   async invokeProfileScoped(command, payload = {}) {
     calls.push({ command, payload: structuredClone(payload) });
-    if (command === "equipment_config_get") return structuredClone(savedPresets);
+    if (command === "equipment_config_get") {
+      if (liveBridge.configFailures > 0) { liveBridge.configFailures -= 1; throw Object.assign(new Error("RAW_CONFIG_GET_FAILURE"), { code: "GAME_RESPONSE_TIMEOUT" }); }
+      return structuredClone(savedPresets);
+    }
     if (command === "feature018_equipment_preflight") {
       if (liveBridge.statePending > 0) { liveBridge.statePending--; throw Object.assign(new Error("Native slot/wearer pushes are still updating"), { code: "EQUIPMENT_STATE_PENDING" }); }
       if (liveBridge.preflightError) throw Object.assign(new Error("Saved item is no longer owned"), { code: "GAME_PRECONDITION_FAILED" });
@@ -244,11 +276,17 @@ await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.cre
 assert.equal(document.querySelectorAll('select').length, 8);
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501");
 assert.doesNotMatch(document.body.textContent, /Plan only|Save configuration|Restore initial|Save current squads/);
-assert.equal(document.querySelectorAll('[data-equipment-preset]').length, 4);
+assert.doesNotMatch(document.body.textContent, /RAW_CONFIG_GET_FAILURE/, "Raw config read failures must not be user-visible");
+assert.equal(document.querySelectorAll('[data-equipment-preset]').length, 0, "Failed preset read must not fabricate config");
+await flush(() => tick());
+assert.equal(document.querySelectorAll('[data-equipment-preset]').length, 4, "Preset read must recover on the normal sync poll");
 assert.match(document.body.textContent, /Existing preset/);
 assert.equal(document.querySelector('[data-equipment-level="501"]').textContent, "Lv.3");
 assert.equal(document.querySelector('[data-inventory-equip="502"] [data-equipment-level]').textContent, "Lv.4");
 assert.match(document.querySelector('select[aria-label="1:2:1"] option[value="502"]').textContent, /Lv.4/);
+assert.doesNotMatch(document.querySelector('select[aria-label="1:2:1"] option[value="502"]').textContent, /502/, "Equipment UUID must not be visible in dropdown labels");
+assert.match(document.body.textContent, /Unknown hero/, "Missing native hero text must use a user-safe generic label");
+assert.doesNotMatch(document.body.textContent, /#(?:201|20005|501|502)/, "Raw fallback identifiers must not be rendered to users");
 assert.equal([...document.querySelectorAll('button')].filter(b => b.textContent === 'Refresh').length, 0, 'Inner editor must not duplicate page Refresh');
 assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "synced");
 const selectValue = async (label, value) => flush(() => {
@@ -310,7 +348,8 @@ for (let slot = 1; slot <= 4; slot++) {
 }
 liveBridge.preflightError = true;
 await flush(() => document.querySelector('[data-equipment-action="equip-preset"]').click());
-assert.match(document.querySelector('[role="alert"]').textContent, /no longer owned/);
+assert.match(document.querySelector('[role="alert"]').textContent, /Equipment state changed/);
+assert.doesNotMatch(document.querySelector('[role="alert"]').textContent, /no longer owned|GAME_PRECONDITION_FAILED/, "Native equipment errors must be localized/user-safe");
 assert.equal(document.querySelector('[data-equipment-action="save-preset"]').disabled, false, "A rejected read-only preflight must leave presets editable");
 assert.equal(calls.filter(c => c.command === "feature018_hotkey_action").length, 0, "A failed preflight must never send Apply");
 liveBridge.preflightError = false;
@@ -324,6 +363,12 @@ for (let slot = 1; slot <= 4; slot++) {
   assert.deepEqual(equipmentPositionSnapshot(current), beforeCaptures, `Preset ${slot} must equip through its hotkey ordinal`);
 }
 assert.deepEqual(calls.filter(c => c.command === "feature018_hotkey_action" && !c.payload.queryOnly).map(c => c.payload.slot), [1, 2, 3, 4]);
+const callsBeforeOffline = calls.length;
+await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: liveBridge, online: false }))));
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "offline");
+assert.match(document.querySelector('[data-equipment-sync]').textContent, /Game disconnected/);
+assert.equal(tick, undefined, "Offline Equipment must stop its polling interval");
+assert.equal(calls.length, callsBeforeOffline, "Offline Equipment must not issue native reads");
 await flush(() => mounted.unmount()); assert.equal(tick, undefined);
 
 let nativeReceiver; const wireCalls = [];

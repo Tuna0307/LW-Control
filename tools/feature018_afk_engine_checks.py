@@ -77,10 +77,23 @@ def main():
         c.strategies={};assert(engine.Configure(c));engine.Pump()
         assert(sends==1 and cancels==1 and engine.Status().processed.p==0)
     ''')
+    lua.execute('''
+        local fail=true
+        engine.Bind({Owned=function()return true end,Free=function()return true end,
+            Stamina=function()return 100,10 end,
+            Targets=function()return {{uuid='m2',monster=true,level=10,monsterType=0,special=0}}end,
+            Send=function()if fail then fail=false;return nil,'TEMP_SEND_FAILURE' end;return 'native-token'end,
+            Observe=function()return {completed=false}end,MaxLevel=function()return 30 end})
+        local c={enabled=true,strategies={{id='recover',enabled=true,kind='farm',monsterType=0,
+            squadIndexes={1},executionLimit=0,levelFilterEnabled=true,minLevel=10,maxLevel=10}}}
+        assert(engine.Start({},c));engine.Pump();assert(engine.Status().lastError=='TEMP_SEND_FAILURE')
+        engine.Pump();assert(engine.Status().lastError==nil,'Recovered AFK cycle must clear stale lastError')
+        engine.Stop()
+    ''')
     for name in ['feature018_afk_native.lua', 'feature018_attack_actions.lua']:
         source = (ROOT / 'tools' / name).read_text(encoding='utf-8')
         assert lua.eval('function(s) local f,e=load(s);return f~=nil,e end')(source)[0], name
-    print('FEATURE018_AFK_ENGINE_CHECKS_OK: lifecycle, shared limits, pause, Stop, typed monster filters')
+    print('FEATURE018_AFK_ENGINE_CHECKS_OK: lifecycle, shared limits, pause, Stop, typed monster filters, transient error recovery')
 
 
 if __name__ == '__main__':

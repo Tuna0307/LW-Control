@@ -24,6 +24,8 @@ window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() 
 
 let receiver;
 const commands = [];
+let heldGet = null;
+let holdNextGet = false;
 const config = {
   attack: true,
   recall: true,
@@ -45,8 +47,21 @@ window.chrome = { webview: {
   postMessage(request) {
     if (request.kind !== "invoke") return;
     commands.push(request);
+    if (request.command === "hotkey_config_get" && holdNextGet) {
+      holdNextGet = false;
+      heldGet = request;
+      return;
+    }
+    if (request.command === "hotkey_config_save") {
+      Object.assign(config, request.payload);
+      queueMicrotask(() => receiver?.({ data: {
+        kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
+        id: request.id, ok: true, result: { ...config },
+      } }));
+      return;
+    }
     if (request.command !== "hotkey_config_get")
-      throw Error("Unexpected Hotkeys diagnostic/native command: " + request.command);
+      throw Error("Unexpected Hotkeys command: " + request.command);
     queueMicrotask(() => receiver?.({ data: {
       kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
       id: request.id, ok: true, result: { ...config },
@@ -121,6 +136,27 @@ assert.ok(commands.length >= 2, "Profile switch did not reload original Hotkeys 
 assert.equal(commands.every((request) => request.command === "hotkey_config_get"), true,
   "Profile switch invoked a removed worker diagnostic command");
 
+const attackSwitch = () => document.querySelector('[data-hotkey-category="hotkeys"] .hotkey-switch');
+holdNextGet = true;
+await flush(() => attackSwitch().click());
+assert.ok(heldGet, "Hotkey save did not enter its fresh-config read");
+assert.equal(attackSwitch().disabled, true, "Pending Hotkey save did not disable duplicate edits");
+backendBridge.setSelectedProfile("hotkeys-race-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "hotkeys-race-profile";
+await flush(() => mounted.render(React.createElement(I18nProvider, {},
+  React.createElement(HotkeysPage, { online: true }))));
+assert.equal(attackSwitch().disabled, false,
+  "Retired profile save left the new profile Hotkeys controls disabled");
+await flush(() => receiver?.({ data: {
+  kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
+  id: heldGet.id, ok: true, result: { ...config },
+} }));
+heldGet = null;
+assert.equal(attackSwitch().disabled, false,
+  "Late retired-profile config response restored a stale pending Hotkey state");
+assert.doesNotMatch(document.body.textContent, /PROFILE_GENERATION_RETIRED|Native command|hotkey_config_/,
+  "Retired profile save leaked a raw bridge error into Hotkeys");
+
 await flush(() => mounted.unmount());
 backendBridge.dispose();
-console.log("FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS cards=r24-six space=removed diagnostics=removed rapid=retired profileSwitch=clean");
+console.log("FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS cards=r24-six space=removed diagnostics=removed rapid=retired profileSwitch=clean pendingRace=retired");

@@ -4,10 +4,24 @@ import { backendBridge } from "./backendBridge.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { createLiveEquipmentRuntime, equipmentSlots, normalizeEquipmentConfig } from "./equipmentRuntime.js";
 
+function equipmentErrorText(t, state) {
+  if (!state) return "";
+  if (state.key) return t(state.key);
+  const code = state.failure?.code || state.code || "";
+  if (code === "CONFIG_FILE_BUSY") return t("squad.livePresetSaveFailed");
+  if (code === "GAME_COMMAND_NOT_PUBLISHED") return t("squad.liveEquipmentFileBusy");
+  if (code === "GAME_CONNECTION_UNAVAILABLE" || code === "GAME_DISCONNECTED") return t("status.gameDisconnectedDisabled");
+  if (code === "EQUIPMENT_CONFIRMATION_PENDING") return t("squad.liveEquipmentPending");
+  if (code === "PROFILE_GENERATION_RETIRED") return t("squad.liveEquipmentProfileChanged");
+  if (code === "GAME_ACCOUNT_CHANGED") return t("squad.liveEquipmentAccountChanged");
+  if (["GAME_PRECONDITION_FAILED", "EQUIPMENT_EDIT_REJECTED", "GAME_ACTION_UNCONFIRMED", "EQUIPMENT_STATE_PENDING"].includes(code)) return t("squad.liveEquipmentRejected");
+  return t("common.actionFailed");
+}
+
 export function NativeEquipmentContent({ profileId = "", online = true, active = true, refreshCount = 0, bridge = backendBridge }) {
   const { t, language } = useI18n();
   const [snapshot, setSnapshot] = useState(null), [busy, setBusy] = useState(""), [healthy, setHealthy] = useState(false);
-  const [error, setError] = useState(""), [notice, setNotice] = useState("");
+  const [error, setError] = useState(null), [notice, setNotice] = useState("");
   const [presets, setPresets] = useState(null), [selectedPreset, setSelectedPreset] = useState(0), [presetName, setPresetName] = useState("");
   const [localized, setLocalized] = useState({ context: "", values: {} });
   const [dragged, setDragged] = useState(null), [dropTarget, setDropTarget] = useState("");
@@ -15,14 +29,16 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
     if (!profileId || !bridge.available) return null;
     try { return createLiveEquipmentRuntime(bridge, profileId); } catch { return null; }
   }, [bridge, profileId]);
-  const activeRuntime = useRef(runtime), action = useRef(false), mutationGeneration = useRef(0), syncError = useRef(false);
+  const activeRuntime = useRef(runtime), action = useRef(false), mutationGeneration = useRef(0);
   activeRuntime.current = runtime;
   const textContext = `${profileId}|${language}`;
   const texts = localized.context === textContext ? localized.values : {};
   useEffect(() => {
-    let retired = false, reading = false;
-    setSnapshot(null); setHealthy(false); setError(""); setNotice(""); syncError.current = false;
+    let retired = false, reading = false, presetsLoaded = false;
+    setSnapshot(null); setHealthy(false); setError(null); setNotice(""); setPresets(null);
     if (!runtime || !online || !active) return undefined;
+    const fail = (source, failure) => { if (!retired) setError({ source, failure }); };
+    const recover = (source) => { if (!retired) setError((current) => current?.source === source ? null : current); };
     const read = async () => {
       if (retired || reading || action.current || runtime.pending) return;
       reading = true;
@@ -31,26 +47,25 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
         const fresh = await runtime.snapshot();
         if (!retired && generation === mutationGeneration.current) {
           setSnapshot(fresh); setHealthy(true);
-          if (syncError.current) { setError(""); syncError.current = false; }
+          recover("snapshot");
         }
       } catch (failure) {
-        if (!retired && generation === mutationGeneration.current) { syncError.current = true; setHealthy(false); setError(String(failure.message || failure)); }
-      } finally { reading = false; }
+        if (!retired && generation === mutationGeneration.current) { setHealthy(false); fail("snapshot", failure); }
+      }
+      if (!retired && !presetsLoaded && generation === mutationGeneration.current) {
+        try {
+          const value = await runtime.readPresets();
+          if (!retired && generation === mutationGeneration.current) {
+            const saved = normalizeEquipmentConfig(value, (number) => t("squad.presetDefaultName", { number }));
+            presetsLoaded = true; setPresets(saved); setPresetName(saved.equipmentPresets[selectedPreset].name); recover("presets");
+          }
+        } catch (failure) { fail("presets", failure); }
+      }
+      reading = false;
     };
     read();
     const timer = window.setInterval(read, 1500);
     return () => { retired = true; window.clearInterval(timer); };
-  }, [runtime, online, active, refreshCount]);
-  useEffect(() => {
-    let retired = false;
-    setPresets(null);
-    if (runtime && online && active) runtime.readPresets().then((value) => {
-      if (!retired) {
-        const saved = normalizeEquipmentConfig(value, (number) => t("squad.presetDefaultName", { number }));
-        setPresets(saved); setPresetName(saved.equipmentPresets[selectedPreset].name);
-      }
-    }).catch((failure) => { if (!retired) setError(String(failure.message || failure)); });
-    return () => { retired = true; };
   // Locale changes must not discard a name being edited.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runtime, online, active, refreshCount]);
@@ -78,7 +93,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
           Object.assign(values, response.texts);
         }
         if (!retired && activeRuntime.current === runtime) setLocalized({ context: textContext, values });
-      } catch { /* Native identifiers remain visible if an installed text is unavailable. */ }
+      } catch { /* User-safe generic names remain visible if installed game text is unavailable. */ }
     })();
     return () => { retired = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,14 +102,14 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
   const items = useMemo(() => new Map((snapshot?.items || []).map((item) => [String(item.equipUuid), item])), [snapshot]);
 
   const disabled = busy || !online || !runtime || !snapshot || !healthy || runtime.pending;
-  const gearName = (gear) => gear ? name(gear.nameKey, gear.name || `#${gear.itemId || gear.equipUuid}`) : t("squad.emptyEquipment");
+  const gearName = (gear) => gear ? name(gear.nameKey, gear.name || t("squad.liveEquipmentUnknownItem")) : t("squad.emptyEquipment");
   const gearLevel = (gear) => t(gear?.level != null ? "squad.liveEquipmentLevel" : "squad.liveEquipmentLevelUnknown", { level: gear?.level });
   const selected = presets?.equipmentPresets[selectedPreset];
   const savedPositionCount = (preset) => preset?.squads.reduce((count, squad) => count + squad.positions.length, 0) || 0;
   const perform = async (operation, success = "squad.liveEquipmentUpdated") => {
     if (action.current || !runtime) return;
     const owner = runtime;
-    action.current = true; mutationGeneration.current += 1; syncError.current = false; setBusy(success === "squad.livePresetCaptured" ? "preset-save" : "game-change"); setError(""); setNotice(""); setDragged(null); setDropTarget("");
+    action.current = true; mutationGeneration.current += 1; setBusy(success === "squad.livePresetCaptured" ? "preset-save" : "game-change"); setError(null); setNotice(""); setDragged(null); setDropTarget("");
     try {
       const result = await operation(), fresh = result.snapshot || result;
       owner.assertOwner();
@@ -104,9 +119,9 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
       }
     } catch (failure) {
       if (activeRuntime.current === owner) {
-        setError(failure.code === "CONFIG_FILE_BUSY" ? t("squad.livePresetSaveFailed") : failure.code === "GAME_COMMAND_NOT_PUBLISHED" ? t("squad.liveEquipmentFileBusy") : String(failure.message || failure));
+        setError({ source: "action", failure });
         try { const fresh = await owner.snapshot(); if (activeRuntime.current === owner) { setSnapshot(fresh); setHealthy(true); } }
-        catch { syncError.current = true; setHealthy(false); }
+        catch (refreshFailure) { setHealthy(false); setError((current) => current?.source === "action" ? current : { source: "snapshot", failure: refreshFailure }); }
       }
     } finally {
       action.current = false;
@@ -122,7 +137,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
     if (disabled) { event.preventDefault(); return; }
     event.stopPropagation();
     if (event.dataTransfer) { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", gear.equipUuid); }
-    setDragged(gear); setError("");
+    setDragged(gear); setError(null);
   };
   return <div className="equipment-preset-main equipment-live" data-native-equipment="true" data-equipment-busy={busy || undefined}>
     <div className="equipment-preset-toolbar">
@@ -130,7 +145,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
     </div>
     <div role="status" data-equipment-sync={busy ? "updating" : runtime?.pending ? "pending" : healthy ? "synced" : "offline"}>{t(busy === "preset-save" ? "common.processing" : busy ? "squad.liveEquipmentUpdating" : runtime?.pending ? "squad.liveEquipmentPending" : healthy ? "squad.liveEquipmentSynced" : "status.gameDisconnectedDisabled")}</div>
     {runtime?.pending && !busy ? <button type="button" data-equipment-action="resume" disabled={!online} onClick={() => perform(() => runtime.resume())}>{t("squad.liveEquipmentConfirm")}</button> : null}
-    {error ? <div className="equipment-result equipment-result-rejected" role="alert">{error}</div> : null}
+    {error ? <div className="equipment-result equipment-result-rejected" role="alert">{equipmentErrorText(t, error)}</div> : null}
     {notice && !busy ? <div className="equipment-result equipment-result-success" role="status">{t(notice, { number: selectedPreset + 1 })}</div> : null}
     <section className="equipment-live-presets" data-equipment-presets="true">
       <strong>{t("squad.equipmentPresets")}</strong><p>{t("squad.livePresetHelp")}</p>
@@ -144,7 +159,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
     <div className="equipment-preset-squads">{(snapshot?.squads || []).map((squad) => <section className="equipment-preset-squad" key={squad.squadIndex}>
       <div className="equipment-preset-squad-header"><strong>{t("squad.number", { number: squad.squadIndex })}</strong></div>
       <div className="equipment-preset-positions">{squad.positions.map((position) => {
-        const heroName = name(position.heroNameKey || position.nameKey, position.heroName || `#${position.heroItemId || position.heroUuid}`);
+        const heroName = name(position.heroNameKey || position.nameKey, position.heroName || t("squad.liveEquipmentUnknownHero"));
         return <article className="equipment-position-card" data-equipment-position={`${squad.squadIndex}:${position.position}`} data-hero-uuid={position.heroUuid} key={position.position}>
           <div className="equipment-position-header"><strong>{t("squad.position", { number: position.position })}</strong><span>{t("squad.heroFixed")}</span></div>
           <div className="equipment-position-hero">{position.iconPath ? <GameAssetImage assetPath={position.iconPath} alt={heroName} className="equipment-position-hero-icon" /> : null}<div><strong>{heroName}</strong>{position.level != null ? <span>Lv.{position.level}</span> : null}</div></div>
@@ -154,16 +169,16 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
             return <label key={slot} data-equipment-slot={key} draggable={Boolean(gear) && !disabled} className={`preset-equipment-slot quality-${gear?.quality || 0} ${dropTarget === key ? "drop-target" : ""}`}
               onDragStart={(event) => { if (gear) startDrag(event, gear); else event.preventDefault(); }}
               onDragEnd={() => { setDragged(null); setDropTarget(""); }}
-              onDragOver={(event) => { if (!dragged || disabled) return; event.preventDefault(); event.stopPropagation(); if (dragged.slot === slot) { setDropTarget(key); } else { setDropTarget(""); setError(t("squad.sameSlotRequired")); } }}
+              onDragOver={(event) => { if (!dragged || disabled) return; event.preventDefault(); event.stopPropagation(); if (dragged.slot === slot) { setDropTarget(key); } else { setDropTarget(""); setError({ source: "validation", key: "squad.sameSlotRequired" }); } }}
               onDragLeave={() => setDropTarget("")}
-              onDrop={(event) => { event.preventDefault(); event.stopPropagation(); setDropTarget(""); if (!dragged || disabled) return; if (dragged.slot !== slot) { setError(t("squad.sameSlotRequired")); return; } change(position, slot, dragged.equipUuid); }}>
+              onDrop={(event) => { event.preventDefault(); event.stopPropagation(); setDropTarget(""); if (!dragged || disabled) return; if (dragged.slot !== slot) { setError({ source: "validation", key: "squad.sameSlotRequired" }); return; } change(position, slot, dragged.equipUuid); }}>
               <strong>{t(`squad.equipmentSlot${slot}`)}</strong>
               {gear?.iconPath ? <GameAssetImage assetPath={gear.iconPath} alt={gearName(gear)} className="equipment-icon" /> : null}
               <span>{gearName(gear)}</span>
               {gear ? <small data-equipment-level={gear.equipUuid}>{gearLevel(gear)}</small> : null}
               <select aria-label={key} value={equipUuid} disabled={disabled} onChange={(event) => change(position, slot, event.target.value)}>
                 <option value="">{t("squad.emptyEquipment")}</option>
-                {[...items.values()].filter((entry) => entry.slot === slot).map((entry) => <option value={entry.equipUuid} key={entry.equipUuid}>{gearName(entry)} · {gearLevel(entry)} · {entry.equipUuid}</option>)}
+                {[...items.values()].filter((entry) => entry.slot === slot).map((entry) => <option value={entry.equipUuid} key={entry.equipUuid}>{gearName(entry)} · {gearLevel(entry)}</option>)}
               </select>
             </label>;
           })}</div>

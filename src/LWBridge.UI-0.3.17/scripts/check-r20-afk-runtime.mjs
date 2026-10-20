@@ -30,6 +30,14 @@ assert.deepEqual(calls.slice(-2).map((c) => c.command), ["stamina_potion_config_
 assert.deepEqual(calls.at(-1).payload, { taskName: "staminaPotion" });
 await potion.write({ enabled: false, minStamina: 50, preferFifty: true });
 assert.deepEqual(calls.slice(-2).map((c) => c.command), ["automation_stop", "stamina_potion_config_save"]);
+let online = false;
+const offline = createMonsterAfkAdapter(bridge, "A", () => true, () => online);
+const beforeOffline = calls.length;
+await assert.rejects(offline.read, (error) => error.code === "GAME_CONNECTION_UNAVAILABLE");
+await assert.rejects(() => offline.write(saved), (error) => error.code === "GAME_CONNECTION_UNAVAILABLE");
+assert.equal(calls.length, beforeOffline, "Offline AFK adapter must reject before any native command is sent");
+online = true;
+assert.deepEqual(await offline.read(), saved);
 bridge.profileId = "B";
 const before = calls.length;
 await assert.rejects(adapter.read, (error) => error.code === "PROFILE_SCOPE_MISMATCH");

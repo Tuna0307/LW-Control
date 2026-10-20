@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { backendBridge } from "./backendBridge.js";
+import { translateActionError } from "./mapInteractions.js";
 
 const CITY_LAYOUT_PREVIEW_STATES = new Set([
   "city-layout-populated",
@@ -20,6 +21,23 @@ const CITY_LAYOUT_LOCALIZED_ISSUES = new Set([
   "CITY_LAYOUT_OVERLAP", "CITY_LAYOUT_IMMOVABLE", "CITY_LAYOUT_ZONE",
   "CITY_LAYOUT_BUILDING_MISSING", "CITY_LAYOUT_NO_BUFFER",
 ]);
+
+function cityErrorCode(value) {
+  if (value && typeof value === "object") {
+    for (const key of ["code", "errorCode", "issueCode"]) {
+      if (typeof value[key] === "string" && value[key]) return value[key];
+    }
+  }
+  const message = value && typeof value.message === "string" ? value.message : String(value ?? "");
+  return message.match(/\bCITY_LAYOUT_[A-Z0-9_]+\b/)?.[0] || "";
+}
+
+function cityErrorText(t, value) {
+  const code = cityErrorCode(value);
+  if (code === "CITY_LAYOUT_STALE") return t("cityLayout.stale");
+  if (CITY_LAYOUT_LOCALIZED_ISSUES.has(code)) return t(`cityLayout.issue.${code}`);
+  return translateActionError(t, value);
+}
 
 export function CityLayoutPage({ previewState = "", online = false }) {
   const { t, language } = useI18n();
@@ -122,7 +140,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           Object.assign(values, response.texts);
         }
         if (current()) setLocalizedNames({ context: nameContext, values, error: "", loading: false });
-      } catch (error) { if (current()) setLocalizedNames({ context: nameContext, values: {}, error: error.message || String(error), loading: false }); }
+      } catch (error) { if (current()) setLocalizedNames({ context: nameContext, values: {}, error: cityErrorText(t, error), loading: false }); }
     })();
     return () => { retired = true; nameGeneration.current += 1; };
   // Translation and presentation are independent of the saved movement plan.
@@ -296,12 +314,14 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     if (previewEnabled) {
       savedSignatureRef.current = signature;
       setDraftRevision((revision) => revision + 1);
+      setErrorText("");
       return;
     }
     try {
       await enqueueDraftSave(placements, layout.layoutRevision);
+      setErrorText("");
     } catch (error) {
-      setErrorText(error.message || t("common.actionFailed"));
+      setErrorText(cityErrorText(t, error));
     }
   };
 
@@ -365,11 +385,12 @@ export function CityLayoutPage({ previewState = "", online = false }) {
         // A completed/failed native job may trigger a snapshot refresh. Keep
         // the game-produced failure visible after that refresh replaces the
         // local status; otherwise the screen quietly returns to edit mode.
-        setErrorText(status?.state === "failed" ? status.error || status.errorCode || t("common.actionFailed") : "");
+        setErrorText(status?.state === "failed"
+          ? cityErrorText(t, { code: status.errorCode, message: status.error }) : "");
       } catch (error) {
         if (active) {
           setLiveLayout(null);
-          setErrorText(error.message || t("common.actionFailed"));
+          setErrorText(cityErrorText(t, error));
         }
       } finally {
         if (active) setLiveLoading(false);
@@ -391,7 +412,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           setReloadRevision((value) => value + 1);
         }
       } catch (error) {
-        if (active) setErrorText(error.message || t("common.actionFailed"));
+        if (active) setErrorText(cityErrorText(t, error));
       }
     };
     const timer = window.setInterval(() => void poll(), 500);
@@ -401,7 +422,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const discardStaleDraft = async () => {
     if (previewEnabled) {
       setHistory({ past: [], present: [], future: [] }); setDraftRevision(0);
-      savedSignatureRef.current = ""; setStale(false); return;
+      savedSignatureRef.current = ""; setStale(false); setErrorText(""); return;
     }
     const owner = backendBridge.currentProfileOwner();
     try {
@@ -414,7 +435,8 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       setHistory({ past: [], present: [], future: [] });
       savedSignatureRef.current = "";
       setStale(false);
-    } catch (error) { setErrorText(error.message || t("common.actionFailed")); }
+      setErrorText("");
+    } catch (error) { setErrorText(cityErrorText(t, error)); }
   };
 
   const prepareApply = async () => {
@@ -439,7 +461,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       if (!validation.valid) return;
       setApplyConfirmOpen(true);
     } catch (error) {
-      setErrorText(error.message || t("common.actionFailed"));
+      setErrorText(cityErrorText(t, error));
     } finally {
       setApplyPreparing(false);
     }
@@ -454,9 +476,11 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       if (previewEnabled) {
         savedSignatureRef.current = signature;
         setDraftRevision((revision) => revision + 1);
+        setErrorText("");
       } else {
-        void enqueueDraftSave(placements, layout.layoutRevision).catch((error) =>
-          setErrorText(error.message || t("common.actionFailed")));
+        void enqueueDraftSave(placements, layout.layoutRevision)
+          .then(() => setErrorText(""))
+          .catch((error) => setErrorText(cityErrorText(t, error)));
       }
       draftTimerRef.current = 0;
     }, 500);
@@ -490,7 +514,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       setLiveApplyStatus(result.status);
       setRestoreReview(null);
     } catch (error) {
-      setErrorText(error.message || t("common.actionFailed"));
+      setErrorText(cityErrorText(t, error));
     } finally { setApplyPreparing(false); }
   };
 
@@ -501,7 +525,8 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       if (!result?.accepted || !result?.status) throw new Error("Game did not acknowledge this layout cancellation");
       setLiveApplyStatus(result.status);
       setRestoreReview(null);
-    } catch (error) { setErrorText(error.message || t("common.actionFailed")); }
+      setErrorText("");
+    } catch (error) { setErrorText(cityErrorText(t, error)); }
   };
   const inspectOriginalRestoration = async () => {
     if (previewEnabled || !online || !applyStatus?.jobId ||
@@ -530,7 +555,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       setRestoreReview(result);
     } catch (error) {
       if (backendBridge.isCurrentProfileOwner(owner))
-        setErrorText(error.message || t("common.actionFailed"));
+        setErrorText(cityErrorText(t, error));
     } finally {
       restoreReviewInFlight.current = false;
       if (backendBridge.isCurrentProfileOwner(owner)) setRestoreReviewBusy(false);
@@ -559,6 +584,10 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [busy]);
+
+  const restoreIssue = restoreReview?.issues?.[0] || (restoreReview?.issueCode
+    ? { code: restoreReview.issueCode, message: restoreReview.error } : null);
+  const restoreIssueText = restoreIssue ? cityErrorText(t, restoreIssue) : "";
 
   if (!previewEnabled && !online) return <div className="panel city-layout-empty">{t("cityLayout.offline")}</div>;
   if (!layout) return <div className="panel city-layout-empty" role="status">{loading ? t("common.processing") : errorText || t("cityLayout.noData")}{!loading && !previewEnabled && online ? <button type="button" onClick={() => setReloadRevision((revision) => revision + 1)}>{t("common.refresh")}</button> : null}</div>;
@@ -710,7 +739,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   ? chinese ? "原始布局已核实" : "Original layout verified"
                   : chinese ? "仅生成复原预览，未派遣移动" : "Restoration plan only; no move sent"
                 : chinese ? "复原方案尚不能安全执行" : "Restoration cannot be safely planned"}</small>
-              {restoreReview.issueCode ? <small>{restoreReview.issueCode}</small> : null}
+              {restoreIssueText ? <small>{restoreIssueText}</small> : null}
               {restoreReview.restorationRequired && restoreReview.ready ?
                 <small>{chinese ? "原生规划步骤" : "Source-valid planned steps"}:
                   {" "}{restoreReview.plannedMoves.length}</small> : null}

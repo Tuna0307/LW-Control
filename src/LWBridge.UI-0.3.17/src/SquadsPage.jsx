@@ -20,7 +20,7 @@ export function SquadsPage({ previewState = "", profileId = "", online = false, 
   const tab = activeTab ?? localTab;
   const [visitedTabs, setVisitedTabs] = useState(() => new Set([tab]));
   const [equipmentRefreshCount, setEquipmentRefreshCount] = useState(0);
-  const equipmentOnline = equipmentPreview ? previewState !== "squads-equipment-offline" : Boolean(profileId && backendBridge.available);
+  const equipmentOnline = equipmentPreview ? previewState !== "squads-equipment-offline" : Boolean(profileId && backendBridge.available && online);
   const availableSquads = previewAfkAvailableSquads(previewState);
   const selectTab = (nextTab) => {
     setVisitedTabs((current) => {
@@ -42,13 +42,13 @@ export function SquadsPage({ previewState = "", profileId = "", online = false, 
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => selectTab("afk")}>{t("squad.tabAfk")}</button>
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent key={profileId || "no-profile"} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} /></Activity> : null}
+      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent key={profileId || "no-profile"} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} online={online} active={tab === "afk"} availableSquads={availableSquads} /></Activity> : null}
       {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} active={tab === "equipment"} profileId={profileId} online={online} refreshCount={equipmentRefreshCount} />}</Activity> : null}
     </section>
   );
 }
 
-function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, previewState = "", availableSquads = [1, 2, 3, 4], targets = null, members = null }) {
+function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, previewState = "", previewFixture = false, availableSquads = [1, 2, 3, 4], targets = null, members = null }) {
   const { t } = useI18n();
   const [targetError, setTargetError] = useState("");
   const targetDiscoveryReady = !["squads-profile-target-loading", "squads-profile-target-failed"].includes(previewState);
@@ -60,7 +60,7 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, pr
   const patch = (changes) => onProfileChange({ ...profile, ...changes });
   useEffect(() => { setTargetError(""); }, [profile.id]);
   return (
-    <div className={`monster-afk-editor ${isNew ? "is-new" : ""}`} data-preview-fixture="afk-profile-editor">
+    <div className={`monster-afk-editor ${isNew ? "is-new" : ""}`} data-preview-fixture={previewFixture ? "afk-profile-editor" : undefined}>
       <div className="monster-afk-editor-heading"><strong>{t(isNew ? "squad.afkNewProfile" : "squad.afkEditProfile")}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></div>
       <section className="monster-afk-config-section">
         <h3>{t("squad.afkBasicSettings")}</h3>
@@ -196,49 +196,79 @@ const AFK_RUNTIME_STEP_KEYS = {
   returning: "squad.afkStep.returning",
 };
 
-function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = "", availableSquads: fixtureSquads = [1, 2, 3, 4] }) {
+function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = "", online = false, active = true, availableSquads: fixtureSquads = [1, 2, 3, 4] }) {
   const { t } = useI18n();
-  const nativeReady = !fixtureEnabled && backendBridge.available && Boolean(profileId);
-  const previewEnabled = fixtureEnabled || nativeReady;
+  const nativeTransport = !fixtureEnabled && backendBridge.available && Boolean(profileId);
+  const nativeReady = nativeTransport && online && active;
   const [nativeTargets, setNativeTargets] = useState([]);
   const [nativeSquads, setNativeSquads] = useState([]);
   const [nativeMembers, setNativeMembers] = useState(null);
   const availableSquads = fixtureEnabled ? fixtureSquads : nativeSquads;
   const [nativeRuntime, setNativeRuntime] = useState(null);
-  const [nativeError, setNativeError] = useState("");
-  const liveConfig = usePreviewConfigAdapter(emptyMonsterAfkConfig, createMonsterAfkAdapter(backendBridge, profileId, validMonsterAfkConfig), JSON.stringify([profileId, "native:monsterSweep"]));
-  const livePotionConfig = usePreviewConfigAdapter(emptyStaminaConfig, createStaminaPotionAdapter(backendBridge, profileId, validPotionConfig), JSON.stringify([profileId, "native:staminaPotion"]));
+  const [nativeError, setNativeError] = useState(null);
+  const [nativeConfigReady, setNativeConfigReady] = useState(false);
+  const liveConfig = usePreviewConfigAdapter(emptyMonsterAfkConfig, createMonsterAfkAdapter(backendBridge, profileId, validMonsterAfkConfig, () => online), JSON.stringify([profileId, "native:monsterSweep"]));
+  const livePotionConfig = usePreviewConfigAdapter(emptyStaminaConfig, createStaminaPotionAdapter(backendBridge, profileId, validPotionConfig, () => online), JSON.stringify([profileId, "native:staminaPotion"]));
   useEffect(() => {
-    if (!nativeReady) return;
-    let retired = false, busy = false, catalogAt = 0;
-    liveConfig.store.refresh().catch((error) => { if (!retired) setNativeError(error.message); });
-    livePotionConfig.store.refresh().catch((error) => { if (!retired) setNativeError(error.message); });
+    setNativeConfigReady(false);
+    setNativeError(null);
+    if (!nativeReady) {
+      if (!fixtureEnabled) {
+        setNativeRuntime(null); setNativeTargets([]); setNativeSquads([]); setNativeMembers(null);
+      }
+      return undefined;
+    }
+    let retired = false, busy = false, hydrated = false, configAttemptAt = -Infinity, catalogAttemptAt = -Infinity;
+    const fail = (source, error) => { if (!retired) setNativeError({ source, error }); };
+    const recover = (source) => { if (!retired) setNativeError((current) => current?.source === source ? null : current); };
+    const hydrate = async () => {
+      const now = Date.now();
+      if (hydrated) return true;
+      if (now - configAttemptAt < 3_000) return false;
+      configAttemptAt = now;
+      try {
+        await Promise.all([liveConfig.store.refresh(true), livePotionConfig.store.refresh(true)]);
+        if (!retired) { hydrated = true; setNativeConfigReady(true); recover("config"); }
+        return true;
+      } catch (error) {
+        fail("config", error);
+        return false;
+      }
+    };
     const refresh = async () => {
       if (busy || retired) return; busy = true;
       try {
+        await hydrate();
         const runtime = await backendBridge.invokeProfileScoped("feature018_afk_status");
-        if (!retired) { setNativeRuntime(runtime); setNativeError(""); }
-        if (!retired && Date.now() - catalogAt > 30_000) {
-          const catalog = normalizeAfkCatalog(await backendBridge.invokeProfileScoped("monster_catalog_options"));
-          if (!retired) { catalogAt = Date.now(); setNativeTargets(catalog.options || []); setNativeSquads(catalog.unlockedSquads || []); setNativeMembers(catalog.allianceMembers || null); }
+        if (!retired) { setNativeRuntime(runtime); recover("status"); }
+        if (!retired && Date.now() - catalogAttemptAt > 30_000) {
+          catalogAttemptAt = Date.now();
+          try {
+            const catalog = normalizeAfkCatalog(await backendBridge.invokeProfileScoped("monster_catalog_options"));
+            if (!retired) {
+              setNativeTargets(catalog.options || []); setNativeSquads(catalog.unlockedSquads || []); setNativeMembers(catalog.allianceMembers || null);
+              recover("catalog");
+            }
+          } catch (error) { fail("catalog", error); }
         }
-      } catch (error) { if (!retired) setNativeError(error.message); }
+      } catch (error) { fail("status", error); }
       finally { busy = false; }
     };
     void refresh(); const timer = window.setInterval(refresh, 1500);
     return () => { retired = true; window.clearInterval(timer); };
-  }, [nativeReady, profileId]);
+  }, [nativeReady, profileId, fixtureEnabled, liveConfig.store, livePotionConfig.store]);
+  const controlsReady = fixtureEnabled || (nativeReady && nativeConfigReady);
   const DragGlyph = () => <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /></svg>;
-  const [showEditor, setShowEditor] = useState(previewEnabled);
+  const [showEditor, setShowEditor] = useState(fixtureEnabled);
   const profileScope = profileId || "default";
   const storeScope = (scope) => JSON.stringify([profileScope, `${scope}:${previewState}`]);
   const fixtureAfkConfig = usePreviewConfig(() => fixtureEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", storeScope("task:monsterSweep"));
-  const afkConfig = nativeReady ? liveConfig : fixtureAfkConfig;
+  const afkConfig = nativeTransport ? liveConfig : fixtureAfkConfig;
   const fixturePotionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
-  const potionConfig = nativeReady ? livePotionConfig : fixturePotionConfig;
+  const potionConfig = nativeTransport ? livePotionConfig : fixturePotionConfig;
   const profiles = afkConfig.draft.strategies;
   const setProfiles = (value, delay = 400) => afkConfig.store.edit((draft) => ({ ...draft, strategies: typeof value === "function" ? value(draft.strategies) : value }), delay);
-  const [editingId, setEditingId] = useState(() => previewEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
+  const [editingId, setEditingId] = useState(() => fixtureEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
   const [profileAction, setProfileAction] = useState("");
   const [draggedProfileId, setDraggedProfileId] = useState("");
   const [dragOverProfileId, setDragOverProfileId] = useState("");
@@ -329,24 +359,24 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
     }
   };
   return (
-    <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
-      {!fixtureEnabled ? <div role="status" className={nativeError || nativeRuntime?.lastError ? "automation-error" : "muted"}>{nativeError || nativeRuntime?.lastError || (t(AFK_RUNTIME_STEP_KEYS[nativeRuntime?.step] || (nativeRuntime?.state === "completed" ? "common.completed" : nativeRuntime?.running ? "automation.running" : "squad.status.idle")))}{(Array.isArray(nativeRuntime?.rows) ? nativeRuntime.rows : []).map((row) => <span key={`${row.profileId}:${row.squadIndex}`}> · {t("squad.number", { number: row.squadIndex })}: {t(AFK_RUNTIME_STEP_KEYS[row.step] || "common.waiting")} {row.currentTarget?.name || ""} {row.currentTarget?.level ? `Lv.${row.currentTarget.level}` : ""} · {nativeRuntime?.processed?.[row.profileId] || 0}</span>)}</div> : null}
-      <PreviewConfigError config={afkConfig} t={t} label={t("squad.afkMaster")} />
-      {nativeReady && potionConfig.draft.enabled && nativeRuntime?.staminaPotion ? <div role="status" data-stamina-runtime={nativeRuntime.staminaPotion.state} className={nativeRuntime.staminaPotion.lastError ? "automation-error" : "muted"}>{nativeRuntime.staminaPotion.lastError || t(AFK_RUNTIME_STEP_KEYS[nativeRuntime.staminaPotion.step] || "common.waiting")} · {t("automation.currentStamina")}: {nativeRuntime.staminaPotion.stamina ?? "-"} · {t("squad.runtime.usedItems", { count: nativeRuntime.staminaPotion.used || 0 })}</div> : null}
-      <PreviewConfigError config={potionConfig} t={t} label={t("automation.autoUsePotion")} />
+    <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving} data-native-config-ready={nativeConfigReady || undefined} data-preview-fixture={fixtureEnabled ? "squads-profile" : undefined}>
+      {!fixtureEnabled ? <div role="status" className={nativeError || nativeRuntime?.lastError ? "automation-error" : "muted"}>{!online && nativeTransport ? t("status.gameDisconnectedDisabled") : nativeError ? translatedAfkError(t, nativeError.error) : translatedAfkError(t, nativeRuntime?.lastError) || (t(AFK_RUNTIME_STEP_KEYS[nativeRuntime?.step] || (nativeRuntime?.state === "completed" ? "common.completed" : nativeRuntime?.running ? "automation.running" : "squad.status.idle")))}{online && (Array.isArray(nativeRuntime?.rows) ? nativeRuntime.rows : []).map((row) => <span key={`${row.profileId}:${row.squadIndex}`}> · {t("squad.number", { number: row.squadIndex })}: {t(AFK_RUNTIME_STEP_KEYS[row.step] || "common.waiting")} {row.currentTarget?.name || ""} {row.currentTarget?.level ? `Lv.${row.currentTarget.level}` : ""} · {nativeRuntime?.processed?.[row.profileId] || 0}</span>)}</div> : null}
+      <PreviewConfigError config={afkConfig} t={t} label={t("squad.afkMaster")} disabled={!controlsReady} />
+      {nativeReady && potionConfig.draft.enabled && nativeRuntime?.staminaPotion ? <div role="status" data-stamina-runtime={nativeRuntime.staminaPotion.state} className={nativeRuntime.staminaPotion.lastError ? "automation-error" : "muted"}>{translatedAfkError(t, nativeRuntime.staminaPotion.lastError) || t(AFK_RUNTIME_STEP_KEYS[nativeRuntime.staminaPotion.step] || "common.waiting")} · {t("automation.currentStamina")}: {nativeRuntime.staminaPotion.stamina ?? "-"} · {t("squad.runtime.usedItems", { count: nativeRuntime.staminaPotion.used || 0 })}</div> : null}
+      <PreviewConfigError config={potionConfig} t={t} label={t("automation.autoUsePotion")} disabled={!controlsReady} />
       <div className="monster-afk-toolbar">
-        <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(afkConfig.draft.enabled ? "common.enabled" : "common.disabled")} enabled={afkConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === null} onSettings={() => setToolbarPanel(null)} onToggle={(enabled) => void toggleMaster(enabled)} />
-        <CompactAfkCard title={t("automation.autoUsePotion")} description={t("automation.potionMonsterOnly")} summary={`${t("automation.minStamina")} ${potionConfig.draft.minStamina}`} enabled={potionConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === "potion"} onSettings={() => toggleToolbarPanel("potion")} onToggle={(enabled) => updatePotion((draft) => ({ ...draft, enabled }), true)} />
-        <CompactAfkCard title={t("squad.afkAllianceDrill")} description={t("squad.afkAllianceDrillDescription")} summary={afkConfig.draft.allianceDrill.enabled && drillRuntime.length > 0 ? `${t(drillState)} · ${drillOrder}` : `${t("squad.afkAllianceDrillOrder", { order: drillOrder })} · ${t(afkConfig.draft.allianceDrill.activeRally ? "squad.afkAllianceDrillActive" : "squad.afkJoin")}`} enabled={afkConfig.draft.allianceDrill.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === "drill"} onSettings={() => toggleToolbarPanel("drill")} onToggle={(enabled) => { if (enabled && afkConfig.draft.allianceDrill.squadIndexes.length === 0) { setToolbarPanel("drill"); setCompositionError("squad.afkAllianceDrillSquadRequired"); return; } updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, enabled } }), true); }} />
-        {toolbarPanel === "potion" ? <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("automation.autoUsePotion")}</strong><span>{t("automation.potionMonsterOnly")}</span></div><div className="monster-afk-card-settings"><label><span>{t("automation.minStamina")}</span><input type="number" min="0" max="9999" step="1" value={Number.isNaN(potionConfig.draft.minStamina) ? "" : potionConfig.draft.minStamina} disabled={!previewEnabled || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, minStamina: event.target.valueAsNumber }), false)} /></label><label><input type="checkbox" checked={potionConfig.draft.preferFifty} disabled={!previewEnabled || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, preferFifty: event.target.checked }), false)} /><span>{t("automation.preferFifty")}</span></label></div></section> : null}
-        {nativeReady && afkConfig.draft.allianceDrill.enabled && nativeRuntime?.allianceDrill ? <div role="status" data-drill-runtime={nativeRuntime.allianceDrill.state} className={nativeRuntime.allianceDrill.lastError ? "automation-error" : "muted"}>{nativeRuntime.allianceDrill.lastError || t(nativeRuntime.allianceDrill.step === "account_changed" ? "squad.runtime.accountPaused" : drillState)}</div> : null}
-        {toolbarPanel === "drill" ? <AllianceDrillPreviewSettings disabled={!previewEnabled || Boolean(profileAction)} value={afkConfig.draft.allianceDrill} previewState={previewState} availableSquads={availableSquads} runtimeNames={runtimeNames} members={nativeReady ? nativeMembers : undefined} runtimeRows={drillRuntime} onChange={(allianceDrill) => updateAfk((draft) => ({ ...draft, allianceDrill }), true)} onJoinRestrictionsChange={(joinRestrictions) => updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, joinRestrictions } }), false)} /> : null}
+        <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(afkConfig.draft.enabled ? "common.enabled" : "common.disabled")} enabled={afkConfig.draft.enabled} disabled={!controlsReady || Boolean(profileAction)} settingsOpen={toolbarPanel === null} onSettings={() => setToolbarPanel(null)} onToggle={(enabled) => void toggleMaster(enabled)} />
+        <CompactAfkCard title={t("automation.autoUsePotion")} description={t("automation.potionMonsterOnly")} summary={`${t("automation.minStamina")} ${potionConfig.draft.minStamina}`} enabled={potionConfig.draft.enabled} disabled={!controlsReady || Boolean(profileAction)} settingsOpen={toolbarPanel === "potion"} onSettings={() => toggleToolbarPanel("potion")} onToggle={(enabled) => updatePotion((draft) => ({ ...draft, enabled }), true)} />
+        <CompactAfkCard title={t("squad.afkAllianceDrill")} description={t("squad.afkAllianceDrillDescription")} summary={afkConfig.draft.allianceDrill.enabled && drillRuntime.length > 0 ? `${t(drillState)} · ${drillOrder}` : `${t("squad.afkAllianceDrillOrder", { order: drillOrder })} · ${t(afkConfig.draft.allianceDrill.activeRally ? "squad.afkAllianceDrillActive" : "squad.afkJoin")}`} enabled={afkConfig.draft.allianceDrill.enabled} disabled={!controlsReady || Boolean(profileAction)} settingsOpen={toolbarPanel === "drill"} onSettings={() => toggleToolbarPanel("drill")} onToggle={(enabled) => { if (enabled && afkConfig.draft.allianceDrill.squadIndexes.length === 0) { setToolbarPanel("drill"); setCompositionError("squad.afkAllianceDrillSquadRequired"); return; } updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, enabled } }), true); }} />
+        {toolbarPanel === "potion" ? <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("automation.autoUsePotion")}</strong><span>{t("automation.potionMonsterOnly")}</span></div><div className="monster-afk-card-settings"><label><span>{t("automation.minStamina")}</span><input type="number" min="0" max="9999" step="1" value={Number.isNaN(potionConfig.draft.minStamina) ? "" : potionConfig.draft.minStamina} disabled={!controlsReady || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, minStamina: event.target.valueAsNumber }), false)} /></label><label><input type="checkbox" checked={potionConfig.draft.preferFifty} disabled={!controlsReady || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, preferFifty: event.target.checked }), false)} /><span>{t("automation.preferFifty")}</span></label></div></section> : null}
+        {nativeReady && afkConfig.draft.allianceDrill.enabled && nativeRuntime?.allianceDrill ? <div role="status" data-drill-runtime={nativeRuntime.allianceDrill.state} className={nativeRuntime.allianceDrill.lastError ? "automation-error" : "muted"}>{translatedAfkError(t, nativeRuntime.allianceDrill.lastError) || t(nativeRuntime.allianceDrill.step === "account_changed" ? "squad.runtime.accountPaused" : drillState)}</div> : null}
+        {toolbarPanel === "drill" ? <AllianceDrillPreviewSettings disabled={!controlsReady || Boolean(profileAction)} value={afkConfig.draft.allianceDrill} previewState={previewState} availableSquads={availableSquads} runtimeNames={runtimeNames} members={nativeReady ? nativeMembers : undefined} runtimeRows={drillRuntime} onChange={(allianceDrill) => updateAfk((draft) => ({ ...draft, allianceDrill }), true)} onJoinRestrictionsChange={(joinRestrictions) => updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, joinRestrictions } }), false)} /> : null}
       </div>
       {!profilePanelHidden ? <>
       <section className="monster-afk-profiles">
         <div className="monster-section-title">
           <strong>{t("squad.afkProfiles")}</strong>
-          <div ref={addControlRef} className="monster-afk-add-control" onKeyDown={(event) => { if (event.key === "Escape") setAddMenuOpen(false); }}><button type="button" aria-haspopup="menu" aria-expanded={addMenuOpen} disabled={!previewEnabled || availableTargets.length === 0 || Boolean(profileAction)} onClick={() => setAddMenuOpen((open) => !open)}>{t("common.add")}</button>{addMenuOpen ? <div className="monster-afk-add-menu" role="menu"><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && !target.rally)} onClick={() => addProfile("farm")}><strong>{t("squad.afkActiveAttack")}</strong><span>{t("squad.afkActionAttack")}</span></button><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && target.rally)} onClick={() => addProfile("join")}><strong>{t("squad.afkJoin")}</strong><span>{t("squad.autoJoinRally")}</span></button></div> : null}</div>
+          <div ref={addControlRef} className="monster-afk-add-control" onKeyDown={(event) => { if (event.key === "Escape") setAddMenuOpen(false); }}><button type="button" aria-haspopup="menu" aria-expanded={addMenuOpen} disabled={!controlsReady || availableTargets.length === 0 || Boolean(profileAction)} onClick={() => setAddMenuOpen((open) => !open)}>{t("common.add")}</button>{addMenuOpen ? <div className="monster-afk-add-menu" role="menu"><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && !target.rally)} onClick={() => addProfile("farm")}><strong>{t("squad.afkActiveAttack")}</strong><span>{t("squad.afkActionAttack")}</span></button><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && target.rally)} onClick={() => addProfile("join")}><strong>{t("squad.afkJoin")}</strong><span>{t("squad.autoJoinRally")}</span></button></div> : null}</div>
         </div>
         <div className="monster-afk-profile-list">
           {profiles.length ? profiles.map((profile) => {
@@ -365,7 +395,7 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
               onDrop={(event) => { event.preventDefault(); const sourceId = draggedProfileId; setDraggedProfileId(""); setDragOverProfileId(""); void moveProfile(sourceId, profile.id); }}
             >
               <label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""} ${profileAction || profile.squadIndexes.length === 0 ? "is-disabled" : ""}`}>
-                <input type="checkbox" checked={profile.enabled} disabled={!previewEnabled || Boolean(profileAction) || profile.squadIndexes.length === 0} onChange={(event) => { setProfiles((current) => current.map((entry) => entry.id === profile.id ? { ...entry, enabled: event.target.checked } : entry), false); afkConfig.store.flush().then(() => setCompositionError("")).catch(() => {}); }} />
+                <input type="checkbox" checked={profile.enabled} disabled={!controlsReady || Boolean(profileAction) || profile.squadIndexes.length === 0} onChange={(event) => { setProfiles((current) => current.map((entry) => entry.id === profile.id ? { ...entry, enabled: event.target.checked } : entry), false); afkConfig.store.flush().then(() => setCompositionError("")).catch(() => {}); }} />
                 <span className="monster-afk-enabled-track" aria-hidden="true" />
                 <span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span>
               </label>
@@ -377,7 +407,7 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
                 {runtimeRows.map((row) => {
                   const ownsRuntime = row.profileId === profile.id;
                   const completed = row.completedStrategyIds?.includes(profile.id);
-                  const stateText = ownsRuntime && row.step ? t(AFK_RUNTIME_STEP_KEYS[row.step] || row.step) : t(completed ? "common.completed" : "squad.status.idle");
+                  const stateText = ownsRuntime && row.step ? t(AFK_RUNTIME_STEP_KEYS[row.step] || "common.waiting") : t(completed ? "common.completed" : "squad.status.idle");
                   const waitingDetail = ownsRuntime && row.step === "waiting_join_delay" ? ` · ${t("squad.join.waitingDetail", { target: runtimeNames[row.joinTargetNameKey || ""] || row.joinTargetName || "", seconds: row.joinWaitSeconds ?? 0 })}` : "";
                   const execution = profile.executionLimit > 0 ? ` · ${row.strategyProcessed?.[profile.id] || 0}/${profile.executionLimit}` : "";
                   const runtimeError = ownsRuntime && row.lastError ? ` · ${translatedAfkError(t, row.lastError)}` : "";
@@ -390,7 +420,7 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
           }) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
         </div>
       </section>
-      {showEditor && editingProfile ? <AfkProfileEditor members={nativeMembers} targets={fixtureEnabled ? null : nativeTargets} enabled={previewEnabled} isNew={!afkConfig.confirmed.strategies.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} previewState={previewState} availableSquads={availableSquads} /> : null}
+      {showEditor && editingProfile ? <AfkProfileEditor members={nativeMembers} targets={fixtureEnabled ? null : nativeTargets} enabled={controlsReady} isNew={!afkConfig.confirmed.strategies.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} previewState={previewState} previewFixture={fixtureEnabled} availableSquads={availableSquads} /> : null}
       </> : null}
       {compositionError ? <div className="automation-error monster-afk-error">{t(compositionError)}</div> : null}
     </div>

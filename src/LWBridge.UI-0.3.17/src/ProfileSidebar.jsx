@@ -124,7 +124,7 @@ export function ProfileSidebar({
   // One owner's completed Start/Stop cannot clear another owner's pending UI.
   const [runBusyIds, setRunBusyIds] = useState(() => new Set());
   const [batchBusy, setBatchBusy] = useState("");
-  const [actionError, setActionError] = useState("");
+  const [actionFailures, setActionFailures] = useState([]);
   const [enabledBusyId, setEnabledBusyId] = useState("");
   const [restartRequired, setRestartRequired] = useState(false);
   const [noteId, setNoteId] = useState("");
@@ -186,34 +186,33 @@ export function ProfileSidebar({
   if (!state) return null;
   const profiles = state.profiles;
   const atCapacity = profiles.length >= state.maxProfiles;
-  const startIds = profileBatchIds("start", profiles, instanceState);
   const stopIds = profileBatchIds("stop", profiles, instanceState);
   const launchError = profileLaunchErrors.map((entry) => `${profiles.find((profile) => profile.id === entry.profileId)?.roleName || entry.profileId}：${profileError(t, entry.error)}`).join("\n");
+  const actionError = actionFailures.map(({ name = "", error: failure }) => `${name ? `${name}：` : ""}${profileError(t, failure)}`).join("\n");
 
-  async function runBatch(action) {
-    if (action === "start" ? !onStartProfile : !onStopProfile) return;
-    const ids = action === "start" ? startIds : stopIds;
+  async function stopAllProfiles() {
+    if (!onStopProfile) return;
+    const ids = stopIds;
     const next = { ...instanceState };
     const failures = [];
     onClearProfileLaunchErrors?.();
-    setBatchBusy(action); setActionError(""); setRestartRequired(false);
+    setBatchBusy("stop"); setActionFailures([]); setRestartRequired(false);
     for (const id of ids) {
       let acquired = false;
       try {
         beginProfileAction(id);
         acquired = true;
-        if (action === "start") next[id] = await onStartProfile(id);
-        else if (next[id]) { next[id] = await onStopProfile(id, next[id].instanceId); }
+        if (next[id]) next[id] = await onStopProfile(id, next[id].instanceId);
         setInstanceState((current) => ({ ...current, [id]: next[id] }));
       } catch (failure) {
         const name = profiles.find((profile) => profile.id === id)?.roleName || id;
-        failures.push(`${name}：${profileError(t, failure)}`);
+        failures.push({ name, error: failure });
         if (errorCodes(failure).includes("LAUNCH_TICKET_RESTART_REQUIRED")) setRestartRequired(true);
       } finally {
         if (acquired) endProfileAction(id);
       }
     }
-    setActionError(failures.join("\n")); setBatchBusy("");
+    setActionFailures(failures); setBatchBusy("");
   }
 
   async function runProfile(profile, instance, running) {
@@ -221,12 +220,12 @@ export function ProfileSidebar({
     if (!provider) return;
     if (profileActionsRef.current.has(profile.id)) return;
     beginProfileAction(profile.id);
-    onClearProfileLaunchErrors?.(); setActionError(""); setRestartRequired(false);
+    onClearProfileLaunchErrors?.(); setActionFailures([]); setRestartRequired(false);
     try {
       const next = running ? await provider(profile.id, instance?.instanceId) : await provider(profile.id);
       setInstanceState((current) => ({ ...current, [profile.id]: next }));
     } catch (failure) {
-      setActionError(profileError(t, failure));
+      setActionFailures([{ error: failure }]);
       setRestartRequired(errorCodes(failure).includes("LAUNCH_TICKET_RESTART_REQUIRED"));
     } finally { endProfileAction(profile.id); }
   }
@@ -239,12 +238,12 @@ export function ProfileSidebar({
   return <section className={`profile-list${busy ? " busy" : ""}`} aria-label={t("profile.accounts")}>
       <div className="profile-list-heading"><div className="profile-heading-title"><strong>{t("profile.accounts")}</strong><span className="profile-quota-badge">{profiles.length}/{state.maxProfiles}</span></div></div>
       <div className="profile-batch-actions">
-        <button type="button" disabled={!!batchBusy || startIds.length === 0 || !onStartProfile} onClick={() => runBatch("start")}><ProfileIcon name="play" />{t(batchBusy === "start" ? "profile.startingAll" : "profile.startAll")}</button>
-        <button type="button" disabled={!!batchBusy || stopIds.length === 0 || !onStopProfile} onClick={() => runBatch("stop")}><ProfileIcon name="stop" />{t(batchBusy === "stop" ? "profile.stoppingAll" : "profile.stopAll")}</button>
+        <button type="button" disabled={!!batchBusy || stopIds.length === 0 || !onStopProfile} onClick={() => void stopAllProfiles()}><ProfileIcon name="stop" />{t(batchBusy === "stop" ? "profile.stoppingAll" : "profile.stopAll")}</button>
       </div>
       <div className="profile-items">{profiles.map((profile) => {
         const display = profileDisplay(profile, t);
         const instance = instanceState[profile.id];
+        const instanceKnown = Object.prototype.hasOwnProperty.call(instanceState, profile.id);
         const running = profileHasStopTarget(instance);
         const connection = profile.lockedReason ? "locked" : instance?.connectionState ?? "offline";
         return <div className={`profile-row${profile.id === state.selectedProfileId ? " active" : ""}${draggedId === profile.id ? " dragging" : ""}${dragOverId === profile.id ? " drag-over" : ""}`} key={profile.id}
@@ -269,41 +268,40 @@ export function ProfileSidebar({
               aria-label={`${display.name} · ${t(profile.enabled ? "common.enabled" : "common.disabled")}`}
               onClick={(event) => {
                 event.stopPropagation();
-                setEnabledBusyId(profile.id); setActionError("");
+                setEnabledBusyId(profile.id); setActionFailures([]);
                 Promise.resolve().then(() => onSetEnabled(profile.id, !profile.enabled))
-                  .catch((failure) => setActionError(profileError(t, failure)))
+                  .catch((failure) => setActionFailures([{ error: failure }]))
                   .finally(() => setEnabledBusyId(""));
               }}><ProfileIcon name={profile.enabled ? "enabled" : "disabled"} /></button>
             <button type="button" className="profile-note-edit" disabled={!onUpdateNote} title={t("profile.editNote")} aria-label={t("profile.editNoteLabel", { name: display.name })} onClick={(event) => { event.stopPropagation(); if (onUpdateNote) { setNoteId(profile.id); setNoteValue(profile.note); } }}><ProfileIcon name="edit" /></button>
             <button type="button" className="profile-delete" disabled={busy || !onRemove} title={t("common.delete")} aria-label={`${t("common.delete")} ${display.name}`} onClick={(event) => {
-              event.stopPropagation(); setActionError("");
-              removeProfile(profile, display.name).catch((failure) => setActionError(profileError(t, failure)));
+              event.stopPropagation(); setActionFailures([]);
+              removeProfile(profile, display.name).catch((failure) => setActionFailures([{ error: failure }]));
             }}><ProfileIcon name="remove" /></button>
           </div>
-          {/* Selection/metadata may be busy on A while retained B still needs
-              independent Start/Stop. Native per-owner admission, not the
-              global view-transition flag, guards concurrent deletion. */}
-          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={!!batchBusy || runBusyIds.has(profile.id) || (!running && (!profile.enabled || !!profile.lockedReason)) || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
+          {/* One-game owner policy: exact-owner Stop remains available, while
+              unknown, owned or in-flight lifecycle state fences every idle Start. */}
+          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={!!batchBusy || runBusyIds.has(profile.id) || (!running && (runBusyIds.size > 0 || stopIds.length > 0 || (!!readInstance && !instanceKnown) || !profile.enabled || !!profile.lockedReason)) || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
         </div>;
       })}</div>
       <button type="button" className="profile-add" disabled={busy || atCapacity || !onCreate} onClick={() => {
-        setActionError("");
-        Promise.resolve().then(() => onCreate?.()).catch((failure) => setActionError(profileError(t, failure)));
+        setActionFailures([]);
+        Promise.resolve().then(() => onCreate?.()).catch((failure) => setActionFailures([{ error: failure }]));
       }}>{!atCapacity ? <ProfileIcon name="add" /> : null}{t(atCapacity ? "profile.limitReached" : "profile.addAccount")}</button>
       {error ? <small className="profile-error">{profileError(t, error)}</small> : null}
       {launchError || actionError ? <small className="profile-error">{[launchError, actionError].filter(Boolean).join("\n")}</small> : null}
       {restartRequired ? <button type="button" className="profile-add" disabled={!!batchBusy || !onRestartAll} onClick={async () => {
         if (!onRestartAll) return;
         setBatchBusy("start");
-        try { await onRestartAll(); setRestartRequired(false); setActionError(""); }
-        catch (failure) { setActionError(profileError(t, failure)); }
+        try { await onRestartAll(); setRestartRequired(false); setActionFailures([]); }
+        catch (failure) { setActionFailures([{ error: failure }]); }
         finally { setBatchBusy(""); }
       }}>{t("profile.restartAll")}</button> : null}
     <button type="button" className="profile-collapse" disabled={!onHide} aria-label={t("profile.collapse")} title={t("profile.collapse")} onClick={() => onHide?.()}><ProfileIcon name="chevron-left" /></button>
     {noteId ? <ProfileNoteDialog busy={busy} onClose={() => setNoteId("")}><form className="profile-dialog" onSubmit={(event) => {
-      event.preventDefault(); setActionError("");
+      event.preventDefault(); setActionFailures([]);
       if (!onUpdateNote) return;
-      Promise.resolve(onUpdateNote(noteId, noteValue)).then(() => setNoteId("")).catch((failure) => setActionError(profileError(t, failure)));
+      Promise.resolve(onUpdateNote(noteId, noteValue)).then(() => setNoteId("")).catch((failure) => setActionFailures([{ error: failure }]));
     }}><h3 id="profile-note-title">{t("profile.noteDialogTitle")}</h3><input aria-label={t("profile.noteDialogTitle")} value={noteValue} maxLength={80} autoFocus placeholder={t("profile.notePlaceholder")} onChange={(event) => setNoteValue(event.target.value)} /><div className="profile-dialog-actions"><button type="button" disabled={busy} onClick={() => setNoteId("")}>{t("common.cancel")}</button><button type="submit" disabled={busy || !onUpdateNote}>{t("profile.saveNote")}</button></div></form></ProfileNoteDialog> : null}
   </section>;
 }

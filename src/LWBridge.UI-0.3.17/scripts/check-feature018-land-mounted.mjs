@@ -34,6 +34,8 @@ window.clearInterval = (id) => intervals.delete(id);
 let receiver;
 let landReply = "locked";
 let sendingFailure = false;
+let holdLandStatus = false;
+let heldLandStatus = null;
 const requests = [];
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "approved-inert-session",
@@ -50,6 +52,11 @@ window.chrome = { webview: {
       response = { frontlineReinforce: true, frontlineReinforceCount: 5,
         treasureChestHint: false };
     } else if (request.command === "mini_land_status") {
+      if (holdLandStatus) {
+        holdLandStatus = false;
+        heldLandStatus = request;
+        return;
+      }
       const targeted = request.payload.expectedCellId !== undefined;
       if (targeted) assert.equal(request.payload.expectedCellId, 6);
       response = {
@@ -67,8 +74,6 @@ window.chrome = { webview: {
       if (!sendingFailure) response = {
         cellId: 6, requestDispatched: true, awaitingGameConfirmation: true,
       };
-    } else if (request.command === "mini_chest_unmark") {
-      response = { markerVisible: false };
     } else if (request.command === "mini_sheep_status") {
       response = { game: "LWSheep", level: 1 };
     } else if (request.command === "feature018_sheep_automation_status") {
@@ -122,6 +127,8 @@ assert.equal(gCount.value, "5", "Saved G soldiers-per-press count was not render
 assert.equal(requests.some((r) => r.command === "mini_frontline_status" ||
   r.command === "feature018_frontline_action"), false,
   "Removed Frontline diagnostic command ran from the Mini Games page");
+assert.equal(requests.some((r) => r.command === "mini_chest_unmark" || r.command === "mini_chest_mark"), false,
+  "Opening Mini Games with Black Market disabled sent a marker mutation");
 assert.ok(landAction(), "Native one-cell Mini Games control failed to mount");
 await flush(() => landAction().click());
 const sends = () => requests.filter((r) => r.command === "monopoly_cell_open");
@@ -154,7 +161,35 @@ assert.equal(landAction().disabled, true, "Uncertain native Land send permitted 
 await tick(1000);
 assert.equal(sends().length, attempted, "Uncertain Land send retried in the same owner session");
 
+sendingFailure = false;
+backendBridge.setSelectedProfile("land-race-source-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "land-race-source-profile";
+await flush(() => mounted.render(React.createElement(I18nProvider, {},
+  React.createElement(MiniGamesPage, { online: true }))));
+assert.equal(landAction().disabled, false,
+  "Fresh inert Land owner did not retire the previous owner's uncertain-send latch");
+holdLandStatus = true;
+await flush(() => landAction().click());
+assert.ok(heldLandStatus, "Land preflight did not enter the in-flight owner-race fixture");
+assert.equal(landAction().disabled, true, "Pending Land preflight did not set its busy state");
+backendBridge.setSelectedProfile("land-race-next-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "land-race-next-profile";
+await flush(() => mounted.render(React.createElement(I18nProvider, {},
+  React.createElement(MiniGamesPage, { online: true }))));
+assert.equal(landAction().disabled, false,
+  "Retired Land preflight left the new profile button busy");
+await flush(() => receiver?.({ data: {
+  kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
+  id: heldLandStatus.id, ok: true,
+  result: { cellId: 6, state: "locked", kind: "city_land_lock" },
+} }));
+heldLandStatus = null;
+assert.equal(landAction().disabled, false,
+  "Late retired Land preflight restored stale busy state");
+assert.doesNotMatch(miniPage.textContent, /PROFILE_GENERATION_RETIRED|Land cell identity changed|Native reply|Unconfirmed native/,
+  "Retired Land preflight leaked raw/internal failure text");
+
 await flush(() => mounted.unmount());
 assert.equal(intervals.size, 0, "Native Mini Games polling timers leaked on unmount");
 backendBridge.dispose();
-console.log("FEATURE018_LAND_MOUNTED_OFFLINE_PASS diagnostics=removed originalG=count-preserved exactCell=6 unmatchedPush=noSuccess timeout=noResend matchedReply=confirmed");
+console.log("FEATURE018_LAND_MOUNTED_OFFLINE_PASS diagnostics=removed originalG=count-preserved exactCell=6 unmatchedPush=noSuccess timeout=noResend matchedReply=confirmed ownerRace=retired passiveChest=true");

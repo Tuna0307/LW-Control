@@ -56,11 +56,15 @@ assert.equal(document.querySelector(".map-actions button:last-child").disabled,t
 await flush(()=>document.querySelector('.map-actions button.primary').click());
 assert.equal(starts.at(-1).mode,"fast","legacy normal preference must use the best method");
 const workingSearch=api.search;
-api.search=async()=>{throw new Error("Saved server query failed: database unavailable");};
+api.search=async()=>{const error=new Error("MAP_QUERY_FAILED: Saved server query failed: database unavailable");error.code="MAP_QUERY_FAILED";throw error;};
 await flush(()=>document.querySelector('.map-searchbar > button').click());
-assert.match(document.querySelector('.map-search .map-scan-error[role="alert"]')?.textContent||"",/database unavailable/,
+const queryAlert=document.querySelector('.map-search .map-scan-error[role="alert"]')?.textContent||"";
+assert.match(queryAlert,/database unavailable/,
   "a failed aggregate query must report its error rather than show an empty successful table");
+assert.doesNotMatch(queryAlert,/MAP_QUERY_FAILED/,"visible Map query errors must hide internal codes");
 api.search=workingSearch;
+await flush(()=>document.querySelector('.map-searchbar > button').click());
+assert.equal(document.querySelector('.map-search .map-scan-error[role="alert"]'),null,"successful Map retry must clear its transient query error");
 // A live server without records must not be reinserted as a saved server.
 servers=[];state={...state,serverId:2211};await render();await flush();
 assert.equal(document.querySelector('[data-map-saved-server]'),null,"cleared/live-only servers must not remain in Saved lists");

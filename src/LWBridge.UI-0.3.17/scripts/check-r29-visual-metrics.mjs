@@ -70,7 +70,7 @@ const bridge = {
 globalThis.__r29VisualMetrics = { bridge };
 const bundle = await build({
   stdin: {
-    contents: 'export { SettingsPage } from "./SettingsPage.jsx"; export { App } from "./App.jsx"; export { I18nProvider } from "./i18n.jsx";',
+    contents: 'export { SettingsPage } from "./SettingsPage.jsx"; export { App } from "./App.jsx"; export { I18nProvider, useI18n } from "./i18n.jsx";',
     resolveDir: src,
     loader: "jsx",
   },
@@ -109,11 +109,23 @@ const visualCalls = () => calls.filter(({ command }) =>
   || command === "feature018_visual_metrics_configure");
 const clearCalls = () => { calls.length = 0; };
 
-async function mountSettings({ online, handler }) {
+function SettingsHarness(props) {
+  const { language, setLanguage } = mod.exports.useI18n();
+  return React.createElement(React.Fragment, null,
+    React.createElement("select", {
+      id: "settings-test-language",
+      value: language,
+      onChange: (event) => setLanguage(event.target.value),
+    }, React.createElement("option", { value: "en" }, "English"), React.createElement("option", { value: "zh-CN" }, "Chinese")),
+    React.createElement(mod.exports.SettingsPage, props),
+  );
+}
+
+async function mountSettings({ online, handler, nativeUpdateStatus = { phase: "available", currentVersion: "0.3.17", latestVersion: "0.3.18", message: null } }) {
   invokeHandler = handler;
   clearCalls();
   const root = createRoot(container);
-  await flush(() => root.render(wrap(React.createElement(mod.exports.SettingsPage, { online }))));
+  await flush(() => root.render(wrap(React.createElement(SettingsHarness, { online, nativeUpdateStatus }))));
   for (let i = 0; i < 3; i++) await flush();
   return root;
 }
@@ -133,6 +145,15 @@ const settingsHandler = async (command, args) => {
 };
 
 let mounted = await mountSettings({ online: true, handler: settingsHandler });
+assert.equal(container.querySelector(".feedback-panel"), null,
+  "native Settings must not render the preview-only feedback export card");
+assert.ok(container.querySelector('[data-native-update-status="read-only"]')?.textContent.includes("Current version: 0.3.17"),
+  "native Settings must show the real update_status version instead of '-' placeholder data");
+assert.equal(container.querySelector('[data-native-update-status="read-only"] .update-available')?.textContent, "A new version is available.",
+  "native Settings must render the real available update phase even though manual update actions remain fenced");
+const nativeActionLabels = [...container.querySelectorAll(".settings-panel button")].map((button) => button.textContent.trim());
+assert.ok(!nativeActionLabels.includes("Export diagnostics"), "native Settings must not expose a dead feedback Export button");
+assert.ok(!nativeActionLabels.includes("Check for updates"), "native Settings must not expose a dead manual update button");
 assert.deepEqual(visualCalls().map(({ command }) => command), ["visual_metrics_config_get"],
   "native Settings must load visual metrics from the profile runtime store");
 let toggleNodes = switches();
@@ -201,19 +222,51 @@ assert.deepEqual({ showFps: persisted.showFps, showPing: persisted.showPing }, {
 assert.equal(checked(switches()[0]), true, "offline persisted FPS toggle did not remain enabled");
 await flush(() => mounted.unmount());
 
-// Load failures stay localized/plain rather than exposing native details.
+// Load failures stay localized/plain, re-localize while visible, and recover
+// through an explicit retry without remounting Settings or changing profile.
+let failLoad = true;
 mounted = await mountSettings({
   online: false,
   handler: async (command) => {
-    if (command === "visual_metrics_config_get") throw new Error("NATIVE_SECRET_LOAD_DETAIL_SHOULD_NOT_RENDER");
+    if (command === "visual_metrics_config_get") {
+      if (failLoad) throw new Error("NATIVE_SECRET_LOAD_DETAIL_SHOULD_NOT_RENDER");
+      return { showFps: false, showPing: true };
+    }
     throw new Error(`Unexpected load-error command: ${command}`);
   },
 });
-const loadAlert = container.querySelector('.update-error[role="alert"]');
+let loadAlert = container.querySelector('.update-error[role="alert"]');
 assert.equal(loadAlert?.textContent, "Failed to load in-game display settings.",
   "load failure must surface the localized plain Settings error");
 assert.ok(!container.textContent.includes("NATIVE_SECRET_LOAD_DETAIL_SHOULD_NOT_RENDER"),
   "native load details leaked into Settings UI");
+const testLanguage = document.getElementById("settings-test-language");
+await flush(() => {
+  testLanguage.value = "zh-CN";
+  testLanguage.dispatchEvent(new Event("change", { bubbles: true }));
+});
+for (let i = 0; i < 3; i++) await flush();
+loadAlert = container.querySelector('.update-error[role="alert"]');
+assert.equal(loadAlert?.textContent, "无法读取游戏内显示设置。",
+  "visible visual-metrics load failure must re-localize after switching to zh-CN");
+failLoad = false;
+clearCalls();
+const retryLoad = container.querySelector(".settings-panel > .update-panel .update-actions button");
+assert.ok(retryLoad, "native visual-metrics load failure must expose a Retry action");
+await flush(() => retryLoad.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+for (let i = 0; i < 3; i++) await flush();
+assert.deepEqual(visualCalls().map(({ command }) => command), ["visual_metrics_config_get"],
+  "visual-metrics Retry must perform exactly one fresh persisted-state read");
+assert.equal(container.querySelector('.update-error[role="alert"]'), null,
+  "successful visual-metrics Retry must clear the previous load failure");
+assert.equal(switches().length, 2, "successful visual-metrics Retry must restore both switches");
+assert.equal(checked(switches()[0]), false, "retried FPS persisted state mismatch");
+assert.equal(checked(switches()[1]), true, "retried Ping persisted state mismatch");
+await flush(() => {
+  testLanguage.value = "en";
+  testLanguage.dispatchEvent(new Event("change", { bubbles: true }));
+});
+for (let i = 0; i < 3; i++) await flush();
 await flush(() => mounted.unmount());
 
 // App reconnect synchronization: offline startup sends no game configuration;

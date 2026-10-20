@@ -8,6 +8,20 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
   const { t } = useI18n();
   const enabled = config[card.key] === true;
   const cardWarning = card.warning ? t(card.warning) : "";
+  const savedFrontlineCount = Number.isInteger(config.frontlineReinforceCount) ? config.frontlineReinforceCount : 5;
+  const [frontlineCountDraft, setFrontlineCountDraft] = useState(() => String(savedFrontlineCount));
+  useEffect(() => {
+    setFrontlineCountDraft(String(savedFrontlineCount));
+  }, [savedFrontlineCount]);
+  const commitFrontlineCount = () => {
+    const count = Number(frontlineCountDraft);
+    if (!Number.isInteger(count) || count < 1 || count > 50) {
+      setFrontlineCountDraft(String(savedFrontlineCount));
+      return;
+    }
+    if (count !== savedFrontlineCount)
+      onSaveField({ ...config, frontlineReinforceCount: count }, "frontlineReinforceCount");
+  };
   return (
     <article className={`hotkey-card${cardWarning ? " hotkey-card-danger" : ""}`} data-preview-fixture={previewEnabled ? "hotkeys-config" : undefined}>
       <div className="hotkey-card-header">
@@ -20,12 +34,12 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
         <label className="hotkey-attack-toggle">
           {t("hotkeys.frontlineReinforce.countLabel")}
           <input type="number" min={1} max={50} step={1} style={{ width: "4.5em", marginLeft: "0.5em" }}
-            value={Number.isInteger(config.frontlineReinforceCount) ? config.frontlineReinforceCount : 5}
+            value={frontlineCountDraft}
             disabled={pendingField !== null}
-            onChange={(event) => {
-              const count = Math.round(Number(event.target.value));
-              if (Number.isFinite(count) && count >= 1 && count <= 50 && count !== config.frontlineReinforceCount)
-                onSaveField({ ...config, frontlineReinforceCount: count }, "frontlineReinforceCount");
+            onChange={(event) => setFrontlineCountDraft(event.target.value)}
+            onBlur={commitFrontlineCount}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
             }} />
         </label>
       ) : null}
@@ -85,7 +99,8 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
   const [landBusy, setLandBusy] = useState(previewState === "mini-games-land-opening");
   const [landResult, setLandResult] = useState(() => previewState === "mini-games-land-success" ? t("miniGames.landCellSent", { id: 17 }) : "");
   const [landPendingId, setLandPendingId] = useState(null);
-  const [chestMarker, setChestMarker] = useState({ visible: false, reason: "" });
+  const [chestMarker, setChestMarker] = useState({ visible: false, unavailable: false });
+  const chestPreferenceRef = useRef(null);
   const [sheepBusy, setSheepBusy] = useState(previewState === "mini-games-sheep-pending");
   const [sheepActionError, setSheepActionError] = useState(() => previewState === "mini-games-start-failed" ? t("miniGames.sheep.failed") : "");
   const [previewSheepSnapshot] = useState(() => previewEnabled ? previewSheepStatus(previewState, Date.now()) : null);
@@ -100,14 +115,15 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
     const owner = backendBridge.currentProfileOwner();
     setHotkeyConfig(null);
     setHotkeyError("");
+    setPendingField(null);
     const read = async () => {
       try {
         const config = await backendBridge.invokeProfileScoped("hotkey_config_get");
         if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
         sourceConfigRef.current = config;
         setHotkeyConfig(config);
-      } catch (error) {
-        if (active) setHotkeyError(`${t("hotkeys.loadFailed")} (${error.code || error.message})`);
+      } catch {
+        if (active && backendBridge.isCurrentProfileOwner(owner)) setHotkeyError(t("hotkeys.loadFailed"));
       }
     };
     void read();
@@ -136,10 +152,10 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       if (!backendBridge.isCurrentProfileOwner(owner)) return;
       sourceConfigRef.current = saved;
       setHotkeyConfig(saved);
-    } catch (error) {
+    } catch {
       if (!backendBridge.isCurrentProfileOwner(owner)) return;
       setHotkeyConfig(previous);
-      setHotkeyError(`${t("hotkeys.saveFailed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
+      setHotkeyError(t("hotkeys.saveFailed"));
     } finally {
       if (backendBridge.isCurrentProfileOwner(owner)) setPendingField(null);
     }
@@ -219,26 +235,41 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
 
   useEffect(() => {
     if (!isMiniGames || previewEnabled || !online || !hotkeyConfig) {
-      setChestMarker({ visible: false, reason: "" });
+      setChestMarker({ visible: false, unavailable: false });
       return undefined;
     }
     let active = true;
     let busy = false;
     const owner = backendBridge.currentProfileOwner();
     const enabled = hotkeyConfig.treasureChestHint === true;
+    const prior = chestPreferenceRef.current;
+    const shouldUnmark = prior?.profileId === owner.profileId && prior.enabled === true && !enabled;
+    chestPreferenceRef.current = { profileId: owner.profileId, enabled };
+    if (!enabled && !shouldUnmark) {
+      setChestMarker({ visible: false, unavailable: false });
+      return undefined;
+    }
     const synchronize = async () => {
       if (!active || busy) return;
       busy = true;
       try {
+        if (enabled) {
+          const position = await backendBridge.invokeProfileScoped("mini_chest_position", {}, 5000);
+          if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
+          if (position?.markerEligible !== true) {
+            setChestMarker({ visible: false, unavailable: true });
+            return;
+          }
+        }
         const result = await backendBridge.invokeProfileScoped(
           enabled ? "mini_chest_mark" : "mini_chest_unmark", {}, 5000);
         if (active && backendBridge.isCurrentProfileOwner(owner)) {
           setChestMarker({ visible: result?.markerVisible === true && enabled,
-            reason: result?.observation || "" });
+            unavailable: enabled && result?.markerVisible !== true });
         }
-      } catch (error) {
+      } catch {
         if (active && backendBridge.isCurrentProfileOwner(owner)) {
-          setChestMarker({ visible: false, reason: enabled ? error.code || error.message : "" });
+          setChestMarker({ visible: false, unavailable: enabled });
         }
       } finally { busy = false; }
     };
@@ -256,6 +287,11 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
     // cell ID and confirmation text must never carry over to the new owner.
     setLandPendingId(null);
     setLandResult("");
+    setLandBusy(false);
+    setSheepBusy(false);
+    setSheepActionError("");
+    setChestMarker({ visible: false, unavailable: false });
+    chestPreferenceRef.current = null;
   }, [isMiniGames, previewEnabled, backendBridge.profileGeneration]);
 
   useEffect(() => {
@@ -291,7 +327,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           "mini_land_status", { expectedCellId: landPendingId }, 5000);
         if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
         if (response?.cellId !== landPendingId || response?.exactCellLookup !== true) {
-          setHotkeyError(`${t("miniGames.landCellFailed")} (Land cell identity changed)`);
+          setHotkeyError(t("miniGames.landCellStateChanged"));
         } else if (response?.state === "unlocked" &&
             response?.requestProof?.requestCausalityConfirmed === true &&
             response.requestProof.replyLandId === landPendingId &&
@@ -303,13 +339,13 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         } else if (response?.state === "unlocked") {
           // No second send: the change may be a push or an unrelated user
           // action. Keep the pending latch and expose the missing proof.
-          setHotkeyError(`${t("miniGames.landCellFailed")} (Native reply correlation unconfirmed)`);
+          setHotkeyError(t("miniGames.landCellUnconfirmed"));
         } else if (response?.state !== "locked") {
-          setHotkeyError(`${t("miniGames.landCellFailed")} (Unconfirmed native land state)`);
+          setHotkeyError(t("miniGames.landCellUnconfirmed"));
         }
-      } catch (error) {
+      } catch {
         if (active && backendBridge.isCurrentProfileOwner(owner)) {
-          setHotkeyError(`${t("miniGames.landCellFailed")} (${error.code || error.message})`);
+          setHotkeyError(t("miniGames.landCellFailed"));
           // A status timeout may follow a successful send. Never enable the
           // action button to retransmit while this owner remains pending.
         }
@@ -354,9 +390,9 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         }
         setLandResult(t("miniGames.landCellSent", { id: result.cellId }));
       }
-    } catch (error) {
+    } catch {
       if (previewEnabled || backendBridge.isCurrentProfileOwner(owner))
-        setHotkeyError(`${t("miniGames.landCellFailed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
+        setHotkeyError(t("miniGames.landCellFailed"));
     } finally {
       if (previewEnabled || backendBridge.isCurrentProfileOwner(owner)) setLandBusy(false);
     }
@@ -364,6 +400,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
 
   async function toggleSheepGame() {
     if (!online || sheepBusy) return;
+    const owner = backendBridge.currentProfileOwner();
     setSheepBusy(true);
     setSheepActionError("");
     try {
@@ -376,17 +413,18 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         // acknowledgement; the next real automation_status decides running.
         await backendBridge.invokeProfileScoped(sheepRunning ? "automation_stop" : "automation_start", { taskName: "sheepGame" });
       }
-    } catch (error) {
-      setSheepActionError(`${t("miniGames.sheep.failed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
+    } catch {
+      if (previewEnabled || backendBridge.isCurrentProfileOwner(owner))
+        setSheepActionError(t("miniGames.sheep.failed"));
     } finally {
-      setSheepBusy(false);
+      if (previewEnabled || backendBridge.isCurrentProfileOwner(owner)) setSheepBusy(false);
     }
   }
 
   const sheepStartedAt = Number(sheepStatus?.startedAt) || 0;
   const sheepDurationMs = sheepStatus?.durationMs ?? (sheepRunning && sheepStartedAt > 0 ? Math.max(0, now - sheepStartedAt) : 0);
   const showSheepElapsed = (sheepRunning && sheepStartedAt > 0) || (sheepStatus?.step === "completed" && sheepStatus?.durationMs != null);
-  const sheepStatusText = sheepRunning && sheepStatus?.step === "executing" && sheepStatus?.plannedMoves > 0
+  const sheepStatusText = !online ? t("miniGames.sheep.offline") : sheepRunning && sheepStatus?.step === "executing" && sheepStatus?.plannedMoves > 0
     ? t("miniGames.sheep.progress", { confirmed: sheepStatus.confirmedMoves ?? 0, total: sheepStatus.plannedMoves })
     : t(sheepStatusKey(sheepStatus));
   const cards = isMiniGames ? MINI_GAME_HOTKEY_CARDS : HOTKEY_CARDS;
@@ -403,7 +441,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           <p>{t("miniGames.treasureChest.description")}</p>
           <ToggleRow label={t("miniGames.treasureChest.enabled")} checked={hotkeyConfig?.treasureChestHint === true} disabled={!hotkeyConfig || pendingField !== null} onChange={(enabled) => { if (hotkeyConfig) saveHotkeyField({ ...hotkeyConfig, treasureChestHint: enabled }, "treasureChestHint"); }} />
           {!previewEnabled && chestMarker.visible ? <span className="hotkey-state enabled">{t("miniGames.treasureChest.marker")}</span> : null}
-          {!previewEnabled && hotkeyConfig?.treasureChestHint === true && chestMarker.reason && !chestMarker.visible ? <small>{chestMarker.reason}</small> : null}
+          {!previewEnabled && hotkeyConfig?.treasureChestHint === true && chestMarker.unavailable && !chestMarker.visible ? <small>{t("miniGames.treasureChest.unavailable")}</small> : null}
         </article> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.landCell.title")}</h3>
@@ -419,7 +457,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           <span className={sheepStatus?.step === "completed" ? "hotkey-state enabled" : "hotkey-state"}>{sheepStatusText}</span>
           <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
           {sheepActionError ? <div className="automation-error" role="alert">{sheepActionError}</div> : null}
-          {!previewEnabled && sheepStatus?.error && sheepStatus?.step === "solve_failed" ? <div className="automation-error" role="alert">{sheepStatus.error}</div> : null}
+          {!previewEnabled && sheepStatus?.error && sheepStatus?.step === "solve_failed" ? <div className="automation-error" role="alert">{t("miniGames.sheep.runtimeFailed")}</div> : null}
         </article> : null}
       </div> : null}
       {hotkeyError ? <div className="automation-error" role="alert">{hotkeyError}</div> : null}

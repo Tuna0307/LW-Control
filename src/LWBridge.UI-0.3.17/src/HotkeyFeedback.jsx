@@ -34,26 +34,30 @@ export function HotkeyFeedback({ profileId, activeRoute }) {
   if (!outcome) return null;
   const keys = outcome.kind === "AttackSquad" ? "QWER" : outcome.kind === "RecallSquad" ? "ASDF" : null;
   const relocation = outcome.kind === "RandomRelocate" || outcome.kind === "AllianceRelocate";
-  const key = outcome.kind === "RandomRelocate" ? "F9" :
-    outcome.kind === "AllianceRelocate" ? "F10" : keys?.[outcome.slot - 1] || outcome.kind;
-  const nativeReason = outcome.reason.replace(/^current_client_game_action_rejected \[[^\]]+\]: /, "");
-  const internalReason = /[_]{1,}|\[[A-Z0-9_]+\]/.test(nativeReason);
-  const reason = relocation && outcome.status === "Confirmed" ? "Relocation confirmed." :
-    relocation && outcome.status === "Submitted" ?
-      "Relocation was sent but the game state is not confirmed yet. Check the city position before using the hotkey again." :
-    relocation && outcome.status === "SessionChanged" ?
-      "The game account or session changed. Reconnect before using the relocation hotkey again." :
-    relocation && outcome.status === "Unsupported" ?
-      "Relocation is not available in the current game state." :
-    relocation && internalReason ?
-      "Relocation could not be confirmed. Check the city position before using the hotkey again." :
-    nativeReason;
+  const displayKey = outcome.kind === "RandomRelocate" ? "F9" :
+    outcome.kind === "AllianceRelocate" ? "F10" :
+    keys?.[outcome.slot - 1] ||
+    (outcome.kind === "UseShield" ? (outcome.slot === 8 ? "F6" : outcome.slot === 12 ? "F7" : outcome.slot === 24 ? "F8" : t("hotkeys.feedback.hotkey")) :
+    outcome.kind === "ApplyEquipmentPreset" && outcome.slot >= 1 && outcome.slot <= 4 ? `Alt+${outcome.slot}` :
+    outcome.kind === "ReinforceFrontline" ? "G" :
+    t("hotkeys.feedback.hotkey"));
+  const commonReason = outcome.status === "NotFocused" ? t("hotkeys.feedback.notFocused") :
+    outcome.status === "SessionChanged" ? t("hotkeys.feedback.sessionChanged") :
+    outcome.status === "Unsupported" ? t("hotkeys.feedback.unsupported") :
+    outcome.status === "Busy" ? t("hotkeys.feedback.busy") :
+    outcome.status === "Submitted" ? t("hotkeys.feedback.submitted") :
+    t("hotkeys.feedback.actionFailed");
+  const reason = relocation && outcome.status === "Confirmed" ? t("hotkeys.feedback.relocationConfirmed") :
+    relocation && outcome.status === "Submitted" ? t("hotkeys.feedback.relocationSubmitted") :
+    relocation && outcome.status === "Unsupported" ? t("hotkeys.feedback.relocationUnsupported") :
+    relocation && !["NotFocused", "SessionChanged", "Busy"].includes(outcome.status) ? t("hotkeys.feedback.relocationFailed") :
+    commonReason;
   return <div className={`hotkey-feedback ${outcome.status === "Confirmed" ? "automation-success" : "automation-error"}`} role="status" aria-live="polite"
     data-hotkey-status={outcome.status} style={{ position: "fixed", top: 66, left: 24,
       right: 24, zIndex: 1000, padding: "10px 14px", background: "var(--panel-bg, #fff)",
       border: "1px solid currentColor", borderRadius: 8 }}>
     <button type="button" aria-label={t("common.close")} title={t("common.close")}
       onClick={() => setOutcome(null)} style={{ float: "right", marginLeft: 12 }}>×</button>
-    <strong>{key}</strong>: {reason}
+    <strong>{displayKey}</strong>: {reason}
   </div>;
 }

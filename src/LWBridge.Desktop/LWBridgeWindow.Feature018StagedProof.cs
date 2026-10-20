@@ -77,6 +77,7 @@ internal sealed partial class LWBridgeWindow
         }
         var log = new List<object>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
+        bool completedBySweep = false;
         string queue = Path.Combine(directory, "feature018-live-request.json");
         async Task Save(string state = "running") => await File.WriteAllTextAsync(outputPath,
             JsonSerializer.Serialize(new { schemaVersion = 3, state,
@@ -152,6 +153,7 @@ internal sealed partial class LWBridgeWindow
                             {
                                 "r29-part-a" => Path.Combine(directory, "r29-part-a-ui.json"),
                                 "r29-preset-speed" => Path.Combine(directory, "r29-preset-speed.json"),
+                                "r29-sweep" => Path.Combine(directory, "r29-sweep-connected.json"),
                                 _ => Path.Combine(directory, "r23-" + surface + "-ui.json"),
                             };
                             if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
@@ -159,6 +161,11 @@ internal sealed partial class LWBridgeWindow
                                 await RunFeature018R29PartAProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "r29-preset-speed")
                                 await RunFeature018R29PresetSpeedProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else if (surface == "r29-sweep")
+                            {
+                                await RunFeature018R29ConnectedSweepAsync(core, receipt, directory, owner, uid, serverId, token);
+                                completedBySweep = true;
+                            }
                             else if (surface == "equipment")
                                 await RunFeature018R28EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "city")
@@ -396,7 +403,7 @@ internal sealed partial class LWBridgeWindow
                             result = file;
                         }
                         else throw new InvalidDataException("Unsupported proof operation");
-                        await WaitOwnedAsync();
+                        if (!completedBySweep) await WaitOwnedAsync();
                         log.Add(new { id, kind, request = root.Clone(), state = "returned", result,
                             observedAtUtc = DateTimeOffset.UtcNow });
                     }
@@ -408,9 +415,10 @@ internal sealed partial class LWBridgeWindow
                             error = error.Message, observedAtUtc = DateTimeOffset.UtcNow });
                     }
                     await Save();
+                    if (completedBySweep) break;
                 }
             }
-            await Save("partial");
+            await Save(completedBySweep ? "proven" : "partial");
         }
         finally
         {

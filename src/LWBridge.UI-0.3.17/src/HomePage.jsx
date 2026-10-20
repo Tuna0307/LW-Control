@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { ToggleRow } from "./sharedPageUI.jsx";
 
@@ -77,6 +78,7 @@ export function HomePage({
   onUpdateAndRestart,
 }) {
   const { t } = useI18n();
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
   const preview = previewHomeState(previewState);
   const state = preview || homeState || {};
   const rootResolved = state.rootResolved === true;
@@ -108,6 +110,10 @@ export function HomePage({
     else status = t("setup.gameStopped");
   }
 
+  useEffect(() => {
+    if (!canStop || repairOnClose) setCloseConfirmOpen(false);
+  }, [canStop, repairOnClose]);
+
   return (
     <section className="panel quick-actions-panel" data-preview-fixture={preview ? previewState : undefined}>
       <div className="panel-title">
@@ -126,7 +132,7 @@ export function HomePage({
           {!repairOnClose ? (
             <button className="primary" type="button" disabled={!canStart} onClick={onStartGame}>{t(launching ? "setup.launchingGame" : proxyBusy ? "common.processing" : "top.launchGame")}</button>
           ) : null}
-          <button type="button" disabled={!canStop} onClick={repairOnClose ? onUpdateAndRestart : onStopGame}>
+          <button type="button" disabled={!canStop} onClick={repairOnClose ? onUpdateAndRestart : () => setCloseConfirmOpen(true)}>
             {t(proxyBusy && gameRunning ? "common.processing" : repairOnClose ? "setup.updateAndLaunch" : "setup.closeGameAction")}
           </button>
           {/* F-01/F-07 OWN_DESIGN: a secondary profile needs a way to select
@@ -156,6 +162,19 @@ export function HomePage({
       {recoveryState === "failed" && state.gameRecoveryStatus?.error ? (
         <span className="game-root-error">{t("recovery.failedDetail", { error: translatedError(t, state.gameRecoveryStatus.error) })}</span>
       ) : null}
+      {closeConfirmOpen && canStop && !repairOnClose ? <div className="scheme-modal-backdrop">
+        <section className="scheme-modal home-close-confirm" role="dialog" aria-modal="true" aria-labelledby="home-close-confirm-title">
+          <strong id="home-close-confirm-title">{t("setup.closeGameConfirm")}</strong>
+          {state.autoReconnect === true ? <p className="muted">{t("setup.closeGameAutoRestartWarning")}</p> : null}
+          <div className="scheme-modal-actions">
+            <button type="button" onClick={() => setCloseConfirmOpen(false)}>{t("common.cancel")}</button>
+            <button className="danger" type="button" onClick={() => {
+              setCloseConfirmOpen(false);
+              onStopGame?.();
+            }}>{t("setup.closeGameAction")}</button>
+          </div>
+        </section>
+      </div> : null}
     </section>
   );
 }

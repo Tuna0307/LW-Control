@@ -14,7 +14,7 @@ const pages = [
   ["squads-afk", "march", "squads-profile"],
   ["squads-equipment", "march", "squads-equipment"],
   ["automation", "automation", "automation-runtime-running"],
-  ["mini-games", "mini-games", "hotkeys-connected"],
+  ["mini-games", "mini-games", "mini-games-active"],
   ["map-data", "map-data", "map-actions-ready"],
   ["city-layout", "city-layout", "city-layout-populated-moved"],
   ["overview", "overview", "home-connected"],
@@ -106,6 +106,7 @@ try {
           const automationTabs = document.querySelector(".automation-categories");
           const topBar = document.querySelector(".top-bar");
           const statusStrip = document.querySelector(".top-bar .status-strip");
+          const miniCards = [...document.querySelectorAll('[data-hotkey-category="miniGames"] .hotkey-grid > .hotkey-card')];
           return {
             pageOverflow,
             mainOverflow,
@@ -116,6 +117,8 @@ try {
             automationTabs: automationTabs ? { clientWidth: automationTabs.clientWidth, scrollWidth: automationTabs.scrollWidth, overflowX: getComputedStyle(automationTabs).overflowX } : null,
             topBar: topBar ? { height: Math.round(topBar.getBoundingClientRect().height) } : null,
             statusStrip: statusStrip ? { top: Math.round(statusStrip.getBoundingClientRect().top), left: Math.round(statusStrip.getBoundingClientRect().left) } : null,
+            miniCardCount: miniCards.length,
+            miniHasG: miniCards.some((card) => card.querySelector("kbd")?.textContent === "G"),
           };
         });
 
@@ -142,7 +145,8 @@ const failures = phase === "after" ? results.filter((row) =>
   row.pageOverflow > 1 ||
   row.layoutOverflow > 1 ||
   row.viewportOffenders.length > 0 ||
-  row.clippedText.some((entry) => !entry.title)
+  row.clippedText.some((entry) => !entry.title) ||
+  (row.page === "mini-games" && (row.miniCardCount !== 4 || !row.miniHasG))
 ) : [];
 
 console.log(`R19 ${phase}: ${results.length} viewport variants; screenshots=${pages.length * widths.length}`);

@@ -37,6 +37,13 @@ let managerReply = { game: "LWSheep", level: 5 };
 let solverReply = { taskName: "sheepGame", running: false, status: "completed",
   currentLevel: 4, totalMoves: 9, confirmedMoves: 9, elapsedSeconds: 31 };
 let landReply = { cellId: 56, state: "locked", awaitingGameConfirmation: true };
+let configReply = {
+  attack: true, recall: true, shieldUse: false, equipment: true,
+  randomRelocate: false, allianceRelocate: false,
+  frontlineReinforce: true, frontlineReinforceCount: 5, treasureChestHint: false,
+};
+let heldAutomation = null;
+let holdAutomationStart = false;
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "mini-r2-offline-session",
   profiles: { selectedProfileId: "mini-r2-offline-profile" },
@@ -50,11 +57,24 @@ window.chrome = { webview: {
     let value;
     switch (message.command) {
       case "hotkey_config_get":
-        value = { frontlineReinforce: true, treasureChestHint: false }; break;
+        value = { ...configReply }; break;
+      case "hotkey_config_save":
+        configReply = { ...message.payload };
+        value = { ...configReply };
+        break;
       case "mini_sheep_status": value = managerReply; break;
       case "feature018_sheep_automation_status": value = solverReply; break;
       case "mini_land_status": value = landReply; break;
-      case "mini_chest_unmark": value = { markerVisible: false }; break;
+      case "mini_chest_position": value = { markerEligible: false }; break;
+      case "automation_start":
+        if (holdAutomationStart) {
+          holdAutomationStart = false;
+          heldAutomation = message;
+          return;
+        }
+        value = { accepted: true, taskName: "sheepGame" };
+        break;
+      case "automation_stop": value = { accepted: true, taskName: "sheepGame" }; break;
       default: throw new Error("Unexpected Mini native command: " + message.command);
     }
     queueMicrotask(() => receiver?.({ data: {
@@ -91,6 +111,12 @@ const tick = (delay) => flush(() => {
 });
 const sheepCard = () => [...document.querySelectorAll(".hotkey-card")].at(-1);
 const landCard = () => [...document.querySelectorAll(".hotkey-card")].at(-2);
+const gCard = () => [...document.querySelectorAll(".hotkey-card")]
+  .find((card) => card.querySelector("kbd")?.textContent === "G");
+const typeInputValue = (input, value) => {
+  Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(input, value);
+  input.dispatchEvent(new window.Event("input", { bubbles: true }));
+};
 
 await flush(() => reactRoot.render(React.createElement(I18nProvider, {},
   React.createElement(MiniGamesPage, { online: true }))));
@@ -103,6 +129,23 @@ assert.doesNotMatch(sheepCard().textContent, /9\s*\/\s*9/,
 assert.ok(landCard().querySelector("button").disabled,
   "remounted Mini tab lost its game-side in-flight land unlock state");
 assert.ok(!calls.includes("monopoly_cell_open"), "recovery should only read native land state");
+assert.ok(!calls.includes("mini_chest_unmark") && !calls.includes("mini_chest_mark"),
+  "Opening Mini Games with Black Market disabled must be passive");
+
+const countInput = gCard().querySelector('input[type="number"]');
+const savesBeforeCount = calls.filter((command) => command === "hotkey_config_save").length;
+await flush(() => {
+  countInput.focus();
+  typeInputValue(countInput, "2");
+  typeInputValue(countInput, "25");
+});
+assert.equal(countInput.disabled, false, "Typing a multi-digit G count disabled the input before commit");
+assert.equal(calls.filter((command) => command === "hotkey_config_save").length, savesBeforeCount,
+  "G count saved before the user committed the multi-digit edit");
+await flush(() => countInput.blur());
+assert.equal(configReply.frontlineReinforceCount, 25, "Committed multi-digit G count was not persisted");
+assert.equal(gCard().querySelector('input[type="number"]').value, "25",
+  "Saved multi-digit G count did not remain visible");
 
 managerUnavailable = true;
 await tick(2000);
@@ -113,8 +156,10 @@ solverReply = { ...solverReply, status: "solve_failed", running: false,
   confirmedMoves: 4, error: "Native server Click was not reconciled" };
 await tick(2000);
 assert.match(sheepCard().querySelector('[role="alert"]')?.textContent || "",
-  /Native server Click was not reconciled/,
-  "native solver's specific failure was not displayed");
+  /Food House stopped because the game did not confirm the automated move/,
+  "native solver failure was not converted to localized owner-facing copy");
+assert.doesNotMatch(sheepCard().textContent, /Native server Click|reconciled|GAME_/,
+  "native solver details leaked into Mini Games");
 assert.doesNotMatch(sheepCard().textContent, /4\s*\/\s*9/,
   "terminal solver failure was hidden behind an executing progress label");
 
@@ -145,6 +190,51 @@ assert.match(landCard().textContent, /84/);
 assert.doesNotMatch(landCard().textContent, /56/,
   "previous owner's land confirmation leaked after profile switch");
 
+solverReply = { ...solverReply, status: "idle", running: false, confirmedMoves: 0, error: "" };
+await tick(2000);
+holdAutomationStart = true;
+await flush(() => sheepCard().querySelector(".mini-game-actions button").click());
+assert.ok(heldAutomation, "Food House start did not enter the in-flight owner-race fixture");
+assert.equal(sheepCard().querySelector(".mini-game-actions button").disabled, true,
+  "Food House start was not marked busy while pending");
+backendBridge.setSelectedProfile("mini-r2-third-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "mini-r2-third-profile";
+landReply = { cellId: 91, state: "locked" };
+await flush(() => reactRoot.render(React.createElement(I18nProvider, {},
+  React.createElement(MiniGamesPage, { online: true }))));
+assert.equal(sheepCard().querySelector(".mini-game-actions button").disabled, false,
+  "Retired Food House request left the new owner busy");
+await flush(() => receiver?.({ data: {
+  kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
+  id: heldAutomation.id, ok: false,
+  error: { code: "GAME_ACTION_FAILED", message: "raw old-owner failure" },
+} }));
+heldAutomation = null;
+assert.doesNotMatch(document.body.textContent, /raw old-owner failure|PROFILE_GENERATION_RETIRED|GAME_ACTION_FAILED/,
+  "Retired Food House request leaked raw failure into the new owner");
+
+await flush(() => reactRoot.render(React.createElement(I18nProvider, {},
+  React.createElement(MiniGamesPage, { online: false }))));
+assert.match(sheepCard().textContent, /Game disconnected\. Food House status is unavailable\./,
+  "Disconnected Mini Games did not show unknown Food House status");
+assert.doesNotMatch(sheepCard().textContent, /Stopped/,
+  "Disconnected Mini Games falsely claimed Food House was stopped");
+
+const chestReadsBefore = calls.filter((command) => command === "mini_chest_position").length;
+const chestMarksBefore = calls.filter((command) => command === "mini_chest_mark").length;
+configReply = { ...configReply, treasureChestHint: true };
+backendBridge.setSelectedProfile("mini-r2-screen-only-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "mini-r2-screen-only-profile";
+landReply = { cellId: 92, state: "locked" };
+await flush(() => reactRoot.render(React.createElement(I18nProvider, {},
+  React.createElement(MiniGamesPage, { online: true }))));
+assert.ok(calls.filter((command) => command === "mini_chest_position").length > chestReadsBefore,
+  "Enabled Black Market screen did not use the read-only eligibility probe");
+assert.equal(calls.filter((command) => command === "mini_chest_mark").length, chestMarksBefore,
+  "Screen-only Black Market state sent a marker mutation without read-only eligibility");
+assert.match(document.body.textContent, /chest marker is not available/i,
+  "Ineligible Black Market screen did not show localized passive-state feedback");
+
 await flush(() => reactRoot.unmount());
 dom.window.close();
-console.log("FEATURE018_MINI_R2_MOUNTED_OFFLINE_PASS completed=visible terminalError=visible landPending=recovered executingProgress=visible");
+console.log("FEATURE018_MINI_R2_MOUNTED_OFFLINE_PASS completed=visible terminalError=localized landPending=recovered executingProgress=visible gCount=multi-digit passiveChest=read-only ownerRace=retired offline=unknown");
