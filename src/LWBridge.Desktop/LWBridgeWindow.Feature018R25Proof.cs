@@ -252,7 +252,7 @@ internal sealed partial class LWBridgeWindow
             if (appliedSlots.SequenceEqual(originalSlots) ||
                 !SelectorValues(afterApply).SequenceEqual(finalPlan.Where(value => !value.EndsWith('=')), StringComparer.Ordinal))
                 throw new InvalidDataException("R25 native equipment differs from applied plan");
-            await RequireDom("!document.querySelector('[data-equipment-plan-banner]')&&document.querySelectorAll('[data-equipment-changed=true]').length===0&&document.querySelector('.equipment-result-success')?.textContent==='Applied'", "R25 applied state not confirmed in tab");
+            await RequireDom("!document.querySelector('[data-equipment-plan-banner]')&&document.querySelectorAll('[data-equipment-changed=true]').length===0&&document.querySelector('[data-equipment-applied=true]')!==null", "R25 applied state not confirmed in tab");
             await Capture("r25-equipment-applied.png");
             await Click("restore");
             JsonElement final = await Snapshot();
@@ -268,6 +268,7 @@ internal sealed partial class LWBridgeWindow
                 nativeApplyMatchedEveryPlannedSlot = true, bannerClearedAfterNativeRead = true, appliedNotice = true,
                 slotsRestoredExactly = slotsRestored, inventoryWearersRestoredExactly = wearersRestored,
                 originalSlots, originalWearers, initialPlan, afterItem, finalPlan, appliedSlots, finalSlots = Slots(final), finalWearers = Wearers(final),
+                appLanguage = JsonDocument.Parse(await core.ExecuteScriptAsync("document.documentElement.lang")).RootElement.GetString(),
                 finishedAtUtc = DateTimeOffset.UtcNow });
         }
         catch (Exception error) when (error is not OperationCanceledException)

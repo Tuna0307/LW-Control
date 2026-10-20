@@ -116,6 +116,21 @@ await runtime.restore();
 assert.deepEqual(bridge.saved.equipmentPresets, savedBeforeRestore, "Restore must preserve all four user presets");
 assert.deepEqual(bridge.calls.filter((call) => call.command === "feature018_equipment_restore").map((call) => call.payload), [{}, { queryOnly: true }]);
 assert.deepEqual(equipmentPositionSnapshot(await runtime.snapshot()), equipmentPositionSnapshot(baseline));
+const interruptedBridge = fakeBridge(), invokeInterrupted = interruptedBridge.invokeProfileScoped.bind(interruptedBridge);
+let queryGap = true;
+interruptedBridge.invokeProfileScoped = async (command, payload) => {
+  if (command === "feature018_hotkey_action") {
+    if (!payload.queryOnly) {
+      await invokeInterrupted(command, payload);
+      throw Object.assign(new Error("Heartbeat gap after accepted native step"), { code: "GAME_CONNECTION_UNAVAILABLE" });
+    }
+    if (queryGap) { queryGap = false; throw Object.assign(new Error("Brief heartbeat gap"), { code: "GAME_DISCONNECTED" }); }
+  }
+  return invokeInterrupted(command, payload);
+};
+const interrupted = createEquipmentRuntime(interruptedBridge, "A", { wait: async () => {} });
+assert.equal((await interrupted.apply(1, moved, fresh)).result.equipmentApplied, true);
+assert.equal(interruptedBridge.calls.filter((call) => call.command === "feature018_hotkey_action" && !call.payload.queryOnly).length, 1, "Heartbeat recovery must never resend Apply");
 const renamed = structuredClone(bridge.saved); renamed.equipmentPresets[0].name = "Saved name";
 await runtime.save(renamed, { ...baseline, ownerUid: "wrong", squads: [] });
 assert.deepEqual(bridge.saved.initialEquipmentConfig.squads, equipmentPositionSnapshot(baseline), "Rename must retain the immutable original baseline");
@@ -227,6 +242,7 @@ assert.ok(mountedBridge.calls.some((call) => call.command === "feature018_hotkey
 assert.equal(document.querySelector('[data-equipment-plan-banner]'), null, "Fresh applied native snapshot must clear banner");
 assert.equal(document.querySelectorAll('[data-equipment-changed=true]').length, 0);
 assert.match(document.querySelector('.equipment-result-success').textContent, /Applied/);
+assert.ok(document.querySelector('[data-equipment-applied=true]'), "Applied marker must use localized confirmed notice");
 await flush(() => document.querySelector('[data-equipment-action="restore"]').click());
 await flush(() => new Promise((resolve) => setTimeout(resolve, 180)));
 assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), equipmentPositionSnapshot(baseline));

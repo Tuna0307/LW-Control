@@ -170,6 +170,7 @@ export function createEquipmentRuntime(bridge, profileId, { wait = (ms) => new P
     if (!next.initialEquipmentConfig && baseline) next.initialEquipmentConfig = { ownerUid: baseline.ownerUid, serverId: baseline.serverId, capturedAt: now(), squads: equipmentPositionSnapshot(baseline) };
     return invoke("equipment_config_save", next);
   };
+  const connectionInterrupted = (error) => ["COMMAND_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code);
   const poll = async (first) => {
     const deadline = now() + timeoutMs;
     let result = first;
@@ -179,10 +180,16 @@ export function createEquipmentRuntime(bridge, profileId, { wait = (ms) => new P
         error.code = "EQUIPMENT_CONFIRMATION_PENDING"; throw error;
       }
       await wait(150); assertOwner();
-      result = await invoke(pending.command, { ...pending.payload, queryOnly: true });
+      try { result = await invoke(pending.command, { ...pending.payload, queryOnly: true }); }
+      catch (error) {
+        if (!connectionInterrupted(error)) throw error;
+        // A brief heartbeat gap may hide an accepted native step. Retain the
+        // exact owner and original payload; only query its existing transaction.
+      }
     }
+    const fresh = await snapshot();
     pending = null;
-    return { result, snapshot: await snapshot() };
+    return { result, snapshot: fresh };
   };
   const begin = async (command, payload) => {
     if (pending) throw new Error("An equipment transaction is unresolved. Resume its confirmation first.");
@@ -191,6 +198,7 @@ export function createEquipmentRuntime(bridge, profileId, { wait = (ms) => new P
     try { first = await invoke(command, payload); }
     catch (error) {
       // A timeout/disconnect may hide an accepted send. Keep the one-shot fence.
+      if (connectionInterrupted(error)) return poll(null);
       if (!["COMMAND_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED", "PROFILE_GENERATION_RETIRED"].includes(error.code)) pending = null;
       throw error;
     }

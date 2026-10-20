@@ -133,7 +133,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
   const editName = (value) => setConfig((current) => {
     const next = clone(current); next.equipmentPresets[selectedIndex].name = value; return next;
   });
-  return <div className="equipment-preset-layout" data-native-equipment="true" data-equipment-busy={busy || undefined}>
+  return <div className="equipment-preset-layout" data-native-equipment="true" data-equipment-busy={busy || undefined} data-equipment-applied={notice === t("squad.equipmentApplied") && !changes.size && !busy || undefined}>
     {changes.size ? <div className="equipment-plan-banner" data-equipment-plan-banner="true" role="status"><strong>{t("squad.equipmentPlanOnly", { number: selectedIndex + 1 })}</strong><span data-equipment-change-count={changes.size}>{t("squad.equipmentUnappliedCount", { count: changes.size })}</span></div> : null}
     {error ? <div className="equipment-result equipment-result-rejected" style={{ gridColumn: "1 / -1" }} role="alert">{error}</div> : null}
     {!runtime || !online ? <div className="map-empty" style={{ gridColumn: "1 / -1" }}>{t("status.gameDisconnectedDisabled")}</div> : null}
