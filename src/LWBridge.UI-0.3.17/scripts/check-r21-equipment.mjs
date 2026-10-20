@@ -184,7 +184,10 @@ const liveBridge = {
   async invokeProfileScoped(command, payload = {}) {
     calls.push({ command, payload: structuredClone(payload) });
     if (command === "equipment_config_get") return structuredClone(savedPresets);
-    if (command === "feature018_equipment_preflight") return { readOnly: true, requestDispatched: false };
+    if (command === "feature018_equipment_preflight") {
+      if (liveBridge.preflightError) throw Object.assign(new Error("Saved item is no longer owned"), { code: "GAME_PRECONDITION_FAILED" });
+      return { readOnly: true, requestDispatched: false };
+    }
     if (command === "equipment_config_save") { savedPresets = structuredClone(payload); return structuredClone(savedPresets); }
     if (command === "feature018_equipment_snapshot") return structuredClone(current);
     if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "native", localeSha256: "locale", englishSha256: "english", texts: Object.fromEntries(payload.keys.map(key => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
@@ -263,6 +266,12 @@ for (let slot = 1; slot <= 4; slot++) {
   otherPresets.forEach((preset, index) => { if (index !== slot - 1) assert.deepEqual(savedPresets.equipmentPresets[index], preset, "Saving one preset must preserve the others"); });
   assert.match(document.body.textContent, new RegExp(`Alt\\+${slot}`));
 }
+liveBridge.preflightError = true;
+await flush(() => document.querySelector('[data-equipment-action="equip-preset"]').click());
+assert.match(document.querySelector('[role="alert"]').textContent, /no longer owned/);
+assert.equal(document.querySelector('[data-equipment-action="save-preset"]').disabled, false, "A rejected read-only preflight must leave presets editable");
+assert.equal(calls.filter(c => c.command === "feature018_hotkey_action").length, 0, "A failed preflight must never send Apply");
+liveBridge.preflightError = false;
 for (let slot = 1; slot <= 4; slot++) {
   await selectValue("1:2:1", ""); await settle();
   await flush(() => document.querySelector(`[data-equipment-preset="${slot}"]`).click());
@@ -284,5 +293,9 @@ const host = { __LWBridgeBootstrap: { mode: "live", sessionId: "equipment-live",
 const realBridge = createBackendBridge(host), realRoot = createRoot(document.getElementById("real-bridge-root"));
 await flush(() => realRoot.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: realBridge }))));
 assert.deepEqual(wireCalls.find(c => c.command === "feature018_equipment_snapshot").payload, { profileId: "A" }, "mounted equipment snapshot must carry only the real profile routing field");
+await flush(() => document.querySelector('#real-bridge-root [data-equipment-action="equip-preset"]').click());
+await settle();
+assert.deepEqual(wireCalls.find(c => c.command === "feature018_equipment_preflight").payload, { slot: 1, profileId: "A" }, "Real WebView preflight must exercise the routed payload accepted by the managed service");
+assert.ok(wireCalls.some(c => c.command === "feature018_hotkey_action" && !c.payload.queryOnly && c.payload.slot === 1));
 await flush(() => realRoot.unmount()); realBridge.dispose(); dom.window.close();
 console.log("FEATURE018_R27_LIVE_PRESETS_UI_OK: live equip/remove/move preserved, level labels, four retained presets/save without mutation/equip via Alt ordinals, no duplicate Refresh, pending fence and real bridge");

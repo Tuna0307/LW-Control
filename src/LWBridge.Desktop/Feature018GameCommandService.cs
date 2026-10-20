@@ -489,8 +489,8 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 // routing metadata; all gear and native authority stay trusted.
                 var keys = new HashSet<string>(StringComparer.Ordinal);
                 if (payload.EnumerateObject().Any(p => p.Name is not ("slot" or "profileId") || !keys.Add(p.Name)) ||
-                    (payload.TryGetProperty("profileId", out JsonElement profile) &&
-                     (profile.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(profile.GetString()) || profile.GetString()!.Length > 128)) ||
+                    (payload.TryGetProperty("profileId", out JsonElement equipmentPreflightRoute) &&
+                     (equipmentPreflightRoute.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(equipmentPreflightRoute.GetString()) || equipmentPreflightRoute.GetString()!.Length > 128)) ||
                     !payload.TryGetProperty("slot", out JsonElement requestedSlot) ||
                     requestedSlot.ValueKind != JsonValueKind.Number ||
                     !requestedSlot.TryGetInt32(out int slot) || slot is < 1 or > 4)
