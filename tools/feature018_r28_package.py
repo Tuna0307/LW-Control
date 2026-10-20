@@ -262,6 +262,7 @@ def verify_r28_feature_sources() -> None:
             "liveEquipmentHelp", "liveEquipmentSynced", "liveEquipmentInventory",
         ),
         ROOT / "tools/feature018_equipment_actions.lua": (
+            "EQUIPMENT_STATE_PENDING", "awaitingNativeEquipmentSync", "nextStepNotDispatched=true",
             "after fresh snapshot read",
             "Native hero changed during fresh equipment snapshot read",
         ),

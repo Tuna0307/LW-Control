@@ -209,6 +209,7 @@ const liveBridge = {
     calls.push({ command, payload: structuredClone(payload) });
     if (command === "equipment_config_get") return structuredClone(savedPresets);
     if (command === "feature018_equipment_preflight") {
+      if (liveBridge.statePending > 0) { liveBridge.statePending--; throw Object.assign(new Error("Native slot/wearer pushes are still updating"), { code: "EQUIPMENT_STATE_PENDING" }); }
       if (liveBridge.preflightError) throw Object.assign(new Error("Saved item is no longer owned"), { code: "GAME_PRECONDITION_FAILED" });
       return { readOnly: true, requestDispatched: false };
     }
@@ -313,10 +314,12 @@ assert.match(document.querySelector('[role="alert"]').textContent, /no longer ow
 assert.equal(document.querySelector('[data-equipment-action="save-preset"]').disabled, false, "A rejected read-only preflight must leave presets editable");
 assert.equal(calls.filter(c => c.command === "feature018_hotkey_action").length, 0, "A failed preflight must never send Apply");
 liveBridge.preflightError = false;
+liveBridge.statePending = 2;
 for (let slot = 1; slot <= 4; slot++) {
   await selectValue("1:2:1", ""); await settle();
   await flush(() => document.querySelector(`[data-equipment-preset="${slot}"]`).click());
   await flush(() => document.querySelector('[data-equipment-action="equip-preset"]').click());
+  if (slot === 1) { await settle(); await settle(); }
   await settle();
   assert.deepEqual(equipmentPositionSnapshot(current), beforeCaptures, `Preset ${slot} must equip through its hotkey ordinal`);
 }

@@ -21,7 +21,7 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
     if (identity && identity !== current) throw Object.assign(new Error("Equipment game account changed. Reopen this profile."), { code: "GAME_ACCOUNT_CHANGED" });
     identity = current; return value;
   };
-  const interrupted = (error) => ["COMMAND_TIMEOUT", "GAME_RESPONSE_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED", "GAME_COMMAND_NOT_PUBLISHED"].includes(error.code);
+  const interrupted = (error) => ["COMMAND_TIMEOUT", "GAME_RESPONSE_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED", "GAME_COMMAND_NOT_PUBLISHED", "EQUIPMENT_STATE_PENDING"].includes(error.code);
   const definitelyNotSent = (error) => ["EQUIPMENT_EDIT_REJECTED", "INVALID_REQUEST", "GAME_COMMAND_NOT_PUBLISHED"].includes(error.code);
   const confirm = async (first) => {
     const deadline = now() + timeoutMs;

@@ -353,8 +353,10 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
                             current_slot_with_fresh_inventory(
                                 equips,squad_index,position,slot,hero)
                         if not fresh_hero then
-                            return blocked("Current equipped item disagrees with native inventory: " ..
+                            local result=blocked("Current equipped item disagrees with native inventory: " ..
                                 (current_reason or "wearer mismatch"))
+                            if current_reason=="wearer mismatch" then result.errorCode="EQUIPMENT_STATE_PENDING" end
+                            return result
                         end
                         hero=fresh_hero
                         if saved_hero and hero.uuid~=saved_hero then
@@ -592,7 +594,18 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     if fields.queryOnly ~= nil and fields.queryOnly ~= "1" then return blocked("Unknown equipment query mode") end
     local audit = M.Preflight(fields,confirmed_presets,
         fields.queryOnly == "1" and function() return true end or game_input_clear)
-    if audit.state ~= "confirmed" then return audit end
+    if audit.state ~= "confirmed" then
+        if audit.errorCode=="EQUIPMENT_STATE_PENDING" and transaction and
+            transaction.key==owner_key(fields) then
+            -- Separate native pushes can disagree across game frames. Keep
+            -- the existing transaction and send NOTHING until both agree.
+            local pending=receipt(transaction,false)
+            pending.data.awaitingNativeEquipmentSync=true
+            pending.data.nextStepNotDispatched=true
+            return pending
+        end
+        return audit
+    end
     local fresh_uid,fresh_server=native_session(fields)
     if fresh_uid~=initial_uid or fresh_server~=initial_server then
         return blocked("Native equipment owner/server changed during action preflight")
@@ -810,7 +823,7 @@ function M.Edit(fields, game_input_clear)
         if not number_in_range(slot,1,4) or not exact_id(fields.heroUuid) or
            (fields.equipUuid~="" and not exact_id(fields.equipUuid)) then return rejected("Invalid live equipment selection") end
         local read=M.Snapshot(fields)
-        if read.state~="confirmed" then return read end
+        if read.state~="confirmed" then return rejected(read.error or "Native equipment snapshot unavailable") end
         local data=read.data
         local target,all_positions,gear=nil,{},nil
         for _,squad in ipairs(data.squads)do

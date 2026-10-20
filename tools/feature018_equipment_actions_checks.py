@@ -492,6 +492,27 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
         self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
 
+    def test_split_native_push_across_frames_waits_without_replay_or_next_send(self):
+        lua,_,state,_,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted');self.assertEqual(state['sent'],1)
+        # Inventory got the uninstall push, but the hero slot still exposes
+        # its old object for multiple frames, including both immediate reads.
+        lua.execute('state.items[501].heroUuid=0')
+        for _ in range(3):
+            pending=call(True)
+            self.assertEqual(pending['state'],'accepted')
+            self.assertTrue(pending['data']['awaitingNativeEquipmentSync'])
+            self.assertTrue(pending['data']['nextStepNotDispatched'])
+            self.assertEqual(state['sent'],1)
+        for _ in range(8):
+            lua.globals().apply_push()
+            result=call(True)
+            if result['state']=='confirmed':break
+        self.assertTrue(result['data']['equipmentApplied'])
+        self.assertEqual(state['sent'],4, 'Only original four install/uninstall steps may send')
+        self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
+        self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
+
     def test_saved_preset_2_apply_then_saved_preset_1_restore_exact_gear_and_owner(self):
         lua,module,state,presets,call=self.fixture()
         self.assertEqual(state['hero101']['equips'][1]['uuid'],501)
