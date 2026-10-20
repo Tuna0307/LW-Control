@@ -28,7 +28,7 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
     while (!result?.equipmentApplied) {
       if (now() >= deadline) throw Object.assign(new Error("Equipment confirmation is pending. Resume confirmation before another change."), { code: "EQUIPMENT_CONFIRMATION_PENDING" });
       await wait(150); assertOwner();
-      try { result = await invoke("feature018_equipment_edit", { operationId: pending.operationId, queryOnly: true }); }
+      try { result = await invoke(pending.command, { ...pending.query, queryOnly: true }); }
       catch (error) {
         // The native editor uses this code only when it has no transaction
         // for this operation (or rejects it before dispatch). A failed local
@@ -41,13 +41,37 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
   };
   return {
     snapshot, assertOwner,
+    readPresets: () => invoke("equipment_config_get"),
+    async savePreset(slot, name, defaultPresetName) {
+      if (pending) throw new Error("Wait for the current equipment change to finish.");
+      if (!equipmentSlots.includes(slot) || !name.trim()) throw new Error("Choose a preset from 1 to 4 and enter its name.");
+      const fresh = await snapshot();
+      const config = normalizeEquipmentConfig(await invoke("equipment_config_get"), defaultPresetName);
+      config.equipmentPresets[slot - 1] = { ...config.equipmentPresets[slot - 1], name: name.trim(),
+        squads: equipmentPositionSnapshot(fresh), ownerUid: fresh.ownerUid, serverId: fresh.serverId, initializedFromCurrent: true };
+      return { snapshot: fresh, config: normalizeEquipmentConfig(await invoke("equipment_config_save", config)) };
+    },
+    async applyPreset(slot) {
+      if (pending) throw new Error("Wait for the current equipment change to finish.");
+      if (!equipmentSlots.includes(slot)) throw new Error("Equipment preset slot must be 1–4.");
+      const fresh = await snapshot();
+      // Validate the trusted saved ordinal read-only before establishing an
+      // apply fence. A missing item/preset must remain editable and re-savable.
+      await invoke("feature018_equipment_preflight", { slot });
+      const payload = { action: "equipment", slot, expectedGameUid: fresh.ownerUid, expectedServerId: fresh.serverId };
+      pending = { command: "feature018_hotkey_action", query: payload };
+      let first;
+      try { first = await invoke(pending.command, payload); }
+      catch (error) { if (interrupted(error)) return confirm(null); throw error; }
+      return confirm(first);
+    },
     async edit(position, slot, equipUuid, displayed) {
       if (pending) throw new Error("Wait for the current equipment change to finish.");
       assertOwner();
       const current = position.equips.find((item) => item.slot === slot)?.equipUuid || "";
       const item = displayed.items.find((item) => item.equipUuid === equipUuid);
       const operationId = globalThis.crypto.randomUUID().replaceAll("-", "");
-      pending = { operationId };
+      pending = { command: "feature018_equipment_edit", query: { operationId } };
       let first;
       try { first = await invoke("feature018_equipment_edit", { operationId, heroUuid: position.heroUuid, equipSlot: slot, equipUuid, expectedEquipUuid: current, expectedWearerUuid: item?.heroUuid || "", expectedGameUid: displayed.ownerUid, expectedServerId: displayed.serverId }); }
       catch (error) {

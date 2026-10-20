@@ -1,3 +1,4 @@
+import { withEquipmentPresetTexts } from "./feature018-equipment-presets.js";
 const keys = ["liveEquipment", "liveEquipmentHelp", "liveEquipmentSynced", "liveEquipmentUpdating", "liveEquipmentUpdated", "liveEquipmentConfirm", "liveEquipmentInventory"];
 const translations = {
   en: ["Equipment", "Changes apply immediately in the game. Select Empty to remove gear. Drag an item to the same slot on another hero to move it; replaced gear returns to inventory.", "Synced with the game", "Changing equipment in the game…", "Equipment updated in the game", "Resume confirmation", "Unequipped gear — drag onto a hero slot"],
@@ -11,4 +12,4 @@ const translations = {
   pt: ["Equipamento", "As alterações são aplicadas imediatamente no jogo. Selecione Vazio para retirar. Arraste para um espaço do mesmo tipo noutro herói para mover; o equipamento substituído volta ao inventário.", "Sincronizado com o jogo", "A alterar equipamento no jogo…", "Equipamento atualizado no jogo", "Retomar confirmação", "Equipamento não equipado — arraste para um espaço do herói"],
 };
 export const liveEquipmentTexts = Object.fromEntries(Object.entries(translations).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [`squad.${key}`, values[index]]))]));
-export const withLiveEquipmentTexts = (language, catalog) => ({ ...catalog, ...liveEquipmentTexts[language] });
+export const withLiveEquipmentTexts = (language, catalog) => withEquipmentPresetTexts(language, { ...catalog, ...liveEquipmentTexts[language] });

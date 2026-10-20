@@ -6,9 +6,12 @@ import { fileURLToPath } from "node:url";
 import { createLiveEquipmentRuntime, createEquipmentRuntime, equipmentPositionSnapshot, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
 import { equipmentPlanTexts } from "../src/locales/feature018-equipment-plan.js";
 import { liveEquipmentTexts } from "../src/locales/feature018-equipment-live.js";
+import { equipmentPresetTexts } from "../src/locales/feature018-equipment-presets.js";
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
   assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
   assert.equal(Object.keys(liveEquipmentTexts[language]).length, 7);
+  assert.equal(Object.keys(equipmentPresetTexts[language]).length, 10);
+  for (const value of Object.values(equipmentPresetTexts[language])) assert.ok(value.length > 0);
   for (const value of Object.values(liveEquipmentTexts[language])) assert.ok(value.length > 0);
   for (const text of Object.values(equipmentPlanTexts[language])) assert.ok(text.length > 0);
   assert.ok(equipmentPlanTexts[language]["squad.equipmentPlanOnly"].includes("{number}"));
@@ -174,24 +177,32 @@ const loaded = { exports: {} }; new Function("require", "module", "exports", bun
 const { NativeEquipmentContent, GameAssetImageProvider, I18nProvider, createBackendBridge } = loaded.exports;
 const current = structuredClone(baseline);
 current.items[0].heroUuid = "20002"; current.items[1].heroUuid = "";
-const calls = []; let pending, retired = false;
+const calls = []; let pending, retired = false, savedPresets = { equipmentPresets: [{ id: "legacy-preset", name: "Existing preset", squads: equipmentPositionSnapshot(baseline) }] };
 const liveBridge = {
   available: true, profileId: "A", currentProfileOwner: () => ({ profileId: "A", generation: 1 }),
   isCurrentProfileOwner: () => !retired,
   async invokeProfileScoped(command, payload = {}) {
     calls.push({ command, payload: structuredClone(payload) });
+    if (command === "equipment_config_get") return structuredClone(savedPresets);
+    if (command === "feature018_equipment_preflight") return { readOnly: true, requestDispatched: false };
+    if (command === "equipment_config_save") { savedPresets = structuredClone(payload); return structuredClone(savedPresets); }
     if (command === "feature018_equipment_snapshot") return structuredClone(current);
     if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "native", localeSha256: "locale", englishSha256: "english", texts: Object.fromEntries(payload.keys.map(key => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
-    if (command !== "feature018_equipment_edit") throw new Error(`Unexpected live command ${command}`);
+    if (!["feature018_equipment_edit", "feature018_hotkey_action"].includes(command)) throw new Error(`Unexpected live command ${command}`);
     if (!payload.queryOnly) {
       assert.equal(pending, undefined, "A second edit may not overtake pending confirmation");
       pending = structuredClone(payload); return { equipmentApplied: false };
     }
     assert.equal(payload.operationId, pending.operationId);
-    const target = current.squads.flatMap(s => s.positions).find(p => p.heroUuid === pending.heroUuid);
-    for (const position of current.squads.flatMap(s => s.positions))
-      position.equips = position.equips.filter(e => !(position === target && e.slot === pending.equipSlot) && (!pending.equipUuid || e.equipUuid !== pending.equipUuid));
-    if (pending.equipUuid) target.equips.push({ slot: pending.equipSlot, equipUuid: pending.equipUuid });
+    if (pending.action === "equipment") {
+      for (const squad of current.squads) for (const position of squad.positions)
+        position.equips = structuredClone(savedPresets.equipmentPresets[pending.slot - 1].squads.find(s => s.squadIndex === squad.squadIndex).positions.find(p => p.position === position.position).equips);
+    } else {
+      const target = current.squads.flatMap(s => s.positions).find(p => p.heroUuid === pending.heroUuid);
+      for (const position of current.squads.flatMap(s => s.positions))
+        position.equips = position.equips.filter(e => !(position === target && e.slot === pending.equipSlot) && (!pending.equipUuid || e.equipUuid !== pending.equipUuid));
+      if (pending.equipUuid) target.equips.push({ slot: pending.equipSlot, equipUuid: pending.equipUuid });
+    }
     for (const item of current.items) item.heroUuid = current.squads.flatMap(s => s.positions).find(p => p.equips.some(e => e.equipUuid === item.equipUuid))?.heroUuid || "";
     pending = undefined; return { equipmentApplied: true };
   },
@@ -203,7 +214,13 @@ window.setInterval = (fn) => { tick = fn; return 1; }; window.clearInterval = ()
 await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: liveBridge }))));
 assert.equal(document.querySelectorAll('select').length, 8);
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501");
-assert.doesNotMatch(document.body.textContent, /Plan only|Save configuration|Restore initial|Save current squads|Preset 1/);
+assert.doesNotMatch(document.body.textContent, /Plan only|Save configuration|Restore initial|Save current squads/);
+assert.equal(document.querySelectorAll('[data-equipment-preset]').length, 4);
+assert.match(document.body.textContent, /Existing preset/);
+assert.equal(document.querySelector('[data-equipment-level="501"]').textContent, "Lv.3");
+assert.equal(document.querySelector('[data-inventory-equip="502"] [data-equipment-level]').textContent, "Lv.4");
+assert.match(document.querySelector('select[aria-label="1:2:1"] option[value="502"]').textContent, /Lv.4/);
+assert.equal([...document.querySelectorAll('button')].filter(b => b.textContent === 'Refresh').length, 0, 'Inner editor must not duplicate page Refresh');
 assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "synced");
 const selectValue = async (label, value) => flush(() => {
   const select = document.querySelector(`select[aria-label="${label}"]`);
@@ -235,7 +252,25 @@ assert.equal(document.querySelectorAll('[data-inventory-equip]').length, 2);
 current.squads[0].positions[0].equips = [{ slot: 1, equipUuid: "502" }]; current.items[1].heroUuid = "20002";
 await flush(() => tick());
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "502", "Game-side changes must automatically appear without Refresh");
-assert.equal(calls.filter(c => c.command === "equipment_config_get" || c.command === "equipment_config_save" || c.command === "feature018_hotkey_action").length, 0, "Live UI must never load, save or apply plans");
+assert.equal(calls.filter(c => c.command === "equipment_config_save" || c.command === "feature018_hotkey_action").length, 0, "Ordinary live edits must not overwrite or apply presets");
+const beforeCaptures = equipmentPositionSnapshot(current);
+for (let slot = 1; slot <= 4; slot++) {
+  await flush(() => document.querySelector(`[data-equipment-preset="${slot}"]`).click());
+  const otherPresets = structuredClone(savedPresets.equipmentPresets);
+  await flush(() => document.querySelector('[data-equipment-action="save-preset"]').click());
+  assert.deepEqual(equipmentPositionSnapshot(current), beforeCaptures, "Save preset must not change any native gear");
+  assert.deepEqual(savedPresets.equipmentPresets[slot - 1].squads, beforeCaptures);
+  otherPresets.forEach((preset, index) => { if (index !== slot - 1) assert.deepEqual(savedPresets.equipmentPresets[index], preset, "Saving one preset must preserve the others"); });
+  assert.match(document.body.textContent, new RegExp(`Alt\\+${slot}`));
+}
+for (let slot = 1; slot <= 4; slot++) {
+  await selectValue("1:2:1", ""); await settle();
+  await flush(() => document.querySelector(`[data-equipment-preset="${slot}"]`).click());
+  await flush(() => document.querySelector('[data-equipment-action="equip-preset"]').click());
+  await settle();
+  assert.deepEqual(equipmentPositionSnapshot(current), beforeCaptures, `Preset ${slot} must equip through its hotkey ordinal`);
+}
+assert.deepEqual(calls.filter(c => c.command === "feature018_hotkey_action" && !c.payload.queryOnly).map(c => c.payload.slot), [1, 2, 3, 4]);
 await flush(() => mounted.unmount()); assert.equal(tick, undefined);
 
 let nativeReceiver; const wireCalls = [];
@@ -250,4 +285,4 @@ const realBridge = createBackendBridge(host), realRoot = createRoot(document.get
 await flush(() => realRoot.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: realBridge }))));
 assert.deepEqual(wireCalls.find(c => c.command === "feature018_equipment_snapshot").payload, { profileId: "A" }, "mounted equipment snapshot must carry only the real profile routing field");
 await flush(() => realRoot.unmount()); realBridge.dispose(); dom.window.close();
-console.log("FEATURE018_R26_LIVE_EQUIPMENT_UI_OK: immediate equip/remove/move, no plan controls or config writes, displaced inventory, automatic game refresh, pending fence, real bridge routing");
+console.log("FEATURE018_R27_LIVE_PRESETS_UI_OK: live equip/remove/move preserved, level labels, four retained presets/save without mutation/equip via Alt ordinals, no duplicate Refresh, pending fence and real bridge");

@@ -186,3 +186,8 @@
 .equipment-live-inventory { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
 .equipment-live select { width: 100%; min-width: 0; }
 .equipment-live .preset-equipment-slot { overflow-wrap: anywhere; }
+.equipment-live-presets { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.equipment-live-presets .equipment-preset-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.equipment-live-presets input { max-width: 100%; }
+.equipment-live-presets p { color: var(--muted); margin: 6px 0; }
+@media (max-width: 1000px) { .equipment-live-presets .equipment-preset-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
