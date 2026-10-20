@@ -4085,6 +4085,7 @@ function M.Pump()
         perf.observedAt = tonumber(os.time())
         perf.runtimeSeconds = clock
         perf.luaKiB = collectgarbage("count")
+        local cs = rawget(_G, "CS")
         local gc = cs and cs.System and cs.System.GC
         if gc then
             local ok_bytes, bytes = pcall(function() return tonumber(gc.GetTotalMemory(false)) end)
