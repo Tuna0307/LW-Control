@@ -89,6 +89,7 @@ internal static class Feature018OwnedGameExchangeChecks
 
     internal static async Task RunAsync()
     {
+        await LockedMailboxAsync();
         await CityTransientIdentityAsync();
         FreshHeartbeatReadRaceChecks();
         var city = Feature018GameCommandService.ReadFields("city_layout_apply_start",
@@ -613,6 +614,91 @@ internal static class Feature018OwnedGameExchangeChecks
         }
         finally { Directory.Delete(root, recursive: true); }
     }
+    private static async Task LockedMailboxAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "feature018-lock-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        string request = Path.Combine(root, "request.txt"), reply = Path.Combine(root, "response.json");
+        var owner = new OverviewMapScanSession("lock-profile", "lock-session", "lock-challenge",
+            43210, @"C:\test\LastWar.exe", "2026-10-17T00:00:00Z");
+        OverviewMapScanSession? current = owner;
+        FileStream? requestLock = null, responseLock = null;
+        try
+        {
+            File.WriteAllText(request, "previous");
+            Directory.CreateDirectory(reply); // Opening a directory for read gives access denied on Windows.
+            requestLock = new FileStream(request, FileMode.Open, FileAccess.Read, FileShare.Read);
+            int waits = 0;
+            var ids = new HashSet<string>();
+            var exchange = new Feature018OwnedGameExchange(() => current, expected => current == expected,
+                request, reply, delay: (_, _) =>
+                {
+                    waits++;
+                    if (requestLock is not null)
+                    {
+                        Require(File.ReadAllText(request) == "previous", "locked request was changed");
+                        Require(Directory.GetFiles(root, "*.tmp-*").Length == 1, "retry must keep one owned envelope");
+                        requestLock.Dispose(); requestLock = null;
+                    }
+                    else
+                    {
+                        var fields = File.ReadAllLines(request).Select(line => line.Split('=', 2))
+                            .Where(parts => parts.Length == 2).ToDictionary(parts => parts[0], parts => parts[1]);
+                        ids.Add(fields["requestId"]);
+                        responseLock?.Dispose(); responseLock = null;
+                        if (Directory.Exists(reply)) Directory.Delete(reply);
+                        File.WriteAllText(reply, JsonSerializer.Serialize(new
+                        {
+                            schemaVersion = 1, requestId = fields["requestId"], profileId = owner.ProfileId,
+                            launchSessionId = owner.SessionId, challenge = owner.Challenge,
+                            gamePid = owner.GamePid, command = fields["command"],
+                            observedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), state = "confirmed",
+                            data = new { equipmentApplied = true },
+                        }));
+                        if (waits == 2) responseLock = new FileStream(reply, FileMode.Open, FileAccess.Read, FileShare.None);
+                    }
+                    return Task.CompletedTask;
+                });
+            var result = await exchange.ExchangeAsync("feature018_equipment_edit", null,
+                TimeSpan.FromSeconds(2), CancellationToken.None);
+            Require(result.GetProperty("equipmentApplied").GetBoolean() && waits == 3 && ids.Count == 1,
+                "request/response lock recovery did not retain exactly one publication");
+            Require(Directory.GetFiles(root, "*.tmp-*").Length == 0, "successful retry leaked temporary envelope");
+
+            // A permanently locked old request must never reach the game.
+            string previous = File.ReadAllText(request);
+            requestLock = new FileStream(request, FileMode.Open, FileAccess.Read, FileShare.Read);
+            int retries = 0;
+            var locked = new Feature018OwnedGameExchange(() => current, expected => current == expected,
+                request, reply, delay: (_, _) => { retries++; return Task.CompletedTask; });
+            await RequireErrorAsync("GAME_COMMAND_NOT_PUBLISHED", () => locked.ExchangeAsync(
+                "feature018_equipment_edit", null, TimeSpan.FromSeconds(2), CancellationToken.None));
+            Require(retries == 5 && File.ReadAllText(request) == previous && Directory.GetFiles(root, "*.tmp-*").Length == 0,
+                "permanent request lock escaped bound, changed mailbox or leaked temporary file");
+            requestLock.Dispose(); requestLock = null;
+
+            // A real Windows access-denied replacement (destination directory)
+            // follows the same bounded no-publication path.
+            File.Delete(request); Directory.CreateDirectory(request); retries = 0;
+            await RequireErrorAsync("GAME_COMMAND_NOT_PUBLISHED", () => locked.ExchangeAsync(
+                "feature018_equipment_edit", null, TimeSpan.FromSeconds(2), CancellationToken.None));
+            Require(retries == 5 && Directory.Exists(request), "access-denied replacement was not bounded");
+            Directory.Delete(request); File.WriteAllText(request, previous);
+            requestLock = new FileStream(request, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var retired = new Feature018OwnedGameExchange(() => current, expected => current == expected,
+                request, reply, delay: (_, _) => { current = null; return Task.CompletedTask; });
+            await RequireErrorAsync("GAME_CONNECTION_UNAVAILABLE", () => retired.ExchangeAsync(
+                "feature018_equipment_edit", null, TimeSpan.FromSeconds(2), CancellationToken.None));
+            Require(File.ReadAllText(request) == previous, "retired owner published a retried command");
+            Console.WriteLine("FEATURE018_MAILBOX_LOCK_RECOVERY_PASS");
+        }
+        finally
+        {
+            requestLock?.Dispose(); responseLock?.Dispose();
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     private static async Task CityTransientIdentityAsync()
     {
         string root = Path.Combine(Path.GetTempPath(), "r18-city-identity-" + Guid.NewGuid().ToString("N"));

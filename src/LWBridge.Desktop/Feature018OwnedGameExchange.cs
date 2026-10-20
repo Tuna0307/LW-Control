@@ -150,18 +150,41 @@ internal sealed class Feature018OwnedGameExchange
             // private Overview runtime directory, never to installed game files.
             string? directory = Path.GetDirectoryName(requestPath);
             if (directory is null) throw new InvalidOperationException("FEATURE018 runtime path unavailable.");
-            Directory.CreateDirectory(directory);
             string temporary = requestPath + ".tmp-" + Guid.NewGuid().ToString("N");
             try
             {
-                await File.WriteAllTextAsync(temporary, string.Join('\n', lines) + "\n",
-                    new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
-                await RequireOwnerAsync(account).ConfigureAwait(false);
-                File.Move(temporary, requestPath, overwrite: true);
+                for (int attempt = 0; ; attempt++)
+                {
+                    await RequireOwnerAsync(account).ConfigureAwait(false);
+                    try
+                    {
+                        Directory.CreateDirectory(directory);
+                        await File.WriteAllTextAsync(temporary, string.Join('\n', lines) + "\n",
+                            new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
+                        await RequireOwnerAsync(account).ConfigureAwait(false);
+                        File.Move(temporary, requestPath, overwrite: true);
+                        break; // Published once. Never repeat a published command.
+                    }
+                    catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+                    {
+                        // A reader/indexer can briefly hold the previous mailbox.
+                        // Retry this SAME envelope only before atomic publication.
+                        if (attempt >= 5 || utcNow() >= deadline)
+                            throw new BridgeCommandException("GAME_COMMAND_NOT_PUBLISHED",
+                                "The game command file is busy. No change was sent. Try again.",
+                                new { requestDispatched = false });
+                        await delay(TimeSpan.FromMilliseconds(50 * (attempt + 1)), cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+                }
             }
             finally
             {
-                if (File.Exists(temporary)) File.Delete(temporary);
+                // Cleanup must not turn a successful publication into an
+                // ambiguous error (or hide the original pre-publication error).
+                try { File.Delete(temporary); }
+                catch (IOException) { }
+                catch (UnauthorizedAccessException) { }
             }
 
             while (utcNow() < deadline)
@@ -218,6 +241,7 @@ internal sealed class Feature018OwnedGameExchange
                 catch (DirectoryNotFoundException) { }
                 catch (JsonException) { }
                 catch (IOException) { }
+                catch (UnauthorizedAccessException) { }
                 await delay(PollPeriod, cancellationToken).ConfigureAwait(false);
             }
             throw new BridgeCommandException("GAME_RESPONSE_TIMEOUT", "No correlated game action result arrived.");

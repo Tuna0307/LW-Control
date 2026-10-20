@@ -21,7 +21,8 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
     if (identity && identity !== current) throw Object.assign(new Error("Equipment game account changed. Reopen this profile."), { code: "GAME_ACCOUNT_CHANGED" });
     identity = current; return value;
   };
-  const interrupted = (error) => ["COMMAND_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code);
+  const interrupted = (error) => ["COMMAND_TIMEOUT", "GAME_RESPONSE_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED", "GAME_COMMAND_NOT_PUBLISHED"].includes(error.code);
+  const definitelyNotSent = (error) => ["EQUIPMENT_EDIT_REJECTED", "INVALID_REQUEST", "GAME_COMMAND_NOT_PUBLISHED"].includes(error.code);
   const confirm = async (first) => {
     const deadline = now() + timeoutMs;
     let result = first;
@@ -37,7 +38,9 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
         if (!interrupted(error)) throw error;
       }
     }
-    const fresh = await snapshot(); pending = null; return fresh;
+    // Completion is already authenticated. A subsequent read failure must not
+    // leave an equipment transaction fenced forever; normal sync can retry it.
+    pending = null; return snapshot();
   };
   return {
     snapshot, assertOwner,
@@ -68,7 +71,11 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
       pending = { command: "feature018_hotkey_action", query: payload };
       let first;
       try { first = await invoke(pending.command, payload); }
-      catch (error) { if (interrupted(error)) return confirm(null); throw error; }
+      catch (error) {
+        if (definitelyNotSent(error)) { pending = null; throw error; }
+        if (interrupted(error) || error.code === "INTERNAL_ERROR") return confirm(null);
+        throw error;
+      }
       return confirm(first);
     },
     async edit(position, slot, equipUuid, displayed) {
@@ -81,8 +88,8 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
       let first;
       try { first = await invoke("feature018_equipment_edit", { operationId, heroUuid: position.heroUuid, equipSlot: slot, equipUuid, expectedEquipUuid: current, expectedWearerUuid: item?.heroUuid || "", expectedGameUid: displayed.ownerUid, expectedServerId: displayed.serverId }); }
       catch (error) {
-        if (interrupted(error)) return confirm(null);
-        if (["EQUIPMENT_EDIT_REJECTED", "INVALID_REQUEST"].includes(error.code)) pending = null;
+        if (definitelyNotSent(error)) { pending = null; throw error; }
+        if (interrupted(error) || error.code === "INTERNAL_ERROR") return confirm(null);
         throw error;
       }
       return confirm(first);

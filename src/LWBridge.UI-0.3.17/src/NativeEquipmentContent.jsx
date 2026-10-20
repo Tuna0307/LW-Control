@@ -104,8 +104,9 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
       }
     } catch (failure) {
       if (activeRuntime.current === owner) {
-        setError(failure.code === "CONFIG_FILE_BUSY" ? t("squad.livePresetSaveFailed") : String(failure.message || failure));
-        try { const fresh = await owner.snapshot(); if (activeRuntime.current === owner) setSnapshot(fresh); } catch { setHealthy(false); }
+        setError(failure.code === "CONFIG_FILE_BUSY" ? t("squad.livePresetSaveFailed") : failure.code === "GAME_COMMAND_NOT_PUBLISHED" ? t("squad.liveEquipmentFileBusy") : String(failure.message || failure));
+        try { const fresh = await owner.snapshot(); if (activeRuntime.current === owner) { setSnapshot(fresh); setHealthy(true); } }
+        catch { syncError.current = true; setHealthy(false); }
       }
     } finally {
       action.current = false;
@@ -126,11 +127,9 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
   return <div className="equipment-preset-main equipment-live" data-native-equipment="true" data-equipment-busy={busy || undefined}>
     <div className="equipment-preset-toolbar">
       <div><strong>{t("squad.liveEquipment")}</strong><span>{t("squad.liveEquipmentHelp")}</span></div>
-      <div className="equipment-preset-actions">
-        {runtime?.pending ? <button type="button" data-equipment-action="resume" disabled={busy || !online} onClick={() => perform(() => runtime.resume())}>{t("squad.liveEquipmentConfirm")}</button> : null}
-      </div>
     </div>
-    <div role="status" data-equipment-sync={busy || runtime?.pending ? "updating" : healthy ? "synced" : "offline"}>{t(busy === "preset-save" ? "common.processing" : busy || runtime?.pending ? "squad.liveEquipmentUpdating" : healthy ? "squad.liveEquipmentSynced" : "status.gameDisconnectedDisabled")}</div>
+    <div role="status" data-equipment-sync={busy ? "updating" : runtime?.pending ? "pending" : healthy ? "synced" : "offline"}>{t(busy === "preset-save" ? "common.processing" : busy ? "squad.liveEquipmentUpdating" : runtime?.pending ? "squad.liveEquipmentPending" : healthy ? "squad.liveEquipmentSynced" : "status.gameDisconnectedDisabled")}</div>
+    {runtime?.pending && !busy ? <button type="button" data-equipment-action="resume" disabled={!online} onClick={() => perform(() => runtime.resume())}>{t("squad.liveEquipmentConfirm")}</button> : null}
     {error ? <div className="equipment-result equipment-result-rejected" role="alert">{error}</div> : null}
     {notice && !busy ? <div className="equipment-result equipment-result-success" role="status">{t(notice, { number: selectedPreset + 1 })}</div> : null}
     <section className="equipment-live-presets" data-equipment-presets="true">

@@ -9,7 +9,7 @@ import { liveEquipmentTexts } from "../src/locales/feature018-equipment-live.js"
 import { equipmentPresetTexts } from "../src/locales/feature018-equipment-presets.js";
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
   assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
-  assert.equal(Object.keys(liveEquipmentTexts[language]).length, 7);
+  assert.equal(Object.keys(liveEquipmentTexts[language]).length, 9);
   assert.equal(Object.keys(equipmentPresetTexts[language]).length, 10);
   for (const value of Object.values(equipmentPresetTexts[language])) assert.ok(value.length > 0);
   for (const value of Object.values(liveEquipmentTexts[language])) assert.ok(value.length > 0);
@@ -148,8 +148,7 @@ const raced = createEquipmentRuntime(raceBridge, "A", { wait: async () => {} });
 await assert.rejects(() => raced.apply(1, config, baseline), (error) => error.code === "PROFILE_GENERATION_RETIRED");
 assert.equal(raceBridge.calls.filter((call) => call.command === "feature018_hotkey_action").length, 0);
 
-// An ambiguous local publication must never be replayed. Explicit native
-// confirmation of no transaction releases the fence for a later user gesture.
+// An ambiguous local publication must only be queried, never replayed.
 const noTransactionBridge = fakeBridge();
 let starts = 0;
 noTransactionBridge.invokeProfileScoped = async (command, payload) => {
@@ -158,10 +157,35 @@ noTransactionBridge.invokeProfileScoped = async (command, payload) => {
 };
 const noTransaction = createLiveEquipmentRuntime(noTransactionBridge, "A", { wait: async () => {} });
 await assert.rejects(() => noTransaction.edit(baseline.squads[0].positions[0], 1, "502", baseline));
-assert.equal(noTransaction.pending, true);
-await assert.rejects(() => noTransaction.resume());
 assert.equal(noTransaction.pending, false);
 assert.equal(starts, 1, "Failed publication may only be queried, never automatically replayed");
+
+for (const preset of [false, true]) {
+  const failedBridge = fakeBridge(); let edits = 0, queries = 0;
+  failedBridge.invokeProfileScoped = async (command, payload = {}) => {
+    if (command === "feature018_equipment_snapshot") return structuredClone(baseline);
+    if (command === "feature018_equipment_preflight") return { readOnly: true };
+    if (payload.queryOnly) { queries++; throw new Error("Unpublished operation must not be queried"); }
+    edits++; throw Object.assign(new Error("Access to the path is denied."), { code: "GAME_COMMAND_NOT_PUBLISHED" });
+  };
+  const failed = createLiveEquipmentRuntime(failedBridge, "A", { wait: async () => {} });
+  await assert.rejects(() => preset ? failed.applyPreset(1) : failed.edit(baseline.squads[0].positions[0], 1, "502", baseline), e => e.code === "GAME_COMMAND_NOT_PUBLISHED");
+  assert.equal(failed.pending, false); assert.equal(edits, 1); assert.equal(queries, 0);
+}
+for (const code of ["GAME_RESPONSE_TIMEOUT", "INTERNAL_ERROR"]) {
+  const uncertainBridge = fakeBridge(); let edits = 0, queries = 0, reads = 0;
+  uncertainBridge.invokeProfileScoped = async (command, payload = {}) => {
+    if (command === "feature018_equipment_snapshot") { reads++; throw Object.assign(new Error("Refresh temporarily unavailable"), { code: "GAME_RESPONSE_TIMEOUT" }); }
+    if (!payload.queryOnly) { edits++; throw Object.assign(new Error("Response unavailable after send"), { code }); }
+    queries++;
+    if (queries === 1) throw Object.assign(new Error("Query mailbox is busy"), { code: "GAME_COMMAND_NOT_PUBLISHED" });
+    return { equipmentApplied: true };
+  };
+  const uncertain = createLiveEquipmentRuntime(uncertainBridge, "A", { wait: async () => {} });
+  await assert.rejects(() => uncertain.edit(baseline.squads[0].positions[0], 1, "502", baseline), /Refresh temporarily/);
+  assert.equal(uncertain.pending, false, "Confirmed operation must release fence even if final snapshot fails");
+  assert.equal(edits, 1); assert.equal(queries, 2); assert.equal(reads, 1);
+}
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), req = createRequire(path.join(root, "package.json"));
 const { JSDOM } = req("jsdom"), { build } = req("esbuild"), React = req("react");
@@ -192,6 +216,7 @@ const liveBridge = {
     if (command === "feature018_equipment_snapshot") return structuredClone(current);
     if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "native", localeSha256: "locale", englishSha256: "english", texts: Object.fromEntries(payload.keys.map(key => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
     if (!["feature018_equipment_edit", "feature018_hotkey_action"].includes(command)) throw new Error(`Unexpected live command ${command}`);
+    if (liveBridge.editError) throw Object.assign(new Error("Access to the path is denied."), { code: liveBridge.editError });
     if (!payload.queryOnly) {
       assert.equal(pending, undefined, "A second edit may not overtake pending confirmation");
       pending = structuredClone(payload); return { equipmentApplied: false };
@@ -231,6 +256,22 @@ const selectValue = async (label, value) => flush(() => {
   select.dispatchEvent(new window.Event("change", { bubbles: true }));
 });
 const settle = () => flush(() => new Promise(resolve => setTimeout(resolve, 190)));
+liveBridge.editError = "GAME_COMMAND_NOT_PUBLISHED";
+await selectValue("1:5:1", "502");
+assert.match(document.querySelector('[role="alert"]').textContent, /No change was sent/);
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "synced");
+assert.ok([...document.querySelectorAll('select')].every(s => !s.disabled), "Definite no-send must immediately release drag/drop and selects");
+assert.equal(document.querySelector('[data-inventory-equip="502"]').draggable, true);
+liveBridge.editError = "GAME_ACTION_UNCONFIRMED";
+await selectValue("1:5:1", "502");
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "pending");
+assert.match(document.querySelector('[data-equipment-sync]').textContent, /Waiting to confirm/);
+assert.equal(document.querySelector('[data-equipment-action="resume"]').disabled, false);
+liveBridge.editError = "EQUIPMENT_EDIT_REJECTED";
+await flush(() => document.querySelector('[data-equipment-action="resume"]').click());
+await settle();
+assert.ok([...document.querySelectorAll('select')].every(s => !s.disabled), "Authenticated no-transaction must release fence");
+liveBridge.editError = null;
 await selectValue("1:5:1", "502");
 assert.ok([...document.querySelectorAll('select')].every(s => s.disabled), "Pending edit must block overlapping gestures");
 await settle();
