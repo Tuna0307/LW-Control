@@ -1319,3 +1319,13 @@ switching is slow — gear is removed and equipped one item at a time. Next: inv
 one-click/batch equip route if it exists, or sending all slot changes back-to-back and confirming once at the end;
 never replay uncertain sends). Note: R26–R28 were owner-directed directly to the worker (live equipment, keep presets,
 file-lock fix); lead has not independently audited R26–R28 yet.
+
+## Owner decisions — 2026-10-20 (status review)
+- DROP (OWNER_DIRECTION): running two games at once (F-07) — removed from the backlog; one game at a time.
+- DROP: scanning another server without switching servers — not possible; switch-scan-return stays as is.
+- Owner CONFIRMED working: City Layout building moves; Q/W/E/R black-tile behaviour (R24).
+- Treasure auto-claim: ON HOLD until Season 4 (owner is in Season 2).
+- Settings FPS / ping: keep (nice to have); status to be checked.
+- Account side bar: owner asks if it can be hidden completely; it is the profile switcher (separate saved settings
+  per account, one game running at a time). Next round: allow fully hiding the side bar (and re-opening it).
+- Wipe map scans at app start: built and in the test builds since R18; reaches the main release on merge.
