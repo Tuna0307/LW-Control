@@ -1242,3 +1242,31 @@ Lead findings:
   (overwrite) and no retry — a brief file lock (antivirus/indexer/another reader) fails the save. Needs bounded retry
   (or File.Replace) and a plain message.
 Pending owner decision on the design (see chat): plan-then-apply (original) vs. live-sync.
+
+## R25 assignment — Equipment Schemes redesign (owner decision 2026-10-20)
+Owner: "Keep plan-then-apply like the original, but start each preset as a copy of my current gear, let me drag gear
+between heroes, and make it clear when changes are not applied yet."
+1. A preset with no saved content starts as a copy of the CURRENT game gear for every squad/position/slot
+   (auto-filled when the tab loads; "Save current squads" stays to re-copy on demand). Never show a fresh preset as
+   all "Empty" when the heroes wear gear.
+2. Drag gear between heroes: drag one item onto the same slot of another hero (any squad/position) → the two heroes'
+   items for that slot swap in the plan (empty target = move). Drag a full set onto another hero → swap all 4 slots.
+   Same slot type only; heroes stay in their positions. Dropdowns still work. Visible drop highlight; invalid targets
+   refused clearly.
+3. Make plan vs game obvious:
+   - a banner at the top: "Plan only — not in the game yet. Press Save and apply to squads (or Alt+N) to change the
+     game." while the plan differs from what is worn; it disappears when they match;
+   - each changed slot highlighted, with "Plan: X" vs "Wearing now: Y";
+   - a count "N changes not applied"; "Save configuration" saves the plan without changing the game;
+     "Save and apply to squads" changes the game, then re-reads and shows "Applied" when Wearing now = Plan.
+4. Fix "Access to the path is denied" on save: HotkeyConfigCommandService.cs ~348-351 (File.WriteAllText +
+   File.Move overwrite) — add bounded retry with short backoff (or File.Replace) for transient locks; plain message
+   if it still fails; never lose the plan.
+5. Prove through the REAL tab in the packaged app on 4799432499002212 (background, WebView harness): tab opens with
+   preset auto-filled from current gear; drag one item to another hero (swap) and a full set; banner + change count
+   appear; Save configuration (game unchanged); Save and apply (game changes, banner clears); Restore initial
+   equipment (exact start state). Screenshots of each step. Also a check that simulates a locked config file.
+6. Owner-test ZIP (R25 package), README with a short "How to use Equipment Schemes" (5 steps).
+
+### R25 progress (worker updates this)
+- (none yet)
