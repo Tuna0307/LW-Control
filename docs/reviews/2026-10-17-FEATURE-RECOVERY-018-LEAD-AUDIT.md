@@ -1359,3 +1359,17 @@ worker test panels, two-games-at-once, remote no-switch scanning.
 
 ### R29 progress (worker updates this)
 - (none yet)
+
+### R29 addendum — Part C: performance and smoothness (owner, 2026-10-20)
+Owner: the program must not slow the game down, and the app must feel smooth, not clunky.
+Measure on the packaged app + game (4799432499002212, background), idle and while busy (Map scan, Monster AFK,
+Chat listener, Equipment page polling), and compare with the game running WITHOUT the app:
+- game FPS and frame-time spikes, game CPU/RAM; the app's CPU/RAM/disk writes; how often the app polls the game
+  (heartbeat, equipment 1.5 s poll, chat, status pollers) and the size/frequency of mailbox file writes;
+- in-game stutter caused by our Lua (per-frame pumps/hooks): time spent per frame in our handlers;
+- app responsiveness: time to open each tab, first data shown, button-press-to-feedback, scroll smoothness on long
+  lists (Map table, City grid at 109 buildings, Equipment 15 positions), memory growth over 30 min.
+Fix what is wasteful: stop polling on tabs that are not open, slow down idle pollers, batch/skip redundant reads and
+writes, avoid per-frame work when nothing is running, lazy-load heavy pages/images, debounce saves, remove leaks.
+Target: game FPS with the app idle within ~5% of no-app; no visible hitch when pressing hotkeys; tabs open in under
+~1 s; no steady memory growth. Report a before/after table with real numbers.
