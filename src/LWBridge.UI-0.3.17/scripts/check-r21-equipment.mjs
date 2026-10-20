@@ -30,7 +30,10 @@ function fakeBridge() {
     async invokeProfileScoped(command, payload = {}) {
       calls.push({ command, payload: structuredClone(payload) });
       if (command === "equipment_config_get") return structuredClone(saved);
-      if (command === "equipment_config_save") { saved = structuredClone(payload); return structuredClone(saved); }
+      if (command === "equipment_config_save") {
+        if (bridge.saveLocked) throw Object.assign(new Error("Access to the path is denied"), { code: "CONFIG_FILE_BUSY" });
+        saved = structuredClone(payload); return structuredClone(saved);
+      }
       if (command === "feature018_equipment_snapshot") {
         if (!bridge.online) throw Object.assign(new Error("There is no authenticated owned game session"), { code: "GAME_CONNECTION_UNAVAILABLE" });
         return structuredClone(current);
@@ -207,6 +210,12 @@ assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "", "Fu
 const select = document.querySelector('select[aria-label="1:2:1"]');
 await flush(() => { Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(select, "502"); select.dispatchEvent(new window.Event("change", { bubbles: true })); });
 const beforeSave = equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot"));
+mountedBridge.saveLocked = true;
+await flush(() => document.querySelector('[data-equipment-action="save"]').click());
+assert.match(document.querySelector('[role="alert"]').textContent, /Your edits are still here/);
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "502", "Failed save must retain the edited plan");
+assert.ok(document.querySelector('[data-equipment-plan-banner]'));
+mountedBridge.saveLocked = false;
 await flush(() => document.querySelector('[data-equipment-action="save"]').click());
 assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), beforeSave, "Save configuration must leave game unchanged");
 assert.ok(document.querySelector('[data-equipment-plan-banner]'), "Saving must not clear unapplied state");

@@ -93,7 +93,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
       const applied = kind === "apply" || kind === "confirm";
       const matches = result?.snapshot && equipmentPresetCoversSnapshot(selected, result.snapshot) && !equipmentPlanChanges(selected, result.snapshot).length;
       setNotice(t(applied ? (matches ? "squad.equipmentApplied" : "squad.equipmentStillDifferent") : kind === "restore" ? "squad.initialEquipmentRestored" : kind === "capture" ? "squad.presetUpdated" : "squad.equipmentPlanSaved"));
-    } catch (failure) { if (activeRuntime.current === captured) setError(String(failure.message || failure)); }
+    } catch (failure) { if (activeRuntime.current === captured) setError(failure.code === "CONFIG_FILE_BUSY" ? t("squad.equipmentSaveRetry") : String(failure.message || failure)); }
     finally { if (activeRuntime.current === captured) setBusy(""); }
   };
   const capture = () => operation("capture", async () => {

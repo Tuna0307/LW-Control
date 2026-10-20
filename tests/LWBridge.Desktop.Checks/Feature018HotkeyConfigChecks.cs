@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LWBridge.Desktop;
 
 namespace LWBridge.Desktop.Checks;
@@ -90,6 +91,40 @@ internal static class Feature018HotkeyConfigChecks
             }
             catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { rejected = true; }
             Require(rejected, "malformed whole-config save was accepted");
+
+            var equipmentStore = new ProfileRuntimeConfigStore(path);
+            var plan = JsonNode.Parse("{\"equipmentPresets\":[{\"id\":\"one\",\"name\":\"Retained plan\",\"squads\":[]}]}")!.AsObject();
+            // Real Windows file handle: reads allowed, replacement denied until
+            // the owner releases it. This exercises File.Move, not a fake IO.
+            using (var briefLock = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                Task release = Task.Run(() => { Thread.Sleep(180); briefLock.Dispose(); });
+                JsonObject recovered = equipmentStore.SaveEquipmentConfig(plan);
+                await release;
+                Require(recovered["equipmentPresets"]!.ToJsonString() == plan["equipmentPresets"]!.ToJsonString(),
+                    "brief replacement lock lost the equipment plan");
+            }
+            string previous = File.ReadAllText(path);
+            var changedPlan = (JsonObject)plan.DeepClone();
+            changedPlan["equipmentPresets"]![0]!["name"] = "Unsaved edits";
+            bool busy = false;
+            using (var persistentLock = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                try { equipmentStore.SaveEquipmentConfig(changedPlan); }
+                catch (BridgeCommandException error) when (error.Code == "CONFIG_FILE_BUSY")
+                { busy = error.Message.Contains("Your edits are still here", StringComparison.Ordinal); }
+            }
+            Require(busy && File.ReadAllText(path) == previous &&
+                    Directory.GetFiles(root, "*.tmp-*").Length == 0,
+                "persistent lock must fail plainly, keep old config intact and clean only owned temporary files");
+            using (var exclusiveLock = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                Task release = Task.Run(() => { Thread.Sleep(180); exclusiveLock.Dispose(); });
+                equipmentStore.SaveEquipmentConfig(changedPlan);
+                await release;
+            }
+            Require(equipmentStore.ReadEquipmentConfig()["equipmentPresets"]![0]!["name"]!.GetValue<string>() == "Unsaved edits",
+                "exclusive read lock retry or later save lost the retained plan");
             Console.WriteLine("FEATURE018_HOTKEY_CONFIG_PASS");
         }
         finally

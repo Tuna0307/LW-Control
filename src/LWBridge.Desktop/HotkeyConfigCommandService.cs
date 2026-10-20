@@ -345,10 +345,12 @@ internal sealed class ProfileRuntimeConfigStore
         string temporary = path + ".tmp-" + Guid.NewGuid().ToString("N");
         try
         {
-            File.WriteAllText(
-                temporary,
-                root.ToJsonString(JsonOptions.Indented));
-            File.Move(temporary, path, overwrite: true);
+            RetryFileAccess(() =>
+            {
+                File.WriteAllText(temporary, root.ToJsonString(JsonOptions.Indented));
+                File.Move(temporary, path, overwrite: true);
+                return true;
+            });
         }
         finally
         {
@@ -361,12 +363,29 @@ internal sealed class ProfileRuntimeConfigStore
         }
     }
 
+    private static T RetryFileAccess<T>(Func<T> operation)
+    {
+        // A reader/indexer can briefly deny replacement (or the initial read).
+        // Retry local file access only; this never retries a game command.
+        for (int attempt = 0; ; attempt++)
+        {
+            try { return operation(); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == 5)
+                    throw new BridgeCommandException("CONFIG_FILE_BUSY",
+                        "Could not save the plan file. Your edits are still here. Close any program using the file and try Save again.");
+                Thread.Sleep(50 * (attempt + 1));
+            }
+        }
+    }
+
     private JsonObject? ReadRoot(bool allowMissing)
     {
         if (!File.Exists(path))
             return allowMissing ? null : throw StateUnavailable();
 
-        string json = File.ReadAllText(path);
+        string json = RetryFileAccess(() => File.ReadAllText(path));
         JsonNode? node = JsonNode.Parse(json);
         if (node is not JsonObject root)
             throw StateUnavailable();
