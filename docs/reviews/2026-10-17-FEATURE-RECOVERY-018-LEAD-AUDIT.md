@@ -1329,3 +1329,33 @@ file-lock fix); lead has not independently audited R26–R28 yet.
 - Account side bar: owner asks if it can be hidden completely; it is the profile switcher (separate saved settings
   per account, one game running at a time). Next round: allow fully hiding the side bar (and re-opening it).
 - Wipe map scans at app start: built and in the test builds since R18; reaches the main release on merge.
+
+## R29 assignment — speed, hideable account bar, then full bug sweep of every tab except Automation (2026-10-20)
+Goal (owner): finish everything outside Automation so it can be closed and merged; then focus on Automation.
+Part A — fixes:
+1. Faster equipment preset switching (Alt+1–4 and "Equip preset"): today gear is removed and equipped one item at a
+   time, each waiting for confirmation. Find the game's own one-click / whole-set equip route (e.g. what the game's
+   own equipment-plan / quick-equip UI sends) and use it; if none exists, send the needed per-slot changes
+   back-to-back without waiting between them and confirm once at the end from a fresh read. Never replay an uncertain
+   send. Measure before/after time for a full 4-squad preset switch and report both numbers.
+2. Account side bar: allow fully hiding it (no strip left), with a small, always-visible button to bring it back;
+   remember the choice. It stays the profile switcher (one game at a time).
+3. Settings → Show FPS / Show ping: check they really work in the game; fix if not.
+Part B — bug sweep of EVERY tab except Automation: Home, Map Data, Squads / AFK (AFK Tasks + Equipment Schemes),
+City Layout, Hotkeys, Mini Games, Settings, plus the top bar and account side bar.
+For each tab, in the packaged app on 4799432499002212 (background, WebView harness, no desktop input):
+   - open it connected AND disconnected, English AND Chinese, at 900 and 1600 px;
+   - press every button / switch / dropdown that is safe to press (see exclusions), check the result in the game
+     where it changes something, and check error messages are plain and disappear;
+   - check nothing is stuck, nothing shows raw internal codes, nothing shows sample/preview data in production;
+   - fix every bug found, with a regression check.
+   Exclusions (do not press live): Unlock Land Cell; F6/F7/F8 shield use; Treasure claim (on hold until Season 4);
+   Food House / Black Market (events off); Alliance Drill rally (event off) — check their screens only.
+   Anything that moves gear/buildings/marches must end with the account exactly as it started.
+Deliver: a "R29 tab sweep" table in the audit doc (tab → what was checked → bugs found → fixed? → evidence),
+screenshots per tab, all checks (UI, Desktop.Checks, all feature Lua suites) PASS, owner-test ZIP (R29 package).
+Removed/dropped items (do not restore): Space countdown, march speed-ups, Auto Garrison, Zombie Bus Garrison,
+worker test panels, two-games-at-once, remote no-switch scanning.
+
+### R29 progress (worker updates this)
+- (none yet)
