@@ -114,6 +114,14 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
     if (result.error) { setNotice(t(result.error)); return; }
     if (result.handled) { setConfig(result.config); setNotice(""); }
   };
+  const startDrag = (event, target) => {
+    event.stopPropagation();
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", JSON.stringify(target));
+    }
+    setError(""); setNotice(""); setDragged(target);
+  };
   const dragSquad = (targetSquadIndex) => {
     if (dragged?.kind !== "squad" || !capturedCurrentSquads || disabled || runtime?.pending) return;
     const result = swapNativeEquipmentSquads(config, selectedIndex, dragged.squadIndex, targetSquadIndex, snapshot);
@@ -151,7 +159,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
           onDrop={(event) => { if (dragged?.kind === "squad") { event.preventDefault(); setDropTarget(""); dragSquad(squad.squadIndex); } }}>
         <div className="equipment-preset-squad-header"><strong>{t("squad.number", { number: squad.squadIndex })}</strong>
           <div className="equipment-squad-drag-handle" data-equipment-drag={`squad:${squad.squadIndex}`} draggable={capturedCurrentSquads && !disabled && !runtime?.pending}
-            onDragStart={() => setDragged({ kind: "squad", squadIndex: squad.squadIndex })}
+            onDragStart={(event) => startDrag(event, { kind: "squad", squadIndex: squad.squadIndex })}
             onDragEnd={() => { setDragged(null); setDropTarget(""); }}>{t("squad.dragSquadLoadout")}</div>
         </div>
         <div className="equipment-preset-positions">{squad.positions.map((position) => {
@@ -165,7 +173,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
             <div className="equipment-position-header"><strong>{t("squad.position", { number: position.position })}</strong><span>{t("squad.heroFixed")}</span></div>
             <div className="equipment-position-hero">{position.iconPath ? <GameAssetImage assetPath={position.iconPath} alt={heroName} className="equipment-position-hero-icon" /> : null}<div><strong title={heroName}>{heroName}</strong>{position.level != null ? <span>Lv.{position.level}</span> : null}</div></div>
             <div className="equipment-loadout-handle" data-equipment-drag={`loadout:${squad.squadIndex}:${position.position}`} draggable={capturedCurrentSquads && !disabled && !runtime?.pending}
-              onDragStart={() => setDragged({ kind: "loadout", squadIndex: squad.squadIndex, position: position.position })}
+              onDragStart={(event) => startDrag(event, { kind: "loadout", squadIndex: squad.squadIndex, position: position.position })}
               onDragEnd={() => { setDragged(null); setDropTarget(""); }}><span>{t("squad.dragLoadout")}</span></div>
             <div className="equipment-position-items" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))" }}>{equipmentSlots.map((slot) => {
               const item = saved?.equips.find((entry) => entry.slot === slot), gear = items.get(String(item?.equipUuid));
@@ -175,10 +183,10 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
               return <label className={`preset-equipment-slot quality-${gear?.quality || 0} ${dropTarget === equipDropKey ? "drop-target" : ""}`} key={slot} title={`${t(`squad.equipmentSlot${slot}`)} · ${t("squad.currentEquipmentPreset", { name: gearName(currentGear) })}`}
                 data-equipment-slot={`${squad.squadIndex}:${position.position}:${slot}`}
                 draggable={capturedCurrentSquads && !!item && !disabled && !runtime?.pending}
-                onDragStart={(event) => { if (!item) return; event.stopPropagation(); setDragged({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); }}
-                onDragOver={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(equipDropKey); } }}
-                onDragLeave={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.stopPropagation(); setDropTarget((current) => current === equipDropKey ? "" : current); } }}
-                onDrop={(event) => { if (dragged?.kind === "equip" && dragged.slot === slot) { event.preventDefault(); event.stopPropagation(); setDropTarget(""); dragTarget({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); } }}
+                onDragStart={(event) => { if (!item) { event.preventDefault(); return; } startDrag(event, { kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); }}
+                onDragOver={(event) => { if (dragged?.kind === "equip") { event.preventDefault(); event.stopPropagation(); setDropTarget(dragged.slot === slot ? equipDropKey : `invalid-${equipDropKey}`); if (dragged.slot !== slot) setNotice(t("squad.sameSlotRequired")); } }}
+                onDragLeave={(event) => { if (dragged?.kind === "equip") { event.stopPropagation(); setDropTarget(""); } }}
+                onDrop={(event) => { if (dragged?.kind === "equip") { event.preventDefault(); event.stopPropagation(); setDropTarget(""); dragTarget({ kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); } }}
                 onDragEnd={() => { setDragged(null); setDropTarget(""); }}>
                 <strong style={{ maxWidth: "100%", overflowWrap: "anywhere", fontSize: "var(--font-footnote)" }}>{t(`squad.equipmentSlot${slot}`)}</strong>
                 {gear?.iconPath ? <GameAssetImage assetPath={gear.iconPath} alt={gearName(gear)} className="equipment-icon" /> : null}

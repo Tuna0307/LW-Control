@@ -161,3 +161,10 @@
   .city-layout-inspector{order:3}
   .hotkey-panel[data-hotkey-category="miniGames"] .hotkey-grid>.hotkey-card:last-child:nth-child(odd){grid-column:1/-1}
 }
+.equipment-preset-squad.drop-target,
+.equipment-position-card.drop-target,
+.preset-equipment-slot.drop-target {
+  outline: 3px solid var(--blue-text);
+  outline-offset: 2px;
+  background: var(--info-soft);
+}

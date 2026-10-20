@@ -65,6 +65,16 @@ const wrongSlot = swapNativeEquipmentTarget(dragConfig, 0,
   { kind: "equip", squadIndex: 2, position: 1, slot: 2 });
 assert.equal(wrongSlot.error, "squad.sameSlotRequired");
 assert.deepEqual(wrongSlot.config, dragConfig, "Wrong-slot drag must be a no-op");
+const crossHero = swapNativeEquipmentTarget(dragConfig, 0,
+  { kind: "equip", squadIndex: 1, position: 1, slot: 1 },
+  { kind: "equip", squadIndex: 2, position: 1, slot: 1 });
+assert.equal(crossHero.config.equipmentPresets[0].squads[0].positions[0].equips[0].equipUuid, "b1");
+assert.equal(crossHero.config.equipmentPresets[0].squads[1].positions[0].equips[0].equipUuid, "a1");
+const crossSet = swapNativeEquipmentTarget(dragConfig, 0,
+  { kind: "loadout", squadIndex: 1, position: 1 },
+  { kind: "loadout", squadIndex: 2, position: 1 });
+assert.deepEqual(crossSet.config.equipmentPresets[0].squads[0].positions[0], { position: 1, heroUuid: "h11", equips: [{ slot: 1, equipUuid: "b1" }, { slot: 2, equipUuid: "b2" }] });
+assert.deepEqual(crossSet.config.equipmentPresets[0].squads[1].positions[0], { position: 1, heroUuid: "h21", equips: [{ slot: 1, equipUuid: "a1" }, { slot: 2, equipUuid: "a2" }] });
 const squadSwap = swapNativeEquipmentSquads(dragConfig, 0, 1, 2, dragSnapshot);
 assert.equal(squadSwap.handled, true);
 assert.equal(squadSwap.config.equipmentPresets[0].squads[0].positions[0].heroUuid, "h11", "Squad drag must keep source hero fixed");
@@ -164,6 +174,11 @@ const sourceItem = document.querySelector('[data-equipment-slot="1:2:1"]');
 const targetItem = document.querySelector('[data-equipment-slot="1:5:1"]');
 await flush(() => sourceItem.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
 await flush(() => targetItem.dispatchEvent(new window.Event("dragover", { bubbles: true, cancelable: true })));
+assert.ok(targetItem.classList.contains("drop-target"), "Matching slot must visibly highlight on drag over");
+const wrongTarget = document.querySelector('[data-equipment-slot="1:5:2"]');
+await flush(() => wrongTarget.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Invalid drop must preserve both items");
+assert.match(document.body.textContent, /same slot/i, "Invalid target needs a visible explanation");
 await flush(() => targetItem.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
 await flush(() => sourceItem.dispatchEvent(new window.Event("dragend", { bubbles: true })));
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "", "Single-item drag must move only the matching slot");
