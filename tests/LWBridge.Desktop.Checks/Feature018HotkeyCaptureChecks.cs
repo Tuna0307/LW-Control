@@ -1052,6 +1052,61 @@ internal static class Feature018HotkeyCaptureChecks
                 withDetails.Calls == 1,
             "native diagnostic object disappeared or was credited as authoritative gameplay");
 
+        var blockedDetails = JsonSerializer.SerializeToElement(new
+        {
+            requestDispatched = false, redirectBlocked = true,
+            marchUuid = "9007199254741999", formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+        });
+        var blackTile = new StubNativeCommandService
+        {
+            Receipt = () => throw new BridgeCommandException("GAME_PRECONDITION_FAILED",
+                "This squad is inside black tiles and cannot change target yet", blockedDetails),
+        };
+        Feature018HotkeyActionOutcome blocked = await new Feature018HotkeyNativeProviders(
+            blackTile).Create()[Feature018HotkeyKind.AttackSquad](command, CancellationToken.None);
+        Require(blocked.Status == Feature018HotkeyActionStatus.Failed && !blocked.Working &&
+                blocked.Reason == "This squad is inside black tiles and cannot change target yet" &&
+                !blocked.Reason.Contains("GAME_PRECONDITION_FAILED", StringComparison.Ordinal) &&
+                blocked.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } blockedObservation &&
+                blockedObservation.GetProperty("redirectBlocked").GetBoolean() && blackTile.Calls == 1,
+            "black-tile redirect denial did not stay zero-send or surface a plain owner message");
+
+        JsonElement pendingRedirect = JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = true, awaitingGameConfirmation = true,
+            action = "attack", slot = 1, formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+            nativeTransaction = new
+            {
+                formation = "9007199254740993", oldUuid = "9007199254741999",
+                sendCount = 1, outboundRoute = "WorldMarchChange", hotkeyRetarget = true,
+                senderReturned = true, senderReturnedFalse = false,
+                unattributedMatchingSendObserved = false, unattributedSendCount = 0,
+            },
+        });
+        var refusedDetails = JsonSerializer.SerializeToElement(new
+        {
+            awaitingGameConfirmation = false, requestDispatched = false,
+            priorRedirectRefused = true, redirectFenceCleared = true,
+            marchUuid = "9007199254741999", formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+        });
+        var refusedRedirect = new StubNativeCommandService();
+        refusedRedirect.Receipt = () => refusedRedirect.Calls == 1 ? pendingRedirect :
+            throw new BridgeCommandException("GAME_PRECONDITION_FAILED",
+                "The game refused the previous redirect; no new order was sent. Press the hotkey again.",
+                refusedDetails);
+        Feature018HotkeyActionOutcome refused = await new Feature018HotkeyNativeProviders(
+            refusedRedirect).Create()[Feature018HotkeyKind.AttackSquad](command, CancellationToken.None);
+        Require(refused.Status == Feature018HotkeyActionStatus.Failed && !refused.Working &&
+                refused.Reason == "The game refused the previous redirect; no new order was sent. Press the hotkey again." &&
+                refusedRedirect.Calls == 2 &&
+                refusedRedirect.LastPayload.GetProperty("queryOnly").GetBoolean() &&
+                refused.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } refusedObservation &&
+                refusedObservation.GetProperty("redirectFenceCleared").GetBoolean(),
+            "unchanged redirect did not retire through a read-only poll with a plain refusal message");
+
         // Reproduce the actual ExchangeAsync -> GameCommandService -> provider
         // failed-response route, rather than only throwing a stub exception.
         string root = Path.Combine(Path.GetTempPath(), "feature018-2212-rejection-" +

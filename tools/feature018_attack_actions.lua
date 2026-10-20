@@ -794,7 +794,7 @@ local function transaction_view(transaction)
     if not transaction then return nil end
     local view={}
     for _,key in ipairs({"formation","kind","targetPoint","targetUuid","sendCount","outboundRoute",
-        "oldUuid","oldKind","oldStartTime","hotkeyRetarget",
+        "oldUuid","oldKind","oldStartTime","oldTargetUuid","oldTargetPos","hotkeyRetarget",
         "targetAllianceUid","targetAllianceRaw","targetAllianceReader",
         "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
         "senderReturned","senderReturnedFalse","senderError","serializerObserved",
@@ -839,6 +839,54 @@ local function native_attack_target_matches(transaction,march)
         return observed~=nil and expected~=nil and observed==expected
     end
     return ident(member(march,"targetUuid"))==transaction.targetUuid
+end
+
+local function native_redirect_target_unchanged(transaction,march)
+    if not transaction or not march then return false end
+    local comparable=false
+    if transaction.oldTargetUuid~=nil then
+        comparable=true
+        if ident(member(march,"targetUuid"))~=transaction.oldTargetUuid then return false end
+    end
+    if transaction.oldTargetPos~=nil then
+        comparable=true
+        if ident(member(march,"targetPos"))~=transaction.oldTargetPos then return false end
+    end
+    return comparable
+end
+
+-- The native WorldMarchChange sender computes its start tile from the live
+-- march position immediately before sending. Use the game's own black-land
+-- rectangle predicate against that same live position; a redirect from black
+-- land is refused by the game and must never enter our one-shot send fence.
+local function native_redirect_change_allowed(march,server_id)
+    if march==nil then return nil,"Current squad march is unavailable" end
+    local broken_ok,broken=invoke(march,"GetIsBroken")
+    if broken_ok and broken==true then
+        return false,"Existing squad is broken and cannot redirect"
+    end
+    local scene_utils=rawget(_G,"SceneUtils")
+    local world_to_index=member(scene_utils,"WorldToTileIndex")
+    local in_black_range=member(scene_utils,"IsInBlackRange")
+    local world_scene=member(rawget(_G,"ForceChangeScene"),"World")
+    local pos_ok,pos=invoke(march,"GetMarchCurPos")
+    if not pos_ok or pos==nil or type(world_to_index)~="function" or
+       type(in_black_range)~="function" or world_scene==nil or number(server_id)==nil then
+        return nil,"Cannot verify whether this squad can change target at its current position"
+    end
+    local index_ok,index=pcall(world_to_index,pos,world_scene)
+    index=number(index)
+    if not index_ok or index==nil then
+        return nil,"Cannot verify the squad's current world tile before redirect"
+    end
+    local black_ok,in_black=pcall(in_black_range,index,math.floor(number(server_id)))
+    if not black_ok or type(in_black)~="boolean" then
+        return nil,"Cannot verify the squad's current black-tile state before redirect"
+    end
+    if in_black then
+        return false,"This squad is inside black tiles and cannot change target yet"
+    end
+    return true,nil
 end
 
 local function exact_session(fields)
@@ -2089,6 +2137,8 @@ local function attack_selected(fields, input_clear, uid)
     end
     local _,old_kind = invoke(old,"GetMarchTargetType")
     local old_start = number(member(old,"startTime"))
+    local old_target_uuid = ident(member(old,"targetUuid"))
+    local old_target_pos = ident(member(old,"targetPos"))
     local method = existing ~= nil and "OnAtkClick" or "OnCheckTime"
     if type(member(ctrl,method)) ~= "function" then return unsupported("Original native attack controller missing") end
     local ok_fresh_form,fresh_form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
@@ -2159,11 +2209,28 @@ local function attack_selected(fields, input_clear, uid)
        send_target.targetAllianceUid~=target.targetAllianceUid then
         return failed("Target or alliance changed at native attack send edge")
     end
+    if existing~=nil then
+        -- GetOwnerFormationMarch may expose only selection identity. Resolve
+        -- the exact UUID again through GetMarch so the position/terrain check
+        -- runs against the authoritative moving march immediately before send.
+        local redirect_march,redirect_uuid=fresh_owned(final_march)
+        if not redirect_march or redirect_uuid~=old_uuid or
+           number(member(redirect_march,"startTime"))~=old_start then
+            return failed("Native squad march changed before redirect terrain check")
+        end
+        local redirect_allowed,redirect_reason=native_redirect_change_allowed(redirect_march,final_account.server)
+        if redirect_allowed~=true then
+            local result=(redirect_allowed==false and failed or unsupported)(redirect_reason)
+            result.data={requestDispatched=false,redirectBlocked=true,marchUuid=old_uuid,
+                formationUuid=formation,ownerUid=uid,sourceServerId=tonumber(final_account.server)}
+            return result
+        end
+    end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetPoint=target.point,targetUuid=target_uuid,
         targetAllianceUid=send_target.targetAllianceUid,targetAllianceRaw=send_target.targetAllianceRaw,
         targetAllianceReader=send_target.targetAllianceReader,
-        oldUuid=old_uuid,oldKind=old_kind,
+        oldUuid=old_uuid,oldKind=old_kind,oldTargetUuid=old_target_uuid,oldTargetPos=old_target_pos,
         oldStartTime=old_start,sentAt=os.time(),sendCount=0,hotkeyRetarget=existing~=nil,
         hoverOrigin=cursor_open_pending~=nil and
             cursor_open_pending.session==current_session and
@@ -2484,6 +2551,32 @@ function M.AutomationObserve(fields,input_clear)
                 targetAllianceUid=prior.targetAllianceUid,serverAcknowledgementCorrelated=true,
                 serverAppliedChangePostState=true,correlation="native_single_change_march_target_startTime",
                 nativeTransaction=transaction_view(prior)}}
+        end
+        -- WorldMarchChange has no request nonce and the server may silently
+        -- refuse it while a march is in a blocked tile. After a short read-only
+        -- observation window, the exact same owned march retaining its prior
+        -- target/type/startTime is authoritative evidence that this redirect
+        -- was not applied. Retire only our fence; never replay automatically.
+        local elapsed=os.time()-(number(prior.sentAt) or os.time())
+        if prior.sendCount==1 and not prior.unattributedMatchingSendObserved and
+           elapsed>=3 and ok and march~=nil and
+           ident(member(march,"uuid"))==prior.oldUuid and
+           ident(member(march,"ownerUid"))==uid and
+           ident(member(march,"ownerFormationUuid"))==prior.formation and
+           type_ok and kind==prior.oldKind and
+           number(member(march,"startTime"))==prior.oldStartTime and
+           native_redirect_target_unchanged(prior,march) then
+            attacks[fields.slot]=nil;release_confirmed_hover(fields.slot)
+            local result=failed("The game refused the previous redirect; no new order was sent. Press the hotkey again.")
+            result.data={awaitingGameConfirmation=false,requestDispatched=false,
+                priorRedirectRefused=true,redirectFenceCleared=true,marchUuid=prior.oldUuid,
+                formationUuid=prior.formation,ownerUid=uid,sourceServerId=tonumber(prior.server),
+                priorStartTime=prior.oldStartTime,currentStartTime=number(member(march,"startTime")),
+                priorTargetUuid=prior.oldTargetUuid,currentTargetUuid=ident(member(march,"targetUuid")),
+                priorTargetPos=prior.oldTargetPos,currentTargetPos=ident(member(march,"targetPos")),
+                observation="native_owned_march_redirect_unchanged_after_wait",
+                nativeTransaction=transaction_view(prior)}
+            return result
         end
         -- A settled, removed native march cannot still be redirected. Require
         -- both independent getters to agree that the exact owned formation is

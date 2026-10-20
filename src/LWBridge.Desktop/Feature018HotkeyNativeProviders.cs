@@ -316,6 +316,13 @@ internal sealed class Feature018HotkeyNativeProviders
             return new(Feature018HotkeyActionStatus.SessionChanged,
                 "authenticated_game_route_unavailable");
         }
+        catch (BridgeCommandException error) when (
+            command.Intent.Kind == Feature018HotkeyKind.AttackSquad &&
+            IsAttackRedirectRefusal(error, out _))
+        {
+            return new(Feature018HotkeyActionStatus.Failed, error.Message,
+                error.Details is JsonElement data ? data.Clone() : null);
+        }
         catch (BridgeCommandException error) when (command.Intent.Kind == Feature018HotkeyKind.ReinforceFrontline)
         {
             return new(Feature018HotkeyActionStatus.Failed, error.Message,
@@ -346,6 +353,23 @@ internal sealed class Feature018HotkeyNativeProviders
         }
         return prefix + " [" + OneLine(error.Code, "UNKNOWN", 128) + "]: " +
             OneLine(error.Message, "No native failure message supplied", 1024);
+    }
+
+    private static bool IsAttackRedirectRefusal(BridgeCommandException error, out JsonElement details)
+    {
+        details = default;
+        if (error.Code != "GAME_PRECONDITION_FAILED" ||
+            error.Details is not JsonElement data || data.ValueKind != JsonValueKind.Object)
+            return false;
+        bool blocked = data.TryGetProperty("redirectBlocked", out var redirectBlocked) &&
+                       redirectBlocked.ValueKind == JsonValueKind.True;
+        bool refused = data.TryGetProperty("priorRedirectRefused", out var priorRefused) &&
+                       priorRefused.ValueKind == JsonValueKind.True &&
+                       data.TryGetProperty("redirectFenceCleared", out var cleared) &&
+                       cleared.ValueKind == JsonValueKind.True;
+        if (!blocked && !refused) return false;
+        details = data;
+        return true;
     }
 
     private static JsonElement? NativeRejectionDetails(BridgeCommandException error) =>
@@ -666,6 +690,13 @@ internal sealed class Feature018HotkeyNativeProviders
                 {
                     return new(Feature018HotkeyActionStatus.SessionChanged,
                         "authenticated_game_route_unavailable");
+                }
+                catch (BridgeCommandException error) when (
+                    command.Intent.Kind == Feature018HotkeyKind.AttackSquad &&
+                    IsAttackRedirectRefusal(error, out _))
+                {
+                    return new(Feature018HotkeyActionStatus.Failed, error.Message,
+                        error.Details is JsonElement data ? data.Clone() : null);
                 }
                 catch (BridgeCommandException error) when (error.Code == "GAME_ACTION_UNCONFIRMED")
                 {

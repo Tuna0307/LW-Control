@@ -31,7 +31,8 @@ state={
  freshOwner=4799432499002212, freshFormOwner=1001, freshUuid=555110, freshPresent=true,
  existingAbsent=false, freshLookups=0,
  targetType=17, serverId=2212, formationOwner=4799432499002212, touchedTile=35723,
- formationMarchBroken=false,
+ formationMarchBroken=false, marchBlack=false, marchTile=35823, marchX=22, marchZ=38,
+ blackChecks=0, wallTime=1000,
  touchedX=12, touchedZ=37, worldUuid=990123, worldOwner=999,
  worldServer=2212, worldMain=35723, reverseValid=true, worldAlliance=0,
  reverseMain=35723, worldPresent=true,
@@ -51,6 +52,7 @@ LuaEntry.Player.GetCurServerId=function(self) return state.serverId end
 LuaEntry.Player.GetSourceServerId=LuaEntry.Player.GetCurServerId
 LuaEntry.Player.GetSelfServerId=LuaEntry.Player.GetCurServerId
 MarchTargetType={ATTACK_CITY=17,ATTACK_ARMY=18}
+os.time=function() return state.wallTime end
 CS={SceneManager={World={
  curTouchPoint={x=state.touchedX,y=0,z=state.touchedZ},
  GetPointInfo=function(self,pointId)
@@ -70,8 +72,14 @@ CS={SceneManager={World={
 ForceChangeScene={World=3}
 SceneUtils={WorldToTileIndex=function(worldPos, scene)
  assert(scene==3)
+ if worldPos.x==state.marchX and worldPos.z==state.marchZ then return state.marchTile end
  if worldPos.x~=state.touchedX or worldPos.z~=state.touchedZ then return nil end
  return state.touchedTile
+end,
+IsInBlackRange=function(pointId,serverId)
+ state.blackChecks=state.blackChecks+1
+ assert(pointId==state.marchTile and serverId==state.serverId)
+ return state.marchBlack
 end}
 UITimeManager={GetInstance=function(self) return {
  GetServerTime=function(self) return state.now end
@@ -105,6 +113,7 @@ DataCenter={
            clientCreateGuid=state.marchClientCreateGuid,
            endTime=state.endTime,startTime=state.startTime,targetUuid=state.targetUuid,
            targetPos=state.targetPos,
+           GetMarchCurPos=function(self) return {x=state.marchX,y=0,z=state.marchZ} end,
            GetWorldType=function() return state.worldType end,
            GetIsBroken=function(self) return state.formationMarchBroken end,
            GetMarchTargetType=function(self) return state.targetType end}
@@ -311,6 +320,9 @@ def check_original() -> None:
             "71453f2d7287ddb1f012e05cea71755f6bc704971a59425b6c54834c96fe8160",
             {"OnCreate": ["uuid", "target", "targetUid", "PutLong"],
              "HandleMessage": ["errorCode", None, "HandleFormationMarchChange"]}),
+        "Util/SceneUtils.luac": (
+            "1c4f9183730ae72b84a2ce576263b390de67d14f7893f449aa3b4cf7b43c8354",
+            {"IsInBlackRange": ["IndexToTilePos", "GetBlackLandRange"]}),
     }
     for name, (digest, methods) in expectations.items():
         require(hashlib.sha256(entries[name]).hexdigest() == digest,
@@ -541,6 +553,12 @@ def test_selected_attack():
             'exact authoritative owned squad/target transition not recognized')
     vm.execute('nativeCtrl.targetUuid=990124;state.worldUuid=990124')
     state['soldierCount']=0
+    state['marchBlack']=True
+    blocked=call()
+    require(blocked['state']=='failed' and blocked['data']['redirectBlocked'] is True and
+            state['changeSends'] is None and state['blackChecks']>=1,
+            'black-tile redirect did not fail closed before WorldMarchChange')
+    state['marchBlack']=False
     redirected=call()
     require(redirected['state']=='accepted' and redirected['data']['requestDispatched'] and state['changeSends']==1,
             'existing owned marching squad did not use the original change route')
@@ -571,10 +589,22 @@ def test_selected_attack():
             'throw-after-send was not retained as uncertain')
     require(call(queryOnly='1')['state']=='accepted' and state['changeSends']==3,
             'uncertain retarget was replayed or prematurely cleared')
-    state['startTime']=1003
-    require(call(queryOnly='1')['state']=='confirmed' and state['changeSends']==3,
-            'settled native retarget stayed fenced after a controller exception')
+    state['wallTime']=1002
+    require(call(queryOnly='1')['state']=='accepted' and state['changeSends']==3,
+            'unchanged redirect cleared before the short observation window')
+    state['wallTime']=1003
+    refused_after_wait=call(queryOnly='1')
+    require(refused_after_wait['state']=='failed' and
+            refused_after_wait['data']['priorRedirectRefused'] is True and
+            refused_after_wait['data']['redirectFenceCleared'] is True and state['changeSends']==3,
+            'unchanged redirect did not clear its one-shot fence after three seconds')
     vm.execute('nativeCtrl.OnAtkClick=savedAtk')
+    state['wallTime']=1004
+    require(call()['data']['requestDispatched'] and state['changeSends']==4,
+            'next explicit order failed after unchanged redirect fence was cleared')
+    state['startTime']=1003
+    require(call(queryOnly='1')['state']=='confirmed' and state['changeSends']==4,
+            'next order did not settle after refused redirect recovery')
     state['soldierCount']=110
     vm.execute('nativeCtrl.targetUuid=990123;state.worldUuid=990123')
     state['existingAbsent']=True
