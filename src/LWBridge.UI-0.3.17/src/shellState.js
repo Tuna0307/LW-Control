@@ -9,6 +9,13 @@ export function saveProfileFocus(storage, value) {
   storage.setItem("lwbridge.focusGameOnProfileSelect", String(value));
 }
 
+export function initialProfileSidebarHidden(storage) {
+  return storage.getItem("lwbridge.profileSidebarHidden") === "true";
+}
+export function saveProfileSidebarHidden(storage, value) {
+  storage.setItem("lwbridge.profileSidebarHidden", String(value));
+}
+
 export function initialShellUpdateStatus(mode, previewState) {
   return mode === "preview" && previewState.startsWith("settings-update-")
     ? previewUpdateStatus(previewState) : emptyUpdateStatus();

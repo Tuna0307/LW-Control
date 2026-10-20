@@ -1,5 +1,6 @@
 import { formatDiagnosticBytes, previewUpdateStatus, updateDownloadVisible, updateManualCooldownSeconds, updateStatusBusy } from "./previewRemainingPagesContracts.js";
 import { useEffect, useRef, useState } from "react";
+import { backendBridge } from "./backendBridge.js";
 import { useI18n } from "./i18n.jsx";
 import { ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
 
@@ -46,7 +47,7 @@ function initialFeedbackState(previewState) {
   return { phase: "idle", result: null, progress: null };
 }
 
-export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowProfileFocus = false, focusGameOnProfileSelect = true, onFocusGameOnProfileSelectChange = null }) {
+export function SettingsPage({ previewState = "", online = false, showProfileFocus: runtimeShowProfileFocus = false, focusGameOnProfileSelect = true, onFocusGameOnProfileSelectChange = null }) {
   const { language, t } = useI18n();
   const previewEnabled = SETTINGS_PREVIEW_STATES.has(previewState);
   const showProfileFocus = previewEnabled
@@ -72,6 +73,25 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
       : "";
 
   useEffect(() => {
+    if (previewEnabled) return undefined;
+    let closed = false;
+    setVisualPreferences(null);
+    setVisualErrorText("");
+    backendBridge.invokeProfileScoped("visual_metrics_config_get", {}).then((stored) => {
+      if (closed) return;
+      const loaded = {
+        showFps: stored?.showFps === true,
+        showPing: stored?.showPing === true,
+      };
+      visualSourceRef.current = loaded;
+      setVisualPreferences(loaded);
+    }).catch(() => {
+      if (!closed) setVisualErrorText(t("settings.visualMetrics.loadFailed"));
+    });
+    return () => { closed = true; };
+  }, [previewEnabled]);
+
+  useEffect(() => {
     if (updateCooldown <= 0) return undefined;
     const interval = window.setInterval(() => setUpdateNow(Date.now()), 1000);
     return () => window.clearInterval(interval);
@@ -88,8 +108,39 @@ export function SettingsPage({ previewState = "", showProfileFocus: runtimeShowP
       await Promise.resolve();
       if (previewState === "settings-visual-save-error") throw new Error("preview visual metrics save failure");
       const saved = { ...visualSourceRef.current, [field]: value };
-      visualSourceRef.current = saved;
-      setVisualPreferences(saved);
+      if (previewEnabled) {
+        visualSourceRef.current = saved;
+        setVisualPreferences(saved);
+      } else {
+        let appliedToGame = false;
+        if (online) {
+          await backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
+            showFps: saved.showFps === true,
+            showPing: saved.showPing === true,
+          });
+          appliedToGame = true;
+        }
+        try {
+          const stored = await backendBridge.invokeProfileScoped("visual_metrics_config_save", {
+            showFps: saved.showFps === true,
+            showPing: saved.showPing === true,
+          });
+          const normalized = {
+            showFps: stored?.showFps === true,
+            showPing: stored?.showPing === true,
+          };
+          visualSourceRef.current = normalized;
+          setVisualPreferences(normalized);
+        } catch (error) {
+          if (appliedToGame) {
+            await backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
+              showFps: previousVisual.showFps === true,
+              showPing: previousVisual.showPing === true,
+            }).catch(() => {});
+          }
+          throw error;
+        }
+      }
     } catch {
       setVisualPreferences(previousVisual);
       setVisualErrorText(t("settings.visualMetrics.saveFailed"));

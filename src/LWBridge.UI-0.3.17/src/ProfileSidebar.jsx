@@ -113,6 +113,7 @@ export function ProfileSidebar({
   state = null, busy = false, error = "", instances = EMPTY_INSTANCES,
   profileLaunchErrors = EMPTY_ERRORS, focusGameOnProfileSelect = true,
   onSelect = null, onCreate = null, onRemove = null, onReorder = null, onUpdateNote = null,
+  onHide = null,
   onSetEnabled = null,
   readInstance = null, onStartProfile = null, onStopProfile = null, onRestartAll = null,
   onClearProfileLaunchErrors = null,
@@ -130,7 +131,6 @@ export function ProfileSidebar({
   const [noteValue, setNoteValue] = useState("");
   const [draggedId, setDraggedId] = useState("");
   const [dragOverId, setDragOverId] = useState("");
-  const [collapsed, setCollapsed] = useState(true);
   const instanceRevisionsRef = useRef(new Map());
   const profileActionsRef = useRef(new Set());
   function beginProfileAction(id) {
@@ -189,7 +189,6 @@ export function ProfileSidebar({
   const startIds = profileBatchIds("start", profiles, instanceState);
   const stopIds = profileBatchIds("stop", profiles, instanceState);
   const launchError = profileLaunchErrors.map((entry) => `${profiles.find((profile) => profile.id === entry.profileId)?.roleName || entry.profileId}：${profileError(t, entry.error)}`).join("\n");
-  const isCollapsed = collapsed && !error && !launchError && !actionError && !restartRequired;
 
   async function runBatch(action) {
     if (action === "start" ? !onStartProfile : !onStopProfile) return;
@@ -237,15 +236,7 @@ export function ProfileSidebar({
     await onRemove(profile.id);
   }
 
-  return <section className={`profile-list${isCollapsed ? " collapsed" : ""}${busy ? " busy" : ""}`} aria-label={t("profile.accounts")}>
-    {isCollapsed ? <div className="profile-compact-items">{profiles.map((profile) => {
-      const display = profileDisplay(profile, t);
-      const connection = profile.lockedReason ? "locked" : instanceState[profile.id]?.connectionState ?? "offline";
-      const status = t(CONNECTION_KEYS[connection]);
-      return <button type="button" className={`profile-compact-item${profile.id === state.selectedProfileId ? " active" : ""}`} disabled={busy || !profile.enabled || !onSelect} title={`${display.name} · ${display.server} · ${status}`} aria-label={`${display.name} · ${display.server} · ${status}`} onClick={() => onSelect?.(profile.id, focusGameOnProfileSelect)} key={profile.id}>
-        <span className={`profile-dot ${connection}`} /><span className="profile-compact-copy"><strong>{display.name}</strong><span className="profile-compact-state">{status}</span></span>
-      </button>;
-    })}</div> : <>
+  return <section className={`profile-list${busy ? " busy" : ""}`} aria-label={t("profile.accounts")}>
       <div className="profile-list-heading"><div className="profile-heading-title"><strong>{t("profile.accounts")}</strong><span className="profile-quota-badge">{profiles.length}/{state.maxProfiles}</span></div></div>
       <div className="profile-batch-actions">
         <button type="button" disabled={!!batchBusy || startIds.length === 0 || !onStartProfile} onClick={() => runBatch("start")}><ProfileIcon name="play" />{t(batchBusy === "start" ? "profile.startingAll" : "profile.startAll")}</button>
@@ -308,8 +299,7 @@ export function ProfileSidebar({
         catch (failure) { setActionError(profileError(t, failure)); }
         finally { setBatchBusy(""); }
       }}>{t("profile.restartAll")}</button> : null}
-    </>}
-    <button type="button" className="profile-collapse" aria-expanded={!isCollapsed} aria-label={t(isCollapsed ? "profile.expand" : "profile.collapse")} title={t(isCollapsed ? "profile.expand" : "profile.collapse")} onClick={() => setCollapsed((value) => !value)}><ProfileIcon name={isCollapsed ? "chevron-right" : "chevron-left"} /></button>
+    <button type="button" className="profile-collapse" disabled={!onHide} aria-label={t("profile.collapse")} title={t("profile.collapse")} onClick={() => onHide?.()}><ProfileIcon name="chevron-left" /></button>
     {noteId ? <ProfileNoteDialog busy={busy} onClose={() => setNoteId("")}><form className="profile-dialog" onSubmit={(event) => {
       event.preventDefault(); setActionError("");
       if (!onUpdateNote) return;

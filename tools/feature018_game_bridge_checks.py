@@ -286,6 +286,60 @@ def test_native_game_connection_observation() -> None:
     )
 
 
+def test_visual_metrics_native_sources() -> None:
+    source = (HERE / "current_overview_bridge.lua").read_text(encoding="utf-8")
+    assert (
+        'data.renderPath = (visual_metrics_show_fps or visual_metrics_show_ping)' in source
+    ), "visual metrics render path must remain a string when FPS alone is enabled"
+    start = source.index("local function sample_visual_fps()")
+    end = source.index("local function pump_visual_metrics(", start)
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    lua.execute("""
+        proxy = {
+          ping = 37,
+          GetPing = function(self) return self.ping end,
+        }
+        CS = {
+          GameEntry = { Network = { proxy = proxy } },
+          UnityEngine = { Time = { smoothDeltaTime = 0.02, unscaledDeltaTime = 0.025 } },
+        }
+        safe_get = function(value, key) return value and value[key] end
+        reflected_value = function(value, key)
+          if key == 'm_proxy' then return value.proxy end
+          if key == '_ping' then return value.ping end
+          return nil
+        end
+        reflected_type_name = function(value)
+          if value == proxy then return 'GameKit.Base.NetRawProxy' end
+          return 'Other'
+        end
+        call = function(value, method)
+          local fn = value and value[method]
+          if type(fn) ~= 'function' then return false,nil end
+          local ok,result = pcall(fn,value)
+          return ok,result
+        end
+    """)
+    fps, ping = lua.execute(
+        source[start:end] +
+        "\nreturn sample_visual_fps, sample_visual_ping_milliseconds"
+    )
+    assert round(fps(), 3) == 50.0, "visual FPS did not use Unity frame timing"
+    ping_ms, ping_source = ping()
+    assert ping_ms == 37 and ping_source == "GameKit.Base.NetRawProxy.GetPing"
+    lua.execute("proxy.GetPing=nil; proxy.ping=41")
+    ping_ms, ping_source = ping()
+    assert ping_ms == 41 and ping_source == "GameKit.Base.NetRawProxy._ping"
+    lua.execute("reflected_type_name=function() return 'Other' end")
+    assert ping()[0] is None, "non-NetRawProxy transport was accepted as game ping"
+
+    wrapper = (HERE / "run_overview_bridge.py").read_text(encoding="utf-8")
+    assert (
+        'feature.RegisterHandler("feature018_visual_metrics_configure"' in wrapper
+        and "bridge.ConfigureVisualMetrics(fields)" in wrapper
+    ), "packaged bridge did not register the authenticated visual-metrics command"
+
+
 if __name__ == "__main__":
     lua, module = make_bridge()
     module.RegisterHandler('city_layout_apply_status', lua.eval("""function()
@@ -301,4 +355,5 @@ if __name__ == "__main__":
     test_bridge_account_and_replay()
     test_overview_gate()
     test_native_game_connection_observation()
+    test_visual_metrics_native_sources()
     print("FEATURE018_GAME_BRIDGE_LUA53_PASS")

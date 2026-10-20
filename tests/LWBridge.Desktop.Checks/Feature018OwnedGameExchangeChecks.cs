@@ -140,6 +140,34 @@ internal static class Feature018OwnedGameExchangeChecks
         var shield = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
             JsonSerializer.SerializeToElement(new { action = "shieldUse", slot = 24 }));
         Require(shield["slot"] == "24", "original F8 24-hour binding rejected");
+        var visualMetrics = Feature018GameCommandService.ReadFields(
+            "feature018_visual_metrics_configure",
+            JsonSerializer.SerializeToElement(new
+            {
+                showFps = true, showPing = false, profileId = "approved-runtime",
+            }));
+        Require(visualMetrics.Count == 2 &&
+                visualMetrics["showFps"] == "1" &&
+                visualMetrics["showPing"] == "0",
+            "visual metrics booleans were not reduced to the authenticated game wire schema");
+        foreach (object invalidVisualMetrics in new object[]
+        {
+            new { showFps = true },
+            new { showPing = true },
+            new { showFps = 1, showPing = false },
+            new { showFps = false, showPing = "true" },
+            new { showFps = false, showPing = false, profileId = "" },
+            new { showFps = false, showPing = false, pingMilliseconds = 12 },
+            new { showFps = false, showPing = false, authorizedUid = "3133546747002212" },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_visual_metrics_configure",
+                    JsonSerializer.SerializeToElement(invalidVisualMetrics))));
+        using (JsonDocument duplicateVisualMetric = JsonDocument.Parse(
+            "{\"showFps\":true,\"showFps\":false,\"showPing\":false}"))
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_visual_metrics_configure",
+                    duplicateVisualMetric.RootElement)));
         var frontline = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
             JsonSerializer.SerializeToElement(new { action = "frontlineReinforce", slot = 5 }));
         Require(frontline["slot"] == "5", "original G five-soldier binding rejected");

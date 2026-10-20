@@ -50,6 +50,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "feature018_shield_inventory_get" or
         "feature018_shield_shop" or
         "feature018_frontline_action" or
+        "feature018_visual_metrics_configure" or
         "feature018_equipment_preflight" or
         "feature018_equipment_snapshot" or "feature018_equipment_restore" or "feature018_equipment_edit" or
         "feature018_hotkey_action";
@@ -300,6 +301,32 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST",
                         "Invalid relocation observation profile.");
                 fields["action"] = action;
+                break;
+            }
+            case "feature018_visual_metrics_configure":
+            {
+                var unique = new HashSet<string>(StringComparer.Ordinal);
+                foreach (JsonProperty field in payload.EnumerateObject())
+                {
+                    if (field.Name is not ("showFps" or "showPing" or "profileId") ||
+                        !unique.Add(field.Name))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Visual metrics accepts only unique FPS, ping and routing fields.");
+                }
+                if (!payload.TryGetProperty("showFps", out JsonElement fps) ||
+                    fps.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                    !payload.TryGetProperty("showPing", out JsonElement ping) ||
+                    ping.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Visual metrics requires explicit FPS and ping booleans.");
+                if (payload.TryGetProperty("profileId", out JsonElement visualProfile) &&
+                    (visualProfile.ValueKind != JsonValueKind.String ||
+                     string.IsNullOrWhiteSpace(visualProfile.GetString()) ||
+                     visualProfile.GetString()!.Length > 128))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid visual metrics routing profile.");
+                fields["showFps"] = fps.GetBoolean() ? "1" : "0";
+                fields["showPing"] = ping.GetBoolean() ? "1" : "0";
                 break;
             }
             case "feature018_equipment_edit":

@@ -408,9 +408,10 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
     }}
 end
 
--- A single sequential transaction. Network return is never proof of a slot change.
--- HeroEquipInstall/Uninstall replies carry no slot payload; only the original
--- PushHeroEquipChange -> EquipDataManager and hero slot readers advance a step.
+-- A single frozen preset transaction. Network return is never proof of a slot
+-- change. HeroEquipInstall/Uninstall replies carry no slot payload, so a preset
+-- dispatches its already-validated uninstall/install RPCs once, back-to-back,
+-- then only fresh native slot + inventory state may confirm the whole preset.
 local transaction = nil
 local function action_owner(fields)
     return exact_session(fields)
@@ -484,6 +485,60 @@ local function observe_step(step)
         if wearer~=nil and not (type(wearer)=="number" and
            wearer<=0 and wearer%1==0) then
             return false,"Removed equipment wearer state is unverified"
+        end
+    end
+    return true
+end
+local function uncertain_receipt(tx)
+    local step=tx.steps[tx.uncertainStep or tx.sent]
+    local verified,reason=nil,nil
+    if step then verified,reason=observe_step(step) end
+    local result=receipt(tx,false)
+    result.state="failed"
+    result.errorCode="GAME_ACTION_UNCONFIRMED"
+    result.error=tx.uncertainError or
+        "Equipment send outcome unknown; automatic preset continuation disabled"
+    result.data.uncertainSendOutcome=true
+    result.data.uncertainStepPoststateVerified=verified==true
+    result.data.uncertainStepObservationError=verified==false and reason or nil
+    result.data.nextStepNotDispatched=true
+    result.data.awaitingOwnerReview=true
+    return result
+end
+local function observe_final_burst(tx,slots)
+    local fresh={}
+    for _,slot in ipairs(slots) do
+        local key=table.concat({slot.squadIndex,slot.position,slot.heroUuid,slot.slot},":")
+        fresh[key]=slot.currentEquipUuid
+    end
+    local pending=false
+    for _,before in ipairs(tx.before) do
+        local key=table.concat({before.squadIndex,before.position,before.heroUuid,before.slot},":")
+        local current=fresh[key]
+        if current==nil then return false,"Native preset slot disappeared during final verification" end
+        if current~=before.targetEquipUuid then
+            if current~=before.currentEquipUuid and current~="" then
+                return false,"Native gear slot changed to an unexpected equipment UUID"
+            end
+            pending=true
+        end
+    end
+    if pending then return nil end
+    local manager=member(rawget(_G,"DataCenter"),"EquipDataManager")
+    for equip_uuid,expected in pairs(tx.expectedWearers) do
+        local ok,item=invoke(manager,"GetEquipByUuid",tonumber(equip_uuid))
+        if not ok or not item or exact_id(member(item,"uuid"))~=equip_uuid then
+            return false,"Affected equipment inventory missing during final verification"
+        end
+        local raw_wearer=member(item,"heroUuid")
+        local wearer=exact_id(raw_wearer)
+        if expected==false then
+            if wearer~=nil or (raw_wearer~=nil and not
+               (type(raw_wearer)=="number" and raw_wearer<=0 and raw_wearer%1==0)) then
+                return false,"Removed equipment final wearer is unexpected"
+            end
+        elseif wearer~=expected then
+            return false,"Target equipment final wearer does not match saved hero"
         end
     end
     return true
@@ -595,6 +650,9 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     local audit = M.Preflight(fields,confirmed_presets,
         fields.queryOnly == "1" and function() return true end or game_input_clear)
     if audit.state ~= "confirmed" then
+        if transaction and transaction.key==owner_key(fields) and transaction.uncertainSend then
+            return uncertain_receipt(transaction)
+        end
         if audit.errorCode=="EQUIPMENT_STATE_PENDING" and transaction and
             transaction.key==owner_key(fields) then
             -- Separate native pushes can disagree across game frames. Keep
@@ -656,148 +714,146 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
                     heroUuid=slot.heroUuid,slot=slot.slot,before="",after=slot.targetEquipUuid}
             end
         end
+        local expected_wearers={}
+        for _,slot in ipairs(slots) do
+            if slot.currentEquipUuid~="" then expected_wearers[slot.currentEquipUuid]=false end
+        end
+        for _,slot in ipairs(slots) do
+            if slot.targetEquipUuid~="" then
+                local prior=expected_wearers[slot.targetEquipUuid]
+                if prior and prior~=slot.heroUuid then
+                    return blocked("One saved equipment UUID is assigned to multiple heroes")
+                end
+                expected_wearers[slot.targetEquipUuid]=slot.heroUuid
+            end
+        end
         transaction={key=key,serverId=initial_server,fingerprint=revision,steps=steps,index=1,completed=0,
-            sent=0,before=slots,latest=slots,slot=fields.slot,presetId=fields.presetId}
+            sent=0,before=slots,latest=slots,slot=fields.slot,presetId=fields.presetId,
+            expectedWearers=expected_wearers}
     end
     local tx=transaction
     tx.latest=slots
     if tx.uncertainSend then
-        -- An original HeroEquipInstall/Uninstall SendMessage may raise or
-        -- explicitly report false AFTER its payload was emitted. The
-        -- per-hero reply lacks a slot/gear/request nonce and a separate
-        -- PushHeroEquipChange can arrive late. Even a matching native slot
-        -- is not permission to dispatch the NEXT saved-preset step here.
-        local verified,reason=observe_step(tx.steps[tx.index])
-        local result=receipt(tx,false)
-        result.state="failed"
-        result.errorCode="GAME_ACTION_UNCONFIRMED"
-        result.error="Equipment send outcome unknown; automatic preset continuation disabled"
-        result.data.uncertainSendOutcome=true
-        result.data.uncertainStepPoststateVerified=verified==true
-        result.data.uncertainStepObservationError=verified==false and reason or nil
-        result.data.nextStepNotDispatched=true
-        result.data.awaitingOwnerReview=true
-        return result
+        return uncertain_receipt(tx)
     end
-    if tx.waiting then
-        local observed, reason=observe_step(tx.steps[tx.index])
-        if observed==false then return blocked(reason) end
-        if observed==nil then return receipt(tx,false) end
-        tx.waiting=false;tx.completed=tx.completed+1;tx.index=tx.index+1
-    end
-    local step=tx.steps[tx.index]
-    if not step then
-        if audit.data.changedSlots ~= 0 then return blocked("Final equipment slots disagree with saved preset") end
+    if #tx.steps==0 then
         local result=receipt(tx,true);transaction=nil;return result
     end
-    local hero, reason=read_hero(step.squadIndex,step.position)
-    if not hero or hero.uuid ~= step.heroUuid then return blocked(reason or "Native hero changed") end
-    local ok_current,current=invoke(hero.object,"GetEquipBySlotType",step.slot)
-    if not ok_current or (current and exact_id(member(current,"uuid")) or "") ~= step.before then
-        return blocked("Native equipment slot changed before dispatch")
+    if tx.burstComplete then
+        local observed,reason=observe_final_burst(tx,slots)
+        if observed==false then return blocked(reason) end
+        if observed==nil then return receipt(tx,false) end
+        if audit.data.changedSlots~=0 then return blocked("Final equipment slots disagree with saved preset") end
+        tx.completed=#tx.steps
+        local result=receipt(tx,true);transaction=nil;return result
     end
-    if step.after ~= "" then
-        local item, why=inventory_for_target(member(rawget(_G,"DataCenter"),"EquipDataManager"),
-            step.after,hero,step.slot)
-        if not item or item.wearer then return blocked(why or "Equipment has not been released by its previous hero") end
+    -- Once any native RPC is dispatched, queryOnly is strictly observational.
+    -- An unsent transaction can only exist if a prior initial request was
+    -- rejected before dispatch; never let a poll turn into a send.
+    if fields.queryOnly=="1" then
+        local pending=receipt(tx,false)
+        pending.data.nextStepNotDispatched=true
+        return pending
     end
-    -- queryOnly polls are allowed to observe a prior native push even while
-    -- the user types. However, when polling advances to the NEXT install or
-    -- uninstall, that is a fresh send and must pass live input focus again.
-    -- Preserve the transaction at this step so a later safe poll can resume
-    -- without retransmitting any already-observed operation.
+
+    -- The earlier preflight focus sample is not a lock. Sample again at the
+    -- last reversible point, then re-read the complete frozen plan so a focus
+    -- callback that changes game state cannot create a validation/send TOCTOU.
     local focus_ok,focus_clear=false,false
     if type(game_input_clear)=="function" then
         focus_ok,focus_clear=pcall(game_input_clear)
     end
     if not focus_ok or focus_clear~=true then
-        local pending=receipt(tx,false)
-        pending.data.awaitingInputClear=true
-        pending.data.nextStepNotDispatched=true
-        return pending
+        transaction=nil
+        return blocked("Game text-input focus changed before equipment dispatch")
     end
     local dispatch_uid,dispatch_server=native_session(fields)
     if dispatch_uid~=initial_uid or dispatch_server~=tx.serverId then
-        return blocked("Native equipment owner/server changed before next step dispatch")
+        transaction=nil
+        return blocked("Native equipment owner/server changed before preset dispatch")
     end
-    -- A confirmed owner preset may be edited/replaced between the initial
-    -- preflight and the native focus callback. Revalidate the *saved* complete
-    -- target for every planned hero/slot before sending this next step, not
-    -- just the already-read gear UUID in an old audit table.
+
+    -- Revalidate the frozen complete preset immediately after the final focus
+    -- sample. This covers every hero/slot/target together so none of the
+    -- following back-to-back sends depends on an observation from a prior send.
     local fresh_preset,preset_error=selected_preset(fields,confirmed_presets)
-    if not fresh_preset then return preset_error end
+    if not fresh_preset then transaction=nil;return preset_error end
     local refreshed,count,_,saved_heroes=validate_selected_loadout(fresh_preset)
     if not refreshed or count~=#tx.before/4 then
-        return blocked("Confirmed equipment preset shape changed before dispatch")
+        transaction=nil;return blocked("Confirmed equipment preset shape changed before dispatch")
+    end
+    local manager=member(rawget(_G,"DataCenter"),"EquipDataManager")
+    local dispatch_heroes,dispatch_items,releases={},{},{}
+    for _,step in ipairs(tx.steps) do
+        if step.after=="" and step.before~="" then releases[step.before]=step.heroUuid end
     end
     for _,wanted_slot in ipairs(tx.before) do
         local group=refreshed[wanted_slot.squadIndex]
         local target=group and group[wanted_slot.position]
         local desired=target and (target[wanted_slot.slot] or "") or nil
         if desired~=wanted_slot.targetEquipUuid then
-            return blocked("Confirmed equipment preset targets changed before dispatch")
+            transaction=nil;return blocked("Confirmed equipment preset targets changed before dispatch")
         end
         local native_hero=saved_heroes[wanted_slot.squadIndex][wanted_slot.position]
         if native_hero and native_hero~=wanted_slot.heroUuid then
-            return blocked("Confirmed equipment saved hero changed before dispatch")
+            transaction=nil;return blocked("Confirmed equipment saved hero changed before dispatch")
+        end
+        local hero,reason=read_hero(wanted_slot.squadIndex,wanted_slot.position)
+        if not hero or hero.uuid~=wanted_slot.heroUuid then
+            transaction=nil;return blocked(reason or "Native equipment hero changed immediately before dispatch")
+        end
+        dispatch_heroes[hero.uuid]=hero
+        local ok_current,current=invoke(hero.object,"GetEquipBySlotType",wanted_slot.slot)
+        local current_uuid=current and exact_id(member(current,"uuid")) or ""
+        if not ok_current or current_uuid~=wanted_slot.currentEquipUuid then
+            transaction=nil;return blocked("Native equipment slot changed immediately before dispatch")
+        end
+        if wanted_slot.targetEquipUuid~="" and wanted_slot.currentEquipUuid~=wanted_slot.targetEquipUuid then
+            local checked,why=inventory_for_target(manager,wanted_slot.targetEquipUuid,hero,wanted_slot.slot)
+            if not checked then transaction=nil;return blocked(
+                "Native equipment target changed immediately before dispatch: " .. (why or "unavailable")) end
+            if checked.wearer and checked.wearer~=hero.uuid and
+               releases[wanted_slot.targetEquipUuid]~=checked.wearer then
+                transaction=nil;return blocked("Saved equipment wearer has no earlier preset uninstall") end
+            dispatch_items[wanted_slot.targetEquipUuid]=checked.item
         end
     end
-    -- The focus callback and prior reads are not a lock. Rebind the exact
-    -- saved hero, current slot and intended gear *after* focus evaluation,
-    -- using the native instance actually passed to the v26 serializer.
-    local fresh_hero,fresh_reason=read_hero(step.squadIndex,step.position)
-    if not fresh_hero or fresh_hero.uuid~=step.heroUuid then
-        return blocked(fresh_reason or "Native equipment hero changed immediately before dispatch")
-    end
-    local fresh_ok,fresh_current=invoke(fresh_hero.object,"GetEquipBySlotType",step.slot)
-    local fresh_uuid=fresh_current and exact_id(member(fresh_current,"uuid")) or ""
-    if not fresh_ok or fresh_uuid~=step.before then
-        return blocked("Native equipment slot changed immediately before dispatch")
-    end
-    local next_item
-    if step.after~="" then
-        local checked,why=inventory_for_target(
-            member(rawget(_G,"DataCenter"),"EquipDataManager"),step.after,
-            fresh_hero,step.slot)
-        if not checked or checked.wearer then
-            return blocked("Native equipment target changed immediately before dispatch: " ..
-                (why or "gear already has a wearer"))
-        end
-        next_item=checked.item
-    end
-    local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
+
     local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
-    if message==nil or type(send)~="function" then return unavailable("Original HeroEquip message unavailable") end
-    -- Tombstone before the call; an exception can occur after a native send.
-    tx.waiting=true;tx.sent=tx.sent+1
-    local ok,returned
-    if step.after=="" then ok,returned=pcall(send,message,member(fresh_hero.object,"uuid"),{step.slot})
-    else
-        ok,returned=pcall(send,message,member(fresh_hero.object,"uuid"),
-            {[step.slot]=member(next_item,"uuid")})
+    if type(send)~="function" then transaction=nil;return unavailable("Original HeroEquip sender unavailable") end
+    for index,step in ipairs(tx.steps) do
+        local hero=dispatch_heroes[step.heroUuid]
+        local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
+        if not hero or message==nil then
+            transaction=nil;return unavailable("Original HeroEquip message unavailable")
+        end
+        -- Tombstone this exact send before the call; an exception can occur
+        -- after native emission. The remainder of the burst is never attempted
+        -- after any ambiguous result.
+        tx.index=index;tx.uncertainStep=index;tx.sent=tx.sent+1
+        local ok,returned
+        if step.after=="" then
+            ok,returned=pcall(send,message,member(hero.object,"uuid"),{step.slot})
+        else
+            local next_item=dispatch_items[step.after]
+            if not next_item then transaction=nil;return blocked("Validated target equipment disappeared before burst") end
+            ok,returned=pcall(send,message,member(hero.object,"uuid"),
+                {[step.slot]=member(next_item,"uuid")})
+        end
+        local after_uid,after_server=native_session(fields)
+        if after_uid~=initial_uid or after_server~=tx.serverId then
+            tx.uncertainSend=true
+            tx.uncertainError="Equipment native account/server changed during send; never retransmit or continue preset"
+            return uncertain_receipt(tx)
+        end
+        if not ok or returned==false then
+            tx.uncertainSend=true
+            tx.uncertainError="Equipment send outcome unknown; never retransmit or continue preset"
+            return uncertain_receipt(tx)
+        end
     end
-    local after_uid,after_server=native_session(fields)
-    if after_uid~=initial_uid or after_server~=tx.serverId then
-        tx.uncertainSend=true
-        local result=receipt(tx,false)
-        result.state="failed"
-        result.errorCode="GAME_ACTION_UNCONFIRMED"
-        result.error="Equipment native account/server changed during send; never retransmit or advance"
-        result.data.uncertainSendOutcome=true
-        result.data.nextStepNotDispatched=true
-        return result
-    end
-    if not ok or returned==false then
-        tx.uncertainSend=true
-        local result=receipt(tx,false)
-        result.state="failed"
-        result.errorCode="GAME_ACTION_UNCONFIRMED"
-        result.error="Equipment send outcome unknown; never retransmit or advance preset"
-        result.data.uncertainSendOutcome=true
-        result.data.nextStepNotDispatched=true
-        result.data.awaitingOwnerReview=true
-        return result
-    end
+    tx.uncertainStep=nil
+    tx.burstComplete=true
     return receipt(tx,false)
 end
 

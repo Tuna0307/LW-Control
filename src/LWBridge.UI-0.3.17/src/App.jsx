@@ -2,7 +2,7 @@ import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, 
 import { flushSync } from "react-dom";
 import { toggleShellTheme } from "./shellTheme.js";
 import { TopVersion, ShellConfigSaveErrors } from "./ShellPresentation.jsx";
-import { initialShellUpdateStatus, initialShellProfiles, previewShellFlagStores, initialProfileFocus, saveProfileFocus } from "./shellState.js";
+import { initialShellUpdateStatus, initialShellProfiles, previewShellFlagStores, initialProfileFocus, saveProfileFocus, initialProfileSidebarHidden, saveProfileSidebarHidden } from "./shellState.js";
 import { ProfileSidebar } from "./ProfileSidebar.jsx";
 import { AppExitDialog, AppExitPrompt } from "./AppExitDialog.jsx";
 import { ProfileSwitchState } from "./ProfileSwitchState.jsx";
@@ -140,6 +140,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const showProfiles = shellProfiles.maxProfiles > 1 || shellProfiles.profiles.length > 1;
   const [focusGameOnProfileSelect, setFocusGameOnProfileSelect] = useState(() => initialProfileFocus(localStorage));
   const updateProfileFocus = (value) => { saveProfileFocus(localStorage, value); setFocusGameOnProfileSelect(value); };
+  const [profileSidebarHidden, setProfileSidebarHidden] = useState(() => initialProfileSidebarHidden(localStorage));
+  const updateProfileSidebarHidden = (value) => { saveProfileSidebarHidden(localStorage, value); setProfileSidebarHidden(value); };
   const previewProfileCache = useRef(new Set(profilePreview && shellProfiles.selectedProfileId ? [shellProfiles.selectedProfileId] : []));
   const previewProfileLoadGeneration = useRef(0);
   const [previewProfileLoading, setPreviewProfileLoading] = useState(false);
@@ -1023,6 +1025,23 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     connectionError,
   );
   const online = bridgeState === "connected";
+
+  useEffect(() => {
+    if (!online || !backendBridge.available || !selectedProfileId) return undefined;
+    let closed = false;
+    backendBridge.invokeProfileScoped("visual_metrics_config_get", {}).then((stored) => {
+      if (closed) return undefined;
+      return backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
+        showFps: stored?.showFps === true,
+        showPing: stored?.showPing === true,
+      });
+    }).catch(() => {
+      // Settings surfaces explicit save failures. Reconnect synchronization is
+      // best-effort and will retry on the next owned connection transition.
+    });
+    return () => { closed = true; };
+  }, [online, selectedProfileId]);
+
   const nativeAssetReader = useMemo(() => createProfileGameAssetReader(backendBridge), [selectedProfileId, imageGameRoot, online]);
 
   useEffect(() => {
@@ -1418,6 +1437,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </section>
 
         <div className="top-actions">
+          {showProfiles && profileSidebarHidden ? <button
+            className="theme-toggle profile-sidebar-restore"
+            type="button"
+            title={t("profile.expand")}
+            aria-label={t("profile.expand")}
+            onClick={() => updateProfileSidebarHidden(false)}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </button> : null}
           <button
             className="theme-toggle"
             type="button"
@@ -1504,12 +1534,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       </header>
 
       <HotkeyFeedback profileId={backendBridge.profileId} activeRoute={activeRoute} />
-      <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
-        {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
+      <div className={`app-layout${showProfiles && !profileSidebarHidden ? "" : " single-profile"}`}>
+        {showProfiles && !profileSidebarHidden ? <aside className="profile-sidebar"><ProfileSidebar
           state={shellProfiles}
           busy={nativeProfileBusy || nativeProfileMutationBusy}
           error={nativeProfileError}
           focusGameOnProfileSelect={focusGameOnProfileSelect}
+          onHide={() => updateProfileSidebarHidden(true)}
           {...profileCallbacks}
         /></aside> : null}
         <nav className="side-nav" aria-label="Navigation">

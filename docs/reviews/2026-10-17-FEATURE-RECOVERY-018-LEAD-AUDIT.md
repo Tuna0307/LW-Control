@@ -1358,7 +1358,48 @@ Removed/dropped items (do not restore): Space countdown, march speed-ups, Auto G
 worker test panels, two-games-at-once, remote no-switch scanning.
 
 ### R29 progress (worker updates this)
-- (none yet)
+- **Part A complete / checkpoint candidate (2026-10-20):** archived admitted v26 source has no hero-equipment
+  one-click plan message: the similarly named `UITCQuickEquipPanelV2` is Tactical Card equipment. The native
+  `HeroEquipInstall` serializer does accept a per-hero slot map and `HeroEquipUninstall` accepts a slot array, but
+  their replies still have no slot/item/request nonce. The retained owner-preset route therefore keeps the existing
+  exact UID/server/focus/preset/hero/item gates, freezes the whole change set, sends every required original
+  uninstall/install step back-to-back without waiting for individual pushes, and confirms only once from a fresh
+  complete native preflight. Any throw/false return or owner/server change tombstones the uncertain send and stops the
+  remainder; query-only continuation never transmits. Offline equipment coverage is now 42/42 including burst-before-
+  push, partial-push observation, third-send failure, final-state mismatch and no-replay negatives.
+- **Part A real preset timing:** the unchanged `7747ac82` sequential baseline in exact-owned packaged session
+  `artifacts/map014-takeover/native-ui-20261020-115927/` restored a complete current-account preset in **8964.1016 ms**.
+  The R29 burst sender in `native-ui-20261020-120439/` restored the same **20 changed slots** in **806.5011 ms**:
+  **8157.6005 ms / 91.003% less elapsed time, 11.115x faster**. Both runs independently matched every starting native
+  slot and inventory wearer and restored the original persisted equipment config; both task-owned sessions exited 0,
+  restored all three original v26 script files exactly and left no recovery journal. The approved account currently
+  exposes **3 populated squads / 15 positions**, so a literal four-populated-squad live timing is unavailable on this
+  account; both receipts explicitly record `requestedSquadCount=4`, `fullFourSquadSwitch=false` and
+  `timingScope=all-populated-native-squads` rather than inventing a fourth squad.
+- **Part A account sidebar:** the profile switcher can now disappear completely (no residual strip/aside/grid column),
+  with a small restore control outside the hidden subtree; `lwbridge.profileSidebarHidden` remembers the choice.
+  Genuine current-tree WebView proof `native-ui-20261020-121028/r29-part-a-ui.json` captured visible, fully hidden after
+  a real WebView document reload, and restored states. Hidden proof has no `.profile-sidebar`, no compact profile item,
+  an external restore button and the single-profile content grid; the same exact game owner/session stayed alive.
+- **Part A Settings FPS/ping:** production Settings previously never loaded/applied these switches to the game. It now
+  loads the persisted profile values, applies online changes through exact-owner `feature018_visual_metrics_configure`,
+  persists only after native success, rolls the live game back if persistence fails, and reapplies saved values on
+  reconnect. The game overlay is session-bound and samples FPS from `UnityEngine.Time.smoothDeltaTime` (fallback
+  `unscaledDeltaTime`) and ping only from the verified `GameKit.Base.NetRawProxy` `GetPing`/`_ping` millisecond path.
+  `native-ui-20261020-121028` confirmed render path
+  `GameFramework/UI/UIContainer/LWBridgeOverviewReady/VisualMetrics`, **108.038 FPS** and **222 ms** ping, captured
+  Settings **EN at 900 px** and **zh-CN at 1600 px** with both visual switches on, then restored persisted and live game
+  settings exactly to the original off/off values. It also exposed and fixed a Lua precedence bug that had returned
+  boolean `true` instead of the render-path string. Two earlier proof-harness negatives are retained: `120439` caught a
+  canceled superseded WebView navigation event while all settings still restored; `120745` caught the render-path
+  contract bug with real numeric FPS/ping before the fix. All three owned sessions exited cleanly with exact script
+  restoration/no journal.
+- **Part A validation:** canonical `npm.cmd --prefix src/LWBridge.UI-0.3.17 run check` PASS (including R29 sidebar and
+  visual-metrics mounted checks); full Release `tests/LWBridge.Desktop.Checks` PASS through
+  `HOME_FEATURE_DELIVERY_CHECKS_OK`; all current FEATURE018 offline/Lua suites PASS, including equipment 42/42,
+  relocation 82/82, Mini 55/55 and the native bridge/AFK/Chat/City/Sheep/Shield/Stamina suites. The owner-transition
+  fixture was updated to include the already-packaged Chat engine dependency so that it again exercises the current
+  periodic owner gate instead of crashing on a missing test global. `git diff --check` PASS. Part B/C remain open.
 
 ### R29 addendum — Part C: performance and smoothness (owner, 2026-10-20)
 Owner: the program must not slow the game down, and the app must feel smooth, not clunky.

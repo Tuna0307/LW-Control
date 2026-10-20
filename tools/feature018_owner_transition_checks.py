@@ -31,12 +31,15 @@ def check() -> None:
         mini = {cleanup = 0}
         sheep = {cleanup = 0}
         afk = {cleanup = 0, pump = 0}
+        chat = {cleanup = 0, pump = 0}
         feature = {pump = 0}
         function city.CleanupAfterLeaseLoss() city.cleanup = city.cleanup + 1 end
         function mini.CleanupAfterLeaseLoss() mini.cleanup = mini.cleanup + 1 end
         function sheep.CleanupAfterLeaseLoss() sheep.cleanup = sheep.cleanup + 1 end
         function afk.CleanupAfterLeaseLoss() afk.cleanup = afk.cleanup + 1 end
+        function chat.CleanupAfterLeaseLoss() chat.cleanup = chat.cleanup + 1 end
         function afk.Pump() afk.pump = afk.pump + 1 end
+        function chat.Pump() chat.pump = chat.pump + 1 end
         function city.Pump() city.pump = city.pump + 1 end
         function sheep.Pump() end
         function feature.Pump() feature.pump = feature.pump + 1 end

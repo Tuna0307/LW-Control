@@ -48,6 +48,13 @@ local active = nil
 local verified_lease = nil
 local root_object = nil
 local message_text = nil
+local visual_metrics_object = nil
+local visual_metrics_text = nil
+local visual_metrics_show_fps = false
+local visual_metrics_show_ping = false
+local visual_metrics_session = nil
+local visual_metrics_last_clock = -1000
+local visual_metrics_last_data = nil
 local registration_method = nil
 local timer_handle = nil
 local update_callback = nil
@@ -3200,7 +3207,21 @@ local function destroy_message()
     end
     root_object = nil
     message_text = nil
+    visual_metrics_object = nil
+    visual_metrics_text = nil
+    visual_metrics_last_data = nil
     last_ready_session = nil
+end
+
+local function destroy_visual_metrics()
+    if visual_metrics_object ~= nil then
+        local cs = rawget(_G, "CS")
+        local object = cs and cs.UnityEngine and cs.UnityEngine.Object
+        if object ~= nil then pcall(function() object.Destroy(visual_metrics_object) end) end
+    end
+    visual_metrics_object = nil
+    visual_metrics_text = nil
+    visual_metrics_last_data = nil
 end
 
 local function find_font_donor(container, text_type)
@@ -3291,6 +3312,185 @@ local function ensure_message()
         return false, "message_create_failed:" .. tostring(err)
     end
     return message_text ~= nil and safe_get(message_text, "font") ~= nil, nil
+end
+
+local function ensure_visual_metrics()
+    if not visual_metrics_show_fps and not visual_metrics_show_ping then
+        destroy_visual_metrics()
+        return true, nil
+    end
+    if root_object == nil or message_text == nil then
+        return false, "overview_message_unavailable"
+    end
+    if visual_metrics_object ~= nil and visual_metrics_text ~= nil then
+        local ok = pcall(function()
+            visual_metrics_object:SetActive(true)
+            visual_metrics_object.transform:SetAsLastSibling()
+        end)
+        if ok then return true, nil end
+        destroy_visual_metrics()
+    end
+
+    local cs = rawget(_G, "CS")
+    if cs == nil or cs.UnityEngine == nil or cs.TextMeshProUGUIEx == nil then
+        return false, "visual_metrics_unity_types_unavailable"
+    end
+    local game_object = cs.UnityEngine.GameObject
+    local rect_type = typeof(cs.UnityEngine.RectTransform)
+    local text_type = typeof(cs.TextMeshProUGUIEx)
+    local created = nil
+    local ok, err = pcall(function()
+        created = game_object("VisualMetrics", rect_type)
+        created.layer = root_object.layer
+        local rect = created:GetComponent(rect_type)
+        rect:SetParent(root_object.transform, false)
+        rect:Set_anchorMin(0, 1)
+        rect:Set_anchorMax(0, 1)
+        pcall(function() rect:Set_pivot(0, 1) end)
+        rect.sizeDelta = cs.UnityEngine.Vector2(360, 72)
+        rect.anchoredPosition = cs.UnityEngine.Vector2(18, -18)
+
+        local text = created:AddComponent(text_type)
+        text.font = message_text.font
+        local donor_material = safe_get(message_text, "fontSharedMaterial")
+        if donor_material ~= nil then pcall(function() text.fontSharedMaterial = donor_material end) end
+        text.text = ""
+        text.fontSize = 20
+        pcall(function() text.color = cs.UnityEngine.Color(1, 1, 1, 1) end)
+        pcall(function() text.alignment = cs.TMPro.TextAlignmentOptions.TopLeft end)
+        pcall(function() text.raycastTarget = false end)
+        created.transform:SetAsLastSibling()
+        created:SetActive(true)
+        visual_metrics_object = created
+        visual_metrics_text = text
+    end)
+    if not ok then
+        if created ~= nil then pcall(function() cs.UnityEngine.Object.Destroy(created) end) end
+        visual_metrics_object = nil
+        visual_metrics_text = nil
+        return false, "visual_metrics_create_failed:" .. tostring(err)
+    end
+    return visual_metrics_text ~= nil and safe_get(visual_metrics_text, "font") ~= nil, nil
+end
+
+local function sample_visual_fps()
+    local cs = rawget(_G, "CS")
+    local time = cs and cs.UnityEngine and cs.UnityEngine.Time
+    local delta = tonumber(time and safe_get(time, "smoothDeltaTime"))
+    if delta == nil or delta <= 0 then
+        delta = tonumber(time and safe_get(time, "unscaledDeltaTime"))
+    end
+    if delta == nil or delta <= 0 then return nil end
+    local fps = 1 / delta
+    if fps ~= fps or fps == math.huge or fps <= 0 then return nil end
+    return fps
+end
+
+-- Current installed BaseUtils.rdl SHA-256
+-- f1c16e7887a1752decce8a8d37844145228ca7987ece33a6992b7d0f75406adf:
+-- GameKit.Base.NetRawProxy.GetPing() returns its private int32 _ping field.
+-- NetRawProxy.OnPingPong computes _ping as (endTicks-startTicks)/10000, i.e.
+-- milliseconds from .NET 100 ns ticks. Read that native method rather than an
+-- LW-Control request round trip so Show ping reflects the game's own transport.
+local function sample_visual_ping_milliseconds()
+    local cs = rawget(_G, "CS")
+    local entry = cs and safe_get(cs, "GameEntry") or rawget(_G, "GameEntry")
+    local network = entry and safe_get(entry, "Network") or nil
+    if network == nil then return nil, nil end
+    local proxy = reflected_value(network, "m_proxy")
+    if proxy == nil or reflected_type_name(proxy) ~= "GameKit.Base.NetRawProxy" then
+        return nil, nil
+    end
+    local ok_ping, ping = call(proxy, "GetPing")
+    if ok_ping and tonumber(ping) ~= nil then
+        return tonumber(ping), "GameKit.Base.NetRawProxy.GetPing"
+    end
+    return tonumber(reflected_value(proxy, "_ping")), "GameKit.Base.NetRawProxy._ping"
+end
+
+local function pump_visual_metrics(force)
+    if not visual_metrics_show_fps and not visual_metrics_show_ping then
+        destroy_visual_metrics()
+        return true, nil
+    end
+    if active == nil or visual_metrics_session ~= active.sessionId then
+        destroy_visual_metrics()
+        return false, "visual_metrics_owner_session_changed"
+    end
+    local now = runtime_clock()
+    if not force and now - visual_metrics_last_clock < 0.5 then return true, nil end
+    visual_metrics_last_clock = now
+    local ready, err = ensure_visual_metrics()
+    if not ready then return false, err end
+
+    local parts = {}
+    local data = {}
+    if visual_metrics_show_fps then
+        local fps = sample_visual_fps()
+        data.fps = fps
+        data.fpsAvailable = fps ~= nil
+        parts[#parts + 1] = fps ~= nil and string.format("FPS: %.0f", fps) or "FPS: --"
+    end
+    if visual_metrics_show_ping then
+        local ping_ms, source = sample_visual_ping_milliseconds()
+        local ping_available = ping_ms ~= nil and ping_ms >= 0
+        data.pingMilliseconds = ping_available and ping_ms or nil
+        data.pingAvailable = ping_available
+        data.pingSource = source
+        parts[#parts + 1] = ping_available and string.format("Ping: %.0f ms", ping_ms) or "Ping: --"
+    end
+    local text = table.concat(parts, "\n")
+    local ok, update_error = pcall(function() visual_metrics_text.text = text end)
+    if not ok then return false, "visual_metrics_update_failed:" .. tostring(update_error) end
+    visual_metrics_last_data = data
+    return true, nil
+end
+
+function M.ConfigureVisualMetrics(fields)
+    if type(fields) ~= "table" or
+       (fields.showFps ~= "0" and fields.showFps ~= "1") or
+       (fields.showPing ~= "0" and fields.showPing ~= "1") then
+        return {state = "failed", errorCode = "GAME_PRECONDITION_FAILED",
+            error = "Visual metrics requires explicit FPS and ping flags"}
+    end
+    if active == nil or type(active.sessionId) ~= "string" then
+        return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+            error = "Authenticated current game session is unavailable"}
+    end
+    local previous_fps = visual_metrics_show_fps
+    local previous_ping = visual_metrics_show_ping
+    local previous_session = visual_metrics_session
+    if fields.showFps == "1" and sample_visual_fps() == nil then
+        return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+            error = "Current game frame timing is unavailable"}
+    end
+    if fields.showPing == "1" then
+        local initial_ping = sample_visual_ping_milliseconds()
+        if initial_ping == nil or initial_ping < 0 then
+            return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+                error = "Current game network latency source is unavailable"}
+        end
+    end
+    visual_metrics_show_fps = fields.showFps == "1"
+    visual_metrics_show_ping = fields.showPing == "1"
+    visual_metrics_session = active.sessionId
+    visual_metrics_last_clock = -1000
+    local ok, err = pump_visual_metrics(true)
+    if not ok then
+        visual_metrics_show_fps = previous_fps
+        visual_metrics_show_ping = previous_ping
+        visual_metrics_session = previous_session
+        visual_metrics_last_clock = -1000
+        pump_visual_metrics(true)
+        return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+            error = "Current game visual metrics unavailable: " .. tostring(err)}
+    end
+    local data = visual_metrics_last_data or {}
+    data.showFps = visual_metrics_show_fps
+    data.showPing = visual_metrics_show_ping
+    data.renderPath = (visual_metrics_show_fps or visual_metrics_show_ping)
+        and "GameFramework/UI/UIContainer/LWBridgeOverviewReady/VisualMetrics" or nil
+    return {state = "confirmed", data = data}
 end
 
 local function observe_game_connection()
@@ -3744,6 +3944,7 @@ function M.Pump()
     pump_navigation(control)
     local rendered, render_error = ensure_message()
     if rendered then
+        pump_visual_metrics(false)
         if last_ready_session ~= active.sessionId then
             local transport_capabilities = pipe_transport_capabilities()
             write_json(ready_path, {

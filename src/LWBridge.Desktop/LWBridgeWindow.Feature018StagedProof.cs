@@ -148,9 +148,18 @@ internal sealed partial class LWBridgeWindow
                         if (kind == "r23Ui")
                         {
                             string surface = root.GetProperty("surface").GetString()!;
-                            string receipt = Path.Combine(directory, "r23-" + surface + "-ui.json");
+                            string receipt = surface switch
+                            {
+                                "r29-part-a" => Path.Combine(directory, "r29-part-a-ui.json"),
+                                "r29-preset-speed" => Path.Combine(directory, "r29-preset-speed.json"),
+                                _ => Path.Combine(directory, "r23-" + surface + "-ui.json"),
+                            };
                             if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
-                            if (surface == "equipment")
+                            if (surface == "r29-part-a")
+                                await RunFeature018R29PartAProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else if (surface == "r29-preset-speed")
+                                await RunFeature018R29PresetSpeedProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else if (surface == "equipment")
                                 await RunFeature018R28EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "city")
                                 await RunFeature018R23CityImageProofAsync(core, receipt, directory, owner, uid, serverId, token);

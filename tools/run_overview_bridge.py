@@ -328,6 +328,7 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
     between = between.replace(register_marker, register_marker +
         b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
         b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
+        b'if type(bridge.ConfigureVisualMetrics) == "function" then feature.RegisterHandler("feature018_visual_metrics_configure", function(fields) return bridge.ConfigureVisualMetrics(fields) end) end\n' +
         b'if type(hotkey_actions.RegisterAttack) == "function" then hotkey_actions.RegisterAttack(feature, hotkey) end\n' +
         b'if type(hotkey_actions.RegisterShieldInventory) == "function" then hotkey_actions.RegisterShieldInventory(feature) end\n' +
         b'if type(hotkey_actions.RegisterEquipment) == "function" then hotkey_actions.RegisterEquipment(feature, hotkey) end\n' +
