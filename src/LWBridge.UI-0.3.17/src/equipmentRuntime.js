@@ -96,16 +96,26 @@ export function normalizeEquipmentConfig(value, presetName = (index) => `Preset 
     ...(value?.initialEquipmentConfig ? { initialEquipmentConfig: clone(value.initialEquipmentConfig) } : {}),
   };
 }
+export function initializeEquipmentPresets(config, snapshot) {
+  const next = clone(config);
+  for (const preset of next.equipmentPresets) {
+    // Older empty presets also need the new starting point. Once initialized,
+    // a deliberately saved empty plan must stay empty on subsequent reads.
+    const hasContent = list(preset.squads).some((squad) => list(squad.positions).some((position) => list(position.equips).length));
+    if (!preset.initializedFromCurrent && !hasContent) {
+      preset.squads = equipmentPositionSnapshot(snapshot);
+      preset.initializedFromCurrent = true;
+    }
+  }
+  return next;
+}
 export function setEquipmentSlot(config, presetIndex, squadIndex, positionNumber, slot, equipUuid, snapshot) {
   const next = clone(config), preset = next.equipmentPresets[presetIndex];
-  // A fresh preset is editable immediately. Retain all native hero/position
-  // identities, with empty loadouts, so editing one slot never copies other
-  // current gear implicitly or sends an incomplete formation on Apply.
+  // Fresh presets begin with current gear, including untouched positions.
   if (preset && !preset.squads.length && snapshot) {
-    preset.squads = equipmentPositionSnapshot(snapshot).map((squad) => ({
-      ...squad, positions: squad.positions.map((position) => ({ ...position, equips: [] })),
-    }));
+    preset.squads = equipmentPositionSnapshot(snapshot);
   }
+  if (preset) preset.initializedFromCurrent = true;
   let squad = preset?.squads.find((entry) => entry.squadIndex === squadIndex);
   let position = squad?.positions.find((entry) => entry.position === positionNumber);
   if (preset && !position && snapshot) {

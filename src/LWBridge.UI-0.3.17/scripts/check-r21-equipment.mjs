@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { createEquipmentRuntime, equipmentPositionSnapshot, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
+import { createEquipmentRuntime, equipmentPositionSnapshot, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
 const baseline = {
   readOnly: true, ownerUid: "10001", serverId: 999,
   squads: [{ squadIndex: 1, positions: [
@@ -74,7 +74,11 @@ assert.deepEqual(squadSwap.config.equipmentPresets[0].squads[1].positions[0].equ
 const fresh = await runtime.snapshot();
 const config = normalizeEquipmentConfig(await runtime.readConfig());
 const editedFresh = setEquipmentSlot(config, 0, 1, 5, 1, "502", fresh);
-assert.deepEqual(editedFresh.equipmentPresets[0].squads[0].positions.map((position) => [position.position, position.heroUuid, position.equips]), [[2, "20002", []], [5, "20005", [{ slot: 1, equipUuid: "502" }]]]);
+assert.deepEqual(editedFresh.equipmentPresets[0].squads[0].positions.map((position) => [position.position, position.heroUuid, position.equips]), [[2, "20002", [{ slot: 1, equipUuid: "501" }]], [5, "20005", [{ slot: 1, equipUuid: "502" }]]]);
+const autoFilled = initializeEquipmentPresets(config, fresh);
+for (const preset of autoFilled.equipmentPresets) assert.deepEqual(preset.squads, equipmentPositionSnapshot(fresh));
+const intentionallyEmpty = setEquipmentSlot(autoFilled, 0, 1, 2, 1, "", fresh);
+assert.deepEqual(initializeEquipmentPresets(intentionallyEmpty, fresh), intentionallyEmpty, "Never refill a deliberately emptied initialized plan");
 assert.deepEqual(config.equipmentPresets[0].squads, [], "Editing an empty preset must not mutate the source config");
 config.equipmentPresets[0].squads = equipmentPositionSnapshot(fresh);
 const moved = setEquipmentSlot(config, 0, 1, 5, 1, "501");
@@ -141,7 +145,9 @@ assert.deepEqual([...document.querySelectorAll("[data-equipment-position]")].map
 assert.match(document.body.textContent, /Native Hero/);
 assert.match(document.body.textContent, /Native Cannon/);
 assert.doesNotMatch(document.body.textContent, /Fixture|Preview|Ember|Steel Vanguard/);
-assert.match(document.body.textContent, /Press Save current squads/);
+assert.equal(document.querySelector(".equipment-preset-hint"), null);
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Fresh tab must copy worn gear without pressing Capture");
+assert.equal(mountedBridge.calls.filter((call) => call.command === "equipment_config_save").length, 0, "Auto-fill must only edit the local plan");
 assert.match(document.body.textContent, /Wearing now: Native Cannon/);
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').disabled, false, "Fresh preset must be editable before Capture");
 await flush(() => { const freshSelect = document.querySelector('select[aria-label="1:5:1"]'); Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(freshSelect, "502"); freshSelect.dispatchEvent(new window.Event("change", { bubbles: true })); });

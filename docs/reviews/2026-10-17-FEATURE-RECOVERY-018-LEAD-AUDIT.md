@@ -1269,4 +1269,4 @@ between heroes, and make it clear when changes are not applied yet."
 6. Owner-test ZIP (R25 package), README with a short "How to use Equipment Schemes" (5 steps).
 
 ### R25 progress (worker updates this)
-- (none yet)
+- **Task 1 complete (2026-10-20):** fresh and legacy content-free presets auto-fill all native squads/positions/four slots from the current authenticated snapshot on tab load. Auto-fill is local only; saved nonempty plans remain intact, and an initialization marker preserves deliberately emptied plans on later reads. Save current squads still explicitly re-copies. Mounted production Equipment check PASSes fresh worn-slot visibility without Capture, zero auto-fill save/mutation calls and initialized-empty preservation. No game session started.

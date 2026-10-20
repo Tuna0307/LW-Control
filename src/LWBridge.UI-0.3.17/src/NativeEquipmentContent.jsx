@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { backendBridge } from "./backendBridge.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
-import { createEquipmentRuntime, equipmentPositionSnapshot, equipmentPresetCoversSnapshot, equipmentSlots, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "./equipmentRuntime.js";
+import { createEquipmentRuntime, equipmentPositionSnapshot, equipmentPresetCoversSnapshot, equipmentSlots, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "./equipmentRuntime.js";
 
 const clone = (value) => structuredClone(value);
 const itemCount = (preset) => preset?.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) || 0;
@@ -34,7 +34,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
         const saved = await runtime.readConfig();
         const fresh = await runtime.snapshot();
         if (retired || generation.current !== current) return;
-        setSnapshot(fresh); setConfig(normalized(saved));
+        setSnapshot(fresh); setConfig(initializeEquipmentPresets(normalized(saved), fresh));
       } catch (failure) { if (!retired && generation.current === current) setError(String(failure.message || failure)); }
       finally { if (!retired && generation.current === current) setBusy(""); }
     })();
@@ -96,6 +96,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
   const capture = () => operation("capture", async () => {
     const fresh = await runtime.snapshot(), next = clone(config);
     next.equipmentPresets[selectedIndex].squads = equipmentPositionSnapshot(fresh);
+    next.equipmentPresets[selectedIndex].initializedFromCurrent = true;
     return { config: await runtime.save(next, fresh), snapshot: fresh };
   });
   const save = () => operation("save", async () => ({ config: await runtime.save(config, snapshot) }));
