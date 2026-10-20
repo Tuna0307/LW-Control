@@ -157,8 +157,13 @@ def main():
                     raise RuntimeError('Owned test march has not returned; retain exact-session cleanup')
                 time.sleep(2)
                 after=operation('command',command='feature018_attack_prepare',payload={'mode':'inventory'})
+            for key, before_squad in initial['squads'].items():
+                for field in ('formationUuid','marchUuid','heroCount','soldierCount'):
+                    if before_squad.get(field) != after['squads'][key].get(field):
+                        raise RuntimeError('Native squad post-state differs after AFK: '+key+'/'+field)
             (args.output/'afk-restoration.json').write_text(json.dumps({'before':initial,'after':after,
-                'slot':slot,'originalConfigRestored':True,'ownedTestMarchReturned':True}),encoding='utf-8')
+                'slot':slot,'originalConfigRestored':True,'ownedTestMarchReturned':True,
+                'allFormationIdentitiesHeroesSoldiersAndMarchesMatched':True}),encoding='utf-8')
             afk_changed=False
         if not args.skip_memory:
             phase_log=(args.output/'phase-sampler.log').open('w',encoding='utf-8')
