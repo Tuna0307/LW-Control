@@ -153,6 +153,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
           {runtime?.pending ? <button type="button" disabled={disabled} data-equipment-action="resume" onClick={() => operation("confirm", () => runtime.resume())}>{t("common.retry")}</button> : null}
         </div>
       </div>
+      {notice ? <div className="equipment-result equipment-result-success" role="status">{notice}</div> : null}
       {selected ? <label className="equipment-preset-actions">{t("squad.presetNamePrompt")}<input aria-label={t("squad.presetNamePrompt")} value={selected.name} disabled={disabled || runtime?.pending} onChange={(event) => editName(event.target.value)} /></label> : null}
       {selected && !capturedCurrentSquads ? <p className="equipment-preset-hint">{t("squad.equipmentCaptureHint")}</p> : null}
       <div className="equipment-preset-squads">{(snapshot?.squads || []).map((squad) => {
@@ -210,7 +211,6 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
       </section>;})}</div>
       {!snapshot?.squads.length && !busy ? <div className="map-empty">{t("squad.empty")}</div> : null}
       {busy ? <div className="equipment-apply-progress" role="status">{t(busy === "apply" || busy === "restore" || busy === "confirm" ? "squad.equipmentApplying" : "common.processing")}</div> : null}
-      {notice ? <div className="equipment-result equipment-result-success" role="status">{notice}</div> : null}
     </main>
   </div>;
 }
