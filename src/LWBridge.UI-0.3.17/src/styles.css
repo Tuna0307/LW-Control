@@ -183,3 +183,6 @@
   background: var(--warning-soft);
 }
 .equipment-plan-slot-name { color: var(--text); font-weight: 600; }
+.equipment-live-inventory { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
+.equipment-live select { width: 100%; min-width: 0; }
+.equipment-live .preset-equipment-slot { overflow-wrap: anywhere; }

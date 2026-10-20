@@ -788,4 +788,78 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     return receipt(tx,false)
 end
 
+-- Owner-directed live editing. Build the one requested change from fresh native
+-- gear, not from a saved preset or caller-provided formation. Reuse the proven
+-- install/uninstall sequencer and its exact owner, focus and uncertain-send gates.
+local live_edit, completed_edits, completed_order = nil, {}, {}
+function M.Edit(fields, game_input_clear)
+    local function rejected(message)
+        local result=blocked(message);result.errorCode="EQUIPMENT_EDIT_REJECTED";return result
+    end
+    local uid,server=native_session(fields)
+    if not uid then return rejected("Live equipment owner/server changed") end
+    local id=fields.operationId
+    if type(id)~="string" or #id~=32 or id:find("[^0-9a-fA-F]") then return rejected("Invalid equipment operation identity") end
+    local owner=table.concat({tostring(fields.profileId),tostring(fields.launchSessionId),tostring(fields.challenge),tostring(fields.gamePid),uid,server},"|")
+    local key=owner.."|"..id
+    if completed_edits[key] then return completed_edits[key] end
+    if live_edit and live_edit.key~=key then return blocked("Previous live equipment change is still pending") end
+    if not live_edit then
+        if fields.queryOnly then return rejected("No matching live equipment change is pending") end
+        local slot=tonumber(fields.equipSlot)
+        if not number_in_range(slot,1,4) or not exact_id(fields.heroUuid) or
+           (fields.equipUuid~="" and not exact_id(fields.equipUuid)) then return rejected("Invalid live equipment selection") end
+        local read=M.Snapshot(fields)
+        if read.state~="confirmed" then return read end
+        local data=read.data
+        local target,all_positions,gear=nil,{},nil
+        for _,squad in ipairs(data.squads)do
+            for _,position in ipairs(squad.positions)do
+                all_positions[#all_positions+1]=position
+                if position.heroUuid==fields.heroUuid then target=position end
+            end
+        end
+        if not target then return rejected("Selected hero is no longer in the live squads") end
+        local worn=""
+        for _,item in ipairs(target.equips)do if item.slot==slot then worn=item.equipUuid end end
+        if worn~=fields.expectedEquipUuid then return rejected("Equipment changed in the game; refresh before editing") end
+        if fields.equipUuid~="" then
+            for _,item in ipairs(data.items)do if item.equipUuid==fields.equipUuid then gear=item end end
+            if not gear or gear.slot~=slot then return rejected("Equipment belongs to a different slot or is no longer owned") end
+            if gear.heroUuid~=fields.expectedWearerUuid then return rejected("Equipment wearer changed in the game; refresh before editing") end
+            if gear.heroUuid~="" then
+                local found=false
+                for _,position in ipairs(all_positions)do if position.heroUuid==gear.heroUuid then found=true end end
+                if not found then return rejected("Equipment is worn by a hero outside the current squads") end
+            end
+        end
+        for _,position in ipairs(all_positions)do
+            local equips={}
+            for _,item in ipairs(position.equips)do
+                if not (position==target and item.slot==slot) and item.equipUuid~=fields.equipUuid then equips[#equips+1]=item end
+            end
+            if position==target and fields.equipUuid~="" then equips[#equips+1]={slot=slot,equipUuid=fields.equipUuid} end
+            position.equips=equips
+        end
+        local native={}
+        for k,v in pairs(fields)do native[k]=v end
+        native.action="equipment";native.slot="1";native.presetId="live-"..id
+        live_edit={key=key,fields=native,presets={{id=native.presetId,name="Live equipment",squads=data.squads}}}
+    end
+    -- Never reconstruct the target from a newer snapshot while confirming.
+    local native={}
+    for k,v in pairs(live_edit.fields)do native[k]=v end
+    native.queryOnly=fields.queryOnly
+    local result=M.Handle(native,live_edit.presets,game_input_clear)
+    if result.state=="confirmed" and result.data and result.data.equipmentApplied then
+        completed_edits[key]=result;completed_order[#completed_order+1]=key
+        if #completed_order>64 then completed_edits[table.remove(completed_order,1)]=nil end
+        live_edit=nil
+    elseif result.state=="failed" and not transaction then
+        live_edit=nil
+        result.errorCode="EQUIPMENT_EDIT_REJECTED"
+    end
+    return result
+end
+
 return M

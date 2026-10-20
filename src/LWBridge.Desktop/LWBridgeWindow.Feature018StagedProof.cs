@@ -151,7 +151,7 @@ internal sealed partial class LWBridgeWindow
                             string receipt = Path.Combine(directory, "r23-" + surface + "-ui.json");
                             if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
                             if (surface == "equipment")
-                                await RunFeature018R25EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                                await RunFeature018R26EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "city")
                                 await RunFeature018R23CityImageProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "chat")

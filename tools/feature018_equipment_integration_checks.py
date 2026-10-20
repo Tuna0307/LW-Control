@@ -46,7 +46,7 @@ json_decoder={decode=function(text)
 end}
 package.loaded["rapidjson"]=json_decoder
 bridge={handlers={},RegisterHandler=function(name,func)
- assert((name=="feature018_equipment_snapshot" or
+ assert((name=="feature018_equipment_edit" or name=="feature018_equipment_snapshot" or
          name=="feature018_equipment_preflight") and type(func)=="function")
  if bridge.handlers[name]~=nil then return false end
  bridge.handlers[name]=func
@@ -77,7 +77,8 @@ def main():
         return bridge.handlers["feature018_equipment_preflight"](vm.table_from(fields))
 
     state = vm.globals().state
-    ensure(bridge.handlers["feature018_equipment_snapshot"] is not None and
+    ensure(bridge.handlers["feature018_equipment_edit"] is not None and
+           bridge.handlers["feature018_equipment_snapshot"] is not None and
            bridge.handlers["feature018_equipment_preflight"] is not None,
            "equipment snapshot and preflight must each have a native handler")
     snapshot = bridge.handlers["feature018_equipment_snapshot"](vm.table_from({}))

@@ -794,5 +794,58 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(state['sent'],1)
 
 
+class LiveEquipmentChecks(unittest.TestCase):
+    def live_fixture(self):
+        lua,module,state,_,_=EquipmentApplyChecks.fixture(self)
+        lua.execute('function DataCenter.EquipDataManager:GetAllEquipList()return state.items end')
+        def edit(hero='202', slot='1', gear='501', expected='503', wearer='101', identity='a'*32, query=False):
+            values={'operationId':identity,'heroUuid':hero,'equipSlot':slot,'equipUuid':gear,
+                    'expectedEquipUuid':expected,'expectedWearerUuid':wearer,'authorizedUid':'2553945035002288'}
+            if query: values['queryOnly']='1'
+            return module.Edit(fields(lua,**values),lua.eval('function()return state.focus end'))
+        def finish(result, **arguments):
+            sent=0
+            for _ in range(12):
+                if result['state']=='confirmed' and result['data']['equipmentApplied']: return result
+                self.assertEqual(result['state'],'accepted')
+                if state['sent']>sent:
+                    lua.globals().apply_push();sent=state['sent']
+                result=edit(query=True,**arguments)
+            self.fail('Live edit failed to settle')
+        return lua,module,state,edit,finish
+
+    def test_live_move_replaces_target_without_swapping_and_duplicate_never_sends(self):
+        lua,module,state,edit,finish=self.live_fixture()
+        finish(edit())
+        self.assertIsNone(state['hero101']['equips'][1])
+        self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
+        self.assertEqual(state['items'][503]['heroUuid'],0)
+        sent=state['sent'];self.assertEqual(edit()['state'],'confirmed')
+        self.assertEqual(state['sent'],sent)
+
+    def test_live_unequip_then_equip_empty_slot(self):
+        lua,module,state,edit,finish=self.live_fixture()
+        finish(edit(hero='101',gear='',expected='501',wearer=''),hero='101',gear='',expected='501',wearer='')
+        self.assertEqual(state['items'][501]['heroUuid'],0)
+        args=dict(hero='101',gear='502',expected='',wearer='',identity='b'*32)
+        finish(edit(**args),**args)
+        self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
+
+    def test_live_stale_slot_wearer_wrong_type_and_foreign_owner_send_nothing(self):
+        lua,module,state,edit,finish=self.live_fixture()
+        for args in [dict(expected=''),dict(wearer=''),dict(gear='504',wearer='')]:
+            self.assertEqual(edit(**args)['state'],'failed')
+        self.assertEqual(state['sent'],0)
+        lua.execute("LuaEntry.Player.uid='999'")
+        self.assertEqual(edit()['state'],'failed');self.assertEqual(state['sent'],0)
+
+    def test_live_pending_refuses_another_edit_and_never_replays_waiting_send(self):
+        lua,module,state,edit,finish=self.live_fixture()
+        self.assertEqual(edit()['state'],'accepted');sent=state['sent']
+        self.assertEqual(edit(identity='b'*32)['state'],'failed')
+        self.assertEqual(edit(query=True)['state'],'accepted')
+        self.assertEqual(state['sent'],sent)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

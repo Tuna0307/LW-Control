@@ -43,7 +43,7 @@ export function SquadsPage({ previewState = "", profileId = "", online = false, 
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
       {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent key={profileId || "no-profile"} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} /></Activity> : null}
-      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} profileId={profileId} online={online} refreshCount={equipmentRefreshCount} />}</Activity> : null}
+      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} active={tab === "equipment"} profileId={profileId} online={online} refreshCount={equipmentRefreshCount} />}</Activity> : null}
     </section>
   );
 }

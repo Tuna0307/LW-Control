@@ -94,6 +94,22 @@ internal static class Feature018EquipmentProviderChecks
 
     internal static async Task RunAsync()
     {
+        var live = new JsonObject { ["operationId"] = new string('a', 32), ["heroUuid"] = "101", ["equipSlot"] = 2,
+            ["equipUuid"] = "501", ["expectedEquipUuid"] = "", ["expectedWearerUuid"] = "" };
+        var parsed = Feature018GameCommandService.ReadFields("feature018_equipment_edit", Element(live));
+        Require(parsed["equipSlot"] == "2" && parsed["equipUuid"] == "501" && !parsed.ContainsKey("confirmedEquipmentPresets"),
+            "live edit must carry one slot without saved preset authority");
+        foreach (string bad in new[] { "confirmedEquipmentPresets", "squads", "authorizedUid" })
+        {
+            var forged = (JsonObject)live.DeepClone(); forged[bad] = "forged";
+            bool rejected = false;
+            try { Feature018GameCommandService.ReadFields("feature018_equipment_edit", Element(forged)); }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { rejected = true; }
+            Require(rejected, "live edit admitted caller formation or authority: " + bad);
+        }
+        var query = new JsonObject { ["operationId"] = new string('a', 32), ["queryOnly"] = true };
+        Require(Feature018GameCommandService.ReadFields("feature018_equipment_edit", Element(query))["queryOnly"] == "1",
+            "live confirmation must use only the original operation identity");
         await TrustedEquipmentConfigSurvivesPendingAndConfirmationAsync();
         await InitialEquipmentRestoreUsesTrustedBaselineAsync();
         await ChangedPresetDuringConfirmationIsRejectedAsync();

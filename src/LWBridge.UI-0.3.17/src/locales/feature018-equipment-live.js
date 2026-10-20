@@ -1,0 +1,14 @@
+const keys = ["liveEquipment", "liveEquipmentHelp", "liveEquipmentSynced", "liveEquipmentUpdating", "liveEquipmentUpdated", "liveEquipmentConfirm", "liveEquipmentInventory"];
+const translations = {
+  en: ["Equipment", "Changes apply immediately in the game. Select Empty to remove gear. Drag an item to the same slot on another hero to move it; replaced gear returns to inventory.", "Synced with the game", "Changing equipment in the game…", "Equipment updated in the game", "Resume confirmation", "Unequipped gear — drag onto a hero slot"],
+  "zh-CN": ["装备", "更改会立即应用到游戏。选择“空”可卸下装备。将装备拖到另一位英雄的同类栏位即可转移，被替换的装备会回到背包。", "已与游戏同步", "正在更改游戏中的装备…", "游戏装备已更新", "继续确认", "未穿戴装备 — 拖到英雄栏位"],
+  "zh-TW": ["裝備", "變更會立即套用到遊戲。選擇「空」可卸下裝備。將裝備拖到另一位英雄的同類欄位即可轉移，被替換的裝備會回到背包。", "已與遊戲同步", "正在變更遊戲中的裝備…", "遊戲裝備已更新", "繼續確認", "未穿戴裝備 — 拖到英雄欄位"],
+  ja: ["装備", "変更はすぐゲームに反映されます。「空」で装備を外せます。他の英雄の同じ種類のスロットへドラッグすると移動し、交換前の装備は所持品に戻ります。", "ゲームと同期済み", "ゲーム内の装備を変更中…", "ゲーム内の装備を更新しました", "確認を再開", "未装着の装備 — 英雄のスロットへドラッグ"],
+  ko: ["장비", "변경 사항은 게임에 즉시 적용됩니다. '비어 있음'을 선택하면 장비를 해제합니다. 다른 영웅의 같은 종류 슬롯으로 끌면 이동하며 기존 장비는 보관함으로 돌아갑니다.", "게임과 동기화됨", "게임 장비 변경 중…", "게임 장비가 변경되었습니다", "확인 재개", "미착용 장비 — 영웅 슬롯으로 끌기"],
+  vi: ["Trang bị", "Thay đổi áp dụng ngay trong trò chơi. Chọn Trống để tháo đồ. Kéo vật phẩm sang ô cùng loại của tướng khác để chuyển; đồ bị thay thế trở về kho.", "Đã đồng bộ với trò chơi", "Đang thay đổi trang bị trong trò chơi…", "Đã cập nhật trang bị trong trò chơi", "Tiếp tục xác nhận", "Đồ chưa trang bị — kéo vào ô của tướng"],
+  id: ["Perlengkapan", "Perubahan langsung diterapkan dalam game. Pilih Kosong untuk melepas. Seret ke slot sejenis pada hero lain untuk memindahkannya; perlengkapan yang diganti kembali ke inventaris.", "Tersinkron dengan game", "Mengubah perlengkapan dalam game…", "Perlengkapan dalam game diperbarui", "Lanjutkan konfirmasi", "Perlengkapan lepas — seret ke slot hero"],
+  ru: ["Снаряжение", "Изменения сразу применяются в игре. Выберите «Пусто», чтобы снять предмет. Перетащите его в ячейку того же типа другого героя; заменённый предмет вернётся в инвентарь.", "Синхронизировано с игрой", "Изменение снаряжения в игре…", "Снаряжение в игре обновлено", "Продолжить подтверждение", "Ненадетые предметы — перетащите в ячейку героя"],
+  pt: ["Equipamento", "As alterações são aplicadas imediatamente no jogo. Selecione Vazio para retirar. Arraste para um espaço do mesmo tipo noutro herói para mover; o equipamento substituído volta ao inventário.", "Sincronizado com o jogo", "A alterar equipamento no jogo…", "Equipamento atualizado no jogo", "Retomar confirmação", "Equipamento não equipado — arraste para um espaço do herói"],
+};
+export const liveEquipmentTexts = Object.fromEntries(Object.entries(translations).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [`squad.${key}`, values[index]]))]));
+export const withLiveEquipmentTexts = (language, catalog) => ({ ...catalog, ...liveEquipmentTexts[language] });

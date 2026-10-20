@@ -3,6 +3,62 @@ import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 const clone = (value) => structuredClone(value);
 const list = (value) => Array.isArray(value) ? value : [];
 export const equipmentSlots = Object.freeze([1, 2, 3, 4]);
+export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), now = Date.now, timeoutMs = 30000 } = {}) {
+  assertBridgeProfileOwner(bridge, profileId);
+  const owner = bridge.currentProfileOwner();
+  let identity = "", pending = null;
+  const assertOwner = () => {
+    assertBridgeProfileOwner(bridge, profileId);
+    if (!bridge.isCurrentProfileOwner(owner)) throw Object.assign(new Error("Equipment profile changed."), { code: "PROFILE_GENERATION_RETIRED" });
+  };
+  const invoke = async (command, payload = {}) => {
+    assertOwner(); const result = await bridge.invokeProfileScoped(command, payload); assertOwner(); return result;
+  };
+  const snapshot = async () => {
+    const value = await invoke("feature018_equipment_snapshot");
+    if (value?.readOnly !== true || !value.ownerUid || !Number.isInteger(value.serverId) || !Array.isArray(value.squads) || !Array.isArray(value.items)) throw new Error("Native equipment is unavailable.");
+    const current = `${value.ownerUid}:${value.serverId}`;
+    if (identity && identity !== current) throw Object.assign(new Error("Equipment game account changed. Reopen this profile."), { code: "GAME_ACCOUNT_CHANGED" });
+    identity = current; return value;
+  };
+  const interrupted = (error) => ["COMMAND_TIMEOUT", "GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code);
+  const confirm = async (first) => {
+    const deadline = now() + timeoutMs;
+    let result = first;
+    while (!result?.equipmentApplied) {
+      if (now() >= deadline) throw Object.assign(new Error("Equipment confirmation is pending. Resume confirmation before another change."), { code: "EQUIPMENT_CONFIRMATION_PENDING" });
+      await wait(150); assertOwner();
+      try { result = await invoke("feature018_equipment_edit", { operationId: pending.operationId, queryOnly: true }); }
+      catch (error) { if (!interrupted(error)) throw error; }
+    }
+    const fresh = await snapshot(); pending = null; return fresh;
+  };
+  return {
+    snapshot, assertOwner,
+    async edit(position, slot, equipUuid, displayed) {
+      if (pending) throw new Error("Wait for the current equipment change to finish.");
+      assertOwner();
+      const current = position.equips.find((item) => item.slot === slot)?.equipUuid || "";
+      const item = displayed.items.find((item) => item.equipUuid === equipUuid);
+      const operationId = globalThis.crypto.randomUUID().replaceAll("-", "");
+      pending = { operationId };
+      let first;
+      try { first = await invoke("feature018_equipment_edit", { operationId, heroUuid: position.heroUuid, equipSlot: slot, equipUuid, expectedEquipUuid: current, expectedWearerUuid: item?.heroUuid || "", expectedGameUid: displayed.ownerUid, expectedServerId: displayed.serverId }); }
+      catch (error) {
+        if (interrupted(error)) return confirm(null);
+        if (["EQUIPMENT_EDIT_REJECTED", "INVALID_REQUEST"].includes(error.code)) pending = null;
+        throw error;
+      }
+      return confirm(first);
+    },
+    async resume() {
+      if (!pending) throw new Error("No equipment change is pending.");
+      return confirm(null);
+    },
+    get pending() { return Boolean(pending); },
+    localize: (language, keys) => invoke("lastwar_map_localize", { language, keys }),
+  };
+}
 export function equipmentPositionSnapshot(snapshot) {
   return list(snapshot?.squads).map((squad) => ({
     squadIndex: squad.squadIndex,

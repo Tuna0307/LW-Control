@@ -928,6 +928,16 @@ function M.RegisterEquipment(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
        type(frozen_hotkeys) ~= "table" then return false end
     local input = frozen_hotkeys.TextInputClear
+    feature.RegisterHandler("feature018_equipment_edit",function(fields)
+        local uid,denial=authorized_subaccount()
+        if not uid then return denial end
+        local module=rawget(_G,"LWBridgeFeature018EquipmentActions")
+        if type(member(module,"Edit"))~="function" then return unavailable("Native live equipment editor unavailable") end
+        local native={}
+        for key,value in pairs(fields) do native[key]=value end
+        native.authorizedUid=uid
+        return module.Edit(native,input)
+    end)
     feature.RegisterHandler("feature018_equipment_snapshot",function(fields)
         local uid, denial=authorized_subaccount()
         if not uid then return denial end

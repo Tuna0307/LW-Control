@@ -153,134 +153,83 @@ window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() 
 localStorage.setItem("lwbridge.language", "en");
 const bundle = await build({ stdin: { contents: 'export { NativeEquipmentContent } from "./NativeEquipmentContent.jsx"; export { GameAssetImageProvider } from "./GameAssetImage.jsx"; export { I18nProvider } from "./i18n.jsx"; export { createBackendBridge } from "./backendBridge.js";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
 const loaded = { exports: {} }; new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, loaded, loaded.exports);
-const { NativeEquipmentContent, GameAssetImageProvider, I18nProvider, createBackendBridge } = loaded.exports, mountedBridge = fakeBridge();
+const { NativeEquipmentContent, GameAssetImageProvider, I18nProvider, createBackendBridge } = loaded.exports;
+const current = structuredClone(baseline);
+current.items[0].heroUuid = "20002"; current.items[1].heroUuid = "";
+const calls = []; let pending, retired = false;
+const liveBridge = {
+  available: true, profileId: "A", currentProfileOwner: () => ({ profileId: "A", generation: 1 }),
+  isCurrentProfileOwner: () => !retired,
+  async invokeProfileScoped(command, payload = {}) {
+    calls.push({ command, payload: structuredClone(payload) });
+    if (command === "feature018_equipment_snapshot") return structuredClone(current);
+    if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "native", localeSha256: "locale", englishSha256: "english", texts: Object.fromEntries(payload.keys.map(key => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
+    if (command !== "feature018_equipment_edit") throw new Error(`Unexpected live command ${command}`);
+    if (!payload.queryOnly) {
+      assert.equal(pending, undefined, "A second edit may not overtake pending confirmation");
+      pending = structuredClone(payload); return { equipmentApplied: false };
+    }
+    assert.equal(payload.operationId, pending.operationId);
+    const target = current.squads.flatMap(s => s.positions).find(p => p.heroUuid === pending.heroUuid);
+    for (const position of current.squads.flatMap(s => s.positions))
+      position.equips = position.equips.filter(e => !(position === target && e.slot === pending.equipSlot) && (!pending.equipUuid || e.equipUuid !== pending.equipUuid));
+    if (pending.equipUuid) target.equips.push({ slot: pending.equipSlot, equipUuid: pending.equipUuid });
+    for (const item of current.items) item.heroUuid = current.squads.flatMap(s => s.positions).find(p => p.equips.some(e => e.equipUuid === item.equipUuid))?.heroUuid || "";
+    pending = undefined; return { equipmentApplied: true };
+  },
+};
 const { createRoot } = req("react-dom/client"), mounted = createRoot(document.getElementById("root"));
 const flush = async (fn) => React.act(async () => { if (fn) await fn(); for (let i = 0; i < 50; i++) await Promise.resolve(); });
-const imageCalls = [], readImage = async ({ assetPath }) => { imageCalls.push(assetPath); return { dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWlQAAAAASUVORK5CYII=" }; };
-const renderEquipment = (online) => flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(GameAssetImageProvider, { readImage }, React.createElement(NativeEquipmentContent, { profileId: "A", online, bridge: mountedBridge })))));
-mountedBridge.online = false;
-await renderEquipment(false);
-assert.match(document.querySelector('[role="alert"]').textContent, /no authenticated/);
-assert.equal(document.querySelectorAll('[data-equipment-position]').length, 0);
-mountedBridge.online = true;
-// Refresh retries the real read even before the header receives its next
-// connection event; mutation controls remain disabled during that interval.
-await flush(() => [...document.querySelectorAll('button')].find((button) => button.textContent === "Refresh").click());
-assert.equal(document.querySelectorAll('[data-equipment-position]').length, 2);
-assert.equal(document.querySelector('[data-equipment-action="capture"]').disabled, true);
-mountedBridge.online = false;
-await renderEquipment(false);
-await flush(() => [...document.querySelectorAll('button')].find((button) => button.textContent === "Refresh").click());
-mountedBridge.online = true;
-await renderEquipment(true);
-assert.equal(document.querySelector('[role="alert"]'), null, "Reconnect must reload without another click");
-assert.equal(mountedBridge.calls.filter((call) => call.command === "feature018_hotkey_action" || call.command === "feature018_equipment_restore").length, 0, "Read retry/reconnect must never send equipment actions");
-assert.equal(document.querySelectorAll(".equipment-preset-list button").length, 4);
-assert.deepEqual([...document.querySelectorAll("[data-equipment-position]")].map((entry) => entry.dataset.equipmentPosition), ["1:2", "1:5"]);
-assert.match(document.body.textContent, /Native Hero/);
-assert.match(document.body.textContent, /Native Cannon/);
-assert.doesNotMatch(document.body.textContent, /Fixture|Preview|Ember|Steel Vanguard/);
-assert.equal(document.querySelector(".equipment-preset-hint"), null);
-assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Fresh tab must copy worn gear without pressing Capture");
-assert.equal(document.querySelector('[data-equipment-plan-banner]'), null, "Matching plan must have no unapplied banner");
-assert.equal(mountedBridge.calls.filter((call) => call.command === "equipment_config_save").length, 0, "Auto-fill must only edit the local plan");
-assert.match(document.body.textContent, /Wearing now: Native Cannon/);
-assert.equal(document.querySelector('select[aria-label="1:2:1"]').disabled, false, "Fresh preset must be editable before Capture");
-await flush(() => { const freshSelect = document.querySelector('select[aria-label="1:5:1"]'); Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(freshSelect, "502"); freshSelect.dispatchEvent(new window.Event("change", { bubbles: true })); });
+let tick;
+window.setInterval = (fn) => { tick = fn; return 1; }; window.clearInterval = () => { tick = undefined; };
+await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: liveBridge }))));
+assert.equal(document.querySelectorAll('select').length, 8);
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501");
+assert.doesNotMatch(document.body.textContent, /Plan only|Save configuration|Restore initial|Save current squads|Preset 1/);
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "synced");
+const selectValue = async (label, value) => flush(() => {
+  const select = document.querySelector(`select[aria-label="${label}"]`);
+  Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(select, value);
+  select.dispatchEvent(new window.Event("change", { bubbles: true }));
+});
+const settle = () => flush(() => new Promise(resolve => setTimeout(resolve, 190)));
+await selectValue("1:5:1", "502");
+assert.ok([...document.querySelectorAll('select')].every(s => s.disabled), "Pending edit must block overlapping gestures");
+await settle();
+assert.equal(current.squads[0].positions[1].equips[0].equipUuid, "502", "Dropdown must change game immediately without Save");
 assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "502");
-await flush(() => new Promise((resolve) => setTimeout(resolve, 20)));
-assert.ok(document.querySelector('img.equipment-position-hero-icon'));
-assert.ok(document.querySelector('img.equipment-icon'));
-assert.deepEqual([...new Set(imageCalls)].sort(), ["Assets/Hero/native.png", "Assets/Item/native.png"]);
-await flush(() => document.querySelector('[data-equipment-action="capture"]').click());
-assert.equal(mountedBridge.saved.equipmentPresets[0].squads[0].positions[0].position, 2);
-assert.equal(mountedBridge.saved.initialEquipmentConfig.ownerUid, baseline.ownerUid);
-assert.equal(document.querySelector(".equipment-preset-hint"), null, "Save current squads hint must disappear after capture");
-const sourceItem = document.querySelector('[data-equipment-slot="1:2:1"]');
-const targetItem = document.querySelector('[data-equipment-slot="1:5:1"]');
-await flush(() => sourceItem.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
-await flush(() => targetItem.dispatchEvent(new window.Event("dragover", { bubbles: true, cancelable: true })));
-assert.ok(targetItem.classList.contains("drop-target"), "Matching slot must visibly highlight on drag over");
-const wrongTarget = document.querySelector('[data-equipment-slot="1:5:2"]');
-await flush(() => wrongTarget.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
-assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Invalid drop must preserve both items");
-assert.match(document.body.textContent, /same slot/i, "Invalid target needs a visible explanation");
-await flush(() => targetItem.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
-await flush(() => sourceItem.dispatchEvent(new window.Event("dragend", { bubbles: true })));
-assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "", "Single-item drag must move only the matching slot");
-assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "501", "Single-item drag target did not receive source slot");
-assert.equal(document.querySelector('[data-equipment-change-count]').dataset.equipmentChangeCount, "2");
-assert.equal(document.querySelectorAll('[data-equipment-changed=true]').length, 2);
-assert.match(document.body.textContent, /Plan only.*Alt\+1/);
-assert.match(document.body.textContent, /Plan: Native Cannon/);
-assert.match(document.body.textContent, /Wearing now: Native Cannon/);
-const sourceLoadout = document.querySelector('[data-equipment-drag="loadout:1:5"]');
-const targetPosition = document.querySelector('[data-equipment-position="1:2"]');
-await flush(() => sourceLoadout.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
-await flush(() => targetPosition.dispatchEvent(new window.Event("dragover", { bubbles: true, cancelable: true })));
-await flush(() => targetPosition.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
-await flush(() => sourceLoadout.dispatchEvent(new window.Event("dragend", { bubbles: true })));
-assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Full-set drag did not move the saved loadout");
-assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "", "Full-set drag did not swap the source loadout");
-const select = document.querySelector('select[aria-label="1:2:1"]');
-await flush(() => { Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(select, "502"); select.dispatchEvent(new window.Event("change", { bubbles: true })); });
-const beforeSave = equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot"));
-mountedBridge.saveLocked = true;
-await flush(() => document.querySelector('[data-equipment-action="save"]').click());
-assert.match(document.querySelector('[role="alert"]').textContent, /Your edits are still here/);
-assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "502", "Failed save must retain the edited plan");
-assert.ok(document.querySelector('[data-equipment-plan-banner]'));
-mountedBridge.saveLocked = false;
-await flush(() => document.querySelector('[data-equipment-action="save"]').click());
-assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), beforeSave, "Save configuration must leave game unchanged");
-assert.ok(document.querySelector('[data-equipment-plan-banner]'), "Saving must not clear unapplied state");
-assert.match(document.body.textContent, /Plan saved.*has not changed/);
-await flush(() => { document.querySelector('[data-equipment-action="apply"]').click(); });
-await flush(() => new Promise((resolve) => setTimeout(resolve, 180)));
-assert.equal(mountedBridge.saved.equipmentPresets[0].squads[0].positions[0].equips[0].equipUuid, "502");
-assert.ok(mountedBridge.calls.some((call) => call.command === "feature018_hotkey_action" && call.payload.queryOnly));
-assert.equal(document.querySelector('[data-equipment-plan-banner]'), null, "Fresh applied native snapshot must clear banner");
-assert.equal(document.querySelectorAll('[data-equipment-changed=true]').length, 0);
-assert.match(document.querySelector('.equipment-result-success').textContent, /Applied/);
-assert.ok(document.querySelector('[data-equipment-applied=true]'), "Applied marker must use localized confirmed notice");
-await flush(() => document.querySelector('[data-equipment-action="restore"]').click());
-await flush(() => new Promise((resolve) => setTimeout(resolve, 180)));
-assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), equipmentPositionSnapshot(baseline));
-assert.equal(document.querySelector('[role="alert"]'), null);
-await flush(() => mounted.unmount());
+const source = document.querySelector('[data-equipment-slot="1:2:1"]'), target = document.querySelector('[data-equipment-slot="1:5:1"]');
+await flush(() => source.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
+await flush(() => target.dispatchEvent(new window.Event("dragover", { bubbles: true, cancelable: true })));
+assert.ok(target.classList.contains("drop-target"));
+const beforeInvalid = calls.length;
+await flush(() => document.querySelector('[data-equipment-slot="1:5:2"]').dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
+assert.match(document.querySelector('[role="alert"]').textContent, /same slot/i);
+assert.equal(calls.length, beforeInvalid, "Wrong-slot drop must not call native commands");
+await flush(() => target.dispatchEvent(new window.Event("drop", { bubbles: true, cancelable: true })));
+await settle();
+assert.equal(current.squads[0].positions[0].equips.length, 0, "Dragging must unequip the source hero");
+assert.equal(current.squads[0].positions[1].equips[0].equipUuid, "501");
+assert.equal(current.items.find(i => i.equipUuid === "502").heroUuid, "", "Replaced gear returns to inventory instead of swapping");
+await selectValue("1:5:1", ""); await settle();
+assert.equal(current.squads[0].positions[1].equips.length, 0, "Empty must immediately unequip in game");
+assert.equal(document.querySelectorAll('[data-inventory-equip]').length, 2);
+current.squads[0].positions[0].equips = [{ slot: 1, equipUuid: "502" }]; current.items[1].heroUuid = "20002";
+await flush(() => tick());
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "502", "Game-side changes must automatically appear without Refresh");
+assert.equal(calls.filter(c => c.command === "equipment_config_get" || c.command === "equipment_config_save" || c.command === "feature018_hotkey_action").length, 0, "Live UI must never load, save or apply plans");
+await flush(() => mounted.unmount()); assert.equal(tick, undefined);
 
-// Regression for the real WebView payload shape that exposed R22: the
-// production bridge appends profileId to every profile-scoped call. Mount the
-// actual component through createBackendBridge and require that exact wire
-// payload for the equipment snapshot rather than an empty fake-adapter call.
-let nativeReceiver;
-const wireCalls = [];
-const nativeHost = {
-  __LWBridgeBootstrap: { mode: "live", sessionId: "r22-equipment-mounted", profiles: { selectedProfileId: "A" } },
-  chrome: { webview: {
-    addEventListener(type, callback) { if (type === "message") nativeReceiver = callback; },
-    removeEventListener() {},
-    postMessage(message) {
-      if (message.kind !== "invoke") return;
-      wireCalls.push(structuredClone(message));
-      let result;
-      if (message.command === "equipment_config_get") result = { equipmentPresets: [] };
-      else if (message.command === "feature018_equipment_snapshot") result = structuredClone(baseline);
-      else if (message.command === "lastwar_map_localize") result = { language: message.payload.language, buildId: "26", gameRoot: "C:/native-game", localeSha256: "selected-hash", englishSha256: "english-hash", texts: Object.fromEntries(message.payload.keys.map((key) => [key, key])) };
-      else throw new Error(`Unexpected real-bridge command ${message.command}`);
-      queueMicrotask(() => nativeReceiver({ data: { kind: "response", sessionId: "r22-equipment-mounted", id: message.id, ok: true, result } }));
-    },
-  } },
-  setTimeout,
-  clearTimeout,
-};
-const realBridge = createBackendBridge(nativeHost);
-const realMounted = createRoot(document.getElementById("real-bridge-root"));
-await flush(() => realMounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: realBridge }))));
-const wireSnapshot = wireCalls.find((call) => call.command === "feature018_equipment_snapshot");
-assert.ok(wireSnapshot, "real bridge did not issue mounted equipment snapshot");
-assert.deepEqual(wireSnapshot.payload, { profileId: "A" }, "mounted equipment snapshot must carry only the real profile routing field");
-assert.equal(document.querySelector('#real-bridge-root [role="alert"]'), null);
-assert.equal(document.querySelectorAll('#real-bridge-root [data-equipment-position]').length, 2);
-await flush(() => realMounted.unmount()); realBridge.dispose(); dom.window.close();
-console.log("FEATURE018_R21_EQUIPMENT_UI_OK: native gear/current positions, four saved ordinals, apply/poll, immutable owner baseline/restore, localization, profile-generation fence, real bridge profileId payload");
+let nativeReceiver; const wireCalls = [];
+const host = { __LWBridgeBootstrap: { mode: "live", sessionId: "equipment-live", profiles: { selectedProfileId: "A" } }, chrome: { webview: {
+ addEventListener(type, callback) { if (type === "message") nativeReceiver = callback; }, removeEventListener() {},
+ postMessage(message) {
+  if (message.kind !== "invoke") return; wireCalls.push(message);
+  liveBridge.invokeProfileScoped(message.command, message.payload).then(result => queueMicrotask(() => nativeReceiver({ data: { kind: "response", sessionId: "equipment-live", id: message.id, ok: true, result } })));
+ }
+} }, setTimeout, clearTimeout };
+const realBridge = createBackendBridge(host), realRoot = createRoot(document.getElementById("real-bridge-root"));
+await flush(() => realRoot.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: realBridge }))));
+assert.deepEqual(wireCalls.find(c => c.command === "feature018_equipment_snapshot").payload, { profileId: "A" }, "mounted equipment snapshot must carry only the real profile routing field");
+await flush(() => realRoot.unmount()); realBridge.dispose(); dom.window.close();
+console.log("FEATURE018_R26_LIVE_EQUIPMENT_UI_OK: immediate equip/remove/move, no plan controls or config writes, displaced inventory, automatic game refresh, pending fence, real bridge routing");

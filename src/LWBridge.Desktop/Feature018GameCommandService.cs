@@ -51,7 +51,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "feature018_shield_shop" or
         "feature018_frontline_action" or
         "feature018_equipment_preflight" or
-        "feature018_equipment_snapshot" or "feature018_equipment_restore" or
+        "feature018_equipment_snapshot" or "feature018_equipment_restore" or "feature018_equipment_edit" or
         "feature018_hotkey_action";
 
     public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
@@ -107,7 +107,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             fields = trusted;
             wireCommand = "feature018_hotkey_action";
         }
-        if (command == "feature018_hotkey_action")
+        if (command is "feature018_hotkey_action" or "feature018_equipment_edit")
         {
             bool hasUid = payload.TryGetProperty("expectedGameUid", out JsonElement uid);
             bool hasServer = payload.TryGetProperty("expectedServerId", out JsonElement server);
@@ -166,7 +166,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             _ => TimeSpan.FromSeconds(8),
         };
         bool acceptsSubmission = command is "city_layout_apply_start" or "city_layout_restore_start" or "monopoly_cell_open" or
-            "automation_start" or "automation_stop" or "feature018_hotkey_action" or "feature018_equipment_restore" or
+            "automation_start" or "automation_stop" or "feature018_hotkey_action" or "feature018_equipment_restore" or "feature018_equipment_edit" or
             "feature018_chat_configure" or "feature018_chat_run" ||
             // cursorOpen only enters the source-native formation chooser;
             // the Lua receipt explicitly reports accepted:true and
@@ -300,6 +300,36 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST",
                         "Invalid relocation observation profile.");
                 fields["action"] = action;
+                break;
+            }
+            case "feature018_equipment_edit":
+            {
+                var allowed = new HashSet<string>(StringComparer.Ordinal) { "profileId", "operationId", "queryOnly", "heroUuid", "equipSlot", "equipUuid", "expectedEquipUuid", "expectedWearerUuid", "expectedGameUid", "expectedServerId" };
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                foreach (JsonProperty entry in payload.EnumerateObject())
+                    if (!allowed.Contains(entry.Name) || !seen.Add(entry.Name))
+                        throw new BridgeCommandException("INVALID_REQUEST", "Live equipment accepts only a single explicit slot edit.");
+                string operationId = ReadValue(payload, "operationId", 64);
+                if (operationId.Length != 32 || !operationId.All(char.IsAsciiHexDigit))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Invalid equipment operation identity.");
+                fields["operationId"] = operationId;
+                if (payload.TryGetProperty("queryOnly", out JsonElement query))
+                {
+                    if (query.ValueKind != JsonValueKind.True || seen.Any(key => key is not ("profileId" or "operationId" or "queryOnly")))
+                        throw new BridgeCommandException("INVALID_REQUEST", "Equipment confirmation accepts only its original operation identity.");
+                    fields["queryOnly"] = "1";
+                    break;
+                }
+                foreach (string key in new[] { "heroUuid", "equipUuid", "expectedEquipUuid", "expectedWearerUuid" })
+                {
+                    if (!payload.TryGetProperty(key, out JsonElement value) || value.ValueKind != JsonValueKind.String ||
+                        (value.GetString() != "" && !ValidGameUuid(value.GetString()!)) || (key == "heroUuid" && value.GetString() == ""))
+                        throw new BridgeCommandException("INVALID_REQUEST", "Invalid live equipment hero or item identity.");
+                    fields[key] = value.GetString()!;
+                }
+                if (!payload.TryGetProperty("equipSlot", out JsonElement slot) || slot.ValueKind != JsonValueKind.Number || !slot.TryGetInt32(out int number) || number is < 1 or > 4)
+                    throw new BridgeCommandException("INVALID_REQUEST", "Equipment slot must be 1-4.");
+                fields["equipSlot"] = number.ToString(CultureInfo.InvariantCulture);
                 break;
             }
             case "feature018_equipment_restore":
