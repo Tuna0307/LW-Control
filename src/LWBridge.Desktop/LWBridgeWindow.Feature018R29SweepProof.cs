@@ -682,6 +682,16 @@ internal sealed partial class LWBridgeWindow
             "Settings account-focus preference", "b.getAttribute('aria-checked')==='true'");
         actions.Add(new { name = "Settings FPS/ping", exercised = false, reason = "separate Part-A exact-owner proof; not repeated in safe-control sweep" });
 
+        // Clear only this isolated proof's copied retained dataset. Its real
+        // source DB is preserved; no game/account state is changed by Clear.
+        await R29SweepNavigateAsync(core, map, token, IsOwner);
+        await Click(Element(scanSelector), "Map manual before isolated Clear", $"({Element(scanSelector)})?.getAttribute('aria-selected')==='true'");
+        await Click("[...document.querySelectorAll('.map-actions>button')].at(-1)", "Map Clear copied dataset",
+            "[...document.querySelectorAll('.map-tabs .map-tab-count')].every(n=>Number(n.textContent)===0)");
+        actions.Add(new { name = "Map Clear copied retained data", exercised = true,
+            countsCleared = true, originalNativeSourceDatabasePreserved = true,
+            originalDatasetRestored = false, isolatedLocalMutationOnly = true });
+
         // Finish via the actual Home Close Game button. If the R29 shell fix adds
         // an in-app confirmation, accept it through DOM only. Ownership is
         // checked before both clicks; its loss is expected after confirmation.
