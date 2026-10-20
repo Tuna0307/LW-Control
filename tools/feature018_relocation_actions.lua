@@ -726,7 +726,7 @@ function M.Readiness(fields,input_clear,action)
 end
 local function action_receipt(tx,snapshot,confirmed)
     return {state=confirmed and "confirmed" or "accepted",data={
-        observation=confirmed and "native_relocation_reply_item_and_world_position" or "native_relocation_pending",
+        observation=confirmed and "native_relocation_item_and_world_position_poststate" or "native_relocation_pending",
         action=tx.action,slot=0,ownerUid=snapshot.ownerUid,sourceServerId=snapshot.sourceServerId,
         itemId=tx.item.itemId,itemUuid=tx.item.itemUuid,beforeCount=tx.item.count,
         afterCount=tx.afterCount,beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
@@ -742,6 +742,7 @@ local function action_receipt(tx,snapshot,confirmed)
         replyItemIdFallbackObserved=tx.replyIdentityMode=="itemIdFallback" and tx.reply==true,
         replyItemIdentityCorrelated=tx.reply==true and tx.replyIdentityMode~=nil,
         replyUseOperationCompatible=tx.replyUseOperationCompatible==true,
+        itemDebitedVerified=confirmed,
         independentWorldAndInventoryPoststateVerified=confirmed,
         clientRequestNonceAvailable=false,serverAckAttributable=false,
         observerDetached=tx.observerDetached==true,
@@ -805,7 +806,7 @@ end
 
 local function f10_receipt(snapshot,tx,confirmed)
     return {state=confirmed and "confirmed" or "accepted",data={
-        observation=confirmed and "native_alliance_relocation_reply_world_position" or
+        observation=confirmed and "native_alliance_relocation_item_and_world_position_poststate" or
             "native_alliance_relocation_pending",
         accepted=not confirmed,
         action="allianceRelocate",slot=0,ownerUid=tx.ownerUid,
@@ -866,13 +867,13 @@ local function observe_original_f10_chooser(snapshot,token,query)
         local count,item_error=read_relocation_item_after(tx)
         if count==nil then return failed("GAME_ACTION_UNCONFIRMED",item_error) end
         tx.afterCount=count
-        local confirmed=tx.observerDetached~=true and
-            tx.selectedNativeRallyObserved==true and
+        -- The reply hook is useful diagnostic evidence, but it is not required
+        -- to prove a relocation that already has two independent native
+        -- after-state witnesses: the same owned city changed point and this
+        -- exact one-send relocation stack decreased by one.
+        local confirmed=tx.selectedNativeRallyObserved==true and
             tx.requestDispatched==true and tx.allianceMoveRequestObserved==true and
-            tx.allianceMoveSendCount==1 and tx.replyObserved==true and
-            tx.worldMvReason240Observed==true and tx.replyResultOneObserved==true and
-            tx.replyServerId==tx.remote.serverId and
-            tx.replyPoint~=nil and snapshot.worldPointId==tx.replyPoint and
+            tx.allianceMoveSendCount==1 and
             snapshot.worldPointId~=tx.before and count==tx.item.count-1
         local result=f10_receipt(snapshot,tx,confirmed)
         if confirmed then
@@ -1184,14 +1185,11 @@ local function perform(fields,input_clear,action)
         -- A reply for the same numeric itemId after a native manager or
         -- session swap cannot authenticate the earlier ItemUse. Retain the
         -- tombstone even when the original handler was displaced.
-        if member(rawget(_G,"LuaEntry"),"Player")~=pending.player or
-           rawget(_G,"DataCenter")~=pending.center or
-           member(pending.center,"ItemManager")~=pending.manager or
-           member(pending.manager,pending.method)~=pending.hook then
-            pending.observerDetached=true
-            return failed("GAME_ACTION_UNCONFIRMED",
-                "Original relocation reply handler or player session changed after dispatch; never resend")
-        end
+        local handler_intact=member(rawget(_G,"LuaEntry"),"Player")==pending.player and
+            rawget(_G,"DataCenter")==pending.center and
+            member(pending.center,"ItemManager")==pending.manager and
+            member(pending.manager,pending.method)==pending.hook
+        if not handler_intact then pending.observerDetached=true end
         local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
         local ok,item=invoke(itemdata,"GetItemById",pending.item.nativeItemId)
         local count=item and integer(member(item,"count"),0) or 0
@@ -1200,17 +1198,18 @@ local function perform(fields,input_clear,action)
             return failed("GAME_ACTION_UNCONFIRMED","Native relocation item stack identity changed after dispatch")
         end
         pending.afterCount=count
-        if pending.rejected then
-            clear_hook(pending)
-            return failed("GAME_ACTION_UNCONFIRMED","Original relocation reply rejected the request; no automatic retry")
-        end
-        local identity_safe=pending.replyIdentityMode=="exactUuid" or
-            (pending.replyIdentityMode=="itemIdFallback" and pending.sendOutcomeConfirmed==true)
-        local confirmed=pending.observerDetached~=true and identity_safe and
-            pending.reply==true and pending.replyUseOperationCompatible==true and
+        local confirmed=pending.sendOutcomeConfirmed==true and
             snapshot.worldPointId~=pending.before and count==pending.item.count-1
         local result=action_receipt(pending,snapshot,confirmed)
         if confirmed then clear_hook(pending);pending=nil end
+        if not confirmed and pending.rejected then
+            clear_hook(pending)
+            return failed("GAME_ACTION_UNCONFIRMED","Original relocation reply rejected the request; no automatic retry")
+        end
+        if not confirmed and not handler_intact then
+            return failed("GAME_ACTION_UNCONFIRMED",
+                "Original relocation reply handler or player session changed after dispatch; never resend")
+        end
         return result
     end
     if fields.queryOnly=="1" then return failed("GAME_PRECONDITION_FAILED","No dispatched relocation to observe") end

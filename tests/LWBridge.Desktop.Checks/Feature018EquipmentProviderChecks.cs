@@ -45,7 +45,7 @@ internal static class Feature018EquipmentProviderChecks
     };
     private static JsonObject Relocation(string action = "randomRelocate") => new()
     {
-        ["observation"] = "native_relocation_reply_item_and_world_position",
+        ["observation"] = "native_relocation_item_and_world_position_poststate",
         ["action"] = action, ["slot"] = 0, ["relocationConfirmed"] = true,
         ["requestDispatched"] = true, ["awaitingGameConfirmation"] = false,
         ["replyObserved"] = true,
@@ -53,6 +53,7 @@ internal static class Feature018EquipmentProviderChecks
         ["replyItemIdFallbackObserved"] = false,
         ["replyItemIdentityCorrelated"] = true,
         ["replyUseOperationCompatible"] = true,
+        ["itemDebitedVerified"] = true,
         ["independentWorldAndInventoryPoststateVerified"] = true,
         ["clientRequestNonceAvailable"] = false, ["serverAckAttributable"] = false,
         ["worldPointChanged"] = true,
@@ -63,15 +64,17 @@ internal static class Feature018EquipmentProviderChecks
     };
     private static JsonObject AllianceRelocation() => new()
     {
-        ["observation"] = "native_alliance_relocation_reply_world_position",
+        ["observation"] = "native_alliance_relocation_item_and_world_position_poststate",
         ["action"] = "allianceRelocate", ["slot"] = 0,
         ["relocationConfirmed"] = true, ["requestDispatched"] = true,
         ["awaitingGameConfirmation"] = false,
         ["ownerSelectedRemoteRallyObserved"] = true,
+        ["nativeSelectedRallyObserved"] = true,
         ["allianceMoveRequestObserved"] = true, ["allianceMoveSendCount"] = 1,
         ["allianceMoveReplyObserved"] = true, ["worldMvReason240Observed"] = true,
         ["replyResultOneObserved"] = true,
         ["serverAckAttributableByOneSendFence"] = true,
+        ["itemDebitedVerified"] = true,
         ["independentWorldAndInventoryPoststateVerified"] = true,
         ["worldPointChanged"] = true,
         ["ownerUid"] = Owner.GameUid, ["sourceServerId"] = Owner.ServerId,
@@ -96,6 +99,7 @@ internal static class Feature018EquipmentProviderChecks
         await ChangedPresetDuringConfirmationIsRejectedAsync();
         await ChangedRelocationItemDuringConfirmationIsRejectedAsync();
         await OriginalOpaqueRelocationItemUsesSingleSendAndReadOnlyPollAsync();
+        await DirectF10UsesSingleSendAndReadOnlyAfterstatePollAsync();
         await InvalidFinalObservationsAreRejectedAsync();
         Console.WriteLine("FEATURE018_EQUIPMENT_RELOCATION_PROVIDER_PASS");
     }
@@ -292,6 +296,45 @@ internal static class Feature018EquipmentProviderChecks
             "opaque original ItemUse stack mismatch was credited or led to a second send");
     }
 
+    private static async Task DirectF10UsesSingleSendAndReadOnlyAfterstatePollAsync()
+    {
+        const string ownedStack = "e43623c3ec5e4cd78ae1b3f904094fd7";
+        JsonObject directPending = new()
+        {
+            ["accepted"] = true, ["requestDispatched"] = true,
+            ["awaitingGameConfirmation"] = true,
+            ["action"] = "allianceRelocate", ["slot"] = 0,
+            ["ownerUid"] = Owner.GameUid, ["sourceServerId"] = Owner.ServerId,
+            ["itemUuid"] = ownedStack,
+            ["chooserRequestMade"] = false, ["ownerSelectionRequired"] = false,
+            ["nativeDirectRequest"] = true, ["homeDirectRelocationEnabled"] = true,
+        };
+        JsonObject final = AllianceRelocation();
+        final["itemUuid"] = ownedStack;
+        final["chooserRequestMade"] = false;
+        final["ownerSelectionRequired"] = false;
+        final["nativeDirectRequest"] = true;
+        final["homeDirectRelocationEnabled"] = true;
+        final["ownerSelectedRemoteRallyObserved"] = false;
+        final["allianceMoveReplyObserved"] = false;
+        final["worldMvReason240Observed"] = false;
+        final["replyResultOneObserved"] = false;
+        final["serverAckAttributableByOneSendFence"] = false;
+        final["replyServerId"] = null;
+        final["acknowledgedWorldPointId"] = null;
+        var service = new FakeCommands
+        {
+            Respond = (count, _) => Element(count == 1 ? directPending : final),
+        };
+        Feature018HotkeyActionOutcome outcome = await Coordinator(service).TryDispatchAsync(
+            new(Feature018HotkeyKind.AllianceRelocate, 0));
+        Require(outcome.Status == Feature018HotkeyActionStatus.Confirmed && outcome.Working &&
+                service.Requests.Count == 2 &&
+                !service.Requests[0].TryGetProperty("queryOnly", out _) &&
+                service.Requests[1].GetProperty("queryOnly").GetBoolean(),
+            "direct same-home F10 did not confirm after one send plus one read-only after-state poll");
+    }
+
     private static async Task InvalidFinalObservationsAreRejectedAsync()
     {
         var equipmentCases = new Action<JsonObject>[]
@@ -328,12 +371,8 @@ internal static class Feature018EquipmentProviderChecks
             data => data["action"] = "allianceRelocate",
             data => data["requestDispatched"] = false,
             data => data["awaitingGameConfirmation"] = null,
-            data => data["replyObserved"] = false,
-            data => { data["replyExactItemUuidObserved"] = false; data["replyItemIdFallbackObserved"] = false; },
-            data => { data["replyExactItemUuidObserved"] = true; data["replyItemIdFallbackObserved"] = true; },
-            data => data["replyItemIdentityCorrelated"] = false,
-            data => data["replyUseOperationCompatible"] = false,
             data => data["independentWorldAndInventoryPoststateVerified"] = false,
+            data => data["itemDebitedVerified"] = false,
             data => data["worldPointChanged"] = false,
             data => data["ownerUid"] = "2553945035002288",
             data => data["sourceServerId"] = 2288,
@@ -359,16 +398,13 @@ internal static class Feature018EquipmentProviderChecks
         {
             data => data["action"] = "randomRelocate",
             data => data["requestDispatched"] = false,
-            data => data["ownerSelectedRemoteRallyObserved"] = false,
+            data => data["nativeSelectedRallyObserved"] = false,
             data => data["allianceMoveRequestObserved"] = false,
             data => data["allianceMoveSendCount"] = 2,
-            data => data["allianceMoveReplyObserved"] = false,
-            data => data["worldMvReason240Observed"] = false,
-            data => data["replyResultOneObserved"] = false,
-            data => data["serverAckAttributableByOneSendFence"] = false,
-            data => data["replyServerId"] = 2214,
-            data => data["acknowledgedWorldPointId"] = 540545,
             data => data["independentWorldAndInventoryPoststateVerified"] = false,
+            data => data["itemDebitedVerified"] = false,
+            data => data["worldPointChanged"] = false,
+            data => data["selectedRallyServerId"] = 0,
             data => data["afterCount"] = 2,
         })
         {

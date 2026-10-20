@@ -365,18 +365,20 @@ internal static class Feature018HotkeyCaptureChecks
             })
             : JsonSerializer.SerializeToElement(new
             {
-                observation = "native_alliance_relocation_reply_world_position",
+                observation = "native_alliance_relocation_item_and_world_position_poststate",
                 action = "allianceRelocate", slot = 0,
                 ownerUid = session.GameUid, sourceServerId = session.ServerId,
                 itemUuid = "991001", itemId = "5005",
                 chooserRequestMade = true, ownerSelectionRequired = true,
                 ownerSelectedRemoteRallyObserved = true,
+                nativeSelectedRallyObserved = true,
                 allianceMoveRequestObserved = true, allianceMoveSendCount = 1,
                 allianceMoveReplyObserved = true, worldMvReason240Observed = true,
                 replyResultOneObserved = true, serverAckAttributableByOneSendFence = true,
                 requestDispatched = true, relocationConfirmed = true,
                 awaitingGameConfirmation = false,
                 independentWorldAndInventoryPoststateVerified = true,
+                itemDebitedVerified = true,
                 worldPointChanged = true, selectedRallyServerId = 2213, replyServerId = 2213,
                 beforeWorldPointId = 440444, afterWorldPointId = 540544,
                 acknowledgedWorldPointId = 540544, beforeCount = 2, afterCount = 1,

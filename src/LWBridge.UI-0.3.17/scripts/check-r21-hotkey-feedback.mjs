@@ -21,6 +21,7 @@ const {HotkeyFeedback,I18nProvider}=loaded.exports,{createRoot}=req("react-dom/c
 const flush=fn=>React.act(async()=>{await fn?.();for(let i=0;i<10;i++)await Promise.resolve();});
 const render=route=>flush(()=>mounted.render(React.createElement(I18nProvider,{},React.createElement(HotkeyFeedback,{profileId:"A",activeRoute:route}))));
 const emit=(status="Failed")=>flush(()=>listener({profileId:"A",payload:{status,kind:"AttackSquad",slot:1,reason:"fixture failure"}}));
+const emitRelocation=(kind,status,reason)=>flush(()=>listener({profileId:"A",payload:{status,kind,slot:0,reason}}));
 const shown=()=>!!document.querySelector(".hotkey-feedback");
 await render("march");await emit();assert.ok(shown());assert.equal(timers.size,1);
 await flush(()=>[...timers.values()][0]());assert.ok(!shown());
@@ -28,6 +29,10 @@ await emit();await flush(()=>document.querySelector(".hotkey-feedback button").c
 await emit();await render("city-layout");assert.ok(!shown());assert.equal(timers.size,0);
 await emit();await flush(()=>document.querySelector('[role="tab"]').click());assert.ok(!shown());
 await emit("Confirmed");assert.ok(!shown());assert.equal(timers.size,0);
+await emitRelocation("RandomRelocate","Confirmed","verified_native_game_state_observation");assert.ok(shown());assert.match(document.body.textContent,/F9: Relocation confirmed\./);assert.equal(timers.size,1);
+await flush(()=>[...timers.values()][0]());assert.ok(!shown());
+await emitRelocation("AllianceRelocate","Submitted","game_message_sent_without_independent_state_confirmation");assert.ok(shown());assert.doesNotMatch(document.body.textContent,/game_message_sent_without_independent_state_confirmation/);assert.match(document.body.textContent,/F10: Relocation was sent/);
+await flush(()=>document.querySelector(".hotkey-feedback button").click());assert.ok(!shown());
 owner="B";await emit();assert.ok(!shown(),"Retired owner event must stay silent");
 await flush(()=>mounted.unmount());dom.window.close();
-console.log("R21_HOTKEY_FEEDBACK_OK: six-second expiry, close, route/subtab clear, silent success, retired owner");
+console.log("R21_HOTKEY_FEEDBACK_OK: six-second expiry, close, route/subtab clear, attack silent success, relocation success/plain pending, retired owner");

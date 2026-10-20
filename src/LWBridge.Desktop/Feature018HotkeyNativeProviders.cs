@@ -163,7 +163,7 @@ internal sealed class Feature018HotkeyNativeProviders
             }
             if (command.Intent.Kind == Feature018HotkeyKind.AllianceRelocate &&
                 nativeAcceptedOnly && !dispatchedNativeRequest &&
-                IsF10ChooserReceipt(command, evidence, null) &&
+                IsF10TransactionReceipt(command, evidence, null) &&
                 evidence.TryGetProperty("chooserRequestMade", out var f10ChooserMade) &&
                 f10ChooserMade.ValueKind == JsonValueKind.True)
             {
@@ -211,7 +211,7 @@ internal sealed class Feature018HotkeyNativeProviders
                     sentSlot.TryGetInt32(out int slot) && slot == command.Intent.Slot)
                 {
                     if (command.Intent.Kind == Feature018HotkeyKind.AllianceRelocate &&
-                        IsF10ChooserReceipt(command, evidence, null))
+                        IsF10TransactionReceipt(command, evidence, null))
                         return await PollNativeF10ChooserAsync(command,
                             evidence.GetProperty("itemUuid").GetString()!, cancellationToken)
                             .ConfigureAwait(false);
@@ -236,7 +236,9 @@ internal sealed class Feature018HotkeyNativeProviders
                             .ConfigureAwait(false);
                 }
                 return new(Feature018HotkeyActionStatus.Submitted,
-                    "game_message_sent_without_independent_state_confirmation");
+                    command.Intent.Kind is Feature018HotkeyKind.RandomRelocate or Feature018HotkeyKind.AllianceRelocate
+                        ? "Relocation was sent, but the game state is not confirmed yet. Check the city position before using the hotkey again."
+                        : "game_message_sent_without_independent_state_confirmation");
             }
 
             // A nonempty `observation` string alone does not establish which
@@ -398,7 +400,7 @@ internal sealed class Feature018HotkeyNativeProviders
         return true;
     }
 
-    private static bool IsF10ChooserReceipt(
+    private static bool IsF10TransactionReceipt(
         Feature018HotkeyCommand command, JsonElement data, string? itemUuid)
     {
         if (command.Intent.Kind != Feature018HotkeyKind.AllianceRelocate ||
@@ -412,13 +414,21 @@ internal sealed class Feature018HotkeyNativeProviders
             !data.TryGetProperty("sourceServerId", out var server) ||
             !server.TryGetInt32(out int serverId) || serverId != command.Session.ServerId ||
             !IsNativeItemUseUuid(data, "itemUuid") ||
-            (itemUuid is not null && data.GetProperty("itemUuid").GetString() != itemUuid) ||
-            !data.TryGetProperty("chooserRequestMade", out var chooser) ||
-            chooser.ValueKind != JsonValueKind.True ||
-            !data.TryGetProperty("ownerSelectionRequired", out var selection) ||
-            selection.ValueKind != JsonValueKind.True)
+            (itemUuid is not null && data.GetProperty("itemUuid").GetString() != itemUuid))
             return false;
-        return true;
+        bool chooser = data.TryGetProperty("chooserRequestMade", out var chooserMade) &&
+                       chooserMade.ValueKind == JsonValueKind.True &&
+                       data.TryGetProperty("ownerSelectionRequired", out var selection) &&
+                       selection.ValueKind == JsonValueKind.True;
+        bool direct = data.TryGetProperty("nativeDirectRequest", out var nativeDirect) &&
+                      nativeDirect.ValueKind == JsonValueKind.True &&
+                      data.TryGetProperty("homeDirectRelocationEnabled", out var directEnabled) &&
+                      directEnabled.ValueKind == JsonValueKind.True &&
+                      data.TryGetProperty("chooserRequestMade", out var noChooser) &&
+                      noChooser.ValueKind == JsonValueKind.False &&
+                      data.TryGetProperty("ownerSelectionRequired", out var noSelection) &&
+                      noSelection.ValueKind == JsonValueKind.False;
+        return chooser || direct;
     }
 
     private static bool AttackHasExactlyOneNativeRpc(JsonElement data, string formationUuid)
@@ -598,7 +608,7 @@ internal sealed class Feature018HotkeyNativeProviders
                         NativeRejectionDetails(error));
                 }
 
-                if (!IsF10ChooserReceipt(command, response, itemUuid))
+                if (!IsF10TransactionReceipt(command, response, itemUuid))
                     return new(Feature018HotkeyActionStatus.SessionChanged,
                         "native_f10_chooser_identity_changed");
                 bool awaiting = response.TryGetProperty("awaitingGameConfirmation", out var waiting) &&
@@ -629,17 +639,6 @@ internal sealed class Feature018HotkeyNativeProviders
         }
         return new(Feature018HotkeyActionStatus.Submitted,
             "native_f10_owner_selection_or_ack_pending");
-    }
-
-    private static bool F9ReplyIdentityMatches(JsonElement evidence)
-    {
-        bool exact = evidence.TryGetProperty("replyExactItemUuidObserved", out var exactStack) &&
-                     exactStack.ValueKind == JsonValueKind.True;
-        bool fallback = evidence.TryGetProperty("replyItemIdFallbackObserved", out var itemIdFallback) &&
-                        itemIdFallback.ValueKind == JsonValueKind.True;
-        return exact != fallback &&
-            evidence.TryGetProperty("replyItemIdentityCorrelated", out var correlated) &&
-            correlated.ValueKind == JsonValueKind.True;
     }
 
     private async Task<Feature018HotkeyActionOutcome> PollAfterSendAsync(
@@ -746,20 +745,14 @@ internal sealed class Feature018HotkeyNativeProviders
                         current.GetString() == target.GetString());
 
             case Feature018HotkeyKind.RandomRelocate:
-                return observed.GetString() == "native_relocation_reply_item_and_world_position" &&
+                return observed.GetString() == "native_relocation_item_and_world_position_poststate" &&
                     evidence.TryGetProperty("awaitingGameConfirmation", out var movePending) && movePending.ValueKind == JsonValueKind.False &&
                     evidence.TryGetProperty("action", out var movedAction) &&
                     movedAction.ValueKind == JsonValueKind.String && movedAction.GetString() == ActionName(intent.Kind) &&
                     evidence.TryGetProperty("requestDispatched", out var relocationSent) && relocationSent.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("relocationConfirmed", out var relocated) && relocated.ValueKind == JsonValueKind.True &&
-                    evidence.TryGetProperty("replyObserved", out var reply) && reply.ValueKind == JsonValueKind.True &&
-                    // v26 ItemUseHandle accepts either the exact opaque stack
-                    // UUID or its original itemId fallback when response.uuid
-                    // is genuinely absent. The Lua one-send/owner/poststate
-                    // fence distinguishes that fallback from a wrong UUID.
-                    F9ReplyIdentityMatches(evidence) &&
-                    evidence.TryGetProperty("replyUseOperationCompatible", out var normalUse) && normalUse.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("independentWorldAndInventoryPoststateVerified", out var independentAfter) && independentAfter.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("itemDebitedVerified", out var f9Debited) && f9Debited.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("worldPointChanged", out var moved) && moved.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("ownerUid", out var moveOwner) &&
                     moveOwner.ValueKind == JsonValueKind.String && moveOwner.GetString() == session.GameUid &&
@@ -774,31 +767,26 @@ internal sealed class Feature018HotkeyNativeProviders
                     beforeMoveCount > 0 && afterMoveCount == beforeMoveCount - 1;
 
             case Feature018HotkeyKind.AllianceRelocate:
-                return observed.GetString() == "native_alliance_relocation_reply_world_position" &&
+                return observed.GetString() == "native_alliance_relocation_item_and_world_position_poststate" &&
                     evidence.TryGetProperty("awaitingGameConfirmation", out var f10Pending) && f10Pending.ValueKind == JsonValueKind.False &&
                     evidence.TryGetProperty("action", out var f10Action) &&
                     f10Action.ValueKind == JsonValueKind.String && f10Action.GetString() == "allianceRelocate" &&
                     evidence.TryGetProperty("requestDispatched", out var f10Sent) && f10Sent.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("relocationConfirmed", out var f10Confirmed) && f10Confirmed.ValueKind == JsonValueKind.True &&
-                    evidence.TryGetProperty("ownerSelectedRemoteRallyObserved", out var remoteSelected) && remoteSelected.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("nativeSelectedRallyObserved", out var selectedRally) && selectedRally.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("allianceMoveRequestObserved", out var requestObserved) && requestObserved.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("allianceMoveSendCount", out var sendCount) && sendCount.TryGetInt32(out int sends) && sends == 1 &&
-                    evidence.TryGetProperty("allianceMoveReplyObserved", out var replyObserved) && replyObserved.ValueKind == JsonValueKind.True &&
-                    evidence.TryGetProperty("worldMvReason240Observed", out var reason240) && reason240.ValueKind == JsonValueKind.True &&
-                    evidence.TryGetProperty("replyResultOneObserved", out var resultOne) && resultOne.ValueKind == JsonValueKind.True &&
-                    evidence.TryGetProperty("serverAckAttributableByOneSendFence", out var attributed) && attributed.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("independentWorldAndInventoryPoststateVerified", out var f10Poststate) && f10Poststate.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("itemDebitedVerified", out var f10Debited) && f10Debited.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("worldPointChanged", out var f10Moved) && f10Moved.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("ownerUid", out var f10Owner) &&
                     f10Owner.ValueKind == JsonValueKind.String && f10Owner.GetString() == session.GameUid &&
                     evidence.TryGetProperty("sourceServerId", out var f10Source) && f10Source.TryGetInt32(out int f10SourceServer) &&
                     f10SourceServer == session.ServerId &&
                     evidence.TryGetProperty("selectedRallyServerId", out var selectedServer) && selectedServer.TryGetInt32(out int selectedServerId) && selectedServerId > 0 &&
-                    evidence.TryGetProperty("replyServerId", out var replyServer) && replyServer.TryGetInt32(out int replyServerId) && replyServerId == selectedServerId &&
                     evidence.TryGetProperty("beforeWorldPointId", out var f10Before) && f10Before.TryGetInt64(out long f10OldPoint) &&
                     evidence.TryGetProperty("afterWorldPointId", out var f10After) && f10After.TryGetInt64(out long f10NewPoint) &&
                     f10OldPoint is >= 0 and < 10000000 && f10NewPoint is >= 0 and < 10000000 && f10OldPoint != f10NewPoint &&
-                    evidence.TryGetProperty("acknowledgedWorldPointId", out var acknowledgedPoint) && acknowledgedPoint.TryGetInt64(out long ackPoint) && ackPoint == f10NewPoint &&
                     IsNativeItemUseUuid(evidence, "itemUuid") && IsNativeUuid(evidence, "itemId") &&
                     evidence.TryGetProperty("beforeCount", out var f10BeforeItem) && f10BeforeItem.TryGetInt32(out int f10BeforeCount) &&
                     evidence.TryGetProperty("afterCount", out var f10AfterItem) && f10AfterItem.TryGetInt32(out int f10AfterCount) &&

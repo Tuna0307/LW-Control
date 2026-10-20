@@ -820,6 +820,23 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['randomCount'],1)
         self.assertTrue(lua.eval('DataCenter.ItemManager.ItemUseHandle==world.itemOriginal'))
 
+    def test_f9_city_and_item_afterstate_confirms_without_reply_hook(self):
+        lua,_,state,call=self.fixture()
+        first=call()
+        self.assertEqual(first['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+        lua.execute('world.position=600123;world.randomCount=1')
+        final=call(query=True)
+        self.assertEqual(final['state'],'confirmed')
+        self.assertFalse(final['data']['replyObserved'])
+        self.assertTrue(final['data']['itemDebitedVerified'])
+        self.assertTrue(final['data']['independentWorldAndInventoryPoststateVerified'])
+        self.assertEqual(final['data']['beforeCount'],2)
+        self.assertEqual(final['data']['afterCount'],1)
+        self.assertEqual(final['data']['beforeWorldPointId'],501234)
+        self.assertEqual(final['data']['afterWorldPointId'],600123)
+        self.assertEqual(state['sends'],1)
+
     def test_f9_original_item_action_not_blocked_by_unrelated_city_item_types(self):
         lua,_,state,call=self.fixture()
         lua.execute('SpecialItemId.ITEM_MOVE_CITY=nil;SpecialItemId.SEASON_LIMIT_MOVE_CITY=nil')
@@ -1085,7 +1102,7 @@ class RelocationActionChecks(unittest.TestCase):
         final=call('allianceRelocate',query=True)
         self.assertEqual(final['state'],'confirmed')
         data=final['data']
-        self.assertEqual(data['observation'],'native_alliance_relocation_reply_world_position')
+        self.assertEqual(data['observation'],'native_alliance_relocation_item_and_world_position_poststate')
         self.assertTrue(data['allianceMoveReplyObserved'])
         self.assertTrue(data['worldMvReason240Observed'])
         self.assertTrue(data['replyResultOneObserved'])
@@ -1499,6 +1516,11 @@ class RelocationActionChecks(unittest.TestCase):
             lua,_,state,call=self.fixture()
             self.assertEqual(call('allianceRelocate')['state'],'accepted')
             lua.execute('DataCenter.BuildManager:WorldMvHandle('+reply+',240)')
+            # The fixture's original WorldMvHandle mutates city/item for every
+            # error-free response. Undo those side effects here so this remains
+            # a reply-only negative and does not accidentally provide the new
+            # independent post-state proof.
+            lua.execute('world.position=501234;world.allyCount=2')
             observed=call('allianceRelocate',True)
             self.assertEqual(observed['state'],'accepted',reply)
             self.assertFalse(observed['data']['relocationConfirmed'],reply)
@@ -1511,13 +1533,18 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute('DataCenter.ActMeteoriteBattleManager.NeedNoticeRandomMoveCity=function()return false end;world.randomCount=0')
         self.assertEqual(call()['state'],'unsupported');self.assertEqual(state['sends'],0)
 
-    def test_f10_external_world_move_without_exact_reply_cannot_confirm(self):
+    def test_f10_city_and_item_afterstate_confirms_without_reason240_reply(self):
         lua,_,state,call=self.fixture()
         self.assertEqual(call('allianceRelocate')['state'],'accepted')
-        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,worldMainPoint=514998})')
+        lua.execute('world.position=514998;world.allyCount=1')
         result=call('allianceRelocate',True)
-        self.assertEqual(result['state'],'accepted')
-        self.assertFalse(result['data']['relocationConfirmed'])
+        self.assertEqual(result['state'],'confirmed')
+        self.assertTrue(result['data']['relocationConfirmed'])
+        self.assertFalse(result['data']['allianceMoveReplyObserved'])
+        self.assertTrue(result['data']['itemDebitedVerified'])
+        self.assertTrue(result['data']['independentWorldAndInventoryPoststateVerified'])
+        self.assertEqual(result['data']['beforeCount'],2)
+        self.assertEqual(result['data']['afterCount'],1)
         self.assertEqual(state['sends'],1)
 
     def test_f10_deferred_city_or_missing_source_sender_rejected_without_dispatch(self):
@@ -1576,7 +1603,7 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertFalse(final['data']['serverAckAttributable'])
         self.assertEqual(state['sends'],1)
 
-    def test_f9_wrong_opaque_reply_uuid_cannot_confirm_changed_world_and_item(self):
+    def test_f9_wrong_opaque_reply_uuid_is_diagnostic_when_afterstate_proves_success(self):
         lua,_,state,call=self.fixture()
         lua.execute("""
         local prev=DataCenter.ItemData.GetItemById
@@ -1589,11 +1616,12 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(call()['state'],'accepted')
         lua.execute("world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid='A97D-42ef_098',opType=0})")
         query=call(query=True)
-        self.assertEqual(query['state'],'accepted')
+        self.assertEqual(query['state'],'confirmed')
         self.assertFalse(query['data']['replyObserved'])
+        self.assertTrue(query['data']['independentWorldAndInventoryPoststateVerified'])
         self.assertEqual(state['sends'],1)
 
-    def test_f9_observer_displaced_after_reply_blocks_confirmation_and_replay(self):
+    def test_f9_observer_displaced_after_afterstate_still_confirms_without_replay(self):
         lua,_,state,call=self.fixture()
         self.assertEqual(call()['state'],'accepted')
         lua.execute("""
@@ -1602,13 +1630,12 @@ class RelocationActionChecks(unittest.TestCase):
         DataCenter.ItemManager.ItemUseHandle=function()end
         """)
         final=call(query=True)
-        self.assertEqual(final['errorCode'],'GAME_ACTION_UNCONFIRMED')
-        self.assertIn('handler',final['error'])
+        self.assertEqual(final['state'],'confirmed')
+        self.assertTrue(final['data']['observerDetached'])
+        self.assertTrue(final['data']['relocationConfirmed'])
         subsequent=call()
         self.assertEqual(subsequent['state'],'accepted')
-        self.assertTrue(subsequent['data']['observerDetached'])
-        self.assertFalse(subsequent['data']['relocationConfirmed'])
-        self.assertEqual(state['sends'],1)
+        self.assertEqual(state['sends'],2)
 
     def test_wrong_account_or_server_after_send_never_confirms_or_resends(self):
         lua,_,state,call=self.fixture();call()
@@ -1664,10 +1691,13 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['dialogs'],1)
         self.assertEqual(state['sends'],0)
 
-    def test_reply_for_unrelated_item_cannot_confirm_external_position_change(self):
+    def test_unrelated_reply_is_diagnostic_when_city_and_item_afterstate_prove_success(self):
         lua,_,_,call=self.fixture();call()
         lua.execute('world.randomCount=1;world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=999,uuid=999})')
-        self.assertEqual(call(query=True)['state'],'accepted')
+        result=call(query=True)
+        self.assertEqual(result['state'],'confirmed')
+        self.assertFalse(result['data']['replyObserved'])
+        self.assertTrue(result['data']['itemDebitedVerified'])
 
     def test_dispose_restores_only_own_reply_wrapper(self):
         lua,module,_,call=self.fixture();call();module.Dispose()
