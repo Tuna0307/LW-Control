@@ -74,7 +74,20 @@ internal sealed partial class LWBridgeWindow
             string timing = await core.ExecuteScriptAsync("window.__r29Scroll");
             using var timingDoc = JsonDocument.Parse(timing);
             if (timingDoc.RootElement.GetProperty("changed").GetInt32() < 2)
+            {
+                // Map scans are cleared at app start (owner direction), so a
+                // fresh session can have no Map rows and nothing to scroll.
+                // Record that honestly; a populated surface must still scroll.
+                string rows = await core.ExecuteScriptAsync(
+                    "[...document.querySelectorAll('.map-table tbody tr')].filter(n=>n.getClientRects().length>0&&!n.querySelector('td[colspan]')).length");
+                if ((surface is "map-data" or "map") && int.TryParse(rows, out int mapRows) && mapRows == 0)
+                {
+                    phases.Add(new { phase = surface + "-scroll", skipped = "no map rows (scans cleared at app start)",
+                        timing = timingDoc.RootElement.Clone() });
+                    return;
+                }
                 throw new InvalidDataException("R29 scroll sample did not move a scroll container: " + surface);
+            }
             phases.Add(new { phase = surface + "-scroll", timing = JsonDocument.Parse(timing).RootElement.Clone(),
                 dom = JsonDocument.Parse(await core.ExecuteScriptAsync("(()=>{const count=s=>[...document.querySelectorAll(s)].filter(n=>n.getClientRects().length>0).length;return {mapRows:count('.map-table tbody tr'),buildings:count('[data-city-building-id]'),renderedCells:count('.city-layout-cell'),equipmentPositions:count('[data-equipment-position]')};})()")).RootElement.Clone() });
         }

@@ -349,7 +349,9 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
     original_pump = b'    if type(feature.Pump) == "function" then pcall(feature.Pump) end\n'
     if between.count(original_pump) != 1:
         raise OverviewBridgeError("FEATURE018 session-bound game pump seam not unique")
-    bound_pump = b'''    local current_feature_owner = type(bridge.Feature018OwnerToken) == "function" and bridge.Feature018OwnerToken() or nil
+    bound_pump = b'''    local perf_part = type(bridge.PerformanceBegin) == "function" and bridge.PerformanceBegin() or nil
+    local current_feature_owner = type(bridge.Feature018OwnerToken) == "function" and bridge.Feature018OwnerToken() or nil
+    if perf_part ~= nil then bridge.PerformanceEnd("owner", perf_part) end
     if current_feature_owner ~= nil then
         -- An explicitly different owner always retires the prior work before
         -- this owner's handlers execute. Every later command and async pump
@@ -389,11 +391,17 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
         end
     end
     if current_feature_owner ~= nil then
-        if type(city.Pump) == "function" then pcall(city.Pump) end
-        if type(afk.Pump) == "function" then pcall(afk.Pump) end
-        if type(chat.Pump) == "function" then pcall(chat.Pump) end
-        if type(sheep.Pump) == "function" then pcall(sheep.Pump) end
-        if type(feature.Pump) == "function" then pcall(feature.Pump) end
+        local function timed(kind, module)
+            if type(module.Pump) ~= "function" then return end
+            local started = type(bridge.PerformanceBegin) == "function" and bridge.PerformanceBegin() or nil
+            pcall(module.Pump)
+            if started ~= nil then bridge.PerformanceEnd(kind, started) end
+        end
+        timed("city", city)
+        timed("afk", afk)
+        timed("chat", chat)
+        timed("sheep", sheep)
+        timed("mailbox", feature)
     end
 '''
     # One original LuaEntry lifecycle call is not sufficient to service later

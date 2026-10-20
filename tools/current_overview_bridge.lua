@@ -4051,10 +4051,11 @@ if perf_enabled then
     function M.PerformanceBegin() return perf_clock() end
     function M.PerformanceEnd(kind, started)
         local elapsed = math.max(0, perf_clock() - started)
-        local prefix = kind == "feature018" and "feature" or "overview"
-        perf[prefix.."Calls"] = perf[prefix.."Calls"] + 1
-        perf[prefix.."Seconds"] = perf[prefix.."Seconds"] + elapsed
-        perf[prefix.."MaxSeconds"] = math.max(perf[prefix.."MaxSeconds"], elapsed)
+        local prefix = kind == "feature018" and "feature" or kind == "overview" and "overview" or
+            (type(kind) == "string" and kind:match("^[a-z]+$") and #kind <= 16 and kind) or "other"
+        perf[prefix.."Calls"] = (perf[prefix.."Calls"] or 0) + 1
+        perf[prefix.."Seconds"] = (perf[prefix.."Seconds"] or 0) + elapsed
+        perf[prefix.."MaxSeconds"] = math.max(perf[prefix.."MaxSeconds"] or 0, elapsed)
     end
 end
 local function profile_frame()
