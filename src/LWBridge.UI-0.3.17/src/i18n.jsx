@@ -9,6 +9,7 @@ import { withMapScanControlTexts } from "./locales/map017-scan-controls.js";
 import { withFrontlineCountTexts } from "./locales/feature018-g-count.js";
 import { withAfkRuntimeTexts } from "./locales/feature018-afk-runtime.js";
 import { withR23Feedback } from "./locales/feature018-r23-feedback.js";
+import { withEquipmentPlanTexts } from "./locales/feature018-equipment-plan.js";
 
 export const LANGUAGES = Object.freeze([
   { code: "en", name: "English" },
@@ -24,15 +25,15 @@ export const LANGUAGES = Object.freeze([
 
 const withMapExtras = (language, catalog) => withR23Feedback(language, withAfkRuntimeTexts(language,withFrontlineCountTexts(language, withMapScanControlTexts(language, withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog)))))))));
 const LOADERS = {
-  en: () => Promise.resolve(withMapExtras("en", englishMessages)),
-  "zh-CN": () => import("./locales/zh-CN.js").then((module) => withMapExtras("zh-CN", module.default)),
-  "zh-TW": () => import("./locales/zh-TW.js").then((module) => withMapExtras("zh-TW", module.default)),
-  ja: () => import("./locales/ja.js").then((module) => withMapExtras("ja", module.default)),
-  ko: () => import("./locales/ko.js").then((module) => withMapExtras("ko", module.default)),
-  vi: () => import("./locales/vi.js").then((module) => withMapExtras("vi", module.default)),
-  id: () => import("./locales/id.js").then((module) => withMapExtras("id", module.default)),
-  ru: () => import("./locales/ru.js").then((module) => withMapExtras("ru", module.default)),
-  pt: () => import("./locales/pt.js").then((module) => withMapExtras("pt", module.default)),
+  en: () => Promise.resolve(withEquipmentPlanTexts("en", withMapExtras("en", englishMessages))),
+  "zh-CN": () => import("./locales/zh-CN.js").then((module) => withEquipmentPlanTexts("zh-CN", withMapExtras("zh-CN", module.default))),
+  "zh-TW": () => import("./locales/zh-TW.js").then((module) => withEquipmentPlanTexts("zh-TW", withMapExtras("zh-TW", module.default))),
+  ja: () => import("./locales/ja.js").then((module) => withEquipmentPlanTexts("ja", withMapExtras("ja", module.default))),
+  ko: () => import("./locales/ko.js").then((module) => withEquipmentPlanTexts("ko", withMapExtras("ko", module.default))),
+  vi: () => import("./locales/vi.js").then((module) => withEquipmentPlanTexts("vi", withMapExtras("vi", module.default))),
+  id: () => import("./locales/id.js").then((module) => withEquipmentPlanTexts("id", withMapExtras("id", module.default))),
+  ru: () => import("./locales/ru.js").then((module) => withEquipmentPlanTexts("ru", withMapExtras("ru", module.default))),
+  pt: () => import("./locales/pt.js").then((module) => withEquipmentPlanTexts("pt", withMapExtras("pt", module.default))),
 };
 
 const LANGUAGE_KEY = "lwbridge.language";

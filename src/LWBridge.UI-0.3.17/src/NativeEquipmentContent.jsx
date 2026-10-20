@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { backendBridge } from "./backendBridge.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
-import { createEquipmentRuntime, equipmentPositionSnapshot, equipmentPresetCoversSnapshot, equipmentSlots, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "./equipmentRuntime.js";
+import { createEquipmentRuntime, equipmentPlanChanges, equipmentPositionSnapshot, equipmentPresetCoversSnapshot, equipmentSlots, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "./equipmentRuntime.js";
 
 const clone = (value) => structuredClone(value);
 const itemCount = (preset) => preset?.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) || 0;
@@ -77,6 +77,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
   const name = (key, fallback) => texts[key] && texts[key] !== key ? texts[key] : fallback;
   const items = useMemo(() => new Map((snapshot?.items || []).map((item) => [String(item.equipUuid), item])), [snapshot]);
   const selected = config?.equipmentPresets[selectedIndex];
+  const changes = useMemo(() => new Set(equipmentPlanChanges(selected, snapshot)), [selected, snapshot]);
   const capturedCurrentSquads = useMemo(() => equipmentPresetCoversSnapshot(selected, snapshot), [selected, snapshot]);
   const disabled = Boolean(busy || !online || !runtime || !snapshot || !config);
   const operation = async (kind, action) => {
@@ -89,7 +90,9 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
       if (activeRuntime.current !== captured) return;
       if (result?.snapshot) setSnapshot(result.snapshot);
       if (result?.config) setConfig(normalized(result.config));
-      setNotice(t(kind === "restore" ? "squad.initialEquipmentRestored" : kind === "capture" ? "squad.presetUpdated" : "squad.equipmentConfigSaved"));
+      const applied = kind === "apply" || kind === "confirm";
+      const matches = result?.snapshot && equipmentPresetCoversSnapshot(selected, result.snapshot) && !equipmentPlanChanges(selected, result.snapshot).length;
+      setNotice(t(applied ? (matches ? "squad.equipmentApplied" : "squad.equipmentStillDifferent") : kind === "restore" ? "squad.initialEquipmentRestored" : kind === "capture" ? "squad.presetUpdated" : "squad.equipmentPlanSaved"));
     } catch (failure) { if (activeRuntime.current === captured) setError(String(failure.message || failure)); }
     finally { if (activeRuntime.current === captured) setBusy(""); }
   };
@@ -131,6 +134,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
     const next = clone(current); next.equipmentPresets[selectedIndex].name = value; return next;
   });
   return <div className="equipment-preset-layout" data-native-equipment="true" data-equipment-busy={busy || undefined}>
+    {changes.size ? <div className="equipment-plan-banner" data-equipment-plan-banner="true" role="status"><strong>{t("squad.equipmentPlanOnly", { number: selectedIndex + 1 })}</strong><span data-equipment-change-count={changes.size}>{t("squad.equipmentUnappliedCount", { count: changes.size })}</span></div> : null}
     {error ? <div className="equipment-result equipment-result-rejected" style={{ gridColumn: "1 / -1" }} role="alert">{error}</div> : null}
     {!runtime || !online ? <div className="map-empty" style={{ gridColumn: "1 / -1" }}>{t("status.gameDisconnectedDisabled")}</div> : null}
     <aside className="equipment-preset-rail">
@@ -180,8 +184,10 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
               const current = position.equips.find((entry) => entry.slot === slot), currentGear = items.get(String(current?.equipUuid));
               const gearName = (value) => value ? name(value.nameKey, value.name || `#${value.itemId || value.equipUuid}`) : t("squad.emptyEquipment");
               const equipDropKey = `equip-${squad.squadIndex}:${position.position}:${slot}`;
-              return <label className={`preset-equipment-slot quality-${gear?.quality || 0} ${dropTarget === equipDropKey ? "drop-target" : ""}`} key={slot} title={`${t(`squad.equipmentSlot${slot}`)} · ${t("squad.currentEquipmentPreset", { name: gearName(currentGear) })}`}
+              const changed = changes.has(`${squad.squadIndex}:${position.position}:${slot}`);
+              return <label className={`preset-equipment-slot quality-${gear?.quality || 0} ${changed ? "equipment-slot-changed" : ""} ${dropTarget === equipDropKey ? "drop-target" : ""}`} key={slot} title={`${t(`squad.equipmentSlot${slot}`)} · ${t("squad.currentEquipmentPreset", { name: gearName(currentGear) })}`}
                 data-equipment-slot={`${squad.squadIndex}:${position.position}:${slot}`}
+                data-equipment-changed={changed || undefined}
                 draggable={capturedCurrentSquads && !!item && !disabled && !runtime?.pending}
                 onDragStart={(event) => { if (!item) { event.preventDefault(); return; } startDrag(event, { kind: "equip", squadIndex: squad.squadIndex, position: position.position, slot }); }}
                 onDragOver={(event) => { if (dragged?.kind === "equip") { event.preventDefault(); event.stopPropagation(); setDropTarget(dragged.slot === slot ? equipDropKey : `invalid-${equipDropKey}`); if (dragged.slot !== slot) setNotice(t("squad.sameSlotRequired")); } }}
@@ -190,6 +196,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, refreshC
                 onDragEnd={() => { setDragged(null); setDropTarget(""); }}>
                 <strong style={{ maxWidth: "100%", overflowWrap: "anywhere", fontSize: "var(--font-footnote)" }}>{t(`squad.equipmentSlot${slot}`)}</strong>
                 {gear?.iconPath ? <GameAssetImage assetPath={gear.iconPath} alt={gearName(gear)} className="equipment-icon" /> : null}
+                <span className="equipment-plan-slot-name">{t("squad.equipmentPlanSlot", { name: gearName(gear) })}</span>
                 <select style={{ width: "100%", minWidth: 0, maxWidth: "100%" }} title={`${gearName(gear)}${item ? ` · ${item.equipUuid}` : ""}`} aria-label={`${squad.squadIndex}:${position.position}:${slot}`} value={String(item?.equipUuid || "")} disabled={disabled || runtime?.pending} onChange={(event) => setConfig(setEquipmentSlot(config, selectedIndex, squad.squadIndex, position.position, slot, event.target.value, snapshot))}>
                   <option value="">{t("squad.emptyEquipment")}</option>
                   {[...items.values()].filter((entry) => entry.slot === slot).map((entry) => <option value={String(entry.equipUuid)} key={entry.equipUuid}>{gearName(entry)}{entry.level != null ? ` · Lv.${entry.level}` : ""} · {entry.equipUuid}</option>)}

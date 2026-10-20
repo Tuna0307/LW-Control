@@ -168,3 +168,18 @@
   outline-offset: 2px;
   background: var(--info-soft);
 }
+.equipment-plan-banner {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  color: var(--warning-text);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-line);
+  border-radius: 10px;
+}
+.preset-equipment-slot.equipment-slot-changed {
+  border: 2px solid var(--warning-text);
+  background: var(--warning-soft);
+}
+.equipment-plan-slot-name { color: var(--text); font-weight: 600; }

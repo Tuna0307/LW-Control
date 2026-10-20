@@ -4,6 +4,13 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { createEquipmentRuntime, equipmentPositionSnapshot, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
+import { equipmentPlanTexts } from "../src/locales/feature018-equipment-plan.js";
+for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
+  assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
+  for (const text of Object.values(equipmentPlanTexts[language])) assert.ok(text.length > 0);
+  assert.ok(equipmentPlanTexts[language]["squad.equipmentPlanOnly"].includes("{number}"));
+  assert.ok(equipmentPlanTexts[language]["squad.equipmentUnappliedCount"].includes("{count}"));
+}
 const baseline = {
   readOnly: true, ownerUid: "10001", serverId: 999,
   squads: [{ squadIndex: 1, positions: [
@@ -157,6 +164,7 @@ assert.match(document.body.textContent, /Native Cannon/);
 assert.doesNotMatch(document.body.textContent, /Fixture|Preview|Ember|Steel Vanguard/);
 assert.equal(document.querySelector(".equipment-preset-hint"), null);
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", "Fresh tab must copy worn gear without pressing Capture");
+assert.equal(document.querySelector('[data-equipment-plan-banner]'), null, "Matching plan must have no unapplied banner");
 assert.equal(mountedBridge.calls.filter((call) => call.command === "equipment_config_save").length, 0, "Auto-fill must only edit the local plan");
 assert.match(document.body.textContent, /Wearing now: Native Cannon/);
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').disabled, false, "Fresh preset must be editable before Capture");
@@ -183,6 +191,11 @@ await flush(() => targetItem.dispatchEvent(new window.Event("drop", { bubbles: t
 await flush(() => sourceItem.dispatchEvent(new window.Event("dragend", { bubbles: true })));
 assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "", "Single-item drag must move only the matching slot");
 assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "501", "Single-item drag target did not receive source slot");
+assert.equal(document.querySelector('[data-equipment-change-count]').dataset.equipmentChangeCount, "2");
+assert.equal(document.querySelectorAll('[data-equipment-changed=true]').length, 2);
+assert.match(document.body.textContent, /Plan only.*Alt\+1/);
+assert.match(document.body.textContent, /Plan: Native Cannon/);
+assert.match(document.body.textContent, /Wearing now: Native Cannon/);
 const sourceLoadout = document.querySelector('[data-equipment-drag="loadout:1:5"]');
 const targetPosition = document.querySelector('[data-equipment-position="1:2"]');
 await flush(() => sourceLoadout.dispatchEvent(new window.Event("dragstart", { bubbles: true })));
@@ -193,10 +206,18 @@ assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "501", 
 assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "", "Full-set drag did not swap the source loadout");
 const select = document.querySelector('select[aria-label="1:2:1"]');
 await flush(() => { Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(select, "502"); select.dispatchEvent(new window.Event("change", { bubbles: true })); });
+const beforeSave = equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot"));
+await flush(() => document.querySelector('[data-equipment-action="save"]').click());
+assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), beforeSave, "Save configuration must leave game unchanged");
+assert.ok(document.querySelector('[data-equipment-plan-banner]'), "Saving must not clear unapplied state");
+assert.match(document.body.textContent, /Plan saved.*has not changed/);
 await flush(() => { document.querySelector('[data-equipment-action="apply"]').click(); });
 await flush(() => new Promise((resolve) => setTimeout(resolve, 180)));
 assert.equal(mountedBridge.saved.equipmentPresets[0].squads[0].positions[0].equips[0].equipUuid, "502");
 assert.ok(mountedBridge.calls.some((call) => call.command === "feature018_hotkey_action" && call.payload.queryOnly));
+assert.equal(document.querySelector('[data-equipment-plan-banner]'), null, "Fresh applied native snapshot must clear banner");
+assert.equal(document.querySelectorAll('[data-equipment-changed=true]').length, 0);
+assert.match(document.querySelector('.equipment-result-success').textContent, /Applied/);
 await flush(() => document.querySelector('[data-equipment-action="restore"]').click());
 await flush(() => new Promise((resolve) => setTimeout(resolve, 180)));
 assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), equipmentPositionSnapshot(baseline));

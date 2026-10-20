@@ -35,6 +35,15 @@ function savedPosition(preset, squadIndex, position) {
   return list(preset?.squads).find((entry) => entry.squadIndex === squadIndex)
     ?.positions.find((entry) => entry.position === position);
 }
+export function equipmentPlanChanges(preset, snapshot) {
+  if (!preset || !snapshot) return [];
+  return list(snapshot.squads).flatMap((squad) => list(squad.positions).flatMap((position) => {
+    const saved = savedPosition(preset, squad.squadIndex, position.position);
+    return equipmentSlots.filter((slot) => String(saved?.equips.find((item) => item.slot === slot)?.equipUuid || "") !==
+      String(list(position.equips).find((item) => item.slot === slot)?.equipUuid || ""))
+      .map((slot) => `${squad.squadIndex}:${position.position}:${slot}`);
+  }));
+}
 export function swapNativeEquipmentTarget(config, presetIndex, dragged, target) {
   if (!dragged || !target || dragged.kind !== target.kind || dragged.kind === "squad")
     return { config, handled: false, error: "" };
