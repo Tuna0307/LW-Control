@@ -4084,6 +4084,14 @@ function M.Pump()
         perf_written = clock
         perf.observedAt = tonumber(os.time())
         perf.runtimeSeconds = clock
+        perf.luaKiB = collectgarbage("count")
+        local gc = cs and cs.System and cs.System.GC
+        if gc then
+            local ok_bytes, bytes = pcall(function() return tonumber(gc.GetTotalMemory(false)) end)
+            if ok_bytes then perf.managedBytes = bytes end
+            local ok_collections, collections = pcall(function() return tonumber(gc.CollectionCount(0)) end)
+            if ok_collections then perf.gen0Collections = collections end
+        end
         write_json(root .. [[\r29-perf.json]], perf)
     end
     return result
