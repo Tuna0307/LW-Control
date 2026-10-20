@@ -40,7 +40,8 @@ internal sealed partial class LWBridgeWindow
                 if (await core.ExecuteScriptAsync(expression) == "true") return;
                 await Task.Delay(100, token);
             }
-            throw new InvalidDataException("R27 Equipment WebView did not settle: " + stage);
+            string alert = await core.ExecuteScriptAsync("document.querySelector('[data-native-equipment] [role=alert]')?.textContent||''");
+            throw new InvalidDataException("R27 Equipment WebView did not settle: " + stage + "; tab error=" + alert);
         }
         async Task<JsonElement> Snapshot()
         {

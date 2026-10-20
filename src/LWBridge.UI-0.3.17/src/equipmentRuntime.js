@@ -57,7 +57,13 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
       const fresh = await snapshot();
       // Validate the trusted saved ordinal read-only before establishing an
       // apply fence. A missing item/preset must remain editable and re-savable.
-      await invoke("feature018_equipment_preflight", { slot });
+      for (let attempt = 0; ; attempt++) {
+        try { await invoke("feature018_equipment_preflight", { slot }); break; }
+        catch (error) {
+          if (attempt === 3 || !interrupted(error)) throw error;
+          await wait(150); assertOwner();
+        }
+      }
       const payload = { action: "equipment", slot, expectedGameUid: fresh.ownerUid, expectedServerId: fresh.serverId };
       pending = { command: "feature018_hotkey_action", query: payload };
       let first;
