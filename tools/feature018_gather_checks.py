@@ -140,6 +140,13 @@ def main():
     vm=gathering()
     vm.execute('''state.config.resourceGather.squads[1].resource='gold';local j=plan()
       assert(j.phase=='search'and j.args[1]==ResourceType.Wood,'Gold mines are ResourceType.Wood in the game search')''')
+    # Live owner 2026-10-22: the game's reply handler can error after moving the camera; the found tile still counts.
+    vm=gathering()
+    vm.execute('''
+      classes.FindResourcePointMessage.HandleMessage=function()error('UI handler failed after camera move')end
+      searchJob=plan();assert(dispatch(searchJob));pcall(find_result);assert(verify(searchJob))
+      local d=plan();assert(d.phase=='detail','A found tile is used even if the game UI handler errored')
+    ''')
     # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
     vm=gathering()
     vm.execute('''

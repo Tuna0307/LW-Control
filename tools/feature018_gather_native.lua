@@ -253,7 +253,9 @@ function M.Plan(kind,c,at)
                 if not q or q.resource~=s.resource or q.maxLevel~=s.level or at-(q.receivedAt or q.startedAt)>30000 then
                     return search_at(s.level)
                 elseif q.pending then return {error='Waiting for native resource search'},before
-                elseif not q.applied or q.error or q.pointId==0 then return lower_or_none('No matching resource at level '..s.level..' or below')
+                -- Live owner 2026-10-22: the game's own reply handler moves the camera and can then raise an
+                -- unrelated UI error; a server reply with a pointId and no errorCode is still a valid result.
+                elseif q.error or not q.pointId or q.pointId==0 then return lower_or_none('No matching resource at level '..tostring(q.level)..(q.error and (' (game code '..tostring(q.error)..')')or''))
                 else
                     local t,reason=safe_point(q.pointId,s,radius)
                     -- Live owner 2026-10-22: the game's own search reply moves the camera to the found tile, but the
