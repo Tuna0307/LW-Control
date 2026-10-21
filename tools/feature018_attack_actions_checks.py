@@ -1,4 +1,4 @@
-"""Inert v26 attack / march rapid source-backed regression checks.
+"""Inert v26/v27 attack / march rapid source-backed regression checks.
 
 Reads admitted original Lua bytecode only; Lua game APIs are mock tables.
 No client, account, game process, bridge, journal, installed file or RPC.
@@ -225,7 +225,10 @@ def check_original() -> None:
     entries = dict(records)
     raw_original = entries.get(original.probe.ORIGINAL_LUA_ENTRY,
                                entries.get(original.probe.LUA_ENTRY))
-    require((fv, cv) == (3, 26) and
+    # v27 carries byte-identical modules for every contract below. Admit its
+    # container version explicitly; retain ALL original entry/module SHA pins,
+    # managed SHA/IL checks, source argument checks and fail-closed Lua tests.
+    require((fv, cv) in ((3, 26), (3, 27)) and
             hashlib.sha256(raw_original).hexdigest() ==
             original.ORIGINAL_ENTRY_SHA256,
             "installed source original identity changed")
@@ -326,7 +329,7 @@ def check_original() -> None:
     }
     for name, (digest, methods) in expectations.items():
         require(hashlib.sha256(entries[name]).hexdigest() == digest,
-                f"unrecognized original v26 module {name}")
+                f"unrecognized original v26/v27 module {name}")
         root = lua53.parse_chunk(original.probe.decode_lenc(entries[name]))
         paths = root_methods(root)
         for name_, constants in methods.items():
