@@ -7,6 +7,7 @@ import { GameAssetImage } from "./GameAssetImage.jsx";
 import { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx";
 import { NativeAutomationCard } from "./NativeAutomationCard.jsx";
 import { NativeGatherCard } from "./NativeGatherCard.jsx";
+import { AutomationCardBoundary } from "./AutomationCardBoundary.jsx";
 import { NativeTradeCard } from "./NativeTradeCard.jsx";
 import { AUTOMATION_TASKS } from "./automationRuntime.js";
 import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationAvailableSquads, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
@@ -524,8 +525,8 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
     if (previewEnabled && discoveredSquads.length > 0) setAvailableSquads(discoveredSquads);
   }, [previewEnabled, previewState, discoveredSquads.join(",")]);
   const renderCards = (cards) => cards.map(([title, description]) => !previewEnabled && ["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)
-    ? <NativeChatAutomationCard key={`${profileId}:${title}`} title={title} description={description} online={online} profileId={profileId} availableSquads={[1, 2, 3, 4]} />
-    : !previewEnabled && AUTOMATION_TASKS[title] ? <NativeAutomationCard key={`${profileId}:${title}`} title={title} description={description} profileId={profileId} online={online} />
+    ? <AutomationCardBoundary key={`${profileId}:${title}`} name={title} title={english(title)} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeChatAutomationCard title={title} description={description} online={online} profileId={profileId} availableSquads={[1, 2, 3, 4]} /></AutomationCardBoundary>
+    : !previewEnabled && AUTOMATION_TASKS[title] ? <AutomationCardBoundary key={`${profileId}:${title}`} name={AUTOMATION_TASKS[title]} title={english(title)} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeAutomationCard title={title} description={description} profileId={profileId} online={online} /></AutomationCardBoundary>
     : !previewEnabled ? <article key={title} className="automation-card"><h3>{english(title)}</h3><p>{english(description)}</p><p role="status">{t("common.notChecked")}</p></article>
     : <AutomationCard key={title} title={title} description={description} online={online} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} onConfigStatus={onConfigStatus} availableSquads={availableSquads} />);
   const pageStatus = aggregateState === "error" ? "automation.configSave.error" : aggregateState === "saving" ? "automation.configSave.saving" : previewState === "automation-saving"
@@ -555,8 +556,8 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
         ))}
       </div>
       <div className="automation-grid">
-        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}>{previewEnabled ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /> : <NativeGatherCard key={`${profileId}:gather`} profileId={profileId} online={online} />}</Activity> : null}
-        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}>{previewEnabled ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeTradeCard key={`${profileId}:trade`} profileId={profileId} online={online} />}</Activity> : null}
+        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}>{previewEnabled ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /> : <AutomationCardBoundary key={`${profileId}:gather`} name="resourceGather" title={t("automation.category.resourceGather")} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeGatherCard profileId={profileId} online={online} /></AutomationCardBoundary>}</Activity> : null}
+        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}>{previewEnabled ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <AutomationCardBoundary key={`${profileId}:trade`} name="tradeStation" title={t("automation.tradeStation.title")} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeTradeCard profileId={profileId} online={online} /></AutomationCardBoundary>}</Activity> : null}
         {visitedCategories.has("chat") ? <Activity mode={category === "chat" ? "visible" : "hidden"}>{renderCards(automationCards.chat)}</Activity> : null}
         {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily)}</Activity> : null}
         {visitedCategories.has("alliance") ? <Activity mode={category === "alliance" ? "visible" : "hidden"}>{renderCards(automationCards.alliance)}</Activity> : null}

@@ -13,13 +13,14 @@ Object.defineProperty(globalThis, "navigator", { configurable: true, value: dom.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 localStorage.setItem("lwbridge.language", "en");
 const { createRoot } = req("react-dom/client");
-const bundle = await build({ stdin: { contents: 'export { NativeAutomationCard } from "./NativeAutomationCard.jsx"; export { NativeGatherCard } from "./NativeGatherCard.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
+const bundle = await build({ stdin: { contents: 'export { NativeAutomationCard } from "./NativeAutomationCard.jsx"; export { NativeGatherCard } from "./NativeGatherCard.jsx"; export { NativeTradeCard } from "./NativeTradeCard.jsx"; export { AutomationCardBoundary } from "./AutomationCardBoundary.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
 const mod = { exports: {} }; new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, mod, mod.exports);
-const { NativeAutomationCard, NativeGatherCard, I18nProvider } = mod.exports;
+const { NativeAutomationCard, NativeGatherCard, NativeTradeCard, AutomationCardBoundary, I18nProvider } = mod.exports;
 const defaults = {
   dispatch: { enabled: false, autoExecute: false, collectRewards: false, delayMinutes: 3, weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"] },
   dispatchAssist: { enabled: false, autoHelp: false, qualities: [], delaySeconds: [0, 0], intervalSeconds: 30 },
   allianceGather: { enabled: false, allianceGatherSquads: [1, 2] },
+  tradeStation: { enabled: false, crossServerEnabled: false, selectedItemIds: [], selectedCurrencyIds: [15, 650053] },
   resourceGather: { enabled: false, scanRadius: 200, manualResumeDelaySeconds: 120, recallOnDisable: false, squads: [1, 2, 3, 4].map(i => ({ squadIndex: i, enabled: false, resource: "metal", level: 10 })) },
 };
 const store = structuredClone(defaults);
@@ -29,6 +30,8 @@ const bridge = { profileId: "a", invokeProfileScoped: async (command, payload = 
   if (command === "feature018_automation_config_get") return structuredClone(store[payload.kind]);
   if (command === "feature018_automation_config_save") { store[payload.kind] = structuredClone(payload.config);return structuredClone(store[payload.kind]); }
   if (command === "feature018_automation_status") return { services: {} };
+  // Live v27 seasonal reply: empty native Lua tables arrive as {} (objects), not arrays.
+  if (command === "feature018_automation_observe") return { readOnly: true, seasonal: true, available: 0, reason: "Trade stations are unavailable in this account season", catalog: { nativeTemplate: true, items: {}, currencies: {} } };
   if (["feature018_automation_stop", "feature018_automation_configure", "feature018_automation_run"].includes(command)) return {};
   throw new Error(command);
 } };
@@ -44,8 +47,17 @@ await flush(() => page.render(React.createElement(I18nProvider, null,
 await flush();
 assert.equal(statusCalls(), 1, "Visible native Automation cards share one status read");
 
-// Secret Task: the switch turns on automatic dispatch; Rewards is an extra option.
+// Original layout: multi-option cards collapse their settings, closed by default and remembered.
 const secret = document.querySelector('[data-native-automation=dispatch]');
+const secretTrigger = secret.querySelector('.automation-config-trigger');
+assert.equal(secretTrigger.getAttribute("aria-expanded"), "false");
+assert.equal(secret.querySelector('.automation-config-body').style.display, "none");
+await flush(() => secretTrigger.click());
+assert.equal(secret.querySelector('.automation-config-body').style.display, "");
+assert.equal(localStorage.getItem("automation-settings:a:dispatch"), "true");
+const allianceTrigger = document.querySelector('[data-native-automation=allianceGather] .automation-config-trigger');
+await flush(() => allianceTrigger.click());
+// Secret Task: the switch turns on automatic dispatch; Rewards is an extra option.
 await flush(() => secret.querySelector('button[role=switch]').click());
 assert.equal(store.dispatch.enabled, true);assert.equal(store.dispatch.autoExecute, true);
 await flush(() => secret.querySelectorAll('[data-native-mission-fields=dispatch] .automation-inline-checkbox input')[1].click());
@@ -92,5 +104,21 @@ assert.equal(calls[before], "feature018_automation_stop:resourceGather", "Off st
 assert.equal(store.resourceGather.enabled, false);
 assert.ok(!document.querySelector('[data-preview-fixture]'), "Native cards never render fixtures");
 await flush(() => page.unmount());
+// Trade Station with the real "not this season" reply must render, not crash the app.
+const trade = createRoot(document.getElementById("root"));
+await flush(() => trade.render(React.createElement(I18nProvider, null, React.createElement(NativeTradeCard, { online: true, profileId: "a", bridge }))));
+await flush();await flush();
+assert.ok(document.querySelector('[data-native-automation=tradeStation]'), "Seasonal empty catalog renders the Trade card");
+await flush(() => trade.unmount());
+// One failing card is contained; the rest of the page stays.
+const Broken = () => { throw new Error("inert card failure"); };
+const consoleError = console.error;console.error = () => {};
+const guarded = createRoot(document.getElementById("root"));
+await flush(() => guarded.render(React.createElement(I18nProvider, null, React.createElement("div", null,
+  React.createElement(AutomationCardBoundary, { name: "x", title: "X", message: "failed", retryLabel: "Retry" }, React.createElement(Broken)),
+  React.createElement("p", { id: "survivor" }, "still here")))));
+console.error = consoleError;
+assert.ok(document.querySelector('[data-automation-card-failed=x]') && document.getElementById("survivor"), "A crashing card never blanks the page");
+await flush(() => guarded.unmount());
 dom.window.close();
-console.log("FEATURE018_R30_NATIVE_CARDS_PASS shared-status secret+assist alliance-priority gathering-squads stop-first");
+console.log("FEATURE018_R30_NATIVE_CARDS_PASS collapse trade-empty-catalog boundary shared-status secret+assist alliance-priority gathering-squads stop-first");

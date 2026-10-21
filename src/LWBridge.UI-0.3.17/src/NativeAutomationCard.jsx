@@ -31,6 +31,11 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, kind, online, draft => validAutomationDraft(kind, draft)), `automation-native:${profileId}:${kind}`);
   const [ready, setReady] = useState(false), [error, setError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false);
   const runtime = services?.[kind] ?? null;
+  // Original 0.3.17: the multi-option cards collapse their settings (closed by default, remembered).
+  const collapsible = ["dispatch", "ghostRecon", "allianceGather"].includes(kind);
+  const expansionKey = `automation-settings:${profileId}:${kind}`;
+  const [expanded, setExpanded] = useState(() => { try { return localStorage.getItem(expansionKey) === "true"; } catch { return false; } });
+  const toggleExpanded = () => { const next = !expanded;setExpanded(next);try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ } };
   useEffect(() => {
     let closed = false;
     setReady(false);setServices(null);
@@ -69,6 +74,16 @@ export function NativeAutomationCard({ title, description, profileId, online, br
     {error ? <p role="alert" className="error-text">{error}<button type="button" onClick={() => { void config.store.refresh().then(() => { setReady(true);setError(""); }).catch(e => setError(e.message)); }}>{t("common.retry")}</button></p> : null}
     <PreviewConfigError config={config} t={t} />
     {kind === "treatment" ? <div className="automation-actions"><label>{t("automation.treatmentAmountPerArmy")}<input type="number" min="1" max="1000000" step="1" value={config.draft.amountPerArmy ?? 1} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, amountPerArmy: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
+    {INTERVAL_KINDS.includes(kind) ? <div className="automation-actions"><label>{t("automation.intervalMinutes")}<input type="number" min="1" max="1440" step="1" value={config.draft.intervalMinutes ?? (kind === "allianceGift" ? 120 : 60)} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, intervalMinutes: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
+    {kind === "allianceDonate" ? <div className="automation-actions"><label>{t("automation.donateThreshold")}<input type="number" min="1" max="30" step="1" value={config.draft.threshold ?? 15} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, threshold: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
+    {kind === "officialPosition" ? <div className="automation-actions"><label>{t("automation.targetPosition")}<select value={config.draft.positionId ?? 0} disabled={disabled} onChange={event => {
+      config.store.edit(draft => ({ ...draft, positionId: Number(event.target.value) }), false);void config.store.flush().catch(e => setError(e.message));
+    }}>{[[0, "none"], [10002, "vicePresident"], [10003, "strategyMinister"], [10004, "defenseMinister"], [10005, "constructionMinister"], [10006, "scienceMinister"], [10007, "internalAffairsMinister"]].map(([id, name]) => <option key={id} value={id}>{t(`automation.position.${name}`)}</option>)}</select></label></div> : null}
+    {collapsible || ["allianceHelp", "allianceGift", "strongholdResource", "allianceCenterResource"].includes(kind) ? <div className="automation-config-actions">
+      {collapsible ? <button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} onClick={toggleExpanded}><span className="automation-config-trigger-label"><span>{t("settings.title")}</span></span><svg className="trigger-chevron" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" /></svg></button> : null}
+      {["allianceHelp", "allianceGift", "strongholdResource", "allianceCenterResource", "allianceGather", "dispatch"].includes(kind) ? <button type="button" className="automation-run-action" disabled={disabled} onClick={run}>{t(busy ? "automation.runningEllipsis" : "common.runNow")}</button> : null}
+    </div> : null}
+    {collapsible ? <div className="automation-config-body" style={expanded ? undefined : { display: "none" }}>
     {MISSION_KINDS.includes(kind) ? <NativeMissionFields kind={kind} config={config} disabled={disabled} runtime={runtime} /> : null}
     {kind === "allianceGather" ? (() => {
       const order = Array.isArray(config.draft.allianceGatherSquads) ? config.draft.allianceGatherSquads : [1, 2];
@@ -89,11 +104,6 @@ export function NativeAutomationCard({ title, description, profileId, online, br
       </div>;
     })() : null}
     {kind === "dispatch" ? <NativeDispatchAssist profileId={profileId} online={online} bridge={bridge} runtime={services?.dispatchAssist ?? null} /> : null}
-    {INTERVAL_KINDS.includes(kind) ? <div className="automation-actions"><label>{t("automation.intervalMinutes")}<input type="number" min="1" max="1440" step="1" value={config.draft.intervalMinutes ?? (kind === "allianceGift" ? 120 : 60)} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, intervalMinutes: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
-    {kind === "allianceDonate" ? <div className="automation-actions"><label>{t("automation.donateThreshold")}<input type="number" min="1" max="30" step="1" value={config.draft.threshold ?? 15} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, threshold: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
-    {kind === "officialPosition" ? <div className="automation-actions"><label>{t("automation.targetPosition")}<select value={config.draft.positionId ?? 0} disabled={disabled} onChange={event => {
-      config.store.edit(draft => ({ ...draft, positionId: Number(event.target.value) }), false);void config.store.flush().catch(e => setError(e.message));
-    }}>{[[0, "none"], [10002, "vicePresident"], [10003, "strategyMinister"], [10004, "defenseMinister"], [10005, "constructionMinister"], [10006, "scienceMinister"], [10007, "internalAffairsMinister"]].map(([id, name]) => <option key={id} value={id}>{t(`automation.position.${name}`)}</option>)}</select></label></div> : null}
-    {["allianceHelp", "allianceGift", "strongholdResource", "allianceCenterResource", "allianceGather", "dispatch"].includes(kind) ? <div className="automation-config-actions"><button type="button" className="automation-run-action" disabled={disabled} onClick={run}>{t(busy ? "automation.runningEllipsis" : "common.runNow")}</button></div> : null}
+    </div> : null}
   </article>;
 }

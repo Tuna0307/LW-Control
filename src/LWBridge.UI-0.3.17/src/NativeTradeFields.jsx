@@ -7,7 +7,9 @@ export function NativeTradeFields({ config, runtime, observation, disabled, t })
   const draft = config.draft;
   const data = observation?.data ?? observation ?? runtime?.observation ?? runtime?.after ?? runtime?.before;
   const catalog = data?.catalog?.nativeTemplate === true ? data.catalog : null;
-  const items = catalog?.items ?? [], currencies = catalog?.currencies ?? [];
+  // A native empty Lua table is serialized as {} rather than []: accept both shapes.
+  const list = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
+  const items = list(catalog?.items), currencies = list(catalog?.currencies);
   const save = async patch => {
     setError("");
     try {
@@ -36,8 +38,9 @@ export function NativeTradeFields({ config, runtime, observation, disabled, t })
       <legend>{t("automation.tradeStation.goodsToBuy")}</legend>
       {!catalog || items.length === 0 ? <p className="muted">{t("automation.tradeStation.noGoods")}</p> : null}
       <div className="trade-station-good-grid">{items.map(item => {
-        const exclusive = item.offers?.length > 0 && item.offers.every(offer => offer.exclusive === true);
-        const possible = [...new Set((item.offers ?? []).map(offer => offer.currencyId))]
+        const offers = list(item.offers);
+        const exclusive = offers.length > 0 && offers.every(offer => offer.exclusive === true);
+        const possible = [...new Set(offers.map(offer => offer.currencyId))]
           .map(id => currencies.find(currency => currency.id === id)?.name || `#${id}`);
         return <label className="trade-station-good" key={item.itemId}>
           <input type="checkbox" checked={(draft.selectedItemIds ?? []).includes(item.itemId)} disabled={exclusive}

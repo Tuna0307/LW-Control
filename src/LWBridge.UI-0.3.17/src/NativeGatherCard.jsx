@@ -52,7 +52,8 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
     if (!draft.enabled && !squads.some(squad => squad.enabled)) { setError(t("automation.resourceGather.squadRequired"));setExpanded(true);return; }
     void save({ enabled: !draft.enabled });
   };
-  const rows = runtime?.before?.gatherSquads ?? [];
+  const rawRows = runtime?.before?.gatherSquads;
+  const rows = Array.isArray(rawRows) ? rawRows : rawRows && typeof rawRows === "object" ? Object.values(rawRows) : [];
   const state = !online ? t("status.disconnected") : !draft.enabled ? t("common.disabled") : runtime?.state === "unconfirmed" ? t("automation.resultUnconfirmed") : t("common.waiting");
   return <article className={`automation-card${draft.enabled ? " is-enabled" : ""}`} data-native-automation={KIND} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
     <div className="automation-card-header">
