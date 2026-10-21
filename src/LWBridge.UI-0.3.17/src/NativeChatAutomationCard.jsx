@@ -7,6 +7,7 @@ import { AutomationConfigPreview } from "./AutomationPage.jsx";
 import { CHAT_KINDS, settleChatDelayPairs, chatDraft, createChatAdapter } from "./chatAutomationRuntime.js";
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { Switch } from "./sharedPageUI.jsx";
+import { GameEmojiPicker } from "./GameEmojiPicker.jsx";
 
 export function NativeChatAutomationCard({ title, description, online, profileId, availableSquads, bridge = backendBridge }) {
   const { english, t } = useI18n();
@@ -75,6 +76,10 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     }}>{t("settings.title")}</button></div>
     <fieldset className="automation-config-body" style={expanded ? undefined : { display: "none" }} disabled={disabled} onBlur={() => config.store.flush().catch(e => setError(e.message))}>
       <AutomationConfigPreview title={title} enabled={!disabled} previewState="" config={config} assistConfig={config} availableSquads={availableSquads} onLocalError={setError} />
+      {config.draft.replyEnabled && online ? <GameEmojiPicker bridge={bridge} profileId={profileId} disabled={disabled} onPick={tag => {
+        config.store.edit(draft => ({ ...draft, replies: `${String(draft.replies ?? "").replace(/\s+$/, "")}${String(draft.replies ?? "").trim() ? " " : ""}${tag}` }), false);
+        void config.store.flush().catch(e => setError(e.message));
+      }} /> : null}
     </fieldset>
   </article>;
 }

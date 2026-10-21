@@ -103,6 +103,14 @@ def main():
       local before=#state.sent;state.callbacks[1](msg(611,'live-between',9));state.now=state.now+1000;engine.Pump()
       assert(#state.sent==before+1,'Live event claim must not wait for the backup rescan')
     ''')
+    vm.execute('''
+      -- Read-only emoji list: tags use the game's in-text form, nothing is sent.
+      local sends=#state.sent
+      DataCenter.ChatEmojiTemplateManager={GetShowEmojiList=function()return {{id=7,name='flower'},{id=8}}end}
+      local r=engine.EmojiList();assert(r.state=='confirmed'and r.data.readOnly and #r.data.emojis==2)
+      assert(r.data.emojis[1].tag=='<lwEmoji:7:>'and r.data.emojis[1].name=='flower'and #state.sent==sends)
+      DataCenter.ChatEmojiTemplateManager=nil;assert(engine.EmojiList().state=='failed')
+    ''')
     print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure fail-closed correlation, delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan')
 
 

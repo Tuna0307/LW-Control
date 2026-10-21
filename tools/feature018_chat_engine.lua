@@ -305,10 +305,32 @@ end
 function M.CleanupAfterLeaseLoss()
     M.Detach();configs={};replies={};owner=nil;listener.ready=false
 end
+-- Owner 2026-10-21: read-only game emoji list for the Auto Reply picker. No send, no subscription.
+-- ChatInterface.GetOldEmojiStr 926-935: a game emoji travels in text as <lwEmoji:ID:>.
+function M.EmojiList()
+    local manager=rawget(_G,'DataCenter');manager=manager and manager.ChatEmojiTemplateManager
+    local ok,list=pcall(function()return manager:GetShowEmojiList()end)
+    if not ok or type(list)~='table'then return {state='failed',errorCode='GAME_METHOD_UNAVAILABLE',error='The game emoji list is unavailable'}end
+    local out={}
+    for _,emoji in ipairs(list)do
+        if #out>=300 then break end
+        local id=tonumber(select(2,pcall(function()return emoji.id end)))
+        if id then
+            local row={id=id,tag='<lwEmoji:'..tostring(math.floor(id))..':>'}
+            for _,key in ipairs({'name','icon','desc','type','order'})do
+                local fine,value=pcall(function()return emoji[key]end)
+                if fine and (type(value)=='string'or type(value)=='number')then row[key]=value end
+            end
+            out[#out+1]=row
+        end
+    end
+    return {state='confirmed',data={readOnly=true,emojis=array and array(out)or out}}
+end
 function M.Register(feature,overview)
     bridge=overview;array=feature.Array
     feature.RegisterHandler('feature018_chat_configure',M.Configure)
     feature.RegisterHandler('feature018_chat_run',M.Run)
     feature.RegisterHandler('feature018_chat_status',M.Read)
+    feature.RegisterHandler('feature018_chat_emoji_list',M.EmojiList)
 end
 return M

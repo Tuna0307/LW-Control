@@ -196,3 +196,9 @@
    complete result-kind labels together instead of splitting final letters. */
 .map-tabs{grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))}
 .map-tabs button{white-space:nowrap}
+
+/* R30 Auto Reply game emoji picker */
+.game-emoji-picker { margin-top: 8px; }
+.game-emoji-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; max-height: 220px; overflow-y: auto; }
+.game-emoji-list > p { flex-basis: 100%; margin: 0; }
+.game-emoji-list > button { padding: 4px 8px; border-radius: 6px; font-size: 12px; }

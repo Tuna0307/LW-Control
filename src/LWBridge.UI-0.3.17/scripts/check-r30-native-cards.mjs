@@ -125,7 +125,18 @@ await flush(() => document.querySelector('[data-native-chat=redPacket] button[ro
 await flush();
 assert.deepEqual([chatSaved.enabled, chatSaved.claimDelaySeconds], [true, [10, 10]], "Switch-on saves the 10 s delay");
 assert.ok(!document.body.textContent.includes("CONFIG_DRAFT_INVALID"), "No raw internal code is shown");
+// Auto Reply game emoji picker: read-only list, click appends the in-text tag to the last reply line.
+chatSaved = { ...chatSaved, replyEnabled: true, replies: ["thanks"] };
+chatBridge.invokeProfileScoped = (inner => async (command, payload) => command === "feature018_chat_emoji_list"
+  ? { readOnly: true, emojis: { 1: { id: 7, name: "flower", tag: "<lwEmoji:7:>" } } } : inner(command, payload))(chatBridge.invokeProfileScoped);
 await flush(() => chat.unmount());
+const chat2 = createRoot(document.getElementById("root"));
+await flush(() => chat2.render(React.createElement(I18nProvider, null, React.createElement(NativeChatAutomationCard, { title: "Red Packet", description: "", online: true, profileId: "a", availableSquads: [1], bridge: chatBridge }))));
+await flush();await flush();
+await flush(() => document.querySelector('.game-emoji-picker > button').click());await flush();
+await flush(() => document.querySelector('.game-emoji-list [data-emoji-id="7"]').click());await flush();
+assert.deepEqual(chatSaved.replies, ["thanks <lwEmoji:7:>"], "Picked game emoji is saved as its in-text tag");
+await flush(() => chat2.unmount());
 // Trade Station with the real "not this season" reply must render, not crash the app.
 const trade = createRoot(document.getElementById("root"));
 await flush(() => trade.render(React.createElement(I18nProvider, null, React.createElement(NativeTradeCard, { online: true, profileId: "a", bridge }))));
