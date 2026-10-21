@@ -1667,3 +1667,26 @@ Workers never merge, publish, force-push or reset.
   (LastWar.exe, Assembly-CSharp.rdl) still match the admitted hashes. The update must finish through the official
   launcher with original scripts before any live test; owner asked. The shipped app hits the same failure on every game
   update until the game is opened normally once (product follow-up: settle and retry once on this error).
+
+### R30 handoff to Codex (lead, 2026-10-21, after commit ceaae70e)
+Game is now official content **27** (manifest 1101); harness admits it (`tools/map_014_lead_native/run_ui.py`
+`EXPECTED_27`, settle proof `native-ui-20261021-083513`). Live runner: `tools/feature018_r30_live.py --keep-going
+--kind <k>...` (env `LWBRIDGE_R30_WATCH_SECONDS`, `LWBRIDGE_R30_OFFICIAL_POSITION` 10005/10006/10007 only).
+Live results on v27 (sub UID 4799432499002212):
+| Feature | Live result | Status |
+|---|---|---|
+| Alliance Help / Gifts / Tech Donations | proven on v26 (Codex) | re-check once on v27 |
+| Official Application | Science 10006 applied, own UID in fresh apply list (48->49), `native-ui-20261021-083513` | PROVEN; full-list retry inert-only |
+| Treatment | cure 1 + help 1, UI confirmed, `native-ui-20261021-083513` | PROVEN |
+| Secret Task | 4 claims + 6 dispatches confirmed, `native-ui-20261021-085332` | PROVEN |
+| Dispatch Assist | ran; 1 alliance task not yet complete | nothing available |
+| Ghost Ops | outside dispatch window | waiting for event |
+| Excavation Stronghold | stronghold 157 collected 17 -> 0 (confirmation fixed after); later run nothing ready | PROVEN by state; re-run when resources ready |
+| Alliance Center | season feature unavailable | waiting for season |
+| Alliance Gathering Dispatch | no alliance mine with room | nothing available (new engine, inert PASS) |
+| Resource gathering | squad 1 -> empty L1 food tile 978032, march 1430091807089796199 confirmed, `native-ui-20261021-091512` | PROVEN; **recall on switch-off sent but NOT confirmed** |
+| Trade Station | season unavailable (read-only observe) | waiting for season |
+Open items: (1) gathering recall confirmation (`gather_native` recall Verify needs WorldMarchChange reply; check v27
+field shapes like the empty-text owner fix); (2) `tools/feature018_attack_actions_checks.py` FAILS since v27 (likely a
+pinned v26 assumption) - diagnose; (3) full gate (UI, Desktop.Checks, all Lua); (4) perf idle all-off and all-on;
+(5) owner-test ZIP `tools/feature018_r30_package.py` (copy R29 script; same gates); (6) update the R30 table above.
