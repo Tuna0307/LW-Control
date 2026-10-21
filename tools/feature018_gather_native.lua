@@ -334,7 +334,10 @@ function M.Verify(kind,job)
         -- The game's own tile popup (opened by its search reply) may already hold this tile's detail;
         -- after 5 s without our reply, that matching detail is used.
         local settled=job.replied or d~=job.previous or (job.sentAt and clock()-job.sentAt>=5000)
-        if not d or not settled or tonumber(get(d,'pointId'))~=job.pointId or tonumber(get(d,'resourceId'))~=job.configId then return false end
+        -- Live v27 gold mines: the detail reply omits resourceId (ParseData keeps it nil). The tile's
+        -- resource config is already checked from the map point; a present resourceId must still match.
+        local rid=get(d,'resourceId')
+        if not d or not settled or tonumber(get(d,'pointId'))~=job.pointId or rid~=nil and tonumber(rid)~=job.configId then return false end
         detailJob=nil
         job.query.detail=d;job.query.detailAt=clock();return true,{readOnly=true,pointId=job.pointId,remainRes=tonumber(get(d,'remainRes'))}
     elseif job.phase=='gather'then

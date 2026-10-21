@@ -171,6 +171,9 @@ def main():
       searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
       local d=plan();assert(d.phase=='detail');assert(dispatch(d));assert(not verify(d))
       state.now=state.now+5000;assert(verify(d),'The game popup detail is used after 5 s without a reply')
+      state.detail={pointId=1011,remainRes=100};d=plan();assert(d.phase=='gather'or d.phase=='detail')
+      if d.phase=='detail'then assert(dispatch(d));classes.WorldGetDetailMessage.HandleMessage({}, {pointId=1011});assert(verify(d),'A detail without resourceId (live v27 gold) is accepted')end
+      state.detail={pointId=1011,resourceId=999,remainRes=100};state.now=state.now+20000
     ''')
     # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
     vm=gathering()
