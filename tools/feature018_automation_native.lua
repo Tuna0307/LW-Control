@@ -8,6 +8,36 @@ local function route(k)return get(rawget(_G,'MsgDefines'),k)end
 local giftEvents,giftVersion,giftFresh=nil,0,nil
 local scienceEvents,scienceVersion,scienceFresh=nil,0,nil
 local scienceDetailVersion,scienceDetailsFresh=0,{}
+local officialEvents,officialVersions,officialFresh=nil,{},{}
+local officialAppointmentVersions,officialObservation={},nil
+local function official_listener()
+    if officialEvents then return end
+    local event=get(rawget(_G,'EventId'),'OfficialApplyListInit')
+    if not event then error('Native official application list event is unavailable')end
+    local manager=call(rawget(_G,'EventManager'),'GetInstance')
+    local fn=function(position)local id=tonumber(position);if id then officialVersions[id]=(officialVersions[id]or 0)+1 end end
+    local appointmentEvent=get(rawget(_G,'EventId'),'OfficialAppointmentListRefresh')
+    if not appointmentEvent then error('Native appointment queue event is unavailable')end
+    local appointmentFn=function(position)local id=tonumber(position);if id then officialAppointmentVersions[id]=(officialAppointmentVersions[id]or 0)+1 end end
+    call(manager,'AddListener',event,fn);call(manager,'AddListener',appointmentEvent,appointmentFn)
+    officialEvents={manager=manager,rows={{event,fn},{appointmentEvent,appointmentFn}}}
+end
+local function official_state(position)
+    local manager=center('OfficialApplyManager')
+    local list=call(manager,'GetApplyList',tostring(position))
+    if type(list)~='table'then error('The selected official application list is not loaded')end
+    local uid=tostring(get(get(rawget(_G,'LuaEntry'),'Player'),'uid'))
+    local queued=false;local count=0
+    for _,applicant in pairs(list)do count=count+1;if tostring(get(applicant,'uid'))==uid then queued=true end end
+    local appointments=call(manager,'GetAppointmentList',tostring(position));local appointed=false;local appointmentCount=0
+    if type(appointments)=='table'then for _,applicant in pairs(appointments)do
+        appointmentCount=appointmentCount+1;if tostring(get(applicant,'uid'))==uid then appointed=true end
+    end end
+    local held=call(manager,'GetOwnAppointIdName')
+    return {positionId=position,currentPositionId=tonumber(held)or 0,applyQueueLength=count,
+        ownApplicationPosition=tonumber(call(manager,'GetOwnApplyPositionId'))or 0,queued=queued,uid=uid,
+        appointed=appointed,appointmentQueueLength=appointmentCount}
+end
 local function science_listener()
     if scienceEvents then return end
     local event=get(rawget(_G,'EventId'),'OnGetAllianceTechMessage')
@@ -93,7 +123,7 @@ local function help()
     end
     table.sort(ids);return {available=#ids,identity=table.concat(ids,',')}
 end
-function M.Supports(kind)return kind=='allianceHelp'or kind=='allianceGift'or kind=='allianceDonate'end
+function M.Supports(kind)return kind=='allianceHelp'or kind=='allianceGift'or kind=='allianceDonate'or kind=='officialPosition'end
 function M.Interval(kind,c)return kind=='allianceGift'and (tonumber(c.intervalMinutes)or 120)*60000 or 60000 end
 function M.Plan(kind,c,at)
     if kind=='allianceHelp'then
@@ -127,6 +157,20 @@ function M.Plan(kind,c,at)
         if not before.scienceId or before.remaining<(tonumber(c.threshold)or 15)or before.balance<before.cost then return nil,before end
         -- AlScienceDonate option 1 is the ordinary-resource branch. Never option 2 / GoldDonate.
         return {route=route('AlScienceDonate'),args={before.scienceId,1},scienceId=before.scienceId},before
+    elseif kind=='officialPosition'then
+        local position=tonumber(c.positionId)
+        if not position or position==0 then return nil,{reason='Choose an official position first'}end
+        official_listener()
+        if not officialFresh[position]or at-officialFresh[position]>30000 then
+            return {readOnly=true,phase='officialList',route=route('KingdomPositionApplyList'),args={tostring(position)},
+                positionId=position,version=officialVersions[position]or 0},{positionId=position,fresh=false}
+        end
+        local before=official_state(position);local manager=center('OfficialApplyManager')
+        if before.queued or before.appointed or before.currentPositionId==position or before.ownApplicationPosition>0 then return nil,before end
+        if not call(manager,'CheckCanApply',tostring(position))then before.reason='This position is not available for applications';return nil,before end
+        local reason=call(manager,'GetOwnApplicantData',tostring(position),false)
+        if reason and tostring(reason)~=''then before.reason=tostring(reason);return nil,before end
+        return {route=route('KingdomPositionApply'),args={tostring(position)},positionId=position,uid=before.uid},before
     end
     return {error='This native Automation route is unavailable'}
 end
@@ -167,6 +211,32 @@ function M.Verify(kind,job)
             balance=tonumber(call(get(rawget(_G,'LuaEntry'),'Resource'),'GetCntByResType',job.before.resourceType))}
         return after.remaining==job.before.remaining-1 and after.progress and after.level and
             (after.progress>job.before.progress or after.level>job.before.level),after
+    elseif kind=='officialPosition'then
+        local version=officialVersions[job.positionId]or 0
+        if job.phase=='officialList'then
+            if version>job.version then
+                if not job.appointmentReadSent then
+                    job.appointmentReadSent=true;job.appointmentVersion=officialAppointmentVersions[job.positionId]or 0;job.followupReads=1
+                    get(rawget(_G,'SFSNetwork'),'SendMessage')(route('KingdomPositionAppointmentList'),tostring(job.positionId));return false
+                end
+                if (officialAppointmentVersions[job.positionId]or 0)>job.appointmentVersion then
+                    officialFresh[job.positionId]=job.sentAt;return true,official_state(job.positionId)
+                end
+            end
+            return false
+        end
+        if not job.postQuerySent then
+            job.postQuerySent=true;job.postQueryVersion=version;job.postAppointmentVersion=officialAppointmentVersions[job.positionId]or 0;job.followupReads=2
+            local sender=get(rawget(_G,'SFSNetwork'),'SendMessage')
+            if type(sender)~='function'then return false end
+            -- Only a read is sent here. The application is never repeated.
+            sender(route('KingdomPositionApplyList'),tostring(job.positionId))
+            sender(route('KingdomPositionAppointmentList'),tostring(job.positionId))
+            return false
+        end
+        if version<=job.postQueryVersion or (officialAppointmentVersions[job.positionId]or 0)<=job.postAppointmentVersion then return false end
+        local after=official_state(job.positionId)
+        return (after.queued or after.appointed or after.currentPositionId==job.positionId)and after.uid==job.uid,after
     end
     return false
 end
@@ -178,5 +248,29 @@ function M.Stop(kind)
         for _,r in ipairs(scienceEvents.rows)do pcall(call,scienceEvents.manager,'RemoveListener',r[1],r[2])end
         scienceEvents=nil;scienceFresh=nil;scienceDetailsFresh={}
     end
+    if kind=='officialPosition'and officialEvents then
+        for _,r in ipairs(officialEvents.rows)do pcall(call,officialEvents.manager,'RemoveListener',r[1],r[2])end
+        officialEvents=nil;officialFresh={};officialObservation=nil
+    end
+end
+function M.Observe(kind,c,at,scope)
+    if kind~='officialPosition'then return {state='failed',error='Read-only observation is unavailable for this service'}end
+    local position=tonumber(c.positionId)
+    if not position or position==0 then return {state='failed',error='Choose an official position before observing'}end
+    official_listener()
+    local key=scope..'/'..tostring(position)
+    if not officialObservation or officialObservation.key~=key then
+        officialObservation={key=key,at=at,version=officialVersions[position]or 0,appointmentVersion=officialAppointmentVersions[position]or 0}
+        local sender=get(rawget(_G,'SFSNetwork'),'SendMessage')
+        sender(route('KingdomPositionApplyList'),tostring(position));sender(route('KingdomPositionAppointmentList'),tostring(position))
+        return {state='accepted',data={accepted=true,readOnly=true,awaitingFreshLists=true}}
+    end
+    local o=officialObservation
+    if (officialVersions[position]or 0)>o.version and (officialAppointmentVersions[position]or 0)>o.appointmentVersion then
+        local data=official_state(position);data.readOnly=true;M.Stop(kind)
+        return {state='confirmed',data=data}
+    end
+    if at-o.at>15000 then M.Stop(kind);return {state='failed',error='Fresh official lists were not available; no application was sent'}end
+    return {state='accepted',data={accepted=true,readOnly=true,awaitingFreshLists=true}}
 end
 return M

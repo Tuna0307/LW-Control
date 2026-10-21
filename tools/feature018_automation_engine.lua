@@ -70,6 +70,14 @@ local function apply(request,explicit)
     recalc();return ok({configured=true})
 end
 function M.Configure(request)return apply(request,true)end
+function M.Observe(request)
+    local a=account();local token=bridge and bridge.Feature018OwnerToken()
+    if not a or not token or tostring(get(get(rawget(_G,'LuaEntry'),'Player'),'uid'))~=tostring(request.authorizedUid)then return fail('Game account admission changed')end
+    local yes,json=pcall(require,'rapidjson');if not yes then return fail('Native JSON decoder unavailable')end
+    local decoded,data=pcall(json.decode,request.confirmedAutomationConfig or '')
+    if not decoded or type(data)~='table'or not data[request.kind]then return fail('Confirmed Automation settings unavailable')end
+    return native.Observe(request.kind,data[request.kind],clock(),a..'/'..tostring(token))
+end
 function M.IsActive()return active end
 function M.Stop(request)
     if owner and not owned()then M.CleanupAfterLeaseLoss();return fail('The game account changed; Automation stopped')end
@@ -93,7 +101,7 @@ function M.Run(request)
     if not native.Supports(kind)then return fail('This Automation service is unavailable')end
     if uncertain[kind]then return fail('An earlier action is unconfirmed. Check the game; it will not be sent again')end
     if not pending[kind]then force[kind]=true;row(kind).nextRunAt=0;active=true;next_tick=0 end
-    return {state='submitted',data={queued=true,kind=kind}}
+    return {state='accepted',data={accepted=true,queued=true,requestDispatched=false,kind=kind}}
 end
 local function finish(kind,r,at,state,message)
     r.state=state;r.error=message;r.lastRunAt=at;r.nextRunAt=at+native.Interval(kind,configs[kind])
@@ -114,14 +122,18 @@ function M.Pump()
                 if yes and confirmed then
                     pending[kind]=nil;r.after=after
                     if job.readOnly then
+                        r.readRequests=(r.readRequests or 0)+(job.followupReads or 0)
                         r.state='waiting';r.nextRunAt=0
                     else
                         r.confirmed=r.confirmed+1;r.receipts[#r.receipts+1]={at=at,before=job.before,after=after,route=job.route,nativePostState=true}
+                        r.readRequests=(r.readRequests or 0)+(job.followupReads or 0)
                         if kind=='allianceGift'and type(after)=='table'then
                             local key=after.category==1 and 'normalClaimed'or 'advancedClaimed'
                             r[key]=(r[key]or 0)+(tonumber(after.claimed)or 0)
                         elseif kind=='allianceDonate'and type(after)=='table'then
                             r.donated=(r.donated or 0)+1;r.remaining=after.remaining;r.scienceId=after.scienceId
+                        elseif kind=='officialPosition'and type(after)=='table'then
+                            r.positionId=after.positionId;r.applyQueueLength=after.applyQueueLength
                         end
                         if #r.receipts>30 then table.remove(r.receipts,1)end
                         if job.continue and r.confirmed-(r.cycleStart or 0)<30 then r.state='waiting';r.nextRunAt=0
@@ -166,5 +178,6 @@ function M.Register(feature,overview,adapter)
     feature.RegisterHandler('feature018_automation_run',M.Run)
     feature.RegisterHandler('feature018_automation_stop',M.Stop)
     feature.RegisterHandler('feature018_automation_status',M.Status)
+    feature.RegisterHandler('feature018_automation_observe',M.Observe)
 end
 return M

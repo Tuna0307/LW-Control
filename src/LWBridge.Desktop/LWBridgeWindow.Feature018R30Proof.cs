@@ -10,6 +10,8 @@ internal sealed partial class LWBridgeWindow
     private async Task RunFeature018R30AutomationProofAsync(CoreWebView2 core, string outputPath,
         string directory, OverviewMapScanSession owner, string uid, int serverId, string kind, CancellationToken token)
     {
+        bool observeOnly = kind.StartsWith("observe-", StringComparison.Ordinal);
+        if (observeOnly) kind = kind[8..];
         if (!AutomationTaskConfigCommandService.Kinds.Contains(kind, StringComparer.Ordinal))
             throw new InvalidDataException("R30 proof service is unavailable.");
         var lifecycle = overviewLifecycleService!;
@@ -49,8 +51,30 @@ internal sealed partial class LWBridgeWindow
             await core.ExecuteScriptAsync("document.querySelectorAll('.side-nav button')[1]?.click()");
             await WaitDom("!!document.querySelector('[data-automation-category=alliance]')");
             await core.ExecuteScriptAsync("document.querySelector('[data-automation-category=alliance]').click()");
+            if (kind == "officialPosition")
+            {
+                await WaitDom("!!document.querySelector('" + selector + " select:not(:disabled)')");
+                await core.ExecuteScriptAsync("(()=>{const s=document.querySelector('" + selector + " select');s.value='10005';s.dispatchEvent(new Event('change',{bubbles:true}));})()");
+            }
             await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
             observations.Add(await Status());
+            if (observeOnly)
+            {
+                for (int i = 0; i < 40; i++)
+                {
+                    Owned();
+                    object? value = await game.InvokeAsync("feature018_automation_observe", JsonSerializer.SerializeToElement(new { kind }), token);
+                    if (value is JsonElement observed)
+                    {
+                        observations.Add(observed.Clone());
+                        if (observed.TryGetProperty("positionId", out _) && observed.TryGetProperty("readOnly", out var readOnly) && readOnly.GetBoolean())
+                        { terminal = observed.Clone();uiConfirmed = true;break; }
+                    }
+                    await Task.Delay(500, token);
+                }
+                if (!terminal.HasValue) throw new InvalidDataException("R30 read-only observation did not settle.");
+                return;
+            }
             // Exercise the real saved-config switch through WebView, not a synthetic fixture.
             if (await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('" + selector + " button[role=switch]');if(b.getAttribute('aria-checked')!=='false')return false;b.click();return true;})()") != "true")
                 throw new InvalidDataException("R30 proof requires a previously disabled service.");
@@ -84,9 +108,9 @@ internal sealed partial class LWBridgeWindow
             var final = await Status();observations.Add(final);
             string uiState = await core.ExecuteScriptAsync("(()=>{const c=document.querySelector('" + selector + "');return {language:document.querySelector('.language-select select')?.value,state:c?.dataset.automationState,text:c?.innerText};})()");
             stopped = !final.GetProperty("services").GetProperty(kind).GetProperty("enabled").GetBoolean();
-            await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new { kind, native = true, fixture = false,
+            await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new { kind, observeOnly, native = true, fixture = false,
                 terminal, stopped, observations, uiState, uiConfirmed, success = stopped && uiConfirmed && terminal.HasValue &&
-                    terminal.Value.GetProperty("state").GetString() is "success" or "nothing_available" },
+                    (observeOnly || terminal.Value.GetProperty("state").GetString() is "success" or "nothing_available") },
                 new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
         }
         if (!stopped || !terminal.HasValue || terminal.Value.GetProperty("state").GetString() is not ("success" or "nothing_available"))

@@ -1,8 +1,9 @@
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
-export const AUTOMATION_TASKS = { "Alliance Help": "allianceHelp", "Alliance Gifts": "allianceGift", "Alliance Tech Donations": "allianceDonate" };
+export const AUTOMATION_TASKS = { "Alliance Help": "allianceHelp", "Alliance Gifts": "allianceGift", "Alliance Tech Donations": "allianceDonate", "Automatic Official Application": "officialPosition" };
 export function validAutomationDraft(kind, draft) {
   return typeof draft.enabled === "boolean" && (kind !== "allianceGift" || Number.isInteger(Number(draft.intervalMinutes)) && Number(draft.intervalMinutes) >= 1 && Number(draft.intervalMinutes) <= 1440)
-    && (kind !== "allianceDonate" || Number.isInteger(Number(draft.threshold)) && Number(draft.threshold) >= 1 && Number(draft.threshold) <= 30);
+    && (kind !== "allianceDonate" || Number.isInteger(Number(draft.threshold)) && Number(draft.threshold) >= 1 && Number(draft.threshold) <= 30)
+    && (kind !== "officialPosition" || [0, 10002, 10003, 10004, 10005, 10006, 10007].includes(Number(draft.positionId)) && (!draft.enabled || Number(draft.positionId) !== 0));
 }
 export function createAutomationAdapter(bridge, profileId, kind, online, valid) {
   const invoke = (command, payload = {}) => {
@@ -14,6 +15,7 @@ export function createAutomationAdapter(bridge, profileId, kind, online, valid) 
       config = { ...config };
       if (kind === "allianceGift") config.intervalMinutes = Number(config.intervalMinutes);
       if (kind === "allianceDonate") config.threshold = Number(config.threshold);
+      if (kind === "officialPosition") config.positionId = Number(config.positionId);
       // Stop first: a failed disk write must never leave the old engine running.
       if (online && !config.enabled) await invoke("feature018_automation_stop", { kind });
       const saved = await invoke("feature018_automation_config_save", { kind, config });

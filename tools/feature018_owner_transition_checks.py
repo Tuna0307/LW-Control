@@ -32,6 +32,11 @@ def check() -> None:
         sheep = {cleanup = 0}
         afk = {cleanup = 0, pump = 0}
         chat = {cleanup = 0, pump = 0}
+        -- Automation cleanup raises: the other wrappers must still be retired.
+        automation = {cleanup = 0, pump = 0}
+        function automation.CleanupAfterLeaseLoss() automation.cleanup = automation.cleanup + 1; error("automation cleanup failed") end
+        function automation.IsActive() return true end
+        function automation.Pump() automation.pump = automation.pump + 1 end
         feature = {pump = 0}
         function city.CleanupAfterLeaseLoss() city.cleanup = city.cleanup + 1 end
         function mini.CleanupAfterLeaseLoss() mini.cleanup = mini.cleanup + 1 end
@@ -70,6 +75,8 @@ def check() -> None:
     assert tick(9, "owner-C") == (2, 2, 2, 4, 4), "different owner inherited wrappers"
     assert tick(10, None) == (2, 2, 2, 4, 4)
     assert tick(14, None) == (3, 3, 3, 4, 4), "missing owner remained armed"
+    assert int(lua.globals().automation["cleanup"]) == 3, "Automation was not retired with the other wrappers"
+    assert int(lua.globals().automation["pump"]) == 4, "Automation pump did not follow the owner"
 
     # R18: a still-fresh exact session can have a temporarily missing account.
     # Pause City through >15s, but never dispatch until that account returns.

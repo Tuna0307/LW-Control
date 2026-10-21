@@ -368,7 +368,7 @@ local automation_native = require("DataCenter.Global.LWBridgeFeature018Automatio
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
             if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
-            automation.CleanupAfterLeaseLoss()
+            if type(automation.CleanupAfterLeaseLoss) == "function" then pcall(automation.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
         end
@@ -389,7 +389,7 @@ local automation_native = require("DataCenter.Global.LWBridgeFeature018Automatio
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
             if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
-                automation.CleanupAfterLeaseLoss()
+            if type(automation.CleanupAfterLeaseLoss) == "function" then pcall(automation.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             local session_token = type(bridge.Feature018SessionToken) == "function" and bridge.Feature018SessionToken() or nil
             if session_token == nil then
@@ -409,7 +409,8 @@ local automation_native = require("DataCenter.Global.LWBridgeFeature018Automatio
         timed("city", city)
         timed("afk", afk)
         timed("chat", chat)
-        if automation.IsActive() then timed("automation", automation) end
+        local automation_active, automation_on = pcall(automation.IsActive)
+        if automation_active and automation_on then timed("automation", automation) end
         timed("sheep", sheep)
         timed("mailbox", feature)
     end

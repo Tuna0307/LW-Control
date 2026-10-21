@@ -64,7 +64,7 @@ def main():
             else:vm.execute("state.now=state.now+16000;engine.Pump();assert(engine.Status().data.services.allianceHelp.state=='unconfirmed')")
             vm.execute("state.config.allianceHelp.enabled=false;engine.Configure(request);state.config.allianceHelp.enabled=true;engine.Configure(request);state.now=state.now+61000;engine.Pump();assert(#state.sends==1,'Never replay uncertain send after off/on');assert(engine.Run(request).state=='failed')")
         else:
-            vm.execute("state.config.allianceHelp.enabled=false;engine.Configure(request);assert(engine.Run(request).state=='submitted');engine.Pump();assert(#state.sends==1);state.list={};state.now=state.now+1000;engine.Pump();assert(not engine.IsActive())")
+            vm.execute("state.config.allianceHelp.enabled=false;engine.Configure(request);assert(engine.Run(request).state=='accepted');engine.Pump();assert(#state.sends==1);state.list={};state.now=state.now+1000;engine.Pump();assert(not engine.IsActive())")
     vm=runtime()
     vm.execute('''state.config.allianceHelp.enabled=true;engine.Configure(request);engine.Stop(request)
       assert(engine.Status(request).state=='confirmed'and not engine.IsActive(),'Failed disk save/status must never restart stopped engine')

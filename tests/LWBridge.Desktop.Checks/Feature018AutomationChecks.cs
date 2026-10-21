@@ -23,6 +23,11 @@ internal static class Feature018AutomationChecks
                 try { AutomationTaskConfigCommandService.Validate("allianceGift", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 bad Gift interval accepted"); }
                 catch (BridgeCommandException e) when (e.Code == "INVALID_REQUEST") { }
             }
+            foreach (object bad in new object[] { new { enabled = true, positionId = 0 }, new { enabled = true, positionId = 10001 }, new { enabled = false, positionId = "10005" } })
+            {
+                try { AutomationTaskConfigCommandService.Validate("officialPosition", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 unsupported position accepted"); }
+                catch (BridgeCommandException e) when (e.Code == "INVALID_REQUEST") { }
+            }
             await config.InvokeAsync("feature018_automation_config_save", JsonSerializer.SerializeToElement(new { kind = "allianceHelp", config = new { enabled = true } }), token);
             var isolated = (JsonObject)(await other.InvokeAsync("feature018_automation_config_get", JsonSerializer.SerializeToElement(new { kind = "allianceHelp" }), token))!;
             if (isolated["enabled"]!.GetValue<bool>()) throw new Exception("R30 settings crossed profiles");
