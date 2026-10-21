@@ -11,7 +11,11 @@ import uuid
 from pathlib import Path
 
 
-def submit(directory, operation, timeout=45):
+def submit(directory, operation, timeout=45, *, expected_uid="4799432499002212", expected_server=2212):
+    # Proof-only authority: explicit temporary account selection never accepts
+    # an arbitrary UID, and server alone can never authorize the owner's main.
+    if (expected_uid, expected_server) not in (("4799432499002212", 2212), ("1183884595002296", 2296)):
+        raise ValueError("Account is outside the owner-authorized proof pairs")
     if (str(operation.get("command", "")).startswith("mini_land_") or
             operation.get("command") == "monopoly_cell_open"):
         raise ValueError("R14 forbids all live Land Cell requests")
@@ -22,8 +26,8 @@ def submit(directory, operation, timeout=45):
     if not directory.name.startswith("native-ui-"):
         raise ValueError("Expected an existing task-owned native UI receipt directory")
     admission = json.loads((directory / "feature018-account-admission.json").read_text("utf-8-sig"))
-    if (admission.get("serverId") != 2212 or
-            admission.get("uid") != "4799432499002212" or
+    if (admission.get("serverId") != expected_server or
+            admission.get("uid") != expected_uid or
             not admission.get("loggedIn") or not admission.get("connected")):
         raise ValueError("Wrong game account admission")
     if (directory / "owned-exit.json").exists():

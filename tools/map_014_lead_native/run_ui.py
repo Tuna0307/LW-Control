@@ -40,12 +40,19 @@ EXPECTED_27 = {
     "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
     "version.txt": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
 }
+# Official launcher has now advanced the numeric marker to 27; package and
+# metadata bytes are unchanged. Preserve the earlier marker-26 admission too.
+EXPECTED_27_CURRENT = {**EXPECTED_27, "version.txt": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf"}
 ENTRY_COUNTS = {24: 18741, 26: 18743, 27: 18744}
 FILE_ROLES = {"data": "LWScripts.data", "metadata": "LWScripts.txt", "version": "version.txt"}
 TRUSTED_SETTLED_PROOF = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451"
 # v27 settlement: the app's own official settle in the first v27 R30 session (owner-authorized).
 TRUSTED_SETTLED_PROOFS = {26: TRUSTED_SETTLED_PROOF,
                           27: ROOT / "artifacts/map014-takeover/native-ui-20261021-083513"}
+def trusted_settled_proof(hashes):
+    if hashes == EXPECTED_27_CURRENT:
+        return ROOT / "artifacts/map014-takeover/native-ui-20261021-111448"
+    return TRUSTED_SETTLED_PROOFS.get(admitted_original_version(hashes))
 # MAP016 acceptance is permitted to reuse only the EXACT existing, independently
 # proven official settlement. Manual all-nine / Truck / Railway measurements
 # must have this same no-updater gate as Auto acceptance: do not let a normal
@@ -63,7 +70,7 @@ def admitted_original_version(hashes):
         return 24
     if hashes in (EXPECTED_26, EXPECTED_26_CURRENT):
         return 26
-    if hashes == EXPECTED_27:
+    if hashes in (EXPECTED_27, EXPECTED_27_CURRENT):
         return 27
     raise RuntimeError("Original script triplet is not explicitly admitted")
 
@@ -261,7 +268,7 @@ def copy_verified_official_settlement(destination, original_hashes, *,
     """
     version = admitted_original_version(original_hashes)
     if prior_proof is None:
-        prior_proof = TRUSTED_SETTLED_PROOFS.get(version)
+        prior_proof = trusted_settled_proof(original_hashes)
         if prior_proof is None:
             raise RuntimeError("No proven official settlement for this game version yet; run a browse session first")
     prior_proof = Path(prior_proof)
@@ -322,8 +329,10 @@ def main():
     (destination / "preflight-originals.json").write_text(json.dumps(prior_hashes, indent=2), encoding="utf-8")
     # Owner authorized the official launcher on 2026-10-21. Only for a version with no proven
     # settlement yet, and only with this explicit switch, the app performs its own settle once.
-    first_settle = (os.environ.get("LWBRIDGE_ALLOW_FIRST_OFFICIAL_SETTLE") == "1" and
-                    TRUSTED_SETTLED_PROOFS.get(admitted_original_version(prior_hashes)) is None)
+    settled_proof=trusted_settled_proof(prior_hashes)
+    settled_hashes=(json.loads((settled_proof/'owned-exit.json').read_text(encoding='utf-8')).get('restorationAudit',{}).get('capturedOriginalHashes')
+                    if settled_proof else None)
+    first_settle = (os.environ.get("LWBRIDGE_ALLOW_FIRST_OFFICIAL_SETTLE") == "1" and settled_hashes != prior_hashes)
     no_updater = mode in NO_UPDATER_MODES and not first_settle
     if no_updater:
         copy_verified_official_settlement(destination, prior_hashes)

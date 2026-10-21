@@ -27,7 +27,9 @@ def gathering():
       SceneUtils={IsInBlackRange=function(point,server)assert(point==1011 and server==123);return state.black==true end}
       DataCenter.ArmyFormationDataManager={GetOneArmyInfoByIndex=function(self,slot)state.reads=state.reads+1;return state.forms[slot]end}
       DataCenter.WorldMarchDataManager={GetOwnerFormationMarch=function(self,uid,formation,alliance)
-        assert(uid==LuaEntry.Player.uid);state.reads=state.reads+1;return state.marches[formation]end}
+        assert(uid==LuaEntry.Player.uid);state.reads=state.reads+1
+        local m=state.marches[formation];return m and m.targetType~=9 and m or nil end,
+        GetMarch=function(self,uuid)state.reads=state.reads+1;for _,m in pairs(state.marches)do if m.uuid==uuid then return m end end end}
       DataCenter.WorldPointDetailManager={GetDetailByPointId=function(self,p)assert(p==1011);return state.detail end}
       CS={SceneManager={World={GetPointInfo=function(self,p)state.reads=state.reads+1;if state.bad then error('native read failed')end;return p==1011 and state.point or nil end,
         GetResourcePointInfoByIndex=function(self,p)state.reads=state.reads+1;return p==1011 and state.resource or nil end}}}
@@ -113,11 +115,30 @@ def main():
       state.config.resourceGather.recallOnDisable=true
       local stop=gather.Stop('resourceGather');assert(#stop.cleanupJobs==1 and #state.sends==3,'Stop plans but does not send recall')
       local recall=stop.cleanupJobs[1];assert(dispatch(recall));assert(#state.sends==4 and not verify(recall))
-      state.marches[41].targetType=9;assert(not verify(recall),'Back-home flag alone does not claim a recall reply')
-      assert(classes.WorldMarchChangeMessage.HandleMessage({}, {uuid=61,target=9})=='original-change-result')
+      assert(#gather.Stop('resourceGather').cleanupJobs==0,'Save disabled after Stop must not resend')
+      state.marches[41].targetType=9;state.marches[41].clientCreateGuid=''
+      state.marches[41].ownerUid='2002';assert(not verify(recall),'Wrong owner cannot confirm return')
+      state.marches[41].ownerUid='1001';state.marches[41].clientCreateGuid='replacement'
+      assert(not verify(recall),'Different nonempty creation GUID cannot confirm return')
+      state.marches[41].clientCreateGuid=''
+      -- Native replies expose SFS getters, and BACK_HOME is no longer in the formation lookup.
+      assert(DataCenter.WorldMarchDataManager:GetOwnerFormationMarch('1001',41,'12')==nil)
+      local response={GetLong=function(self,k)return ({uuid=61,ownerFormationUuid=41})[k] end,
+        GetUtfString=function(self,k)return k=='ownerUid'and '1001'or nil end,
+        GetInt=function(self,k)assert(k=='target');return 9 end}
+      assert(classes.WorldMarchChangeMessage.HandleMessage({}, response)=='original-change-result')
       assert(verify(recall));gather.FinishStop('resourceGather')
       assert(SFSNetwork.SendMessage==state.rawSend,'Restore exact owned observer chain')
       assert(classes.WorldMarchFormationNewMessage.OnCreate({},41,8,0,'1001;1011')=='original-create-result')
+    ''')
+    vm=gathering()
+    vm.execute('''
+      hydrate();assert(dispatch(job));native_result();assert(verify(job));state.config.resourceGather.recallOnDisable=true
+      local recall=gather.Stop('resourceGather').cleanupJobs[1];assert(dispatch(recall))
+      gather.Stop('resourceGather');state.marches[41].targetType=9;state.marches[41].clientCreateGuid=''
+      local yes,receipt=verify(recall)
+      assert(yes and receipt.nativePostState and not receipt.replyObserved and not receipt.exactRequestCausality,
+        'Exact owned native return transition confirms without inventing a direct reply')
     ''')
     for case in ['occupied','unknownOccupancy','playerOwner','city','alliancePoint','server','identity','level','resource','radius','black','gameError']:
         vm=gathering();vm.execute('local j=plan();assert(dispatch(j));find_result();assert(verify(j))')

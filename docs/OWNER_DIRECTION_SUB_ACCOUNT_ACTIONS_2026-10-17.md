@@ -66,3 +66,14 @@ This supersedes older "no claims/plunder/sharing/attacks/marches/spending/reloca
   reader remain because they are part of safe 8/12/24-hour item use confirmation, not the removed Space overlay.
 - The exact UID/server account lock, guildless-only player attack rule, real-money ban and Unlock Land Cell ban above
   remain unchanged.
+
+## Temporary owner test-account update (2026-10-21, R30 continuation)
+- Owner's direct worker-chat instruction temporarily selects **UID 1183884595002296** for testing available
+  features. Its previously verified home server is 2296; the proof harness must freshly verify **UID + server**
+  before any action and stop on mismatch. Do not act on the earlier R30 UID during this temporary assignment.
+- This account is new; locked/unavailable features stay explicitly waiting for owner/unlock. Do not invent a live
+  pass or unlock unrelated features to obtain one.
+- The R30 limits still apply: empty public resource tiles or eligible alliance points only; guildless-only player
+  targets; no gold/gem speed-ups, shields, Treasure claims, Unlock Land Cell or real-money purchases. Never
+  test-apply for positions 10002/10003/10004. Background only, no OS input/focus or owner-session control;
+  stop only the worker-owned game and restore exact scripts after its exit.

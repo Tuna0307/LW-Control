@@ -64,6 +64,7 @@ internal sealed partial class LWBridgeWindow
         bool stopped = false;
         bool uiConfirmed = false;
         bool waitingFull = false;
+        bool cleanupConfirmed = true;
         try
         {
             Owned();
@@ -195,14 +196,18 @@ internal sealed partial class LWBridgeWindow
                 if (saved.ContainsKey(sub)) saved[sub] = false;
             await store.InvokeAsync("feature018_automation_config_save", JsonSerializer.SerializeToElement(new { kind, config = saved }), token);
             var final = await Status();observations.Add(final);
+            var finalRow = final.GetProperty("services").GetProperty(kind);
+            if (kind == "resourceGather" && terminal.HasValue && terminal.Value.TryGetProperty("confirmed", out var gathered) && gathered.GetInt32() > 0)
+                cleanupConfirmed = finalRow.TryGetProperty("cleanupSubmitted", out var cleanupCount) && cleanupCount.GetInt32() == gathered.GetInt32() &&
+                    finalRow.TryGetProperty("cleanupConfirmed", out var confirmedCleanup) && confirmedCleanup.GetInt32() == cleanupCount.GetInt32();
             string uiState = await core.ExecuteScriptAsync("(()=>{const c=document.querySelector('" + selector + "');return {language:document.querySelector('.language-select select')?.value,state:c?.dataset.automationState,text:c?.innerText};})()");
             stopped = !final.GetProperty("services").GetProperty(kind).GetProperty("enabled").GetBoolean();
             await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new { kind, observeOnly, native = true, fixture = false,
-                terminal, stopped, waitingFull, statusBlips, observations, uiState, uiConfirmed, success = stopped && terminal.HasValue &&
+                terminal, stopped, waitingFull, statusBlips, observations, uiState, uiConfirmed, cleanupConfirmed, success = stopped && cleanupConfirmed && terminal.HasValue &&
                     (waitingFull || uiConfirmed && (observeOnly || terminal.Value.GetProperty("state").GetString() is "success" or "nothing_available")) },
                 new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
         }
-        if (!stopped || !terminal.HasValue || !waitingFull && terminal.Value.GetProperty("state").GetString() is not ("success" or "nothing_available"))
+        if (!stopped || !cleanupConfirmed || !terminal.HasValue || !waitingFull && terminal.Value.GetProperty("state").GetString() is not ("success" or "nothing_available"))
             throw new InvalidDataException("R30 live result was not confirmed; preserve its receipt.");
     }
 }

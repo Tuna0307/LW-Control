@@ -17,14 +17,16 @@ def main():
     p.add_argument('--saved-db',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--kind',action='append',required=True)
+    p.add_argument('--uid',choices=('4799432499002212','1183884595002296'),default='4799432499002212',help='Explicit owner-authorized proof UID; never server-only')
     p.add_argument('--idle-seconds',type=int,default=20)
     p.add_argument('--op-timeout',type=int,default=150)
     p.add_argument('--keep-going',action='store_true',help='continue with the next independent service after a failure (never replays it)')
     args=p.parse_args()
+    server=2296 if args.uid=='1183884595002296'else 2212
     args.output.mkdir(parents=True,exist_ok=False)
     exe=args.exe.resolve(strict=True);db=args.saved_db.resolve(strict=True)
     env=dict(os.environ,LWBRIDGE_FEATURE018_BACKGROUND_ONLY='1',LWBRIDGE_FEATURE018_STAGED_PROOF='1',
-        LWBRIDGE_FEATURE018_PROOF_UID='4799432499002212',LWBRIDGE_FEATURE018_PROOF_SERVER='2212',
+        LWBRIDGE_FEATURE018_PROOF_UID=args.uid,LWBRIDGE_FEATURE018_PROOF_SERVER=str(server),
         LWBRIDGE_R29_PERF_PROOF='1',LWBRIDGE_MAP014_UI_EXE=str(exe))
     runner=subprocess.Popen([sys.executable,str(ROOT/'tools/map_014_lead_native/run_ui.py'),
         'feature018-tabs','--saved-db',str(db)],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
@@ -45,7 +47,7 @@ def main():
             admission=root/'feature018-account-admission.json'
             if admission.exists()and(root/'native-ui-map.json').exists():
                 a=read(admission)
-                if a.get('uid')!='4799432499002212'or a.get('serverId')!=2212:
+                if a.get('uid')!=args.uid or a.get('serverId')!=server:
                     raise RuntimeError('Wrong account; no gameplay command submitted')
                 if read(root/'native-ui-map.json').get('state')=='running':break
             time.sleep(.5)
@@ -57,7 +59,7 @@ def main():
         (args.output/'idle-perf.json').write_text(json.dumps({'before':before,'after':after},indent=2))
         outcomes=[]
         for kind in args.kind:
-            result=submit(root,{'kind':'r23Ui','surface':'r30-'+kind},timeout=max(60,min(args.op_timeout,3700)))
+            result=submit(root,{'kind':'r23Ui','surface':'r30-'+kind},timeout=max(60,min(args.op_timeout,3700)),expected_uid=args.uid,expected_server=server)
             outcomes.append(result)
             (args.output/'operations.json').write_text(json.dumps(outcomes,indent=2))
             print('R30_OPERATION '+json.dumps({'kind':kind,'state':result.get('state'),
@@ -67,7 +69,7 @@ def main():
     finally:
         if (root/'feature018-account-admission.json').exists()and not(root/'owned-exit.json').exists():
             try:
-                submit(root,{'kind':'finish'},timeout=45);finished=True
+                submit(root,{'kind':'finish'},timeout=45,expected_uid=args.uid,expected_server=server);finished=True
             except Exception as error:
                 print('R30_FINISH_ERROR '+str(error),flush=True)
         for line in runner.stdout:

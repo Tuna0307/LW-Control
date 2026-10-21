@@ -135,7 +135,9 @@ function M.Pump()
         local r=row(kind);local remaining={}
         for _,job in ipairs(c.jobs)do
             local yes,done,after=measured(kind,native.Verify,kind,job)
+            if yes and not done then r.cleanupObservation=after end
             if yes and done then
+                r.cleanupObservation=nil
                 r.cleanupConfirmed=(r.cleanupConfirmed or 0)+1
                 r.receipts[#r.receipts+1]={at=at,after=after,route=job.route,cleanup=true,nativePostState=true}
                 if #r.receipts>30 then table.remove(r.receipts,1)end

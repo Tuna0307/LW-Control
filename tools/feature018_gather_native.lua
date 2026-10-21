@@ -74,13 +74,15 @@ local function safe_point(pointId,squad,radius)
     if type(black)~='function'or black(pointId,tonumber(owner.server))~=false then return nil,'Resource safety in contaminated land is unverified'end
     return {pointId=pointId,configId=cfg,resourceType=resource,level=level,pointType=kind,distance=distance,native=r}
 end
-local function fresh_record(rec)
+local function fresh_record(rec,returning)
     if not owned()then return nil end
     local f=form(rec.slot);if not f or tostring(get(f,'uuid'))~=rec.formation then return nil end
-    local m=march(f)
+    -- Returning marches disappear from GetOwnerFormationMarch before arrival.
+    -- Re-read the exact captured UUID; retain every ownership/GUID fence.
+    local m=call(center('WorldMarchDataManager'),'GetMarch',tonumber(rec.uuid))
     if not m or tostring(get(m,'uuid'))~=rec.uuid or tostring(get(m,'ownerUid'))~=owner.uid or
        tostring(get(m,'ownerFormationUuid'))~=rec.formation or tostring(get(m,'serverId'))~=owner.server or
-       get(m,'clientCreateGuid')~=rec.guid then return nil end
+       (get(m,'clientCreateGuid')~=rec.guid and not(returning and get(m,'clientCreateGuid')==''))then return nil end
     return m
 end
 local function guard(job)
@@ -134,8 +136,12 @@ local function install()
     local change=require('Net.Msgs.WorldMarchChangeMessage')
     hook(change,'HandleMessage',function(previous)return function(self,response,...)
         local result=table.pack(pcall(previous,self,response,...))
-        pcall(function()if active and active.phase=='recall'and owned()and tostring(field(response,'uuid','GetLong'))==active.record.uuid and
-            tonumber(field(response,'target','GetInt'))==enum('MarchTargetType','BACK_HOME')and get(response,'errorCode')==nil then active.replyApplied=result[1]end end)
+        pcall(function()if active and active.phase=='recall'and owned()then
+            active.replyFields={uuid=tostring(field(response,'uuid','GetLong')),target=tonumber(field(response,'target','GetInt')),
+                uid=tostring(field(response,'ownerUid','GetUtfString')),formation=tostring(field(response,'ownerFormationUuid','GetLong')),
+                error=get(response,'errorCode'),applied=result[1]}
+            if active.replyFields.uuid==active.record.uuid and active.replyFields.target==enum('MarchTargetType','BACK_HOME')and get(response,'errorCode')==nil then active.replyApplied=result[1]end
+        end end)
         if not result[1]then error(result[2],0)end;return table.unpack(result,2,result.n)
     end end)
     hook(rawget(_G,'SFSNetwork'),'SendMessage',function(previous)return function(route,...)
@@ -259,10 +265,23 @@ function M.Verify(kind,job)
         return true,{squadIndex=job.slot,marchUuid=uuid,clientCreateGuid=job.guid,pointId=job.pointId,targetType='COLLECT',nativeGuidPostState=true,
             directReplyObserved=job.reply and job.reply.applied and job.reply.uuid==uuid and job.reply.uid==owner.uid and job.reply.error==nil or false}
     elseif job.phase=='recall'then
-        local m=fresh_record(job.record)
-        if job.wireCount~=1 or not job.replyApplied or not m or call(m,'GetMarchTargetType')~=enum('MarchTargetType','BACK_HOME')then return false end
+        -- UpdateFromSFS overwrites clientCreateGuid from clientCreateUuid, which
+        -- the return update omits (live v27: empty text). The exact owned UUID /
+        -- formation / server BACK_HOME transition after our guarded single send
+        -- is authoritative poststate, as in the established hotkey recall path.
+        -- A dispatcher's cached callback can bypass this late Lua reply observer;
+        -- report that honestly instead of requiring or inventing a reply witness.
+        local m=fresh_record(job.record,true)
+        if not job.executionStarted or job.wireCount~=1 or not m or call(m,'GetMarchTargetType')~=enum('MarchTargetType','BACK_HOME')then
+            local raw=call(center('WorldMarchDataManager'),'GetMarch',tonumber(job.record.uuid))
+            return false,{reply=job.replyFields,replyApplied=job.replyApplied==true,marchPresent=raw~=nil,
+                marchUuid=tostring(get(raw,'uuid')),ownerUid=tostring(get(raw,'ownerUid')),formation=tostring(get(raw,'ownerFormationUuid')),
+                serverId=tostring(get(raw,'serverId')),clientCreateGuid=get(raw,'clientCreateGuid'),target=raw and call(raw,'GetMarchTargetType')}
+        end
         known[job.record.slot]=nil;active=nil
-        return true,{squadIndex=job.record.slot,marchUuid=job.record.uuid,targetType='BACK_HOME',nativePostState=true,replyObserved=true,exactRequestCausality=false}
+        return true,{squadIndex=job.record.slot,marchUuid=job.record.uuid,targetType='BACK_HOME',nativePostState=true,
+            replyObserved=job.replyApplied==true,exactRequestCausality=false,
+            observation='authoritative_same_owned_march_back_home_after_single_send'}
     end
     return false
 end
@@ -290,7 +309,9 @@ function M.Stop(kind)
             end
         end
     end
-    if #out.cleanupJobs==0 then M.FinishStop(kind)end
+    -- The UI stops first, then saves disabled settings. That second Stop must
+    -- neither resend nor detach the observer of the first in-flight recall.
+    if #out.cleanupJobs==0 and not(active and active.phase=='recall'and active.executionStarted)then M.FinishStop(kind)end
     return out
 end
 function M.FinishStop(kind)if M.Supports(kind)then detach();stopping=true end end
