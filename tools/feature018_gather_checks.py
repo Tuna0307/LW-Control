@@ -85,6 +85,25 @@ def gathering():
 
 
 def main():
+    # Owner 2026-10-21: another player takes our target tile before we arrive -> recall once.
+    for case in ['other','ours','unloaded']:
+        vm=gathering()
+        vm.execute('''
+          hydrate();assert(dispatch(job));native_result();state.marches[41].clientCreateGuid=state.createToken;assert(verify(job))
+          LuaEntry.DataConfig.CheckSwitch=function()return true end
+        ''')
+        if case=='other':vm.execute("state.resource.gatherMarchUuid='999';state.resource.gatherUid='2002'")
+        elif case=='ours':vm.execute("state.resource.gatherMarchUuid='61';state.resource.gatherUid='1001'")
+        else:vm.execute("CS.SceneManager.World.GetResourcePointInfoByIndex=function()return nil end")
+        vm.execute('local j,b=plan();state.recallJob=j;state.recallRow=b.gatherSquads[1]')
+        if case=='other':
+            vm.execute('''
+              assert(state.recallJob and state.recallJob.phase=='recall'and state.recallRow.step=='recalling','Other gatherer triggers a recall')
+              local sends=#state.sends;assert(dispatch(state.recallJob));assert(#state.sends==sends+1 and state.sends[#state.sends].route==83)
+              local j2=plan();assert(j2==nil or j2.phase~='recall','Never a second recall for the same trip')
+            ''')
+        else:
+            vm.execute("assert(state.recallJob==nil and state.recallRow.step=='busy','No recall for our own arrival or unknown tile data')")
     # Live v27: CS.SceneManager.World returns a fresh Lua wrapper on every read.
     vm=gathering()
     vm.execute('''

@@ -12,7 +12,7 @@ import { subscribeAutomationStatus } from "./automationStatusHub.js";
 const KIND = "resourceGather";
 const RADII = [50, 100, 150, 200, 250, 300, 400, 500];
 const RESOURCES = [["metal", "squad.afkResourceMetal"], ["food", "squad.afkResourceFood"], ["gold", "squad.afkResourceGold"]];
-const STEP_LABELS = { idle: "idle", searching: "searching", busy: "squad_busy", paused: "manual_wait", nothing_available: "no_resource", unavailable: "task_paused" };
+const STEP_LABELS = { idle: "idle", searching: "searching", busy: "squad_busy", recalling: "recalling", paused: "manual_wait", nothing_available: "no_resource", unavailable: "task_paused" };
 
 export function defaultGatherSquads(squads) {
   const byIndex = new Map((Array.isArray(squads) ? squads : []).map(squad => [Number(squad.squadIndex), squad]));

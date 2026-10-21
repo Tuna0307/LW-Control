@@ -109,6 +109,29 @@ local function guard(job)
     end
     return true
 end
+local function recall_job(rec,slot,reason)
+    local job={phase='recall',route='MarchUtil.OnBackHome',record=rec,slot=slot,stopping=reason==nil,wireCount=0,reason=reason}
+    job.execute=function()
+        if job.executionStarted then error('Gathering recall was already attempted; no replay')end
+        local ok,why=guard(job);if not ok then error(why)end
+        job.executionStarted=true;rec.recallAttempted=true;rec.recallJob=job;active=job;job.executing=true
+        local result=table.pack(pcall(enum('MarchUtil','OnBackHome'),tonumber(rec.uuid)))
+        job.executing=false
+        if not result[1]then error(result[2],0)end
+        if job.wireCount~=1 then error('Native gathering recall has no exact send witness')end
+    end
+    return job
+end
+-- Owner 2026-10-21: if another player starts gathering on our target tile before our squad
+-- arrives, recall it. Unloaded/unknown tile data never triggers anything.
+local function taken_by_other(rec)
+    local r=select(2,pcall(function()return call(world(),'GetResourcePointInfoByIndex',rec.pointId)end))
+    if not r then return false end
+    local marchId,gatherer=tostring(get(r,'gatherMarchUuid')or''),tostring(get(r,'gatherUid')or'')
+    local otherMarch=marchId~=''and marchId~='0'and marchId~=rec.uuid
+    local otherPlayer=gatherer~=''and gatherer~='0'and gatherer~=owner.uid
+    return otherMarch or otherPlayer,marchId,gatherer
+end
 local function install()
     if #hooks>0 then if not intact()then error('Gathering native observers were replaced')end;return end
     local find=require('Net.Msgs.FindResourcePointMessage')
@@ -197,9 +220,17 @@ function M.Plan(kind,c,at)
             local v=slots[slot]or {};slots[slot]=v;v.formation=tostring(get(f,'uuid'));row.step='idle'
             local m=march(f)
             if m then
-                local rec=known[slot];local ours=rec and fresh_record(rec)~=nil
+                local rec=known[slot];local mine=rec and fresh_record(rec);local ours=mine~=nil
                 if not ours then v.manualResumeAt=at+delay*1000;v.search=nil;row.pauseReason='manual_wait'end
                 row.step='busy'
+                if ours and not rec.recallAttempted and call(mine,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and
+                   tonumber(get(mine,'targetPos'))==rec.pointId then
+                    local taken,marchId,gatherer=taken_by_other(rec)
+                    if taken then
+                        row.step='recalling';row.reason='Another player took the tile first; recalling (march '..marchId..', player '..gatherer..')'
+                        return recall_job(rec,slot,row.reason),before
+                    end
+                end
             elseif v.manualResumeAt and at<v.manualResumeAt then row.step='paused';row.pauseReason='manual_wait';row.manualResumeAt=v.manualResumeAt
             else
                 known[slot]=nil;row.step='searching';install()
@@ -298,17 +329,7 @@ function M.Stop(kind)
         for slot,rec in pairs(known)do
             local m=fresh_record(rec)
             if not rec.recallAttempted and m and call(m,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and tonumber(get(m,'targetPos'))==rec.pointId then
-                local job={phase='recall',route='MarchUtil.OnBackHome',record=rec,slot=slot,stopping=true,wireCount=0}
-                job.execute=function()
-                    if job.executionStarted then error('Gathering recall was already attempted; no replay')end
-                    local ok,why=guard(job);if not ok then error(why)end
-                    job.executionStarted=true;rec.recallAttempted=true;rec.recallJob=job;active=job;job.executing=true
-                    local result=table.pack(pcall(enum('MarchUtil','OnBackHome'),tonumber(rec.uuid)))
-                    job.executing=false
-                    if not result[1]then error(result[2],0)end
-                    if job.wireCount~=1 then error('Native gathering recall has no exact send witness')end
-                end
-                out.cleanupJobs[#out.cleanupJobs+1]=job
+                out.cleanupJobs[#out.cleanupJobs+1]=recall_job(rec,slot)
             end
         end
     end
