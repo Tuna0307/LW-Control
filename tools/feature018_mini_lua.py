@@ -31,12 +31,12 @@ def inspect(patterns: list[str], needle: str | None, details: str | None, limit:
     file_version, content_version, raw = probe.read_lwlf(path)
     entries = dict(raw)
     original = entries.get(probe.ORIGINAL_LUA_ENTRY, entries.get(probe.LUA_ENTRY))
-    if (file_version, content_version) != (3, 26) or original is None or \
+    if (file_version, content_version) not in ((3, 26), (3, 27)) or original is None or \
        hashlib.sha256(original).hexdigest() != ORIGINAL_ENTRY_SHA256:
         raise ValueError("Installed Lua package has unrecognized version/original entry")
     names = sorted(n for n in entries if any(fnmatch.fnmatchcase(n.lower(), p.lower()) for p in patterns)
                    and "LWBridge" not in n and n != probe.LUA_ENTRY)
-    print(f"ADMITTED_GAME_CONTENT 3/26 original-entry-sha256={ORIGINAL_ENTRY_SHA256}")
+    print(f"ADMITTED_GAME_CONTENT 3/{content_version} original-entry-sha256={ORIGINAL_ENTRY_SHA256}")
     print(f"INSPECTED_PACKAGE_SHA256 {digest} (may contain an existing third-party bridge)")
     print(f"MATCHED_MODULES {len(names)}")
     if not needle and not details and not list_methods:

@@ -5,6 +5,7 @@ import { Switch } from "./sharedPageUI.jsx";
 import { PreviewConfigError, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { createAutomationAdapter, validAutomationDraft } from "./automationRuntime.js";
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
+import { subscribeAutomationStatus } from "./automationStatusHub.js";
 
 // R30 native Resource gathering. RECOVERED original settings; the engine only sends
 // configured idle squads to empty public resource tiles (see feature018_gather_native.lua).
@@ -24,19 +25,11 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, KIND, online, draft => validAutomationDraft(KIND, draft)), `automation-native:${profileId}:${KIND}`);
   const [ready, setReady] = useState(false), [error, setError] = useState(""), [runtime, setRuntime] = useState(null), [busy, setBusy] = useState(false), [expanded, setExpanded] = useState(false);
   useEffect(() => {
-    let closed = false, polling = false;
+    let closed = false;
     setReady(false);setRuntime(null);
-    const read = async () => {
-      if (!online || polling) return;
-      polling = true;
-      try { assertBridgeProfileOwner(bridge, profileId);const result = await bridge.invokeProfileScoped("feature018_automation_status");if (!closed) setRuntime(result.services?.[KIND] ?? null); }
-      catch (e) { if (!closed) setError(e.message); }
-      finally { polling = false; }
-    };
     void config.store.refresh().then(() => { if (!closed) setReady(true); }).catch(e => { if (!closed) setError(e.message); });
-    void read();
-    const timer = setInterval(read, 5000);
-    return () => { closed = true;clearInterval(timer); };
+    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) setRuntime(services?.[KIND] ?? null); }, e => { if (!closed) setError(e.message); }) : () => {};
+    return () => { closed = true;unsubscribe(); };
   }, [config.store, online, profileId]);
   const draft = config.draft;
   const squads = defaultGatherSquads(draft.squads);

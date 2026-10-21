@@ -110,6 +110,17 @@ def main():
       local t=task('claim');t.completionTime=state.now-1;state.own={t};acquire()
       assert(state.sends[2].route=='DispatchReward');t.rewarded=1;reconcile();assert(status().confirmed==1)
     ''')
+    # Live v27: the claimed task is removed from the fresh own list.
+    vm=runtime()
+    vm.execute('''
+      local t=task('gone');t.completionTime=state.now-1;state.own={t};acquire()
+      assert(state.sends[2].route=='DispatchReward');state.own={};reconcile();assert(status().confirmed==1,'Removal after a fresh list confirms the claim')
+    ''')
+    vm=runtime()
+    vm.execute('''
+      local t=task('stale');t.completionTime=state.now-1;state.own={t};acquire()
+      state.own={};step();step();assert(status().confirmed==0,'Without a fresh list reply nothing is confirmed')
+    ''')
     for guard in ['capacity','heroes','season','foreign','delay','oversizedHeroes','heroError']:
         vm=runtime()
         vm.execute("state.own={task('d')}")

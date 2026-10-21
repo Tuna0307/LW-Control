@@ -33,8 +33,19 @@ EXPECTED_26_CURRENT = {
     **EXPECTED_26,
     "version.txt": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
 }
+# Official update 2026-10-21 (manifest 1101, Lua content 27), applied by the owner-authorized
+# official launcher with original scripts. LWScripts.txt changed; version.txt marker stays 26.
+EXPECTED_27 = {
+    "LWScripts.data": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+    "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
+    "version.txt": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
+}
+ENTRY_COUNTS = {24: 18741, 26: 18743, 27: 18744}
 FILE_ROLES = {"data": "LWScripts.data", "metadata": "LWScripts.txt", "version": "version.txt"}
 TRUSTED_SETTLED_PROOF = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451"
+# v27 settlement: the app's own official settle in the first v27 R30 session (owner-authorized).
+TRUSTED_SETTLED_PROOFS = {26: TRUSTED_SETTLED_PROOF,
+                          27: ROOT / "artifacts/map014-takeover/native-ui-20261021-083513"}
 # MAP016 acceptance is permitted to reuse only the EXACT existing, independently
 # proven official settlement. Manual all-nine / Truck / Railway measurements
 # must have this same no-updater gate as Auto acceptance: do not let a normal
@@ -52,6 +63,8 @@ def admitted_original_version(hashes):
         return 24
     if hashes in (EXPECTED_26, EXPECTED_26_CURRENT):
         return 26
+    if hashes == EXPECTED_27:
+        return 27
     raise RuntimeError("Original script triplet is not explicitly admitted")
 
 
@@ -64,7 +77,7 @@ def require_client_admission(client, hashes):
         "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
     }
     if (client.get("contentVersion") != version or
-            client.get("entryCount") != (18741 if version == 24 else 18743) or
+            client.get("entryCount") != ENTRY_COUNTS[version] or
             client.get("packageSha256") != hashes["LWScripts.data"] or
             client.get("compatibilityPolicy") != "lwbridge-current-client-critical-anchors-3" or
             any(client.get(key) != value for key, value in anchors.items())):
@@ -240,12 +253,17 @@ def admit():
 
 
 def copy_verified_official_settlement(destination, original_hashes, *,
-                                      prior_proof=TRUSTED_SETTLED_PROOF, game_root=GAME):
+                                      prior_proof=None, game_root=GAME):
     """Copy exact already-settled ORIGINAL bytes; never run/forge an updater.
 
     The native lifecycle separately enforces this same marker against its
     freshly recovered installed-package SHA before any official launcher.
     """
+    version = admitted_original_version(original_hashes)
+    if prior_proof is None:
+        prior_proof = TRUSTED_SETTLED_PROOFS.get(version)
+        if prior_proof is None:
+            raise RuntimeError("No proven official settlement for this game version yet; run a browse session first")
     prior_proof = Path(prior_proof)
     source = prior_proof / "overview-evidence/official-settled-client.json"
     prior_exit = prior_proof / "owned-exit.json"
@@ -256,7 +274,7 @@ def copy_verified_official_settlement(destination, original_hashes, *,
     if (marker.get("schemaVersion") != 1 or
             not _same_path(marker.get("gameRoot"), game_root) or
             marker.get("packageSha256") != original_hashes["LWScripts.data"] or
-            admitted_original_version(original_hashes) != 26 or
+            version not in (26, 27) or
             outcome.get("exitCode") != 0 or outcome.get("proof") is not True or
             outcome.get("error") is not None or
             outcome.get("recoveryJournalPresent") is not False or
@@ -302,7 +320,12 @@ def main():
         "native-ui-" + datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S"))
     destination.mkdir(parents=True, exist_ok=False)
     (destination / "preflight-originals.json").write_text(json.dumps(prior_hashes, indent=2), encoding="utf-8")
-    if mode in NO_UPDATER_MODES:
+    # Owner authorized the official launcher on 2026-10-21. Only for a version with no proven
+    # settlement yet, and only with this explicit switch, the app performs its own settle once.
+    first_settle = (os.environ.get("LWBRIDGE_ALLOW_FIRST_OFFICIAL_SETTLE") == "1" and
+                    TRUSTED_SETTLED_PROOFS.get(admitted_original_version(prior_hashes)) is None)
+    no_updater = mode in NO_UPDATER_MODES and not first_settle
+    if no_updater:
         copy_verified_official_settlement(destination, prior_hashes)
     profile = "map014-native-ui"
     source = (ROOT / "artifacts/map014-takeover/native-ui-20261013-123802/profiles/map014-native-ui/map-data"
@@ -344,7 +367,7 @@ def main():
                        LWBRIDGE_MAP017_UI_MODE=mode if mode in ("boss-first", "boss-after-resource", "picker-empty", "once-two-server") else "",
                        LWBRIDGE_FEATURE018_UI_PROOF="1" if mode == "feature018-tabs" else "0",
                        LWBRIDGE_FEATURE018_R2_PROOF="1" if mode == "feature018-tabs" else "0",
-                       LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF="1" if mode in NO_UPDATER_MODES else "0",
+                       LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF="1" if no_updater else "0",
                        LWBRIDGE_MAP014_TRACKING_UI="1" if mode == "track" else "0",
                        LWBRIDGE_MAP014_EXPIRY_UI="1" if mode == "expiry" else "0")
     startup = subprocess.STARTUPINFO()

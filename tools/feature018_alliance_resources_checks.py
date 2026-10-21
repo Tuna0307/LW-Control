@@ -56,6 +56,32 @@ def main():
           step();assert(status().state=='success'and status().nextRunAt==state.now+3600000)
           engine.Stop(request);assert(not engine.IsActive()and next(state.callbacks)==nil)
         ''')
+        if kind=='strongholdResource':
+            # Live v27 reply: the success broadcast carries the reward only, no stronghold IDs.
+            vm=resources(kind)
+            vm.execute('''
+              initial(17);state.callbacks[2]({reward={{type=1,value=17}}});step()
+              produce(0);state.callbacks[1]();step()
+              assert(status().confirmed==1 and status().receipts[1].after.amount==0,'Real reward-only reply confirms after the fresh list')
+            ''')
+            vm=resources(kind)
+            vm.execute('''
+              initial(17);state.callbacks[2]({reward={{type=1,value=17}}});step()
+              produce(17);state.callbacks[1]();step();step()
+              assert(status().confirmed==0,'An unchanged fresh amount is never success')
+            ''')
+        if kind=='strongholdResource':
+            # Live v27: a refusal reply (e.g. too little to collect) is not uncertain; retried at the interval.
+            vm=resources(kind)
+            vm.execute('''
+              local reply={HandleMessage=function()end};local original=reply.HandleMessage
+              package.preload['Net.Msgs.Season.CollectStrongholdResourceMessage']=function()return reply end
+              initial(1);local sends=#state.sends;reply:HandleMessage({errorCode='season_s2_tips_004'});step()
+              assert(status().state=='waiting'and status().refused==1 and status().confirmed==0)
+              assert(status().nextRunAt==state.now+3600000,'Refusal waits for the saved interval, not a tight loop')
+              for _=1,30 do step()end;assert(#state.sends==sends,'No resend before the interval')
+              engine.Stop(request);assert(reply.HandleMessage==original,'Observer removed on Stop')
+            ''')
         for case in ['nothing','unavailable','wrongAccount','uncertain','gameError','offPending','stale','wrongIdentity','invalid','injured','foreign']:
             vm=resources(kind)
             if case=='unavailable':

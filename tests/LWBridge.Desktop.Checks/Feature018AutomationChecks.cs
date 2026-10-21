@@ -18,6 +18,25 @@ internal static class Feature018AutomationChecks
             var token = CancellationToken.None;
             if (AutomationTaskConfigCommandService.Default("allianceGift")["intervalMinutes"]!.GetValue<int>() != 120)
                 throw new Exception("R30 recovered gift interval changed");
+            if (!OverviewLifecycleService.IsOfficialLuaUpdateFailure(new BridgeCommandException("LAUNCH_FAILED", "x",
+                    new { error = "OverviewBridgeError: official_lua_update_failed: official launcher rejected the Lua delta output" })) ||
+                OverviewLifecycleService.IsOfficialLuaUpdateFailure(new BridgeCommandException("LAUNCH_FAILED", "x", new { error = "timeout" })) ||
+                OverviewLifecycleService.IsOfficialLuaUpdateFailure(new BridgeCommandException("GAME_REPAIR_REQUIRED", "official_lua_update_failed")))
+                throw new Exception("R30 official update retry must match only the Lua update failure");
+            if (AutomationTaskConfigCommandService.Default("allianceGather")["allianceGatherSquads"]!.AsArray().Count != 2)
+                throw new Exception("R30 recovered alliance gathering squads changed");
+            foreach (object bad in new object[] { new { enabled = true, allianceGatherSquads = Array.Empty<int>() }, new { enabled = false, allianceGatherSquads = new[] { 1, 1 } }, new { enabled = false, allianceGatherSquads = new[] { 5 } } })
+            {
+                try { AutomationTaskConfigCommandService.Validate("allianceGather", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 invalid alliance gathering squads accepted"); }
+                catch (BridgeCommandException e) when (e.Code == "INVALID_REQUEST") { }
+            }
+            foreach (object bad in new object[] { new { enabled = true, scanRadius = 200, manualResumeDelaySeconds = 120, recallOnDisable = false, squads = Array.Empty<object>() },
+                new { enabled = false, scanRadius = 75, manualResumeDelaySeconds = 120, recallOnDisable = false, squads = Array.Empty<object>() },
+                new { enabled = false, scanRadius = 200, manualResumeDelaySeconds = 90, recallOnDisable = false, squads = Array.Empty<object>() } })
+            {
+                try { AutomationTaskConfigCommandService.Validate("resourceGather", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 invalid gathering settings accepted"); }
+                catch (BridgeCommandException e) when (e.Code == "INVALID_REQUEST") { }
+            }
             if (AutomationTaskConfigCommandService.Default("treatment")["amountPerArmy"]!.GetValue<int>() != 1)
                 throw new Exception("R30 recovered treatment amount changed");
             foreach (int positionId in new[] { 10002, 10003, 10004, 10005, 10006, 10007 })

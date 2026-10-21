@@ -6,7 +6,8 @@ local moduleNames={treatment='DataCenter.Global.LWBridgeFeature018TreatmentNativ
     dispatch=MISSIONS,dispatchAssist=MISSIONS,ghostRecon=MISSIONS,
     resourceGather='DataCenter.Global.LWBridgeFeature018GatherNative',
     strongholdResource=ALLIANCE,allianceCenterResource=ALLIANCE,
-    tradeStation='DataCenter.Global.LWBridgeFeature018TradeNative'}
+    tradeStation='DataCenter.Global.LWBridgeFeature018TradeNative',
+    allianceGather='DataCenter.Global.LWBridgeFeature018AllianceGatherNative'}
 local modules={}
 local overview
 local function adapter(kind)

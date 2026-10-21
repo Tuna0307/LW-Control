@@ -25,7 +25,9 @@ local function account()
     local token=bridge.Feature018OwnerToken();if not token then error('Gathering owner lease unavailable')end
     return {uid=uid,server=server,player=p,world=world(),token=token}
 end
-local function same_owner(a,b)return a and b and a.uid==b.uid and a.server==b.server and a.player==b.player and a.world==b.world and a.token==b.token end
+-- Live v27: CS.SceneManager.World is a C# object whose Lua wrapper is not guaranteed to be
+-- identical between reads, so identity is the exact UID + server + Lua player + launch lease.
+local function same_owner(a,b)return a and b and a.uid==b.uid and a.server==b.server and a.player==b.player and a.token==b.token and a.world~=nil and b.world~=nil end
 local function owned()local ok,a=pcall(account);return ok and same_owner(owner,a)end
 local function form(slot)
     local f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
@@ -51,8 +53,13 @@ local function safe_point(pointId,squad,radius)
     if main~=pointId or index~=pointId or tonumber(get(r,'mainIndex'))~=pointId then return nil,'Resource tile identity changed' end
     if tostring(get(p,'serverId'))~=owner.server or tostring(get(r,'serverId'))~=owner.server then return nil,'Resource server is unknown or changed' end
     -- Strict absence: never interpret missing/native nil occupancy as empty.
-    if tostring(get(r,'gatherMarchUuid'))~='0'or tostring(get(r,'gatherUid'))~='0'then return nil,'Resource tile is occupied or occupancy is unknown' end
-    for _,v in ipairs({p,r})do local u=get(v,'ownerUid');if u~=nil and tostring(u)~='0'then return nil,'Resource tile has a player owner' end end
+    -- Live v27: an empty tile reports gatherMarchUuid 0 and gatherUid "" (empty text). A missing
+    -- (nil) value is still unknown and refused.
+    local gatherer=get(r,'gatherUid')
+    if tostring(get(r,'gatherMarchUuid'))~='0'or gatherer==nil or (tostring(gatherer)~='0'and tostring(gatherer)~='')then
+        return nil,'Resource tile is occupied or occupancy is unknown (march '..tostring(get(r,'gatherMarchUuid'))..', player '..tostring(get(r,'gatherUid'))..')'
+    end
+    for _,v in ipairs({p,r})do local u=get(v,'ownerUid');if u~=nil and tostring(u)~='0'and tostring(u)~=''then return nil,'Resource tile has a player owner ('..tostring(u)..')' end end
     local cfg=tonumber(get(r,'id'));if not cfg or cfg<=0 then return nil,'Resource identity unavailable'end
     local lookup=rawget(_G,'GetTableData');if type(lookup)~='function'then error('Native resource config unavailable')end
     local tab=enum('TableName','GatherResource')

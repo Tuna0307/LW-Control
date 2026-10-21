@@ -64,6 +64,7 @@ FEATURE018_AFK_ENTRIES = {
     "DataCenter/Global/LWBridgeFeature018GatherNative.luac": "feature018_gather_native.lua",
     "DataCenter/Global/LWBridgeFeature018AllianceResourcesNative.luac": "feature018_alliance_resources_native.lua",
     "DataCenter/Global/LWBridgeFeature018TradeNative.luac": "feature018_trade_native.lua",
+    "DataCenter/Global/LWBridgeFeature018AllianceGatherNative.luac": "feature018_alliance_gather_native.lua",
 }
 MESSAGE = "LWbridge is running"
 

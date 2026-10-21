@@ -19,6 +19,7 @@ def main():
     p.add_argument('--kind',action='append',required=True)
     p.add_argument('--idle-seconds',type=int,default=20)
     p.add_argument('--op-timeout',type=int,default=150)
+    p.add_argument('--keep-going',action='store_true',help='continue with the next independent service after a failure (never replays it)')
     args=p.parse_args()
     args.output.mkdir(parents=True,exist_ok=False)
     exe=args.exe.resolve(strict=True);db=args.saved_db.resolve(strict=True)
@@ -61,7 +62,7 @@ def main():
             (args.output/'operations.json').write_text(json.dumps(outcomes,indent=2))
             print('R30_OPERATION '+json.dumps({'kind':kind,'state':result.get('state'),
                 'terminal':result.get('result',{}).get('terminal',{}).get('state'),'error':result.get('error')}),flush=True)
-            if result.get('error')or result.get('state')in('failed','error'):
+            if (result.get('error')or result.get('state')in('failed','error'))and not args.keep_going:
                 raise RuntimeError('R30 one-shot proof failed; preserve receipt and do not replay')
     finally:
         if (root/'feature018-account-admission.json').exists()and not(root/'owned-exit.json').exists():

@@ -7,6 +7,22 @@ local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok th
 local function call(o,k,...)local f=get(o,k);if type(f)~='function'then error('Native '..k..' unavailable')end;return f(o,...)end
 local function dc(k)return get(rawget(_G,'DataCenter'),k)end
 local function route(k)local r=get(rawget(_G,'MsgDefines'),k);if not r then error('Native '..k..' route unavailable')end;return r end
+-- Pass-through observer of every CollectStrongholdResource reply (success OR refusal).
+-- The game's own handler only broadcasts some refusals; a refusal means nothing was collected.
+local strongholdReply
+local function stronghold_reply_observer()
+ if strongholdReply then return true end
+ local ok,class=pcall(require,'Net.Msgs.Season.CollectStrongholdResourceMessage')
+ local previous=ok and get(class,'HandleMessage')
+ if type(previous)~='function'then return false end
+ local o={class=class,previous=previous,count=0}
+ o.wrapper=function(self,response,...)o.count=o.count+1;o.errorCode=get(response,'errorCode');return previous(self,response,...)end
+ class.HandleMessage=o.wrapper;strongholdReply=o;return true
+end
+local function stronghold_reply_release()
+ if strongholdReply and get(strongholdReply.class,'HandleMessage')==strongholdReply.wrapper then strongholdReply.class.HandleMessage=strongholdReply.previous end
+ strongholdReply=nil
+end
 local function account()
  local p=get(rawget(_G,'LuaEntry'),'Player');local uid=get(p,'uid');local server=tonumber(call(p,'GetSourceServerId'))
  if not uid or not server or server<=0 or tonumber(call(p,'GetCurServerId'))~=server then error('Home game account unavailable')end
@@ -90,9 +106,11 @@ function M.Plan(kind,config,at)
  local before=rows(kind,c);local ids={};for id,r in pairs(before.rows)do if r.amount>0 then ids[#ids+1]=id end end;table.sort(ids)
  if not ids[1]then before.reason='No production resources are ready';return nil,before end
  local r=before.rows[ids[1]];before.id=r.id;before.amount=r.amount;before.serverId=r.serverId
+ local observed=kind=='strongholdResource'and stronghold_reply_observer()
  return {route=route(kind=='strongholdResource'and 'CollectStrongholdResource'or 'FetchMilitaryCenterBuildResult'),
   args=kind=='strongholdResource'and {r.serverId,r.id}or {r.id},id=r.id,owner=c.owner,
-  claimVersion=c.versions.claim or 0,listVersion=c.versions.list or 0,continue=true},before
+  claimVersion=c.versions.claim or 0,listVersion=c.versions.list or 0,continue=true,
+  replyObserved=observed,replyCount=observed and strongholdReply.count or nil,config=config},before
 end
 function M.Verify(kind,job)
  local c=contexts[kind];local owner=account();if not c or c.owner~=owner or job.owner~=owner then return false end
@@ -103,9 +121,19 @@ function M.Verify(kind,job)
   local after=rows(kind,c);c.fresh=job.sentAt;return true,after
  end
  if kind=='strongholdResource'then
+  if job.replyObserved and strongholdReply and strongholdReply.count>job.replyCount and strongholdReply.errorCode~=nil then
+   -- Explicit refusal (e.g. too little to collect): nothing changed; check again next interval.
+   c.fresh=nil
+   return false,{id=job.id,amount=job.before.amount,errorCode=tostring(strongholdReply.errorCode),
+    reason='The game did not collect (code '..tostring(strongholdReply.errorCode)..'); trying again later'},M.Interval(kind,job.config or {})
+  end
   local ack=c.payloads.claim
-  if (c.versions.claim or 0)<=job.claimVersion or get(ack,'errorCode')~=nil or
-   tonumber(get(ack,'serverId'))~=job.before.serverId or tonumber(get(ack,'strongholdId'))~=job.id then return false end
+  -- CollectStrongholdResourceMessage.HandleMessage 11-45 broadcasts the whole reply (reward/resources/gold);
+ -- it does not echo serverId/strongholdId. Echoed IDs must match; the fresh list below is the proof.
+ local echoedServer,echoedId=get(ack,'serverId'),get(ack,'strongholdId')
+ if (c.versions.claim or 0)<=job.claimVersion or get(ack,'errorCode')~=nil or
+   echoedServer~=nil and tonumber(echoedServer)~=job.before.serverId or
+   echoedId~=nil and tonumber(echoedId)~=job.id then return false end
  else
   if (c.versions.list or 0)<=job.listVersion then return false end
  end
@@ -121,6 +149,7 @@ function M.Verify(kind,job)
  return false,after
 end
 function M.Stop(kind)
+ if kind=='strongholdResource'then stronghold_reply_release()end
  local c=contexts[kind];if c then for _,r in ipairs(c.listeners)do pcall(call,c.manager,'RemoveListener',r[1],r[2])end end
  contexts[kind]=nil
 end

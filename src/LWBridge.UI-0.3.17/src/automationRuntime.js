@@ -1,7 +1,8 @@
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { MISSION_KINDS, normalizeMissionDraft, validMissionDraft } from "./NativeMissionFields.jsx";
 export const AUTOMATION_TASKS = { "Alliance Help": "allianceHelp", "Alliance Gifts": "allianceGift", "Alliance Tech Donations": "allianceDonate", "Automatic Official Application": "officialPosition", "Automatic Treatment": "treatment",
-  "Secret Task": "dispatch", "Ghost Ops": "ghostRecon", "Excavation Stronghold Resources": "strongholdResource", "Alliance Center Resources": "allianceCenterResource" };
+  "Secret Task": "dispatch", "Ghost Ops": "ghostRecon", "Excavation Stronghold Resources": "strongholdResource", "Alliance Center Resources": "allianceCenterResource",
+  "Alliance Gathering Dispatch": "allianceGather" };
 const intervalKinds = ["allianceGift", "strongholdResource", "allianceCenterResource"];
 export function validAutomationDraft(kind, draft) {
   if (MISSION_KINDS.includes(kind)) return validMissionDraft(kind, draft);
@@ -10,6 +11,11 @@ export function validAutomationDraft(kind, draft) {
     return typeof draft.enabled === "boolean" && [50, 100, 150, 200, 250, 300, 400, 500].includes(Number(draft.scanRadius ?? 200))
       && squads.every(s => [1, 2, 3, 4].includes(s.squadIndex) && typeof s.enabled === "boolean" && ["metal", "food", "gold"].includes(s.resource) && Number.isInteger(s.level) && s.level >= 1 && s.level <= 10)
       && (!draft.enabled || squads.some(s => s.enabled));
+  }
+  if (kind === "allianceGather") {
+    const order = Array.isArray(draft.allianceGatherSquads) ? draft.allianceGatherSquads : [];
+    return typeof draft.enabled === "boolean" && order.length <= 4 && new Set(order).size === order.length
+      && order.every(slot => [1, 2, 3, 4].includes(slot)) && (!draft.enabled || order.length > 0);
   }
   if (kind === "tradeStation") return typeof draft.enabled === "boolean" && Array.isArray(draft.selectedItemIds) && Array.isArray(draft.selectedCurrencyIds)
     && draft.selectedCurrencyIds.length > 0 && (!draft.enabled || draft.selectedItemIds.length > 0);

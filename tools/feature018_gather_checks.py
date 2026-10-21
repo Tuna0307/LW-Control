@@ -83,6 +83,22 @@ def gathering():
 
 
 def main():
+    # Live v27: CS.SceneManager.World returns a fresh Lua wrapper on every read.
+    vm=gathering()
+    vm.execute('''
+      local world=CS.SceneManager.World;CS.SceneManager=setmetatable({},{__index=function(_,k)if k=='World'then return setmetatable({},{__index=world})end end})
+      hydrate()
+      assert(#state.sends==2 and state.sends[2].route==81,'Search reply is accepted although the World wrapper differs per read')
+    ''')
+    # Live v27 empty tile: gatherUid is empty text. nil stays unknown (refused).
+    vm=gathering()
+    vm.execute('''state.resource.gatherUid='';state.point.ownerUid='';state.resource.ownerUid='';hydrate();assert(#state.sends==2 and state.sends[2].route==81,'Empty-text gatherer/owner is an empty tile')''')
+    vm=gathering()
+    vm.execute('''state.point.ownerUid='2002';searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      local j,b=plan();assert(j==nil and b.gatherSquads[1].reason:find('player owner')and #state.sends==1,'A real owner is never targeted')''')
+    vm=gathering()
+    vm.execute('''state.resource.gatherUid=nil;searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      local j,b=plan();assert(j==nil and b.gatherSquads[1].reason:find('unknown')and #state.sends==1,'Missing gatherer is unknown and never sent')''')
     vm=gathering()
     vm.execute('''
       assert(#state.sends==0 and state.reads==0,'Module load and SetBridge do zero work')

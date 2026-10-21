@@ -7,7 +7,7 @@ namespace LWBridge.Desktop;
 internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigStore store) : INativeAsyncCommandService
 {
     internal static readonly string[] Kinds = ["allianceHelp", "allianceGift", "allianceDonate", "officialPosition", "treatment",
-        "dispatch", "dispatchAssist", "ghostRecon", "resourceGather", "strongholdResource", "allianceCenterResource", "tradeStation"];
+        "dispatch", "dispatchAssist", "ghostRecon", "resourceGather", "strongholdResource", "allianceCenterResource", "tradeStation", "allianceGather"];
     private static readonly int[] GatherRadii = [50, 100, 150, 200, 250, 300, 400, 500];
     public bool CanHandle(string command) => command is "feature018_automation_config_get" or "feature018_automation_config_save";
 
@@ -32,6 +32,8 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
                 { ["squadIndex"] = i, ["enabled"] = false, ["resource"] = "metal", ["level"] = 10 }).ToArray()),
         },
         "strongholdResource" or "allianceCenterResource" => new() { ["enabled"] = false, ["intervalMinutes"] = 60 },
+        // RECOVERED original: off, squads 1 and 2 in priority order.
+        "allianceGather" => new() { ["enabled"] = false, ["allianceGatherSquads"] = new JsonArray(1, 2) },
         "tradeStation" => new()
         {
             ["enabled"] = false, ["crossServerEnabled"] = false, ["selectedItemIds"] = new JsonArray(),
@@ -63,6 +65,15 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
             throw Invalid("Collection interval must be 1–1440 whole minutes.");
         if (kind == "resourceGather") ValidateGather(config);
         if (kind == "tradeStation") ValidateTrade(config);
+        if (kind == "allianceGather")
+        {
+            if (config["allianceGatherSquads"] is not JsonArray order || order.Count > 4) throw Invalid("Choose up to four gathering squads.");
+            var seen = new HashSet<int>();
+            foreach (var slot in order)
+                if (Int(slot, "Gathering squads must be 1–4.") is int value && (value is < 1 or > 4 || !seen.Add(value)))
+                    throw Invalid("Gathering squads must be 1–4 and listed once.");
+            if (config["enabled"]!.GetValue<bool>() && order.Count == 0) throw Invalid("Choose at least one squad before enabling.");
+        }
         return config;
     }
     private static int Int(JsonNode? node, string error) => node is JsonValue value && value.TryGetValue<int>(out int number) ? number : throw Invalid(error);

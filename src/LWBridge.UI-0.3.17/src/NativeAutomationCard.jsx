@@ -5,6 +5,7 @@ import { Switch } from "./sharedPageUI.jsx";
 import { PreviewConfigError, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { AUTOMATION_TASKS, createAutomationAdapter, validAutomationDraft } from "./automationRuntime.js";
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
+import { subscribeAutomationStatus } from "./automationStatusHub.js";
 import { MISSION_KINDS, NativeMissionFields, toggleMissionMaster } from "./NativeMissionFields.jsx";
 
 const INTERVAL_KINDS = ["allianceGift", "strongholdResource", "allianceCenterResource"];
@@ -31,19 +32,11 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   const [ready, setReady] = useState(false), [error, setError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false);
   const runtime = services?.[kind] ?? null;
   useEffect(() => {
-    let closed = false, polling = false;
+    let closed = false;
     setReady(false);setServices(null);
-    const read = async () => {
-      if (!online || polling) return;
-      polling = true;
-      try { assertBridgeProfileOwner(bridge, profileId); const result = await bridge.invokeProfileScoped("feature018_automation_status"); if (!closed) setServices(result.services ?? null); }
-      catch (e) { if (!closed) setError(e.message); }
-      finally { polling = false; }
-    };
     void config.store.refresh().then(() => { if (!closed) setReady(true); }).catch(e => { if (!closed) setError(e.message); });
-    void read();
-    const timer = setInterval(read, 5000);
-    return () => { closed = true; clearInterval(timer); };
+    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) setServices(services); }, e => { if (!closed) setError(e.message); }) : () => {};
+    return () => { closed = true;unsubscribe(); };
   }, [config.store, online, profileId, kind]);
   const disabled = !ready || !online || busy || config.saving;
   const toggle = async () => {
@@ -77,6 +70,24 @@ export function NativeAutomationCard({ title, description, profileId, online, br
     <PreviewConfigError config={config} t={t} />
     {kind === "treatment" ? <div className="automation-actions"><label>{t("automation.treatmentAmountPerArmy")}<input type="number" min="1" max="1000000" step="1" value={config.draft.amountPerArmy ?? 1} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, amountPerArmy: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
     {MISSION_KINDS.includes(kind) ? <NativeMissionFields kind={kind} config={config} disabled={disabled} runtime={runtime} /> : null}
+    {kind === "allianceGather" ? (() => {
+      const order = Array.isArray(config.draft.allianceGatherSquads) ? config.draft.allianceGatherSquads : [1, 2];
+      const listed = [...order, ...[1, 2, 3, 4].filter(slot => !order.includes(slot))];
+      const save = next => {
+        if (config.draft.enabled && next.length === 0) { setError(t("automation.allianceGatherSquadRequired"));return; }
+        setError("");config.store.edit(draft => ({ ...draft, allianceGatherSquads: next }), false);void config.store.flush().catch(e => setError(e.message));
+      };
+      return <div className="automation-actions"><p className="muted">{t("automation.allianceGatherSquadPriority")}</p>
+        <div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.allianceGatherSquadPriority")}>{listed.map(slot => {
+          const position = order.indexOf(slot);
+          return <div className={`automation-squad-priority-item${position >= 0 ? " selected" : ""}`} key={slot}>
+            <label><input type="checkbox" checked={position >= 0} disabled={disabled} onChange={event => save(event.target.checked ? [...order, slot] : order.filter(value => value !== slot))} /><span>{t("automation.squad", { index: slot })}</span></label>
+            {position > 0 ? <button type="button" className="automation-squad-move" disabled={disabled} aria-label={`${t("automation.squad", { index: slot })} ↑`} onClick={() => { const next = [...order];next.splice(position - 1, 0, next.splice(position, 1)[0]);save(next); }}>↑</button> : null}
+          </div>;
+        })}</div>
+        {runtime?.after?.dispatched || runtime?.before?.available != null ? <div className="automation-status-row"><span>{t("automation.allianceGatherAvailable")}</span><strong>{runtime?.before?.available ?? 0}</strong></div> : null}
+      </div>;
+    })() : null}
     {kind === "dispatch" ? <NativeDispatchAssist profileId={profileId} online={online} bridge={bridge} runtime={services?.dispatchAssist ?? null} /> : null}
     {INTERVAL_KINDS.includes(kind) ? <div className="automation-actions"><label>{t("automation.intervalMinutes")}<input type="number" min="1" max="1440" step="1" value={config.draft.intervalMinutes ?? (kind === "allianceGift" ? 120 : 60)} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, intervalMinutes: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}
     {kind === "allianceDonate" ? <div className="automation-actions"><label>{t("automation.donateThreshold")}<input type="number" min="1" max="30" step="1" value={config.draft.threshold ?? 15} disabled={disabled} aria-invalid={!validAutomationDraft(kind, config.draft)} onChange={event => config.store.edit(draft => ({ ...draft, threshold: event.target.value }))} onBlur={() => { void config.store.flush().catch(e => setError(e.message)); }} /></label></div> : null}

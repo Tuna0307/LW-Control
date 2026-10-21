@@ -289,7 +289,8 @@ function M.Verify(kind,job)
     if s.version<=job.postQueryVersion then return false end
     local t=task_by_uuid(current_state(kind),job.uuid);local after=t and mission_state(t)or {uuid=job.uuid,missing=true}
     local confirmed=false
-    if job.phase=='dispatchClaim'then confirmed=t and own_dispatch(t)and num(t,'rewarded')==1
+    -- Live v27 (2026-10-21): a claimed own task leaves the fresh list (13 -> 12 -> 11), it is not kept as rewarded.
+    if job.phase=='dispatchClaim'then confirmed=(t==nil and s.version>job.postQueryVersion)or t and own_dispatch(t)and num(t,'rewarded')==1
     elseif job.phase=='dispatchStart'then confirmed=t and own_dispatch(t)and (num(t,'completionTime')or 0)>job.sentAt
     elseif job.phase=='dispatchRefresh'then
         local item=call(center('ItemData'),'GetItemById',job.before.itemId)
@@ -302,7 +303,7 @@ function M.Verify(kind,job)
     elseif job.phase=='ghostJoin'then confirmed=t and member(t)~=nil
     elseif job.phase=='ghostShare'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and (num(t,'sendChatTime')or 0)>=job.sentAt-1000 and num(t,'sendChatTime')>(job.before.sendChatTime or 0)
     elseif job.phase=='ghostStart'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and (num(t,'completionTime')or 0)>job.sentAt
-    elseif job.phase=='ghostClaim'then confirmed=t and member(t)~=nil and num(member(t),'rewarded')==1 end
+    elseif job.phase=='ghostClaim'then confirmed=(t==nil and s.version>job.postQueryVersion)or t and member(t)~=nil and num(member(t),'rewarded')==1 end
     if confirmed then s.freshAt=job.sentAt;s.allianceFreshAt=nil end
     return confirmed,after
 end
