@@ -42,6 +42,7 @@ def gathering():
         return 'original-create-result'
       end,HandleMessage=function(self,response)state.createApplied=(state.createApplied or 0)+1;return 'original-reply-result'end}
       classes.WorldMarchChangeMessage={HandleMessage=function(self,response)state.recallApplied=true;return 'original-change-result'end}
+      classes.WorldGetDetailMessage={HandleMessage=function(self,response)state.detailApplied=true;return 'original-detail-result'end}
       for key,value in pairs(classes)do package.preload['Net.Msgs.'..key]=function()return value end end
       local function rawSend(route,...)
         local args={...};state.sends[#state.sends+1]={route=route,args=args}
@@ -146,6 +147,23 @@ def main():
       classes.FindResourcePointMessage.HandleMessage=function()error('UI handler failed after camera move')end
       searchJob=plan();assert(dispatch(searchJob));pcall(find_result);assert(verify(searchJob))
       local d=plan();assert(d.phase=='detail','A found tile is used even if the game UI handler errored')
+    ''')
+    # Live owner 2026-10-22: a refused tile-detail read reports the game code and moves on to the next level;
+    # a detail reply is accepted even when the game hands back the same detail object.
+    vm=gathering()
+    vm.execute('''
+      searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      local d=plan();assert(d.phase=='detail');assert(dispatch(d))
+      assert(classes.WorldGetDetailMessage.HandleMessage({}, {pointId=1011,errorCode='E1'})=='original-detail-result')
+      assert(verify(d));local lower=plan();assert(lower.phase=='search'and lower.args[2]==9,'A refused detail steps down a level')
+    ''')
+    vm=gathering()
+    vm.execute('''
+      state.detail={pointId=1011,resourceId=401,remainRes=100}
+      searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      local d=plan();assert(d.phase=='detail');assert(dispatch(d));assert(not verify(d),'No reply yet')
+      classes.WorldGetDetailMessage.HandleMessage({}, {pointId=1011})
+      assert(verify(d),'Same detail object after a reply is accepted');assert(plan().phase=='gather')
     ''')
     # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
     vm=gathering()

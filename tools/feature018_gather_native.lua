@@ -5,7 +5,7 @@ local M={}
 -- Live owner 2026-10-22: the game's own Search tab (WorldSearchItem 104-110) uses ResourceType Metal,
 -- Food and Wood for the three gatherable resources; the gold mine (金礦) is internally ResourceType.Wood.
 local GATHER_TYPES={metal='Metal',food='Food',gold='Wood'}
-local bridge,owner,settings,search,active,stopping
+local bridge,owner,settings,search,active,stopping,detailJob
 local cursor=1
 local hooks,slots,known={},{},{}
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
@@ -40,7 +40,7 @@ end
 local function march(f)return call(center('WorldMarchDataManager'),'GetOwnerFormationMarch',get(player(),'uid'),get(f,'uuid'),get(player(),'allianceId'))end
 local function detach()
     for i=#hooks,1,-1 do local h=hooks[i];if get(h.object,h.key)==h.wrapper then h.object[h.key]=h.previous end end
-    hooks={};search=nil;active=nil
+    hooks={};search=nil;active=nil;detailJob=nil
 end
 local function hook(object,key,make)
     local previous=get(object,key);if type(previous)~='function'then error('Native '..key..' observer unavailable')end
@@ -151,6 +151,17 @@ local function install()
         if q then q.applied=result[1]end
         if not result[1]then error(result[2],0)end;return table.unpack(result,2,result.n)
     end end)
+    -- The found tile's detail reply (WorldGetDetailMessage -> WorldPointDetailManager:UpdateDetail).
+    -- Record it first so a refused read reports its game code instead of waiting silently.
+    local detail=require('Net.Msgs.WorldGetDetailMessage')
+    hook(detail,'HandleMessage',function(previous)return function(self,response,...)
+        local j=detailJob
+        pcall(function()if j and not j.replied and owned()and (tonumber(field(response,'pointId','GetInt'))==j.pointId or get(response,'errorCode')~=nil)then
+            j.replied=true;j.replyError=get(response,'errorCode')
+        end end)
+        local result=table.pack(pcall(previous,self,response,...))
+        if not result[1]then error(result[2],0)end;return table.unpack(result,2,result.n)
+    end end)
     local create=require('Net.Msgs.WorldMarchFormationNewMessage')
     hook(create,'OnCreate',function(previous)return function(self,formation,kind,target,...)
         local result=table.pack(pcall(previous,self,formation,kind,target,...))
@@ -246,17 +257,19 @@ function M.Plan(kind,c,at)
                 row.reason=v.lastReason
                 local function search_at(level)
                     q={pending=true,slot=slot,resource=s.resource,maxLevel=s.level,level=level,startedAt=at};v.search=q;search=q
+                    row.reason=(v.lastReason and v.lastReason..' · 'or'')..'Searching level '..tostring(level)
                     return {readOnly=true,phase='search',route=enum('MsgDefines','FindResourcePoint'),args={enum('ResourceType',GATHER_TYPES[s.resource]),level},slot=slot,formation=v.formation,query=q},before
                 end
                 -- Saved level is a maximum: try it first, then each lower level, before giving up.
                 local function lower_or_none(reason)
                     v.lastReason='Level '..tostring(q.level)..': '..tostring(reason)
-                    if q.level>1 then local j,b=search_at(q.level-1);row.reason=v.lastReason;return j,b end
+                    if q.level>1 then return search_at(q.level-1)end
                     row.step='nothing_available';row.reason=reason;v.search=nil;cursor=slot%4+1;return nil,before
                 end
                 if not q or q.resource~=s.resource or q.maxLevel~=s.level or at-(q.receivedAt or q.startedAt)>30000 then
                     return search_at(s.level)
-                elseif q.pending then return {error='Waiting for native resource search',retryMs=1000},before
+                elseif q.pending then row.reason=(v.lastReason and v.lastReason..' · 'or'')..'Searching level '..tostring(q.level);return {error='Waiting for native resource search',retryMs=1000},before
+                elseif q.detailError then return lower_or_none('Tile detail refused (game code '..tostring(q.detailError)..')')
                 -- Live owner 2026-10-22: the game's own reply handler moves the camera and can then raise an
                 -- unrelated UI error; a server reply with a pointId and no errorCode is still a valid result.
                 elseif q.error or not q.pointId or q.pointId==0 then return lower_or_none('No matching resource at level '..tostring(q.level)..(q.error and (' (game code '..tostring(q.error)..')')or''))
@@ -270,10 +283,11 @@ function M.Plan(kind,c,at)
                     if not t then return lower_or_none(reason)end
                     local d=call(center('WorldPointDetailManager'),'GetDetailByPointId',t.pointId)
                     if not q.detail or d~=q.detail or at-(q.detailAt or 0)>10000 then
+                        row.reason='Reading level '..tostring(t.level)..' tile at '..tostring((t.pointId-1)%1000)..','..tostring(math.floor((t.pointId-1)/1000))
                         local job={readOnly=true,phase='detail',route=enum('MsgDefines','WorldGetDetail'),
                             args={t.pointId,tonumber(owner.server),0,t.pointType,'0'},slot=slot,formation=v.formation,
                             pointId=t.pointId,configId=t.configId,squad=s,radius=radius,previous=d,query=q}
-                        return job,before
+                        detailJob=job;return job,before
                     elseif tonumber(get(d,'remainRes'))==nil or tonumber(get(d,'remainRes'))<=0 then
                         return lower_or_none('Native resource detail has no remaining resources')
                     end
@@ -311,7 +325,9 @@ function M.Verify(kind,job)
     if job.phase=='search'then return not job.query.pending,{readOnly=true,pointId=job.query.pointId or 0,nativeResponseApplied=job.query.applied==true}end
     if job.phase=='detail'then
         local d=call(center('WorldPointDetailManager'),'GetDetailByPointId',job.pointId)
-        if not d or d==job.previous or tonumber(get(d,'pointId'))~=job.pointId or tonumber(get(d,'resourceId'))~=job.configId then return false end
+        if job.replied and job.replyError~=nil then job.query.detailError=job.replyError;detailJob=nil;return true,{readOnly=true,pointId=job.pointId,gameCode=job.replyError}end
+        if not d or (d==job.previous and not job.replied)or tonumber(get(d,'pointId'))~=job.pointId or tonumber(get(d,'resourceId'))~=job.configId then return false end
+        detailJob=nil
         job.query.detail=d;job.query.detailAt=clock();return true,{readOnly=true,pointId=job.pointId,remainRes=tonumber(get(d,'remainRes'))}
     elseif job.phase=='gather'then
         local f=form(job.slot);local m=f and march(f)
