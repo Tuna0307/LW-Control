@@ -116,10 +116,25 @@ def main():
     vm.execute('''state.resource.gatherUid='';state.point.ownerUid='';state.resource.ownerUid='';hydrate();assert(#state.sends==2 and state.sends[2].route==81,'Empty-text gatherer/owner is an empty tile')''')
     vm=gathering()
     vm.execute('''state.point.ownerUid='2002';searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
-      local j,b=plan();assert(j==nil and b.gatherSquads[1].reason:find('player owner')and #state.sends==1,'A real owner is never targeted')''')
+      local j,b=plan();assert(j and j.phase=='search'and j.args[2]==9 and #state.sends==1,'A real owner is never targeted; the next lower level is searched instead')''')
     vm=gathering()
     vm.execute('''state.resource.gatherUid=nil;searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
-      local j,b=plan();assert(j==nil and b.gatherSquads[1].reason:find('unknown')and #state.sends==1,'Missing gatherer is unknown and never sent')''')
+      local j,b=plan();assert(j and j.phase=='search'and j.args[2]==9 and #state.sends==1,'Missing gatherer is unknown and never sent; the next lower level is searched')''')
+    # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
+    vm=gathering()
+    vm.execute('''
+      searchJob=plan();assert(searchJob.args[2]==10);assert(dispatch(searchJob));find_result(0);assert(verify(searchJob))
+      local lower=plan();assert(lower.phase=='search'and lower.args[2]==9,'Level 9 is tried after level 10 finds nothing')
+      state.resLevel=9;assert(dispatch(lower));find_result();assert(verify(lower))
+      local detail=plan();assert(detail.phase=='detail');assert(dispatch(detail));state.detail={pointId=1011,resourceId=401,remainRes=100};assert(verify(detail))
+      local gather=plan();assert(gather.phase=='gather','A level-9 tile is gathered for a level-10 maximum')
+    ''')
+    vm=gathering()
+    vm.execute('''
+      state.config.resourceGather.squads[1].level=2
+      for level=2,1,-1 do local j=plan();assert(j.phase=='search'and j.args[2]==level);assert(dispatch(j));find_result(0);assert(verify(j))end
+      local j,b=plan();assert(j==nil and b.gatherSquads[1].step=='nothing_available','Gives up after level 1')
+    ''')
     vm=gathering()
     vm.execute('''
       assert(#state.sends==0 and state.reads==0,'Module load and SetBridge do zero work')
@@ -170,13 +185,13 @@ def main():
         elif case=='alliancePoint':vm.execute('state.point.PointType=26')
         elif case=='server':vm.execute('state.resource.serverId=222')
         elif case=='identity':vm.execute('state.resource.mainIndex=1012')
-        elif case=='level':vm.execute('state.resLevel=9')
+        elif case=='level':vm.execute('state.resLevel=11')  # above the saved maximum
         elif case=='resource':vm.execute('state.resType=2')
         elif case=='radius':vm.execute('LuaEntry.Player.GetMainWorldPos=function()return 900000 end')
         elif case=='black':vm.execute('state.black=true')
         else:vm.execute('state.bad=true')
         if case=='gameError':vm.execute('assert(not pcall(plan))')
-        else:vm.execute("local j,b=plan();assert(j==nil and b.gatherSquads[1].step=='nothing_available')")
+        else:vm.execute("local j,b=plan();assert(j==nil and b.gatherSquads[1].step=='nothing_available' or j.phase=='search'and j.args[2]==9,'Unsafe tile: give up or search one level lower, never details/march')")
         vm.execute('assert(#state.sends==1,"Unsafe candidate may not cause details or a march")')
     for case in ['off','wrongAccount','wrongLease','occupiedBeforeSend','occupiedInsideNative','detailChanged','busyBeforeSend','throwThenProof','uncertain','badGuid','noStaff','nativeFallback']:
         vm=gathering();vm.execute('hydrate()')
@@ -199,6 +214,7 @@ def main():
         else:vm.execute('assert(not sent and #state.sends==2,"Final fence refuses unsafe or stopped dispatch")')
     vm=gathering()
     vm.execute('''
+      state.config.resourceGather.squads[1].level=1
       local j=plan();assert(dispatch(j));find_result(0);assert(verify(j));local j,b=plan()
       assert(j==nil and b.gatherSquads[1].step=='nothing_available'and #state.sends==1)
       gather.Stop('resourceGather');assert(SFSNetwork.SendMessage==state.rawSend)
@@ -233,6 +249,7 @@ def main():
     vm.execute('''
       state.forms[2]={uuid=42,index=2,ownerUid='1001'}
       state.config.resourceGather.squads[2]={squadIndex=2,enabled=true,resource='food',level=8}
+      state.config.resourceGather.squads[1].level=1
       local j=plan();assert(j.slot==1 and dispatch(j));find_result(0);assert(verify(j));assert(plan()==nil)
       j=plan();assert(j.slot==2 and j.args[1]==2 and j.args[2]==8,'Empty squad one must not starve squad two')
     ''')

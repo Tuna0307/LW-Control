@@ -65,7 +65,8 @@ local function safe_point(pointId,squad,radius)
     local tab=enum('TableName','GatherResource')
     local resource=tonumber(lookup(tab,cfg,'resource_type'));local level=tonumber(lookup(tab,cfg,'level'))
     local wanted=enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[squad.resource])
-    if resource~=wanted or level~=squad.level then return nil,'Resource type or level differs from saved squad settings' end
+    -- Owner 2026-10-21: the saved level is a maximum (10 = level 10 and below).
+    if resource~=wanted or not level or level>squad.level then return nil,'Resource type or level differs from saved squad settings' end
     local home=tonumber(call(player(),'GetMainWorldPos'));if not home or home<1 or home>1000000 or pointId<1 or pointId>1000000 then return nil,'Native world coordinates unavailable'end
     -- Normal world point indexes are 1 + x + 1000*y.
     local a,b=home-1,pointId-1;local distance=math.sqrt((a%1000-b%1000)^2+(math.floor(a/1000)-math.floor(b/1000))^2)
@@ -235,14 +236,22 @@ function M.Plan(kind,c,at)
             else
                 known[slot]=nil;row.step='searching';install()
                 local q=v.search
-                if not q or q.resource~=s.resource or q.level~=s.level or at-(q.receivedAt or q.startedAt)>30000 then
-                    q={pending=true,slot=slot,resource=s.resource,level=s.level,startedAt=at};v.search=q;search=q
-                    return {readOnly=true,phase='search',route=enum('MsgDefines','FindResourcePoint'),args={enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[s.resource]),s.level},slot=slot,formation=v.formation,query=q},before
+                local function search_at(level)
+                    q={pending=true,slot=slot,resource=s.resource,maxLevel=s.level,level=level,startedAt=at};v.search=q;search=q
+                    return {readOnly=true,phase='search',route=enum('MsgDefines','FindResourcePoint'),args={enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[s.resource]),level},slot=slot,formation=v.formation,query=q},before
+                end
+                -- Saved level is a maximum: try it first, then each lower level, before giving up.
+                local function lower_or_none(reason)
+                    if q.level>1 then return search_at(q.level-1)end
+                    row.step='nothing_available';row.reason=reason;v.search=nil;cursor=slot%4+1;return nil,before
+                end
+                if not q or q.resource~=s.resource or q.maxLevel~=s.level or at-(q.receivedAt or q.startedAt)>30000 then
+                    return search_at(s.level)
                 elseif q.pending then return {error='Waiting for native resource search'},before
-                elseif not q.applied or q.error or q.pointId==0 then row.step='nothing_available';row.reason='Native search found no matching resource';v.search=nil;cursor=slot%4+1;return nil,before
+                elseif not q.applied or q.error or q.pointId==0 then return lower_or_none('No matching resource at level '..s.level..' or below')
                 else
                     local t,reason=safe_point(q.pointId,s,radius)
-                    if not t then row.step='nothing_available';row.reason=reason;v.search=nil;cursor=slot%4+1;return nil,before end
+                    if not t then return lower_or_none(reason)end
                     local d=call(center('WorldPointDetailManager'),'GetDetailByPointId',t.pointId)
                     if not q.detail or d~=q.detail or at-(q.detailAt or 0)>10000 then
                         local job={readOnly=true,phase='detail',route=enum('MsgDefines','WorldGetDetail'),
@@ -250,7 +259,7 @@ function M.Plan(kind,c,at)
                             pointId=t.pointId,configId=t.configId,squad=s,radius=radius,previous=d,query=q}
                         return job,before
                     elseif tonumber(get(d,'remainRes'))==nil or tonumber(get(d,'remainRes'))<=0 then
-                        row.step='nothing_available';row.reason='Native resource detail has no remaining resources';v.search=nil;cursor=slot%4+1;return nil,before
+                        return lower_or_none('Native resource detail has no remaining resources')
                     end
                     local job={phase='gather',route='MarchUtil.OnGotoCollect',slot=slot,formation=v.formation,squad=s,radius=radius,
                         pointId=t.pointId,configId=t.configId,detail=d,wireCount=0,continue=true}
