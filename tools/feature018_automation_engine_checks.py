@@ -69,6 +69,18 @@ def main():
     vm.execute('''state.config.allianceHelp.enabled=true;engine.Configure(request);engine.Stop(request)
       assert(engine.Status(request).state=='confirmed'and not engine.IsActive(),'Failed disk save/status must never restart stopped engine')
       engine.Configure(request);assert(engine.IsActive(),'Explicit successful configure can re-enable')''')
+    # Owner main 2026-10-21: a busy alliance gets new requests at once. Help is confirmed when the helped
+    # requests are gone, and a clean but unconfirmed help never blocks later helps.
+    vm=runtime()
+    vm.execute('''
+      state.config.allianceHelp.enabled=true;engine.Configure(request)
+      state.list={a={uuid=1},b={uuid=2}};engine.Pump();assert(#state.sends==1)
+      state.list={c={uuid=3}};state.now=state.now+1000;engine.Pump()
+      assert(engine.Status().data.services.allianceHelp.confirmed==1,'New arrivals do not hide a successful help')
+      state.list={d={uuid=4}};state.now=state.now+3000;engine.Pump();local sent=#state.sends
+      state.now=state.now+16000;engine.Pump();state.now=state.now+4000;engine.Pump()
+      assert(#state.sends>sent,'A clean but unconfirmed help does not stop later helps')
+    ''')
     # Owner direction 2026-10-21: switching Help on checks at once, then every 3 s (not every minute).
     vm=runtime()
     vm.execute('''

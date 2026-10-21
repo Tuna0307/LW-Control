@@ -29,6 +29,7 @@ local function route(k)return get(rawget(_G,'MsgDefines'),k)end
 local giftEvents,giftVersion,giftFresh=nil,0,nil
 local scienceEvents,scienceVersion,scienceFresh=nil,0,nil
 local scienceDetailVersion,scienceDetailsFresh=0,{}
+local donateActive=false
 local officialEvents,officialVersions,officialFresh=nil,{},{}
 local officialAppointmentVersions,officialObservation={},nil
 -- Owner direction 2026-10-21: while the chosen list is full, keep checking and
@@ -174,7 +175,7 @@ local function help()
     local ids={};for k,v in pairs(list)do
         ids[#ids+1]=tostring(get(v,'uuid')or get(v,'id')or k)
     end
-    table.sort(ids);return {available=#ids,identity=table.concat(ids,',')}
+    table.sort(ids);return {available=#ids,identity=table.concat(ids,','),ids=ids}
 end
 function M.Supports(kind)return moduleNames[kind]~=nil or kind=='allianceHelp'or kind=='allianceGift'or kind=='allianceDonate'or kind=='officialPosition'end
 function M.Interval(kind,c)
@@ -213,9 +214,13 @@ function M.Plan(kind,c,at)
             return {readOnly=true,phase='scienceDetail',route=route('AlScienceFresh'),args={before.scienceId},
                 scienceId=before.scienceId,version=scienceDetailVersion},before
         end
-        if not before.scienceId or before.remaining<(tonumber(c.threshold)or 15)or before.balance<before.cost then return nil,before end
+        -- "Start donating at N": once attempts reach N, keep donating until none are left, then wait for N again.
+        local threshold=tonumber(c.threshold)or 15
+        if before.remaining>=threshold then donateActive=true elseif before.remaining<=0 then donateActive=false end
+        if not donateActive then before.reason='Waiting until '..threshold..' donation attempts are available ('..tostring(before.remaining)..' now)';return nil,before end
+        if not before.scienceId or before.balance<before.cost then return nil,before end
         -- AlScienceDonate option 1 is the ordinary-resource branch. Never option 2 / GoldDonate.
-        return {route=route('AlScienceDonate'),args={before.scienceId,1},scienceId=before.scienceId},before
+        return {route=route('AlScienceDonate'),args={before.scienceId,1},scienceId=before.scienceId,continue=true},before
     elseif kind=='officialPosition'then
         local position=tonumber(c.positionId)
         if not position or position==0 then return nil,{reason='Choose an official position first'}end
@@ -256,8 +261,12 @@ end
 function M.Verify(kind,job)
     local a=adapter(kind);if a then return a.Verify(kind,job)end
     if kind=='allianceHelp'then
-        local after=help()
-        return after.available==0 and job.before.available>0,after
+        -- Busy alliances (owner main, 2026-10-21): new requests can arrive at once. Confirm that every
+        -- request that was helped has left the list, not that the list is empty.
+        local after=help();local now={}
+        for _,id in ipairs(after.ids or {})do now[id]=true end
+        for _,id in ipairs(job.before.ids or {})do if now[id]then return false,after end end
+        return job.before.available>0,after
     elseif kind=='allianceGift'then
         if job.phase=='giftList'then
             if giftVersion>job.version then giftFresh=job.sentAt;return true,gifts(job.sentAt)end
@@ -348,7 +357,7 @@ function M.Stop(kind)
     end
     if kind=='allianceDonate'and scienceEvents then
         for _,r in ipairs(scienceEvents.rows)do pcall(call,scienceEvents.manager,'RemoveListener',r[1],r[2])end
-        scienceEvents=nil;scienceFresh=nil;scienceDetailsFresh={}
+        scienceEvents=nil;scienceFresh=nil;scienceDetailsFresh={};donateActive=false
     end
     if kind=='officialPosition'and officialEvents then
         for _,r in ipairs(officialEvents.rows)do pcall(call,officialEvents.manager,'RemoveListener',r[1],r[2])end

@@ -41,8 +41,23 @@ def main():
       state.callbacks[13]();step();step()
       assert(#state.sends==3 and state.sends[3].route==81 and state.sends[3].args[1]==101 and state.sends[3].args[2]==1)
       assert(status().confirmed==0);state.left=19;state.science.currentPro=20;state.balance=9900;step()
-      assert(status().state=='success'and status().donated==1 and status().remaining==19 and status().scienceId==101)
+      assert(status().donated==1 and status().remaining==19 and status().scienceId==101,'One confirmed donation; it then continues')
       engine.Stop(request);assert(not engine.IsActive()and not state.callbacks[12])
+    ''')
+    # Owner 2026-10-21: "Start donating at 15" = once attempts reach 15, keep donating until none are left.
+    vm=donations()
+    vm.execute('''
+      state.left=15;hydrate();local donations=0
+      for _=1,200 do
+        local before=#state.sends;step()
+        if #state.sends>before and state.sends[#state.sends].route==81 then
+          donations=donations+1;state.left=state.left-1;state.science.currentPro=state.science.currentPro+10;state.balance=state.balance-100
+        elseif #state.sends>before and state.sends[#state.sends].route==80 then state.callbacks[12]()
+        elseif #state.sends>before and state.sends[#state.sends].route==83 then state.callbacks[13]() end
+        if state.left==0 then break end
+      end
+      assert(donations==15 and state.left==0,'Donated all the way down once 15 was reached: '..donations)
+      step();step();assert(status().before.reason:find('Waiting until 15'),'Then waits for 15 again')
     ''')
     for case in ['belowThreshold','poor','premium','locked','wrongAccount','off','error','uncertain','partial','throwThenConfirmed','otherOrdinary']:
         vm=donations();vm.execute('hydrate()')
@@ -61,7 +76,7 @@ def main():
         elif case in ['off','wrongAccount']:vm.execute('assert(#state.sends==2 and not engine.IsActive())')
         elif case=='error':vm.execute("assert(#state.sends==2 and status().state=='error')")
         elif case in ['throwThenConfirmed','otherOrdinary']:
-            vm.execute("state.left=19;state.science.currentPro=20;state.balance=9900;step();assert(status().state=='success'and #state.sends==3)")
+            vm.execute("state.left=19;state.science.currentPro=20;state.balance=9900;step();assert(status().donated==1 and #state.sends==3)")
         else:
             if case=='partial':vm.execute('state.science.currentPro=20')
             vm.execute("state.now=state.now+16000;engine.Pump();assert(status().state=='unconfirmed'and status().confirmed==0);engine.Stop(request);state.config.allianceDonate.enabled=true;engine.Configure(request);state.now=state.now+61000;engine.Pump();assert(#state.sends==3,'Never replay uncertain currency spend')")

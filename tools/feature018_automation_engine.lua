@@ -182,7 +182,9 @@ function M.Pump()
                         else finish(kind,r,at,'success')end
                     end
                 elseif at-job.sentAt>=15000 then
-                    if not job.readOnly then uncertain[kind]=job end
+                    -- Help-all is harmless to repeat (no spending, no march): a cleanly sent but unconfirmed help
+                    -- does not block later helps. A send that errored part-way stays uncertain like every service.
+                    if not job.readOnly and (kind~='allianceHelp'or job.sendError)then uncertain[kind]=job end
                     pending[kind]=nil;finish(kind,r,at,job.readOnly and 'error'or 'unconfirmed','No confirmed game result. No gameplay request is repeated')
                 end
             elseif at>=(r.nextRunAt or 0)then
