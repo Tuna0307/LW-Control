@@ -78,7 +78,9 @@ internal sealed partial class LWBridgeWindow
             // Cleanup is an explicit stop, never a resend of the gameplay request.
             await game.InvokeAsync("feature018_automation_stop", JsonSerializer.SerializeToElement(new { kind }), token);
             var store = new AutomationTaskConfigCommandService(profileRuntimeConfigStore!);
-            await store.InvokeAsync("feature018_automation_config_save", JsonSerializer.SerializeToElement(new { kind, config = new { enabled = false } }), token);
+            var saved = (profileRuntimeConfigStore!.ReadTasksSnapshot()[kind]?.DeepClone() ?? AutomationTaskConfigCommandService.Default(kind)).AsObject();
+            saved["enabled"] = false;
+            await store.InvokeAsync("feature018_automation_config_save", JsonSerializer.SerializeToElement(new { kind, config = saved }), token);
             var final = await Status();observations.Add(final);
             string uiState = await core.ExecuteScriptAsync("(()=>{const c=document.querySelector('" + selector + "');return {language:document.querySelector('.language-select select')?.value,state:c?.dataset.automationState,text:c?.innerText};})()");
             stopped = !final.GetProperty("services").GetProperty(kind).GetProperty("enabled").GetBoolean();

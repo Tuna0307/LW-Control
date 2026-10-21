@@ -59,8 +59,9 @@ local function apply(request,explicit)
             local r=row(kind);r.enabled=config.enabled==true
             if config.enabled~=true and ((previous and previous.enabled==true)or explicit and request.kind==kind)then
                 -- Retain the send tombstone; off never creates a retry path.
-                if pending[kind]then uncertain[kind]=pending[kind];pending[kind]=nil end
+                if pending[kind]then if not pending[kind].readOnly then uncertain[kind]=pending[kind]end;pending[kind]=nil end
                 force[kind]=nil;r.state='disabled';r.nextRunAt=nil
+                if native.Stop then native.Stop(kind)end
             elseif config.enabled==true and not(previous and previous.enabled==true)then
                 r.state='waiting';r.nextRunAt=0
             end
@@ -74,8 +75,9 @@ function M.Stop(request)
     if owner and not owned()then M.CleanupAfterLeaseLoss();return fail('The game account changed; Automation stopped')end
     local kind=request.kind
     if not native.Supports(kind)then return fail('This Automation service is unavailable')end
-    if pending[kind]then uncertain[kind]=pending[kind];pending[kind]=nil end
+    if pending[kind]then if not pending[kind].readOnly then uncertain[kind]=pending[kind]end;pending[kind]=nil end
     configs[kind]={enabled=false};force[kind]=nil
+    if native.Stop then native.Stop(kind)end
     stopped[kind]=true
     local r=row(kind);r.enabled=false;r.state='disabled';r.nextRunAt=nil
     recalc();return ok({stopped=true})
@@ -95,7 +97,9 @@ function M.Run(request)
 end
 local function finish(kind,r,at,state,message)
     r.state=state;r.error=message;r.lastRunAt=at;r.nextRunAt=at+native.Interval(kind,configs[kind])
+    r.cycleStart=nil
     force[kind]=nil
+    if configs[kind]and configs[kind].enabled~=true and native.Stop then native.Stop(kind)end
 end
 function M.Pump()
     if not active then return end
@@ -108,16 +112,28 @@ function M.Pump()
             elseif job then
                 local yes,confirmed,after=measured(kind,native.Verify,kind,job)
                 if yes and confirmed then
-                    r.confirmed=r.confirmed+1;r.after=after;r.receipts[#r.receipts+1]={at=at,before=job.before,after=after,route=job.route,nativePostState=true}
-                    if #r.receipts>30 then table.remove(r.receipts,1)end
-                    pending[kind]=nil;finish(kind,r,at,'success')
+                    pending[kind]=nil;r.after=after
+                    if job.readOnly then
+                        r.state='waiting';r.nextRunAt=0
+                    else
+                        r.confirmed=r.confirmed+1;r.receipts[#r.receipts+1]={at=at,before=job.before,after=after,route=job.route,nativePostState=true}
+                        if kind=='allianceGift'and type(after)=='table'then
+                            local key=after.category==1 and 'normalClaimed'or 'advancedClaimed'
+                            r[key]=(r[key]or 0)+(tonumber(after.claimed)or 0)
+                        end
+                        if #r.receipts>30 then table.remove(r.receipts,1)end
+                        if job.continue and r.confirmed-(r.cycleStart or 0)<30 then r.state='waiting';r.nextRunAt=0
+                        else finish(kind,r,at,'success')end
+                    end
                 elseif at-job.sentAt>=15000 then
-                    uncertain[kind]=job;pending[kind]=nil;finish(kind,r,at,'unconfirmed','No confirmed game result. This action will not be sent again')
+                    if not job.readOnly then uncertain[kind]=job end
+                    pending[kind]=nil;finish(kind,r,at,job.readOnly and 'error'or 'unconfirmed','No confirmed game result. No gameplay request is repeated')
                 end
             elseif at>=(r.nextRunAt or 0)then
+                r.cycleStart=r.cycleStart or r.confirmed
                 local yes,plan,observation=measured(kind,native.Plan,kind,c,at)
                 if not yes then finish(kind,r,at,'error','Game data could not be read: '..tostring(plan))
-                elseif not plan then r.before=observation;finish(kind,r,at,'nothing_available')
+                elseif not plan then r.before=observation;finish(kind,r,at,r.confirmed>(r.cycleStart or r.confirmed)and 'success'or 'nothing_available')
                 elseif plan.error then r.before=observation;finish(kind,r,at,'waiting',plan.error)
                 elseif owned()then
                     local sender=get(rawget(_G,'SFSNetwork'),'SendMessage')
@@ -125,7 +141,8 @@ function M.Pump()
                     else
                         plan.sentAt=at;plan.before=observation;pending[kind]=plan
                         -- Record before invoking. An exception can follow a successful wire send.
-                        r.submitted=r.submitted+1;r.state='awaiting_confirmation';r.before=observation;r.error=nil
+                        if plan.readOnly then r.readRequests=(r.readRequests or 0)+1 else r.submitted=r.submitted+1 end
+                        r.state='awaiting_confirmation';r.before=observation;r.error=nil
                         local sent,err=pcall(sender,plan.route,table.unpack(plan.args or {}))
                         if not sent then plan.sendError=tostring(err)end
                     end
@@ -136,7 +153,8 @@ function M.Pump()
     recalc()
 end
 function M.CleanupAfterLeaseLoss()
-    for kind,job in pairs(pending)do uncertain[kind]=job end
+    if native.Stop then for kind in pairs(configs)do native.Stop(kind)end end
+    for kind,job in pairs(pending)do if not job.readOnly then uncertain[kind]=job end end
     configs={};pending={};force={};stopped={};active=false;owner=nil
     for _,r in pairs(services)do r.enabled=false;r.state='disconnected';r.nextRunAt=nil end
 end

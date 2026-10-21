@@ -1,5 +1,8 @@
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
-export const AUTOMATION_TASKS = { "Alliance Help": "allianceHelp" };
+export const AUTOMATION_TASKS = { "Alliance Help": "allianceHelp", "Alliance Gifts": "allianceGift" };
+export function validAutomationDraft(kind, draft) {
+  return typeof draft.enabled === "boolean" && (kind !== "allianceGift" || Number.isInteger(Number(draft.intervalMinutes)) && Number(draft.intervalMinutes) >= 1 && Number(draft.intervalMinutes) <= 1440);
+}
 export function createAutomationAdapter(bridge, profileId, kind, online, valid) {
   const invoke = (command, payload = {}) => {
     assertBridgeProfileOwner(bridge, profileId);
@@ -7,6 +10,8 @@ export function createAutomationAdapter(bridge, profileId, kind, online, valid) 
   };
   return { valid, read: () => invoke("feature018_automation_config_get", { kind }),
     write: async config => {
+      config = { ...config };
+      if (kind === "allianceGift") config.intervalMinutes = Number(config.intervalMinutes);
       // Stop first: a failed disk write must never leave the old engine running.
       if (online && !config.enabled) await invoke("feature018_automation_stop", { kind });
       const saved = await invoke("feature018_automation_config_save", { kind, config });

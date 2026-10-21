@@ -16,6 +16,13 @@ internal static class Feature018AutomationChecks
             var config = new AutomationTaskConfigCommandService(store);
             var other = new AutomationTaskConfigCommandService(new ProfileRuntimeConfigStore(Path.Combine(root, "b.json")));
             var token = CancellationToken.None;
+            if (AutomationTaskConfigCommandService.Default("allianceGift")["intervalMinutes"]!.GetValue<int>() != 120)
+                throw new Exception("R30 recovered gift interval changed");
+            foreach (object bad in new object[] { new { enabled = true, intervalMinutes = 0 }, new { enabled = true, intervalMinutes = 1441 }, new { enabled = true, intervalMinutes = "120" } })
+            {
+                try { AutomationTaskConfigCommandService.Validate("allianceGift", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 bad Gift interval accepted"); }
+                catch (BridgeCommandException e) when (e.Code == "INVALID_REQUEST") { }
+            }
             await config.InvokeAsync("feature018_automation_config_save", JsonSerializer.SerializeToElement(new { kind = "allianceHelp", config = new { enabled = true } }), token);
             var isolated = (JsonObject)(await other.InvokeAsync("feature018_automation_config_get", JsonSerializer.SerializeToElement(new { kind = "allianceHelp" }), token))!;
             if (isolated["enabled"]!.GetValue<bool>()) throw new Exception("R30 settings crossed profiles");
