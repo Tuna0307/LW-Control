@@ -170,12 +170,16 @@ local function gifts(at)
     return data
 end
 local function help()
-    local list=call(center('AllianceHelpDataManager'),'GetOtherHelpList')
+    local manager=center('AllianceHelpDataManager')
+    local list=call(manager,'GetOtherHelpList')
     if type(list)~='table'then error('Alliance Help list is not ready')end
     local ids={};for k,v in pairs(list)do
         ids[#ids+1]=tostring(get(v,'uuid')or get(v,'id')or k)
     end
-    table.sort(ids);return {available=#ids,identity=table.concat(ids,','),ids=ids}
+    -- Live owner main 2026-10-21: after a help-all the game empties this list and refills it only when the
+    -- Help screen opens; new requests arrive via PushAlHelpNewMessage -> SetHelpNum (the hand bubble count).
+    local count=tonumber(select(2,pcall(call,manager,'GetHelpNum')))or 0
+    table.sort(ids);return {available=math.max(#ids,count),helpNum=count,identity=table.concat(ids,','),ids=ids}
 end
 function M.Supports(kind)return moduleNames[kind]~=nil or kind=='allianceHelp'or kind=='allianceGift'or kind=='allianceDonate'or kind=='officialPosition'end
 function M.Interval(kind,c)
@@ -264,9 +268,12 @@ function M.Verify(kind,job)
         -- Busy alliances (owner main, 2026-10-21): new requests can arrive at once. Confirm that every
         -- request that was helped has left the list, not that the list is empty.
         local after=help();local now={}
+        -- Help-all clears the game's own count (OnHelpAll -> SetHelpNum(0)); a lower count is the post-state.
+        if (job.before.helpNum or 0)>0 and after.helpNum<job.before.helpNum then return true,after end
+        if #(job.before.ids or {})==0 then return false,after end
         for _,id in ipairs(after.ids or {})do now[id]=true end
         for _,id in ipairs(job.before.ids or {})do if now[id]then return false,after end end
-        return job.before.available>0,after
+        return true,after
     elseif kind=='allianceGift'then
         if job.phase=='giftList'then
             if giftVersion>job.version then giftFresh=job.sentAt;return true,gifts(job.sentAt)end

@@ -330,10 +330,23 @@ end
 -- (DataCenter.CacheData:LoadEmojiAsset, googleEmoji-0) holds every emoji as a named region; that region
 -- is copied to a small PNG with the same Blit/ReadPixels/EncodeToPNG method as the Map icon reader.
 local emojiPng={}
-local function emoji_region_png(asset,name)
+local function find_emoji(asset,name,depth)
+    if not asset or depth>4 then return nil end
+    -- Live owner 2026-10-21: names like e006 are Unicode code points (U+E006), not sprite names.
+    local code=tonumber(name,16)
+    local index=code and select(2,pcall(function()return asset:GetSpriteIndexFromUnicode(code)end))
+    if type(index)~='number'or index<0 then index=select(2,pcall(function()return asset:GetSpriteIndexFromName(name)end))end
+    if type(index)=='number'and index>=0 then return asset,index end
+    local fallbacks=get(asset,'fallbackSpriteAssets');local count=tonumber(get(fallbacks,'Count'))or 0
+    for i=0,math.min(count,16)-1 do
+        local found,at=find_emoji(select(2,pcall(function()return fallbacks[i]end)),name,depth+1)
+        if found then return found,at end
+    end
+end
+local function emoji_region_png(root,name)
     local cs=rawget(_G,'CS');local u=cs and cs.UnityEngine
+    local asset,index=find_emoji(root,name,0)
     local texture=get(asset,'spriteSheet')
-    local index=select(2,pcall(function()return asset:GetSpriteIndexFromName(name)end))
     if not texture or type(index)~='number'or index<0 then return nil,'Emoji picture not found'end
     local character=select(2,pcall(function()return asset.spriteCharacterTable[index]end))
     local glyph=get(character,'glyph');local rect=get(glyph,'glyphRect')

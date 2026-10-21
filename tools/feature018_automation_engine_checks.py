@@ -81,6 +81,17 @@ def main():
       state.now=state.now+16000;engine.Pump();state.now=state.now+4000;engine.Pump()
       assert(#state.sends>sent,'A clean but unconfirmed help does not stop later helps')
     ''')
+    # Owner main 2026-10-21: requests that only raise the game's help count (empty list) are still helped.
+    vm=runtime()
+    vm.execute('''
+      state.helpNum=0;DataCenter.AllianceHelpDataManager.GetHelpNum=function()return state.helpNum end
+      state.config.allianceHelp.enabled=true;engine.Configure(request);state.list={}
+      engine.Pump();assert(#state.sends==0)
+      state.helpNum=2;state.now=state.now+3000;engine.Pump();assert(#state.sends==1,'Count-only requests are helped')
+      state.helpNum=0;state.now=state.now+1000;engine.Pump()
+      assert(engine.Status().data.services.allianceHelp.confirmed==1,'Count drop confirms the help')
+      state.helpNum=1;state.now=state.now+4000;engine.Pump();assert(#state.sends==2,'Keeps helping new requests every few seconds')
+    ''')
     # Owner direction 2026-10-21: switching Help on checks at once, then every 3 s (not every minute).
     vm=runtime()
     vm.execute('''
