@@ -69,6 +69,15 @@ def main():
     vm.execute('''state.config.allianceHelp.enabled=true;engine.Configure(request);engine.Stop(request)
       assert(engine.Status(request).state=='confirmed'and not engine.IsActive(),'Failed disk save/status must never restart stopped engine')
       engine.Configure(request);assert(engine.IsActive(),'Explicit successful configure can re-enable')''')
+    # Owner direction 2026-10-21: switching Help on checks at once, then every 3 s (not every minute).
+    vm=runtime()
+    vm.execute('''
+      state.config.allianceHelp.enabled=true;assert(engine.Configure(request).state=='confirmed')
+      engine.Pump();local first=state.reads;assert(first>0,'Switch-on checks immediately')
+      state.now=state.now+1000;engine.Pump();state.now=state.now+1000;engine.Pump();local mid=state.reads
+      state.now=state.now+1500;engine.Pump();assert(state.reads>mid,'Help re-checks within about 3 s')
+      assert(engine.Status().data.services.allianceHelp.nextRunAt-state.now<=3000)
+    ''')
     print('FEATURE018_R30_ALLIANCE_HELP_LUA_PASS off=zero reads happy=poststate stop uncertain=no-replay wrong-account wrong-lease empty game-error run-now perf')
 
 if __name__=='__main__':main()

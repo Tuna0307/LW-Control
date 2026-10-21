@@ -179,6 +179,8 @@ end
 function M.Supports(kind)return moduleNames[kind]~=nil or kind=='allianceHelp'or kind=='allianceGift'or kind=='allianceDonate'or kind=='officialPosition'end
 function M.Interval(kind,c)
     local a=adapter(kind);if a then return a.Interval(kind,c)end
+    -- Owner direction 2026-10-21: Help checks every 3 s (it only reads the local help list until there is work).
+    if kind=='allianceHelp'then return 3000 end
     return kind=='allianceGift'and (tonumber(c.intervalMinutes)or 120)*60000 or 60000
 end
 function M.Plan(kind,c,at)

@@ -40,7 +40,7 @@ const automationCards = {
   alliance: [
     ["Alliance Tech Donations", "Automatically donate standard resources to Alliance Tech."],
     ["Automatic Official Application", "Automatically apply for one selected official position."],
-    ["Alliance Help", "Help Alliance members automatically, with a check every minute."],
+    ["Alliance Help", "Help Alliance members automatically, with a check every 3 seconds."],
     ["Alliance Gifts", "Claim normal and advanced Alliance Gifts at the configured interval."],
     ["Excavation Stronghold Resources", "Claim resources from occupied excavation strongholds at the configured interval."],
     ["Alliance Center Resources", "Claim production resources from Alliance Center buildings at the configured interval."],
