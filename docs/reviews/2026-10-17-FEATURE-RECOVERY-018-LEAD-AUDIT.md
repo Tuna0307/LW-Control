@@ -1520,3 +1520,69 @@ restored, no journal): 64 cases (8 surfaces × connected/disconnected × EN/zh-C
 Not pressed live (screen only): Unlock Land Cell, F6/F7/F8, Treasure claim, Food House, Black Market, Alliance Drill
 rally. Bounded Monster AFK sample skipped (no idle staffed squad that moment; AFK proven live in R20).
 Status: R29 READY for owner test.
+
+## Owner decisions — Automation tab (2026-10-21)
+The owner has not tested R29 yet ("no time to test the rest for now"); merging waits for that. Automation starts now.
+- **Remove (cards and their settings/engines/strings/checks):** the whole Protection & System tab (Weekend Shield,
+  Attack Shield); the whole Resource Claims tab (Building Resource Collection, Armed Truck); Automatic Alliance Train
+  Boarding; from Daily Tasks: Auto Training, Automatic Construction, Free Stamina, Trucks.
+- **Recover with a real working engine:** Resource gathering; Automatic Official Application; Alliance Tech
+  Donations; Excavation Stronghold Resources; Alliance Gifts; Alliance Help; Automatic Treatment; Secret Task
+  (incl. its Dispatch Assist settings); Ghost Ops.
+- **Try to recover (owner does not know what they do — explain in plain words):** Alliance Center Resources,
+  Alliance Gathering Dispatch.
+- **Chat:** the settings collapse (show/hide settings button) is missing on the Chat cards — add it like the other
+  cards. Treasure auto-claim stays on hold until Season 4.
+- Trade Station was not mentioned: leave it unchanged and report what it does today.
+- The owner is now using this laptop: background only, **no mouse/keyboard input** until the owner says ready.
+
+## R30 assignment — Automation tab (2026-10-21)
+Branch `codex/feature-recovery-018` (same draft PR). Worker: Codex first; lead audits; CoS continues if needed.
+Today every Automation card except Chat is a UI shell (preview fixtures only, `data-preview-fixture=
+"runtime-config-unobserved"` in production). R30 turns the kept cards into real features.
+
+Part 0 — removals and Chat collapse (do first, one commit):
+remove the cards/tabs listed above everywhere (UI, i18n in all languages, preview fixtures/contracts, Desktop
+commands, checks); add the settings collapse to the three Chat cards (default collapsed, remembered like the
+others). No preview/fixture data may show in production.
+
+Part 1 — engines, in this order (commit + push after each one that passes):
+1. Alliance Help, Alliance Gifts (normal + advanced), Alliance Tech Donations, Automatic Official Application.
+2. Automatic Treatment (treat wounded, ask Alliance help, collect finished — never spend Gold/gems to speed up).
+3. Secret Task (claim finished, refresh to the chosen weekly quality, dispatch; Dispatch Assist) and Ghost Ops
+   (start + share own, join eligible alliance missions, claim on time).
+4. Resource gathering (per squad: resource type + level, scan radius, manual-pause resume delay, recall on disable).
+5. Excavation Stronghold Resources, Alliance Center Resources, Alliance Gathering Dispatch. First find out from the
+   original 0.3.17 artifacts / current game what each really does and write it in plain words in the audit doc.
+For every feature:
+- Recover the original 0.3.17 purpose/defaults/settings (exact SquadPanel/automation UI contracts, research branch
+  `origin/research/offline-controller` via `git show`, and the current v26 game routes). Label OWN_DESIGN where the
+  original engine is unknown. Follow the pattern of `tools/feature018_chat_engine.lua` / `feature018_afk_engine.lua`.
+- Real game route only; result shown from a fresh game read (submission is not success); never replay an uncertain
+  send; switch off = stops at once, nothing queued keeps running; settings saved per profile; plain-language status
+  and errors; Run now where the card has one; works on any account (UID lock is proof-harness only).
+- **Performance (R29 lesson):** zero work when the feature is off; when on, check on a slow timer or on game events,
+  never a heavy scan every tick. Add each engine to the R29 perf counters and show idle cost stays ≈ R29 (≤ ~80 ms
+  of our Lua per second with all Automation off; report the number with everything on).
+- Inert Lua checks (like `feature018_chat_engine_checks.py`): happy path, off/stop, uncertain send, wrong account,
+  nothing to do, game error.
+- Live proof on the sub-account in the packaged app (background WebView harness): at least one real successful
+  action per feature where the game has something to do; record what was done and the before/after game state.
+  If the game has nothing available (no wounded, no gift, no stronghold occupied, no Ghost mission, etc.), record
+  that honestly and mark "waiting for owner/event" — do not fake it.
+Safety for live tests (in addition to the standing rules):
+- Exact sub UID 4799432499002212 only; any other UID (incl. owner main on 2212) read-only.
+- Resource gathering / Gathering Dispatch: send only to EMPTY tiles or alliance points — never to a tile occupied
+  by another player (that would be an attack); recall test squads at the end.
+- Treatment: no gold/gem speed-ups. Secret Task refresh: free refreshes first; gem refreshes only if the original
+  did so, at most a few during testing. Tech Donations: standard resources only (as the card says).
+- Official Application: one application during the test; record the position applied for.
+- Never press Unlock Land Cell; no shields; no Treasure claims; no Train Boarding (removed).
+- Background only: no mouse/keyboard/Windows-MCP input, no focus stealing, never touch the owner's own LW-Control
+  app, game window, or node tools (CoS, Codex, REA). Stop only your own session; restore scripts after exit.
+Deliver: an "R30 Automation" table in this doc (feature → what it does in plain words → route → inert checks →
+live result → status), perf numbers, all checks PASS (UI, Desktop.Checks, every feature Lua suite incl. new ones),
+and an owner-test ZIP from `tools/feature018_r30_package.py` (copy the R29 script; same CRC/test-UID gates).
+Workers never merge, publish, force-push or reset.
+
+### R30 progress (worker updates this)

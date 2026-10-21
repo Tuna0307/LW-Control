@@ -1,3 +1,8 @@
+Latest lead update, 2026-10-21: R29 (all tabs except Automation) finished and published as a pre-release; merge
+waits for owner test. Worker does FEATURE-RECOVERY-018 R30 = Automation tab (removals, Chat collapse, real
+engines for the kept cards) — see the R30 section of docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+Owner is using the PC: background only, no mouse/keyboard input.
+
 Latest lead update, 2026-10-18 (later): test sub-account is now UID 4799432499002212 on server 2212 — lock on
 UID (owner MAIN is also on 2212 and stays read-only). Player attacks only on guildless players. Worker does
 FEATURE-RECOVERY-018 R15 (repeat Q bug, guildless player-city attack, ZIP) — see the R15 section of
