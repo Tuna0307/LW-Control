@@ -140,11 +140,15 @@ local function install()
     if #hooks>0 then if not intact()then error('Gathering native observers were replaced')end;return end
     local find=require('Net.Msgs.FindResourcePointMessage')
     hook(find,'HandleMessage',function(previous)return function(self,response,...)
-        local result=table.pack(pcall(previous,self,response,...))
-        pcall(function()if search and search.pending and owned()then
-            search.pending=false;search.pointId=tonumber(field(response,'pointId','GetInt'))or 0
-            search.error=get(response,'errorCode');search.applied=result[1];search.receivedAt=clock()
+        -- Live owner 2026-10-22: a found tile makes the game's handler change scene and move the camera,
+        -- after which the reply was never recorded. Record it first, then let the game handle it.
+        local q=search
+        pcall(function()if q and q.pending and owned()then
+            q.pending=false;q.pointId=tonumber(field(response,'pointId','GetInt'))or 0
+            q.error=get(response,'errorCode');q.receivedAt=clock()
         end end)
+        local result=table.pack(pcall(previous,self,response,...))
+        if q then q.applied=result[1]end
         if not result[1]then error(result[2],0)end;return table.unpack(result,2,result.n)
     end end)
     local create=require('Net.Msgs.WorldMarchFormationNewMessage')
@@ -252,7 +256,7 @@ function M.Plan(kind,c,at)
                 end
                 if not q or q.resource~=s.resource or q.maxLevel~=s.level or at-(q.receivedAt or q.startedAt)>30000 then
                     return search_at(s.level)
-                elseif q.pending then return {error='Waiting for native resource search'},before
+                elseif q.pending then return {error='Waiting for native resource search',retryMs=1000},before
                 -- Live owner 2026-10-22: the game's own reply handler moves the camera and can then raise an
                 -- unrelated UI error; a server reply with a pointId and no errorCode is still a valid result.
                 elseif q.error or not q.pointId or q.pointId==0 then return lower_or_none('No matching resource at level '..tostring(q.level)..(q.error and (' (game code '..tostring(q.error)..')')or''))
