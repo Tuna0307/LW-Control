@@ -6,7 +6,7 @@ namespace LWBridge.Desktop;
 /// <summary>R30 recovered per-profile settings. This service never sends game requests.</summary>
 internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigStore store) : INativeAsyncCommandService
 {
-    internal static readonly string[] Kinds = ["allianceHelp", "allianceGift"];
+    internal static readonly string[] Kinds = ["allianceHelp", "allianceGift", "allianceDonate"];
     public bool CanHandle(string command) => command is "feature018_automation_config_get" or "feature018_automation_config_save";
 
     internal static string ReadKind(JsonElement input)
@@ -19,6 +19,7 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
     internal static JsonObject Default(string kind) => kind switch
     {
         "allianceGift" => new() { ["enabled"] = false, ["intervalMinutes"] = 120 },
+        "allianceDonate" => new() { ["enabled"] = false, ["threshold"] = 15 },
         _ => new() { ["enabled"] = false },
     };
     internal static JsonObject Validate(string kind, JsonElement input)
@@ -31,6 +32,8 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
             throw Invalid("Automation enabled must be a boolean.");
         if (kind == "allianceGift" && (config["intervalMinutes"] is not JsonValue interval || !interval.TryGetValue<int>(out int minutes) || minutes is < 1 or > 1440))
             throw Invalid("Gift interval must be 1–1440 whole minutes.");
+        if (kind == "allianceDonate" && (config["threshold"] is not JsonValue threshold || !threshold.TryGetValue<int>(out int count) || count is < 1 or > 30))
+            throw Invalid("Donation threshold must be 1–30 whole attempts.");
         return config;
     }
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)

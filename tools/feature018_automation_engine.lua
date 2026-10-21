@@ -120,6 +120,8 @@ function M.Pump()
                         if kind=='allianceGift'and type(after)=='table'then
                             local key=after.category==1 and 'normalClaimed'or 'advancedClaimed'
                             r[key]=(r[key]or 0)+(tonumber(after.claimed)or 0)
+                        elseif kind=='allianceDonate'and type(after)=='table'then
+                            r.donated=(r.donated or 0)+1;r.remaining=after.remaining;r.scienceId=after.scienceId
                         end
                         if #r.receipts>30 then table.remove(r.receipts,1)end
                         if job.continue and r.confirmed-(r.cycleStart or 0)<30 then r.state='waiting';r.nextRunAt=0
