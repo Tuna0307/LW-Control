@@ -5,6 +5,8 @@ import { AutomationMeta, previewFutureTime } from "./AutomationMeta.jsx";
 import { DispatchAssistManual } from "./DispatchAssistManual.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx";
+import { NativeAutomationCard } from "./NativeAutomationCard.jsx";
+import { AUTOMATION_TASKS } from "./automationRuntime.js";
 import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationAvailableSquads, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
 import { Activity, useEffect, useId, useState } from "react";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
@@ -521,6 +523,8 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
   }, [previewEnabled, previewState, discoveredSquads.join(",")]);
   const renderCards = (cards) => cards.map(([title, description]) => !previewEnabled && ["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)
     ? <NativeChatAutomationCard key={`${profileId}:${title}`} title={title} description={description} online={online} profileId={profileId} availableSquads={[1, 2, 3, 4]} />
+    : !previewEnabled && AUTOMATION_TASKS[title] ? <NativeAutomationCard key={`${profileId}:${title}`} title={title} description={description} profileId={profileId} online={online} />
+    : !previewEnabled ? <article key={title} className="automation-card"><h3>{english(title)}</h3><p>{english(description)}</p><p role="status">{t("common.notChecked")}</p></article>
     : <AutomationCard key={title} title={title} description={description} online={online} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} onConfigStatus={onConfigStatus} availableSquads={availableSquads} />);
   const pageStatus = aggregateState === "error" ? "automation.configSave.error" : aggregateState === "saving" ? "automation.configSave.saving" : previewState === "automation-saving"
     ? "automation.configSave.saving"
@@ -539,6 +543,7 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
             key={key}
             type="button"
             role="tab"
+            data-automation-category={key}
             className={category === key ? "active" : ""}
             aria-selected={category === key}
             onClick={() => selectCategory(key)}
@@ -548,8 +553,8 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
         ))}
       </div>
       <div className="automation-grid">
-        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}><ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /></Activity> : null}
-        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}><TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /></Activity> : null}
+        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}>{previewEnabled ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /> : <article className="automation-card"><h3>{t("automation.category.resourceGather")}</h3><p>{t("common.notChecked")}</p></article>}</Activity> : null}
+        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}>{previewEnabled ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <article className="automation-card"><h3>{t("automation.category.trade")}</h3><p>{t("common.notChecked")}</p></article>}</Activity> : null}
         {visitedCategories.has("chat") ? <Activity mode={category === "chat" ? "visible" : "hidden"}>{renderCards(automationCards.chat)}</Activity> : null}
         {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily)}</Activity> : null}
         {visitedCategories.has("alliance") ? <Activity mode={category === "alliance" ? "visible" : "hidden"}>{renderCards(automationCards.alliance)}</Activity> : null}

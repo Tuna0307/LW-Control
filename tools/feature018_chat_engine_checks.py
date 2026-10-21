@@ -93,6 +93,7 @@ def main():
       state.config={redPacket={enabled=false},fireworks={enabled=false},treasure={enabled=false}}
       assert(engine.Configure(request).state=='confirmed');state.roomScans=0
       for _=1,60 do state.now=state.now+1000;engine.Pump()end
+      for _=1,20 do engine.Read(request)end
       assert(state.roomScans==0,'Idle Chat must not rescan rooms every tick')
       state.config={redPacket={enabled=true,claimDelaySeconds={0,0}},fireworks={enabled=false},treasure={enabled=false}}
       assert(engine.Configure(request).state=='confirmed');state.roomScans=0

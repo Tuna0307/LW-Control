@@ -29,6 +29,7 @@ await Feature018HotkeyConfigChecks.RunAsync();
 await Feature018RetiredTasksChecks.RunAsync();
 await Feature018OwnedGameExchangeChecks.RunAsync();
 await Feature018AfkRuntimeChecks.RunAsync();
+await Feature018AutomationChecks.RunAsync();
 await Feature018HotkeyCaptureChecks.RunAsync();
 Feature018KeyProofCorrelationChecks.Run();
 Feature018ProofOwnerGraceChecks.Run();

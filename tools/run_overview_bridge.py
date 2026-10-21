@@ -57,6 +57,8 @@ FEATURE018_AFK_ENTRIES = {
     "DataCenter/Global/LWBridgeFeature018AfkEngine.luac": "feature018_afk_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkNative.luac": "feature018_afk_native.lua",
     "DataCenter/Global/LWBridgeFeature018ChatEngine.luac": "feature018_chat_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AutomationEngine.luac": "feature018_automation_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AutomationNative.luac": "feature018_automation_native.lua",
 }
 MESSAGE = "LWbridge is running"
 
@@ -322,6 +324,10 @@ if not ok_chat then error(chat) end
 if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a table") end
 '''
     between = between.replace(mini_marker, chat_load + mini_marker, 1)
+    automation_load = b'''local automation = require("DataCenter.Global.LWBridgeFeature018AutomationEngine")
+local automation_native = require("DataCenter.Global.LWBridgeFeature018AutomationNative")
+'''
+    between = between.replace(mini_marker, automation_load + mini_marker, 1)
     register_marker = b'rawset(_G, "LWBridgeFeature018GameBridge", feature)\n'
     if between.count(register_marker) != 1:
         raise OverviewBridgeError("FEATURE018 game module registration seam is not unique")
@@ -338,6 +344,7 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
         b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
         b'if type(afk.Register) == "function" then afk.Register(feature, bridge) end\n' +
         b'if type(chat.Register) == "function" then chat.Register(feature, bridge) end\n' +
+        b'automation.Register(feature, bridge, automation_native)\n' +
         b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
     # A Mini Game view wrapper or marker belongs to exactly one authenticated
     # Overview session. The native bridge controls whether that owner is still
@@ -361,6 +368,7 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
             if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
+            automation.CleanupAfterLeaseLoss()
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
         end
@@ -381,6 +389,7 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
             if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
+                automation.CleanupAfterLeaseLoss()
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             local session_token = type(bridge.Feature018SessionToken) == "function" and bridge.Feature018SessionToken() or nil
             if session_token == nil then
@@ -400,6 +409,7 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
         timed("city", city)
         timed("afk", afk)
         timed("chat", chat)
+        if automation.IsActive() then timed("automation", automation) end
         timed("sheep", sheep)
         timed("mailbox", feature)
     end

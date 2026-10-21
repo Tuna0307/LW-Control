@@ -224,9 +224,9 @@ local function has_chat_work()
 end
 M._HasChatWork=has_chat_work
 function M.Pump()
+    if not has_chat_work()then return end
     if not owned()then return end
     subscribe()
-    if not has_chat_work()then return end
     if clock()-last_scan>=RESCAN_MS then last_scan=clock();scan()end
     for _,job in pairs(queue)do
         local s=service(job.kind);local config=configs[job.kind]or {}
@@ -272,7 +272,9 @@ function M.Configure(request)
     if ledger_owner~=ledger_signature then M.CleanupAfterLeaseLoss();queue={};seen={}end
     ledger_owner=ledger_signature
     owner={account=signature,token=token};configs=settings
-    subscribe();scan();return M.Status()
+    -- Status/configuration is polled by the host. Only Pump's 15 s fallback
+    -- or an explicit Run now may walk retained rooms; off status never scans.
+    subscribe();return M.Status()
 end
 function M.Run(request)
     local configured=M.Configure(request);if configured.state~='confirmed'then return configured end

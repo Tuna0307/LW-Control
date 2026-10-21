@@ -1027,6 +1027,13 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const online = bridgeState === "connected";
 
   useEffect(() => {
+    if (!online || !backendBridge.available || !selectedProfileId || backendBridge.mode === "preview") return;
+    // Reapply the current profile's saved Automation settings after reconnect.
+    // Runtime scheduling then stays in the game when its tab is not mounted.
+    void Promise.resolve().then(() => backendBridge.invokeProfileScoped("feature018_automation_status")).catch(() => {});
+  }, [online, selectedProfileId]);
+
+  useEffect(() => {
     if (!online || !backendBridge.available || !selectedProfileId) return undefined;
     let closed = false;
     backendBridge.invokeProfileScoped("visual_metrics_config_get", {}).then((stored) => {

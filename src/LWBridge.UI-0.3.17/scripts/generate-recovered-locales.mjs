@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { retiredAutomationKey } from "./r30-retired-automation.mjs";
+import { AUTOMATION_RUNTIME_MESSAGES } from "./r30-runtime-messages.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -54,6 +55,7 @@ for (const [language, fileName] of Object.entries(sources)) {
   let body = source.slice(start + "var t={".length, end);
   body = body.replace(/\.\.\.e(?:\.[A-Za-z0-9_-]+|\[[^\]]+\])/g, "...shared");
   const messages = Function("shared", `"use strict"; return ({${body}});`)(sharedMessages[language] || {});
+  Object.assign(messages, AUTOMATION_RUNTIME_MESSAGES[language]);
 
   // OWNER_DIRECTION R18: retired automation cards must not return on regeneration.
   for (const key of Object.keys(messages)) {

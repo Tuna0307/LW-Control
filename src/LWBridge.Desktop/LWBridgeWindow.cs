@@ -489,6 +489,7 @@ internal sealed partial class LWBridgeWindow : Form
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
             if (profileRuntimeConfigStore is not null) services.Add(new ChatAutomationConfigCommandService(profileRuntimeConfigStore));
+            if (profileRuntimeConfigStore is not null) services.Add(new AutomationTaskConfigCommandService(profileRuntimeConfigStore));
             if (automationStatusService is not null) services.Add(automationStatusService);
             if (claimDelayConfigService is not null) services.Add(claimDelayConfigService);
             productionCommands = services.Count switch

@@ -43,6 +43,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "mini_frontline_status" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_chat_configure" or "feature018_chat_run" or "feature018_chat_status" or
+        "feature018_automation_configure" or "feature018_automation_run" or "feature018_automation_status" or "feature018_automation_stop" or
         "feature018_input_focus" or
         "feature018_relocation_preflight" or
         "feature018_attack_prepare" or
@@ -60,6 +61,18 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (!CanHandle(command))
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Unsupported FEATURE018 command.");
         Dictionary<string, string> fields = ReadFields(command, payload);
+        if (command is "feature018_automation_configure" or "feature018_automation_run" or "feature018_automation_status")
+        {
+            JsonObject tasks = runtimeConfig?.ReadTasksSnapshot() ??
+                throw new BridgeCommandException("STATE_UNAVAILABLE", "Confirmed profile Automation settings are unavailable.");
+            var trusted = new JsonObject();
+            foreach (string kind in AutomationTaskConfigCommandService.Kinds)
+                trusted[kind] = AutomationTaskConfigCommandService.Validate(kind,
+                    JsonSerializer.SerializeToElement(tasks[kind] ?? AutomationTaskConfigCommandService.Default(kind)));
+            fields["confirmedAutomationConfig"] = trusted.ToJsonString();
+            if (fields["confirmedAutomationConfig"].Length > 14000)
+                throw new BridgeCommandException("INVALID_REQUEST", "Automation settings exceed the native command limit.");
+        }
         if (command is "feature018_chat_configure" or "feature018_chat_run" or "feature018_chat_status")
         {
             JsonObject tasks = runtimeConfig?.ReadTasksSnapshot() ??
@@ -168,7 +181,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         };
         bool acceptsSubmission = command is "city_layout_apply_start" or "city_layout_restore_start" or "monopoly_cell_open" or
             "automation_start" or "automation_stop" or "feature018_hotkey_action" or "feature018_equipment_restore" or "feature018_equipment_edit" or
-            "feature018_chat_configure" or "feature018_chat_run" ||
+            "feature018_chat_configure" or "feature018_chat_run" or "feature018_automation_configure" or "feature018_automation_run" ||
             // cursorOpen only enters the source-native formation chooser;
             // the Lua receipt explicitly reports accepted:true and
             // requestDispatched:false. Never construe it as a march send.
@@ -186,6 +199,17 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         var fields = new Dictionary<string, string>(StringComparer.Ordinal);
         switch (command)
         {
+            case "feature018_automation_configure":
+            case "feature018_automation_run":
+            case "feature018_automation_stop":
+                fields["kind"] = AutomationTaskConfigCommandService.ReadKind(payload);
+                if (payload.EnumerateObject().Any(p => p.Name is not ("kind" or "profileId")))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Automation accepts only a service kind and profile routing.");
+                break;
+            case "feature018_automation_status":
+                if (payload.EnumerateObject().Any(p => p.Name != "profileId"))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Automation status accepts only profile routing.");
+                break;
             case "feature018_chat_configure":
             case "feature018_chat_run":
                 fields["kind"] = ChatAutomationConfigCommandService.ReadKind(payload);

@@ -158,10 +158,13 @@ internal sealed partial class LWBridgeWindow
                                 "r29-performance" => Path.Combine(directory, "r29-performance.json"),
                                 "r29-scroll" => Path.Combine(directory, "r29-scroll.json"),
                                 "r29-memory" => Path.Combine(directory, "r29-memory.json"),
+                                _ when surface.StartsWith("r30-", StringComparison.Ordinal) => Path.Combine(directory, surface + "-ui.json"),
                                 _ => Path.Combine(directory, "r23-" + surface + "-ui.json"),
                             };
                             if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
-                            if (surface == "r29-part-a")
+                            if (surface.StartsWith("r30-", StringComparison.Ordinal))
+                                await RunFeature018R30AutomationProofAsync(core, receipt, directory, owner, uid, serverId, surface[4..], token);
+                            else if (surface == "r29-part-a")
                                 await RunFeature018R29PartAProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "r29-preset-speed")
                                 await RunFeature018R29PresetSpeedProofAsync(core, receipt, directory, owner, uid, serverId, token);

@@ -25,10 +25,10 @@ for (const code of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"])
     assert.ok(!retired.includes(value), `${code}: ${value} retired`);
   }
 }
-const bundle = await build({ stdin: { contents: 'export { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
+const bundle = await build({ stdin: { contents: 'export { NativeAutomationCard } from "./NativeAutomationCard.jsx"; export { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
 const mod = { exports: {} }; new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, mod, mod.exports);
-const { NativeChatAutomationCard, I18nProvider } = mod.exports;
-const bridge = { currentProfileOwner: () => ({ profileId: "a", generation: 1 }), isCurrentProfileOwner: o => o.profileId === "a", invokeProfileScoped: async command => {
+const { NativeChatAutomationCard, NativeAutomationCard, I18nProvider } = mod.exports;
+const bridge = { profileId: "a", currentProfileOwner: () => ({ profileId: "a", generation: 1 }), isCurrentProfileOwner: o => o.profileId === "a", invokeProfileScoped: async command => {
   if (command === "feature018_chat_config_get") return { enabled: false };
   if (command === "feature018_chat_status") return { services: {} };
   throw new Error(`Unexpected action: ${command}`);
@@ -50,5 +50,36 @@ for (const title of ["Red Packet", "Fireworks / Egg", "Treasure"]) {
   await flush(() => trigger.click());
   await flush(() => mounted.unmount());
 }
+let saved = { enabled: false }, failSave = false;
+const calls = [];
+const automationBridge = { profileId: "a", invokeProfileScoped: async (command, payload) => {
+  calls.push(command);
+  if (command === "feature018_automation_config_get") return structuredClone(saved);
+  if (command === "feature018_automation_config_save") {
+    if (failSave) throw new Error("Inert disk failure");
+    saved = structuredClone(payload.config);return structuredClone(saved);
+  }
+  if (command === "feature018_automation_status") return { services: { allianceHelp: { enabled: saved.enabled, state: "disabled" } } };
+  if (["feature018_automation_run", "feature018_automation_stop", "feature018_automation_configure"].includes(command)) return {};
+  throw new Error(command);
+} };
+const mounted = createRoot(document.getElementById("root"));
+await flush(() => mounted.render(React.createElement(I18nProvider, null, React.createElement(NativeAutomationCard, { title: "Alliance Help", description: "", online: true, profileId: "a", bridge: automationBridge }))));
+await flush();
+let toggle = document.querySelector('[data-native-automation=allianceHelp] button[role=switch]');
+assert.equal(toggle.disabled, false);
+await flush(() => toggle.click());
+assert.deepEqual(calls.slice(-2), ["feature018_automation_config_save", "feature018_automation_configure"]);
+assert.equal(saved.enabled, true);
+await flush(() => toggle.click());
+assert.deepEqual(calls.slice(-3), ["feature018_automation_stop", "feature018_automation_config_save", "feature018_automation_configure"]);
+assert.equal(saved.enabled, false);
+await flush(() => toggle.click());
+failSave = true;
+await flush(() => toggle.click());
+assert.deepEqual(calls.slice(-2), ["feature018_automation_stop", "feature018_automation_config_save"], "Stop still precedes a failed disk save");
+assert.ok(document.querySelector('[role=alert]'));
+assert.ok(!document.querySelector('[data-preview-fixture]'), "Native card must never render fixtures");
+await flush(() => mounted.unmount());
 dom.window.close();
 console.log("FEATURE018_R30_REMOVALS_CHAT_COLLAPSE_PASS");

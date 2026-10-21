@@ -208,6 +208,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 hotkeys,
                 featureCommands,
                 new ChatAutomationConfigCommandService(runtimeConfigStore),
+                new AutomationTaskConfigCommandService(runtimeConfigStore),
                 visualMetrics,
                 equipment,
                 monsterAfk,

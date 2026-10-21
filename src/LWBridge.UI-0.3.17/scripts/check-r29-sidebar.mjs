@@ -81,6 +81,7 @@ function invoke(command, args = {}) {
   if (command === "profile_instance_status") return Promise.resolve({ phase: "stopped", connectionState: "offline" });
   if (command === "visual_metrics_config_get") return Promise.resolve({ showFps: false, showPing: false });
   if (command === "feature018_visual_metrics_configure") return Promise.resolve({ state: "confirmed" });
+  if (command === "feature018_automation_status") return Promise.resolve({ services: {} });
   throw new Error(`Unexpected R29 sidebar App command: ${command}`);
 }
 
