@@ -306,12 +306,13 @@ class OriginalV26Sources(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         fver, cver, members = probe.read_lwlf(probe.paths()["data"])
+        cls.content_version = cver
         cls.members = dict(members)
         original = cls.members.get(probe.ORIGINAL_LUA_ENTRY,
                                    cls.members.get(probe.LUA_ENTRY))
-        if (fver, cver) != (3, 26) or original is None or \
+        if (fver, cver) not in ((3, 26), (3, 27)) or original is None or \
                 hashlib.sha256(original).hexdigest() != ORIGINAL_ENTRY_SHA256:
-            raise unittest.SkipTest("Admitted original v26 Lua resource unavailable")
+            raise AssertionError("Admitted original v26/v27 Lua resource unavailable")
 
     def check_method(self, name, method, digest, required):
         encoded = self.members[name]
@@ -375,15 +376,19 @@ class OriginalV26Sources(unittest.TestCase):
                           ("AllianceMoveCityToSelectedRallyPoint", "curType", "costType", "pinMsgUUid"))
 
     def test_original_ui_manager_open_window_can_silently_skip_and_native_visibility_is_separate(self):
-        digest="0161c2f07e6d6da3abdeb224e6b8d95139791b55fb32f6d57f6a516043927c5d"
+        # v27 adds 11 lines before these methods. Read-only disassembly proves
+        # identical opcodes/operands/constants (debug source lines excluded).
+        digest={26:"0161c2f07e6d6da3abdeb224e6b8d95139791b55fb32f6d57f6a516043927c5d",
+                27:"064c8c3f2cd6516fc999665266a85a9be376e3cb8c6bd8bc70f1843aea8f57aa"}[self.content_version]
+        line_offset=11 if self.content_version==27 else 0
         opener=self.check_method('Framework/UI/UIManager.luac','OpenWindow',digest,
             ('IsCanOpenUI','windows','OpenWindow, GuideManager can not open : '))
-        self.assertTrue(any('sourceLine=892' in line and 'RETURN' in line
+        self.assertTrue(any(f'sourceLine={892+line_offset} ' in line and 'RETURN' in line
                             for line in disassemble(opener)))
         visibility=self.check_method('Framework/UI/UIManager.luac','IsWindowOpen',
             digest,('windows','State'))
         lines=disassemble(visibility)
-        self.assertTrue(any('sourceLine=1488' in line for line in lines))
+        self.assertTrue(any(f'sourceLine={1488+line_offset} ' in line for line in lines))
         view=self.check_method('UI/UILWAlliance/UIChooseRallyPoint/UIChooseRallyPointView.luac',
             'OnChangeSelectRallyPoint',
             '2c66d46152e1843245b9f45db3b3f028437134fb186da34395ee53dfe0bce8c5',

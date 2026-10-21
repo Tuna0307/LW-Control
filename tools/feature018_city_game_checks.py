@@ -351,9 +351,9 @@ def check_original_game_wire() -> None:
     file_version, content_version, records = probe.read_lwlf(probe.paths()['data'])
     files = dict(records)
     original = files.get(probe.ORIGINAL_LUA_ENTRY, files.get(probe.LUA_ENTRY))
-    check((file_version, content_version) == (3, 26) and
+    check((file_version, content_version) in ((3, 26), (3, 27)) and
           hashlib.sha256(original).hexdigest() == ORIGINAL_ENTRY_SHA256,
-          'not the admitted original v26 game package')
+          'not an admitted original v26/v27 game package')
 
     def native_method(module, method):
         root = bytecode.parse_chunk(probe.decode_lenc(files[module]))

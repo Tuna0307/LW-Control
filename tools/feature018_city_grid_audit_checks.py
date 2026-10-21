@@ -23,7 +23,7 @@ def exact_native_methods():
     version, content, records = probe.read_lwlf(probe.paths()['data'])
     files = dict(records)
     original = files.get(probe.ORIGINAL_LUA_ENTRY, files.get(probe.LUA_ENTRY))
-    expect((version, content) == (3, 26) and
+    expect((version, content) in ((3, 26), (3, 27)) and
            hashlib.sha256(original).hexdigest() == ORIGINAL_ENTRY_SHA256,
            'original-game v26 provenance changed')
 

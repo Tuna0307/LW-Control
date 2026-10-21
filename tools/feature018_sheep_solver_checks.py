@@ -31,9 +31,9 @@ class NativeSeasonFourBytecode(unittest.TestCase):
         v1, v2, items = probe.read_lwlf(probe.paths()["data"])
         cls.items = dict(items)
         original = cls.items.get(probe.ORIGINAL_LUA_ENTRY, cls.items.get(probe.LUA_ENTRY))
-        if (v1, v2) != (3, 26) or not original or \
+        if (v1, v2) not in ((3, 26), (3, 27)) or not original or \
            hashlib.sha256(original).hexdigest() != ORIGINAL_ENTRY_SHA256:
-            raise unittest.SkipTest("Admitted original v26 Lua entry unavailable")
+            raise AssertionError("Admitted original v26/v27 Lua entry unavailable")
 
     def method(self, module, name):
         proto = lua.parse_chunk(probe.decode_lenc(self.items[module]))

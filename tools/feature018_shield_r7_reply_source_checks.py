@@ -36,7 +36,7 @@ EXPECTED = {
 
 def check():
     version, content_version, entries = source.probe.read_lwlf(source.probe.paths()['data'])
-    assert (version, content_version) == (3, 26)
+    assert (version, content_version) in ((3, 26), (3, 27))
     originals = dict(entries)
     original = originals.get(source.probe.ORIGINAL_LUA_ENTRY,
                              originals.get(source.probe.LUA_ENTRY))
