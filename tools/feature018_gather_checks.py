@@ -120,6 +120,22 @@ def main():
     vm=gathering()
     vm.execute('''state.resource.gatherUid=nil;searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
       local j,b=plan();assert(j and j.phase=='search'and j.args[2]==9 and #state.sends==1,'Missing gatherer is unknown and never sent; the next lower level is searched')''')
+    # Live owner 2026-10-22: the found tile loads a moment after the search reply -> wait, then gather it.
+    vm=gathering()
+    vm.execute('''
+      local info=CS.SceneManager.World.GetPointInfo;local loaded=false
+      CS.SceneManager.World.GetPointInfo=function(self,p)if not loaded then return nil end;return info(self,p)end
+      searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      local j=plan();assert(j.error=='Waiting for the found tile to load'and j.retryMs==2000,'Not-yet-loaded tile is waited for')
+      loaded=true;local d=plan();assert(d.phase=='detail','Loaded tile continues to the detail read')
+      vm2=nil
+    ''')
+    vm=gathering()
+    vm.execute('''
+      CS.SceneManager.World.GetPointInfo=function()return nil end
+      searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      state.now=state.now+26000;local j=plan();assert(j.phase=='search'and j.args[2]==9,'A tile that never loads is given up after the wait')
+    ''')
     # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
     vm=gathering()
     vm.execute('''

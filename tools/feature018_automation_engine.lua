@@ -195,7 +195,7 @@ function M.Pump()
                     -- Temporary block (list full, cooldown): keep checking on the short timer.
                     r.before=observation;finish(kind,r,at,'waiting');r.nextRunAt=at+observation.retryMs
                 elseif not plan then r.before=observation;finish(kind,r,at,r.confirmed>(r.cycleStart or r.confirmed)and 'success'or 'nothing_available')
-                elseif plan.error then r.before=observation;finish(kind,r,at,'waiting',plan.error)
+                elseif plan.error then r.before=observation;finish(kind,r,at,'waiting',plan.error);if plan.retryMs then r.nextRunAt=at+plan.retryMs end
                 elseif owned()then
                     local sender=get(rawget(_G,'SFSNetwork'),'SendMessage')
                     if type(plan.execute)=='function'then

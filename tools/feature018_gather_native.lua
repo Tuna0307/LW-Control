@@ -251,6 +251,11 @@ function M.Plan(kind,c,at)
                 elseif not q.applied or q.error or q.pointId==0 then return lower_or_none('No matching resource at level '..s.level..' or below')
                 else
                     local t,reason=safe_point(q.pointId,s,radius)
+                    -- Live owner 2026-10-22: the game's own search reply moves the camera to the found tile, but the
+                    -- tile's details arrive a moment later. Wait for them instead of rejecting the tile at once.
+                    if not t and reason=='Resource point is not loaded'and at-(q.receivedAt or at)<25000 then
+                        row.step='searching';row.reason='Waiting for the found tile to load';return {error='Waiting for the found tile to load',retryMs=2000},before
+                    end
                     if not t then return lower_or_none(reason)end
                     local d=call(center('WorldPointDetailManager'),'GetDetailByPointId',t.pointId)
                     if not q.detail or d~=q.detail or at-(q.detailAt or 0)>10000 then
