@@ -1533,7 +1533,8 @@ The owner has not tested R29 yet ("no time to test the rest for now"); merging w
   Alliance Gathering Dispatch.
 - **Chat:** the settings collapse (show/hide settings button) is missing on the Chat cards — add it like the other
   cards. Treasure auto-claim stays on hold until Season 4.
-- Trade Station was not mentioned: leave it unchanged and report what it does today.
+- **Trade Station (owner update 2026-10-21):** try to recover it too. The owner is not sure whether it is a seasonal
+  feature and will look into it later; report in plain words what it does and whether the game has it now.
 - The owner is now using this laptop: background only, **no mouse/keyboard input** until the owner says ready.
 
 ## R30 assignment — Automation tab (2026-10-21)
@@ -1554,6 +1555,9 @@ Part 1 — engines, in this order (commit + push after each one that passes):
 4. Resource gathering (per squad: resource type + level, scan radius, manual-pause resume delay, recall on disable).
 5. Excavation Stronghold Resources, Alliance Center Resources, Alliance Gathering Dispatch. First find out from the
    original 0.3.17 artifacts / current game what each really does and write it in plain words in the audit doc.
+6. Trade Station (auto-buy the selected items with the selected currencies, optional cross-server). First find out
+   whether it is seasonal and whether the sub-account has it now; if not available, build + inert-check it and mark
+   "waiting for owner". In-game currency only, never real money, at most one test purchase.
 For every feature:
 - Recover the original 0.3.17 purpose/defaults/settings (exact SquadPanel/automation UI contracts, research branch
   `origin/research/offline-controller` via `git show`, and the current v26 game routes). Label OWN_DESIGN where the
