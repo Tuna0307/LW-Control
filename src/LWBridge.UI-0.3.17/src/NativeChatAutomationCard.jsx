@@ -4,7 +4,7 @@ import { useI18n } from "./i18n.jsx";
 import { usePreviewConfigAdapter, PreviewConfigError } from "./previewConfigHook.jsx";
 import { automationDraftError } from "./previewAutomationContracts.js";
 import { AutomationConfigPreview } from "./AutomationPage.jsx";
-import { CHAT_KINDS, chatDraft, createChatAdapter } from "./chatAutomationRuntime.js";
+import { CHAT_KINDS, settleChatDelayPairs, chatDraft, createChatAdapter } from "./chatAutomationRuntime.js";
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { Switch } from "./sharedPageUI.jsx";
 
@@ -51,8 +51,13 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     <div className="automation-card-header"><div><h3>{english(title)}</h3><p>{english(description)}</p></div>
       <button type="button" role="switch" aria-label={english(title)} aria-checked={config.draft.enabled}
         disabled={disabled || claimsUnavailable} onClick={() => {
-          config.store.edit(draft => ({ ...draft, enabled: !draft.enabled }), false);
-          void config.store.flush().catch(e => setError(e.message));
+          const turningOn = !config.draft.enabled;
+          config.store.edit(draft => settleChatDelayPairs({ ...draft, enabled: !draft.enabled }), false);
+          void config.store.flush().catch(e => {
+            // A switch that did not save must not look on.
+            if (turningOn) config.store.edit(draft => ({ ...draft, enabled: false }), false);
+            setError(e.message === "CONFIG_DRAFT_INVALID" ? t(automationDraftError(title, config.store.getSnapshot().draft) || "configSave.failed") : e.message);
+          });
         }}><Switch checked={config.draft.enabled} /></button></div>
     <div role="status" className="automation-card-meta-row">{!online ? t("status.disconnected") : ({ disabled: "common.disabled", waiting: "common.waiting", success: "common.success", nothing_available: "automation.nothingAvailable", unconfirmed: "automation.resultUnconfirmed" }[row?.state] ? t({ disabled: "common.disabled", waiting: "common.waiting", success: "common.success", nothing_available: "automation.nothingAvailable", unconfirmed: "automation.resultUnconfirmed" }[row.state]) : row?.state ?? (config.draft.enabled ? t("common.waiting") : t("common.disabled")))}</div>
     {runtime?.listener ? <p className="muted">{t("automation.chatObserved", { count: runtime.listener.observedMessages ?? 0 })}</p> : null}

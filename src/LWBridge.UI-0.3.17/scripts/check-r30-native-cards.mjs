@@ -13,9 +13,9 @@ Object.defineProperty(globalThis, "navigator", { configurable: true, value: dom.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 localStorage.setItem("lwbridge.language", "en");
 const { createRoot } = req("react-dom/client");
-const bundle = await build({ stdin: { contents: 'export { NativeAutomationCard } from "./NativeAutomationCard.jsx"; export { NativeGatherCard } from "./NativeGatherCard.jsx"; export { NativeTradeCard } from "./NativeTradeCard.jsx"; export { AutomationCardBoundary } from "./AutomationCardBoundary.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
+const bundle = await build({ stdin: { contents: 'export { NativeAutomationCard } from "./NativeAutomationCard.jsx"; export { NativeGatherCard } from "./NativeGatherCard.jsx"; export { NativeTradeCard } from "./NativeTradeCard.jsx"; export { AutomationCardBoundary } from "./AutomationCardBoundary.jsx"; export { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
 const mod = { exports: {} }; new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, mod, mod.exports);
-const { NativeAutomationCard, NativeGatherCard, NativeTradeCard, AutomationCardBoundary, I18nProvider } = mod.exports;
+const { NativeAutomationCard, NativeGatherCard, NativeTradeCard, AutomationCardBoundary, NativeChatAutomationCard, I18nProvider } = mod.exports;
 const defaults = {
   dispatch: { enabled: false, autoExecute: false, collectRewards: false, delayMinutes: 3, weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"] },
   dispatchAssist: { enabled: false, autoHelp: false, qualities: [], delaySeconds: [0, 0], intervalSeconds: 30 },
@@ -105,6 +105,27 @@ assert.equal(store.resourceGather.enabled, false);
 assert.ok(!document.querySelector('[data-preview-fixture]'), "Native cards never render fixtures");
 assert.ok(!document.querySelector(".automation-run-action"), "Owner 2026-10-21: no Run now button on Automation cards");
 await flush(() => page.unmount());
+// Owner 2026-10-21: Red Packet "Min 10, Max 0" then switch on = a real 10-10 s delay, never a switch that looks on but did not save.
+let chatSaved = { enabled: false, claimDelaySeconds: [0, 0], replyEnabled: false, replyDelaySeconds: [2, 5], replies: [] };
+const chatBridge = { profileId: "a", invokeProfileScoped: async (command, payload = {}) => {
+  if (command === "feature018_chat_config_get") return structuredClone(chatSaved);
+  if (command === "feature018_chat_config_save") { chatSaved = structuredClone(payload.config);return structuredClone(chatSaved); }
+  if (command === "feature018_chat_status") return { services: { redPacket: { state: chatSaved.enabled ? "waiting" : "disabled" } } };
+  return {};
+} };
+const chat = createRoot(document.getElementById("root"));
+await flush(() => chat.render(React.createElement(I18nProvider, null, React.createElement(NativeChatAutomationCard, { title: "Red Packet", description: "", online: true, profileId: "a", availableSquads: [1], bridge: chatBridge }))));
+await flush();await flush();
+const minBox = document.querySelectorAll('[data-native-chat=redPacket] input[type=number]')[0];
+const setNumber = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value").set;
+await flush(() => { setNumber.call(minBox, "10");minBox.dispatchEvent(new Event("input", { bubbles: true })); });
+await flush(() => minBox.dispatchEvent(new dom.window.FocusEvent("focusout", { bubbles: true })));
+assert.equal(document.querySelectorAll('[data-native-chat=redPacket] input[type=number]')[1].value, "10", "Max follows a higher Min");
+await flush(() => document.querySelector('[data-native-chat=redPacket] button[role=switch]').click());
+await flush();
+assert.deepEqual([chatSaved.enabled, chatSaved.claimDelaySeconds], [true, [10, 10]], "Switch-on saves the 10 s delay");
+assert.ok(!document.body.textContent.includes("CONFIG_DRAFT_INVALID"), "No raw internal code is shown");
+await flush(() => chat.unmount());
 // Trade Station with the real "not this season" reply must render, not crash the app.
 const trade = createRoot(document.getElementById("root"));
 await flush(() => trade.render(React.createElement(I18nProvider, null, React.createElement(NativeTradeCard, { online: true, profileId: "a", bridge }))));

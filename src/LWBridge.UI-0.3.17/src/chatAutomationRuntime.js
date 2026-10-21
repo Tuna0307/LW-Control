@@ -10,6 +10,15 @@ export function chatDraft(value = {}) {
     dispatchMin: value.dispatchDelaySeconds?.[0] ?? 2, dispatchMax: value.dispatchDelaySeconds?.[1] ?? 5,
     dispatchRetry: value.dispatchRetrySeconds ?? 30, dispatchSquads: value.dispatchSquadPriority ?? [1] };
 }
+// Owner 2026-10-21: "Min 10, Max 0" means 10 seconds - raise Max to Min instead of refusing to save.
+export function settleChatDelayPairs(draft) {
+  const next = { ...draft };
+  for (const [min, max] of [["claimMin", "claimMax"], ["replyMin", "replyMax"], ["dispatchMin", "dispatchMax"]]) {
+    const low = Number(next[min]), high = Number(next[max]);
+    if (String(next[min] ?? "").trim() !== "" && String(next[max] ?? "").trim() !== "" && Number.isFinite(low) && Number.isFinite(high) && high < low) next[max] = next[min];
+  }
+  return next;
+}
 export function chatConfig(draft) {
   return { enabled: draft.enabled, claimDelaySeconds: [Number(draft.claimMin), Number(draft.claimMax)],
     replyEnabled: draft.replyEnabled, replyDelaySeconds: [Number(draft.replyMin), Number(draft.replyMax)],

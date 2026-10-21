@@ -158,7 +158,20 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
     config.store.flush().catch(() => {});
   };
   const fieldState = (key, initial, immediate = false) => [config.draft[key] ?? initial, (value) => immediate ? setNow(key, value) : config.store.edit((draft) => ({ ...draft, [key]: typeof value === "function" ? value(draft[key] ?? initial) : value }))];
-  const field = (key, initial) => ({ value: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.value })) });
+  // Owner 2026-10-21: a Min/Max pair keeps itself valid when you leave a box (Min 10 with Max 0 becomes 10-10).
+  const delayPairs = { claimMin: ["claimMax", true], claimMax: ["claimMin", false], replyMin: ["replyMax", true], replyMax: ["replyMin", false], dispatchMin: ["dispatchMax", true], dispatchMax: ["dispatchMin", false] };
+  const settlePair = (key) => {
+    const pair = delayPairs[key];
+    if (!pair) return;
+    config.store.edit((draft) => {
+      const [other, isMin] = pair;
+      const mine = Number(draft[key]), theirs = Number(draft[other]);
+      if (String(draft[key] ?? "").trim() === "" || String(draft[other] ?? "").trim() === "" || !Number.isFinite(mine) || !Number.isFinite(theirs)) return draft;
+      if (isMin ? theirs < mine : theirs > mine) return { ...draft, [other]: draft[key] };
+      return draft;
+    });
+  };
+  const field = (key, initial) => ({ value: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.value })), onBlur: () => settlePair(key) });
   const check = (key, initial = false) => ({ checked: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.checked })) });
   const checkNow = (key, initial = false) => ({ checked: config.draft[key] ?? initial, onChange: (event) => setNow(key, event.target.checked) });
   const [replyEnabled] = fieldState("replyEnabled", false);
