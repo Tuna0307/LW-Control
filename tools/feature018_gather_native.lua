@@ -5,7 +5,7 @@ local M={}
 -- Live owner 2026-10-22: the game's own Search tab (WorldSearchItem 104-110) uses ResourceType Metal,
 -- Food and Wood for the three gatherable resources; the gold mine (金礦) is internally ResourceType.Wood.
 local GATHER_TYPES={metal='Metal',food='Food',gold='Wood'}
-local bridge,owner,settings,search,active,stopping,detailJob
+local bridge,owner,settings,search,active,stopping,detailJob,lastDetailReply
 local cursor=1
 local hooks,slots,known={},{},{}
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
@@ -156,8 +156,9 @@ local function install()
     local detail=require('Net.Msgs.WorldGetDetailMessage')
     hook(detail,'HandleMessage',function(previous)return function(self,response,...)
         local j=detailJob
+        pcall(function()lastDetailReply=tostring(field(response,'pointId','GetInt'))..(get(response,'errorCode')~=nil and (' code '..tostring(get(response,'errorCode')))or'')end)
         pcall(function()if j and not j.replied and owned()and (tonumber(field(response,'pointId','GetInt'))==j.pointId or get(response,'errorCode')~=nil)then
-            j.replied=true;j.replyError=get(response,'errorCode')
+            j.replied=true;j.replyError=get(response,'errorCode');j.query.detailReplies=(j.query.detailReplies or 0)+1
         end end)
         local result=table.pack(pcall(previous,self,response,...))
         if not result[1]then error(result[2],0)end;return table.unpack(result,2,result.n)
@@ -284,6 +285,9 @@ function M.Plan(kind,c,at)
                     local d=call(center('WorldPointDetailManager'),'GetDetailByPointId',t.pointId)
                     if not q.detail or d~=q.detail or at-(q.detailAt or 0)>10000 then
                         row.reason='Reading level '..tostring(t.level)..' tile at '..tostring((t.pointId-1)%1000)..','..tostring(math.floor((t.pointId-1)/1000))
+                            ..' (stored detail: '..(d and (tostring(get(d,'pointId'))..'/'..tostring(get(d,'resourceId'))..' vs '..tostring(t.pointId)..'/'..tostring(t.configId))or'none')
+                            ..'; reads '..tostring(q.detailReads or 0)..', replies '..tostring(q.detailReplies or 0)..', last game reply '..tostring(lastDetailReply or 'none')..')'
+                        q.detailReads=(q.detailReads or 0)+1
                         local job={readOnly=true,phase='detail',route=enum('MsgDefines','WorldGetDetail'),
                             -- Same call as the game's own tile popup (UIWorldPointCtrl): no owner uid for an unowned tile.
                             args={t.pointId,tonumber(owner.server),0,t.pointType},slot=slot,formation=v.formation,
