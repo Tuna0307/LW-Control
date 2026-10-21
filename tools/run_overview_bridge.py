@@ -59,6 +59,11 @@ FEATURE018_AFK_ENTRIES = {
     "DataCenter/Global/LWBridgeFeature018ChatEngine.luac": "feature018_chat_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AutomationEngine.luac": "feature018_automation_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AutomationNative.luac": "feature018_automation_native.lua",
+    "DataCenter/Global/LWBridgeFeature018TreatmentNative.luac": "feature018_treatment_native.lua",
+    "DataCenter/Global/LWBridgeFeature018MissionsNative.luac": "feature018_missions_native.lua",
+    "DataCenter/Global/LWBridgeFeature018GatherNative.luac": "feature018_gather_native.lua",
+    "DataCenter/Global/LWBridgeFeature018AllianceResourcesNative.luac": "feature018_alliance_resources_native.lua",
+    "DataCenter/Global/LWBridgeFeature018TradeNative.luac": "feature018_trade_native.lua",
 }
 MESSAGE = "LWbridge is running"
 

@@ -18,6 +18,7 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--kind',action='append',required=True)
     p.add_argument('--idle-seconds',type=int,default=20)
+    p.add_argument('--op-timeout',type=int,default=150)
     args=p.parse_args()
     args.output.mkdir(parents=True,exist_ok=False)
     exe=args.exe.resolve(strict=True);db=args.saved_db.resolve(strict=True)
@@ -55,7 +56,7 @@ def main():
         (args.output/'idle-perf.json').write_text(json.dumps({'before':before,'after':after},indent=2))
         outcomes=[]
         for kind in args.kind:
-            result=submit(root,{'kind':'r23Ui','surface':'r30-'+kind},timeout=150)
+            result=submit(root,{'kind':'r23Ui','surface':'r30-'+kind},timeout=max(60,min(args.op_timeout,3700)))
             outcomes.append(result)
             (args.output/'operations.json').write_text(json.dumps(outcomes,indent=2))
             print('R30_OPERATION '+json.dumps({'kind':kind,'state':result.get('state'),

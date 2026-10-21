@@ -6,6 +6,8 @@ import { DispatchAssistManual } from "./DispatchAssistManual.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx";
 import { NativeAutomationCard } from "./NativeAutomationCard.jsx";
+import { NativeGatherCard } from "./NativeGatherCard.jsx";
+import { NativeTradeCard } from "./NativeTradeCard.jsx";
 import { AUTOMATION_TASKS } from "./automationRuntime.js";
 import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationAvailableSquads, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
 import { Activity, useEffect, useId, useState } from "react";
@@ -553,8 +555,8 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
         ))}
       </div>
       <div className="automation-grid">
-        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}>{previewEnabled ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /> : <article className="automation-card"><h3>{t("automation.category.resourceGather")}</h3><p>{t("common.notChecked")}</p></article>}</Activity> : null}
-        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}>{previewEnabled ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <article className="automation-card"><h3>{t("automation.category.trade")}</h3><p>{t("common.notChecked")}</p></article>}</Activity> : null}
+        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}>{previewEnabled ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /> : <NativeGatherCard key={`${profileId}:gather`} profileId={profileId} online={online} />}</Activity> : null}
+        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}>{previewEnabled ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeTradeCard key={`${profileId}:trade`} profileId={profileId} online={online} />}</Activity> : null}
         {visitedCategories.has("chat") ? <Activity mode={category === "chat" ? "visible" : "hidden"}>{renderCards(automationCards.chat)}</Activity> : null}
         {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily)}</Activity> : null}
         {visitedCategories.has("alliance") ? <Activity mode={category === "alliance" ? "visible" : "hidden"}>{renderCards(automationCards.alliance)}</Activity> : null}

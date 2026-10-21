@@ -58,7 +58,7 @@ def main():
         outcome = helper.make_candidate({"data": source / "LWScripts.data"}, output)
         _, _, entries = helper.lr.read_lwlf(output / "LWScripts.data")
         package = dict(entries)
-        for name in ENTRY_NAMES:
+        for name in set(ENTRY_NAMES) | set(helper.FEATURE018_AFK_ENTRIES):
             if name not in package:
                 raise RuntimeError("Required candidate module missing: " + name)
             data = helper.lr.decode_lenc(package[name])

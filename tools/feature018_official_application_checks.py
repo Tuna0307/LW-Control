@@ -69,6 +69,48 @@ def main():
     vm=official()
     vm.execute('''prepare();step();step();state.appointments={{uid='1001'}};state.callbacks[14](10005);state.callbacks[15](10005);step()
       assert(status().state=='success'and status().confirmed==1,'Automatically accepted appointment is also an exact native post-state')''')
-    print('FEATURE018_R30_OFFICIAL_LUA_PASS exact-position exact-UID fresh-list optimistic-rejection off stop account nothing error uncertain no-replay')
+    # Owner 2026-10-21: full list -> keep checking (apply list only, every 3 s) and apply when a place opens.
+    vm=official()
+    vm.execute('''
+      DataConfig={TryGetNum=function(self,t,k)assert(t=='auto_wonder_config'and k=='k3');return 2 end}
+      local reply={HandleMessage=function(self,r)state.handled=(state.handled or 0)+1 end}
+      local original=reply.HandleMessage
+      package.preload['Net.Msgs.Government.OfficialApply.KingdomPositionApplyMessage']=function()return reply end
+      function applies()local n=0;for _,s in ipairs(state.sends)do if s.route==90 then n=n+1 end end;return n end
+      state.applicants={{uid='2001'},{uid='2002'}}
+      prepare();step()
+      assert(applies()==0 and status().state=='waiting'and status().before.full==true,'Full list must wait, not apply')
+      local reads=#state.sends
+      local answered=#state.sends
+      for _=1,30 do step();if #state.sends>answered then answered=#state.sends;state.callbacks[state.sends[answered].route==91 and 14 or 15](10005)end end
+      local listReads,appointmentReads=0,0;for i=reads+1,#state.sends do local r=state.sends[i].route
+        assert(r==91 or r==92,'Only lists are read while full');if r==91 then listReads=listReads+1 else appointmentReads=appointmentReads+1 end end
+      assert(appointmentReads<=2,'Appointment list only on the 30 s full refresh')
+      assert(applies()==0 and listReads>=8 and listReads<=11,'Full list re-read about every 3 s: '..listReads)
+      -- A place opens: the very next check applies.
+      state.applicants={{uid='2001'}}
+      for _=1,4 do step();if #state.sends>answered and state.sends[#state.sends].route~=90 then answered=#state.sends;state.callbacks[state.sends[answered].route==91 and 14 or 15](10005)end end
+      assert(applies()==1,'Apply within one 3 s check after the list has room')
+      -- The server refuses (another player took the place): retry is allowed, not a replay.
+      reply:HandleMessage({errorCode='E_FULL'});step()
+      assert(status().state=='waiting'and status().refused==1 and status().confirmed==0)
+      assert(state.handled==1,'Game reply handler still runs')
+      state.applicants={{uid='2001'}};for _=1,8 do step();if state.sends[#state.sends].route==91 then state.callbacks[14](10005)end;if state.sends[#state.sends].route==92 then state.callbacks[15](10005)end end
+      assert(applies()==2,'Refused application is retried')
+      -- Second attempt is accepted and our UID is in the fresh list.
+      reply:HandleMessage({});step();state.applicants={{uid='2001'},{uid='1001'}};state.callbacks[14](10005);state.callbacks[15](10005);step()
+      assert(status().state=='success'and status().confirmed==1 and applies()==2)
+      engine.Stop(request);assert(reply.HandleMessage==original,'Reply observer removed on Stop')
+    ''')
+    # Server answered OK but the lists do not show us: accepted, never resent.
+    vm=official()
+    vm.execute('''
+      local reply={HandleMessage=function()end}
+      package.preload['Net.Msgs.Government.OfficialApply.KingdomPositionApplyMessage']=function()return reply end
+      prepare();step();assert(state.sends[3].route==90)
+      reply:HandleMessage({});step();state.callbacks[14](10005);state.callbacks[15](10005);step()
+      assert(status().state=='success'and status().after.serverAccepted==true)
+    ''')
+    print('FEATURE018_R30_OFFICIAL_LUA_PASS exact-position exact-UID fresh-list optimistic-rejection off stop account nothing error uncertain no-replay full-retry refusal-retry')
 
 if __name__=='__main__':main()

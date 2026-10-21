@@ -45,16 +45,24 @@ internal sealed partial class LWBridgeWindow
         JsonElement? terminal = null;
         bool stopped = false;
         bool uiConfirmed = false;
+        bool waitingFull = false;
         try
         {
             Owned();
             await core.ExecuteScriptAsync("document.querySelectorAll('.side-nav button')[1]?.click()");
             await WaitDom("!!document.querySelector('[data-automation-category=alliance]')");
-            await core.ExecuteScriptAsync("document.querySelector('[data-automation-category=alliance]').click()");
+            string category = kind == "treatment" ? "daily" : "alliance";
+            await core.ExecuteScriptAsync("document.querySelector('[data-automation-category=" + category + "]').click()");
             if (kind == "officialPosition")
             {
+                // Owner rule 2026-10-21: the product supports all six positions, but live tests
+                // may never apply for Vice President, Strategy or Defense (10002-10004).
+                string position = Environment.GetEnvironmentVariable("LWBRIDGE_R30_OFFICIAL_POSITION") ?? "10005";
+                if (position is not ("10005" or "10006" or "10007"))
+                    throw new InvalidDataException("R30 live tests may only apply for positions 10005, 10006 or 10007.");
                 await WaitDom("!!document.querySelector('" + selector + " select:not(:disabled)')");
-                await core.ExecuteScriptAsync("(()=>{const s=document.querySelector('" + selector + " select');s.value='10005';s.dispatchEvent(new Event('change',{bubbles:true}));})()");
+                await core.ExecuteScriptAsync("(()=>{const s=document.querySelector('" + selector + " select');s.value='" + position + "';s.dispatchEvent(new Event('change',{bubbles:true}));})()");
+                await WaitDom("document.querySelector('" + selector + " select').value==='" + position + "'");
             }
             await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
             observations.Add(await Status());
@@ -78,7 +86,8 @@ internal sealed partial class LWBridgeWindow
             // Exercise the real saved-config switch through WebView, not a synthetic fixture.
             if (await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('" + selector + " button[role=switch]');if(b.getAttribute('aria-checked')!=='false')return false;b.click();return true;})()") != "true")
                 throw new InvalidDataException("R30 proof requires a previously disabled service.");
-            for (int i = 0; i < 80; i++)
+            int polls = int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_R30_WATCH_SECONDS"), out int watch) && watch is > 0 and <= 3600 ? watch * 2 : 80;
+            for (int i = 0; i < polls; i++)
             {
                 var status = await Status();observations.Add(status);
                 if (status.TryGetProperty("services", out var services) && services.TryGetProperty(kind, out var row) &&
@@ -86,9 +95,19 @@ internal sealed partial class LWBridgeWindow
                 { terminal = row.Clone();break; }
                 await Task.Delay(500, token);
             }
+            // A full official list is a valid, still-retrying outcome: record it as observed.
+            if (!terminal.HasValue && observations.Count > 0 && observations[^1].TryGetProperty("services", out var lastServices) &&
+                lastServices.TryGetProperty(kind, out var lastRow) && lastRow.TryGetProperty("before", out var lastBefore) &&
+                lastBefore.ValueKind == JsonValueKind.Object && lastBefore.TryGetProperty("full", out var full) && full.ValueKind == JsonValueKind.True)
+            {
+                terminal = lastRow.Clone();waitingFull = true;
+            }
             if (terminal.HasValue && terminal.Value.GetProperty("state").GetString() is "success" or "nothing_available")
             {
-                await WaitDom("document.querySelector('" + selector + "')?.dataset.automationState==='" + terminal.Value.GetProperty("state").GetString() + "'");
+                if (terminal.Value.GetProperty("state").GetString() == "success" && terminal.Value.TryGetProperty("confirmed", out var count) && count.GetInt32() > 0)
+                    await WaitDom("Number(document.querySelector('" + selector + "')?.dataset.automationConfirmed)>=" + count.GetInt32());
+                else
+                    await WaitDom("document.querySelector('" + selector + "')?.dataset.automationState==='" + terminal.Value.GetProperty("state").GetString() + "'");
                 uiConfirmed = true;
             }
             await core.ExecuteScriptAsync("document.querySelector('" + selector + "')?.scrollIntoView({block:'center'})");
@@ -109,11 +128,11 @@ internal sealed partial class LWBridgeWindow
             string uiState = await core.ExecuteScriptAsync("(()=>{const c=document.querySelector('" + selector + "');return {language:document.querySelector('.language-select select')?.value,state:c?.dataset.automationState,text:c?.innerText};})()");
             stopped = !final.GetProperty("services").GetProperty(kind).GetProperty("enabled").GetBoolean();
             await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new { kind, observeOnly, native = true, fixture = false,
-                terminal, stopped, observations, uiState, uiConfirmed, success = stopped && uiConfirmed && terminal.HasValue &&
-                    (observeOnly || terminal.Value.GetProperty("state").GetString() is "success" or "nothing_available") },
+                terminal, stopped, waitingFull, observations, uiState, uiConfirmed, success = stopped && terminal.HasValue &&
+                    (waitingFull || uiConfirmed && (observeOnly || terminal.Value.GetProperty("state").GetString() is "success" or "nothing_available")) },
                 new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
         }
-        if (!stopped || !terminal.HasValue || terminal.Value.GetProperty("state").GetString() is not ("success" or "nothing_available"))
+        if (!stopped || !terminal.HasValue || !waitingFull && terminal.Value.GetProperty("state").GetString() is not ("success" or "nothing_available"))
             throw new InvalidDataException("R30 live result was not confirmed; preserve its receipt.");
     }
 }

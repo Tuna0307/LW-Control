@@ -18,6 +18,15 @@ internal static class Feature018AutomationChecks
             var token = CancellationToken.None;
             if (AutomationTaskConfigCommandService.Default("allianceGift")["intervalMinutes"]!.GetValue<int>() != 120)
                 throw new Exception("R30 recovered gift interval changed");
+            if (AutomationTaskConfigCommandService.Default("treatment")["amountPerArmy"]!.GetValue<int>() != 1)
+                throw new Exception("R30 recovered treatment amount changed");
+            foreach (int positionId in new[] { 10002, 10003, 10004, 10005, 10006, 10007 })
+                AutomationTaskConfigCommandService.Validate("officialPosition", JsonSerializer.SerializeToElement(new { enabled = true, positionId }));
+            foreach (object bad in new object[] { new { enabled = true, amountPerArmy = 0 }, new { enabled = false, amountPerArmy = 1000001 }, new { enabled = true, amountPerArmy = "1" } })
+            {
+                try { AutomationTaskConfigCommandService.Validate("treatment", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 invalid treatment amount accepted"); }
+                catch (BridgeCommandException e) when (e.Code == "INVALID_REQUEST") { }
+            }
             foreach (object bad in new object[] { new { enabled = true, intervalMinutes = 0 }, new { enabled = true, intervalMinutes = 1441 }, new { enabled = true, intervalMinutes = "120" } })
             {
                 try { AutomationTaskConfigCommandService.Validate("allianceGift", JsonSerializer.SerializeToElement(bad));throw new Exception("R30 bad Gift interval accepted"); }
