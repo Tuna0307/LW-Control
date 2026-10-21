@@ -326,11 +326,61 @@ function M.EmojiList()
     end
     return {state='confirmed',data={readOnly=true,emojis=array and array(out)or out}}
 end
+-- Owner 2026-10-21: read-only emoji picture for the picker. The chat screen's own TMP sprite sheet
+-- (DataCenter.CacheData:LoadEmojiAsset, googleEmoji-0) holds every emoji as a named region; that region
+-- is copied to a small PNG with the same Blit/ReadPixels/EncodeToPNG method as the Map icon reader.
+local emojiPng={}
+local function emoji_region_png(asset,name)
+    local cs=rawget(_G,'CS');local u=cs and cs.UnityEngine
+    local texture=get(asset,'spriteSheet')
+    local index=select(2,pcall(function()return asset:GetSpriteIndexFromName(name)end))
+    if not texture or type(index)~='number'or index<0 then return nil,'Emoji picture not found'end
+    local character=select(2,pcall(function()return asset.spriteCharacterTable[index]end))
+    local glyph=get(character,'glyph');local rect=get(glyph,'glyphRect')
+    local x,y,w,h=tonumber(get(rect,'x')),tonumber(get(rect,'y')),tonumber(get(rect,'width')),tonumber(get(rect,'height'))
+    if not(x and y and w and h)then
+        -- Older TMP sprite assets keep x/y/width/height on spriteInfoList entries.
+        local info=select(2,pcall(function()return asset.spriteInfoList[index]end))
+        x,y,w,h=tonumber(get(info,'x')),tonumber(get(info,'y')),tonumber(get(info,'width')),tonumber(get(info,'height'))
+    end
+    local tw,th=tonumber(get(texture,'width')),tonumber(get(texture,'height'))
+    if not(x and y and w and h and tw and th)or w<1 or h<1 or w>512 or h>512 then return nil,'Emoji picture region unavailable'end
+    local rt,readable,previous
+    local ok,result=pcall(function()
+        rt=u.RenderTexture.GetTemporary(w,h,0,u.RenderTextureFormat.ARGB32)
+        u.Graphics.Blit(texture,rt,u.Vector2(w/tw,h/th),u.Vector2(x/tw,y/th))
+        previous=u.RenderTexture.active;u.RenderTexture.active=rt
+        readable=u.Texture2D(w,h,u.TextureFormat.RGBA32,false)
+        readable:ReadPixels(u.Rect(0,0,w,h),0,0,false);readable:Apply(false,false)
+        return cs.System.Convert.ToBase64String(u.ImageConversion.EncodeToPNG(readable))
+    end)
+    pcall(function()u.RenderTexture.active=previous end)
+    if rt then pcall(function()u.RenderTexture.ReleaseTemporary(rt)end)end
+    if readable then pcall(function()u.Object.Destroy(readable)end)end
+    if not ok or type(result)~='string'or result==''then return nil,'Emoji picture could not be drawn'end
+    return result
+end
+function M.EmojiImage(request)
+    local name=tostring(request and request.name or'')
+    if not name:match('^[%w_%-]+$')or #name>40 then return {state='failed',errorCode='INVALID_REQUEST',error='Invalid emoji name'}end
+    if emojiPng[name]then return {state='confirmed',data={readOnly=true,name=name,png=emojiPng[name]}}end
+    local cache=get(rawget(_G,'DataCenter'),'CacheData')
+    local asset
+    -- LoadEmojiAsset answers at once when the sheet is already loaded; otherwise it starts the game's own load.
+    local ok=pcall(function()cache:LoadEmojiAsset(function(loaded)asset=loaded end)end)
+    if not ok then return {state='failed',errorCode='GAME_METHOD_UNAVAILABLE',error='The game emoji pictures are unavailable'}end
+    if not asset then return {state='failed',errorCode='GAME_NOT_READY',error='Emoji pictures are still loading'}end
+    local png,err=emoji_region_png(asset,name)
+    if not png then return {state='failed',errorCode='GAME_METHOD_UNAVAILABLE',error=err}end
+    emojiPng[name]=png
+    return {state='confirmed',data={readOnly=true,name=name,png=png}}
+end
 function M.Register(feature,overview)
     bridge=overview;array=feature.Array
     feature.RegisterHandler('feature018_chat_configure',M.Configure)
     feature.RegisterHandler('feature018_chat_run',M.Run)
     feature.RegisterHandler('feature018_chat_status',M.Read)
     feature.RegisterHandler('feature018_chat_emoji_list',M.EmojiList)
+    feature.RegisterHandler('feature018_chat_emoji_image',M.EmojiImage)
 end
 return M

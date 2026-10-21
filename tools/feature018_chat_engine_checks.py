@@ -110,6 +110,10 @@ def main():
       local r=engine.EmojiList();assert(r.state=='confirmed'and r.data.readOnly and #r.data.emojis==2)
       assert(r.data.emojis[1].tag=='<lwEmoji:7:>'and r.data.emojis[1].name=='flower'and #state.sent==sends)
       DataCenter.ChatEmojiTemplateManager=nil;assert(engine.EmojiList().state=='failed')
+      -- Picture reads: invalid names refused; a still-loading sheet reports not ready (nothing sent).
+      assert(engine.EmojiImage({name='../x'}).state=='failed')
+      DataCenter.CacheData={LoadEmojiAsset=function(self,cb)end}
+      assert(engine.EmojiImage({name='e006'}).errorCode=='GAME_NOT_READY'and #state.sent==sends)
     ''')
     print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure fail-closed correlation, delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan')
 
