@@ -51,10 +51,10 @@ local function safe_point(pointId,squad,radius)
     local w=world();local p=call(w,'GetPointInfo',pointId);local r=call(w,'GetResourcePointInfoByIndex',pointId)
     if not p or not r then return nil,'Resource point is not loaded' end
     local kind=tonumber(get(p,'PointType')or get(p,'pointType'))
-    if kind~=1 and kind~=7 then return nil,'Tile is not a public resource node' end
+    if kind~=1 and kind~=7 then return nil,'Tile is not a public resource node (type '..tostring(kind)..')' end
     local main=tonumber(get(p,'mainIndex'));local index=tonumber(get(p,'pointIndex'))
-    if main~=pointId or index~=pointId or tonumber(get(r,'mainIndex'))~=pointId then return nil,'Resource tile identity changed' end
-    if tostring(get(p,'serverId'))~=owner.server or tostring(get(r,'serverId'))~=owner.server then return nil,'Resource server is unknown or changed' end
+    if main~=pointId or index~=pointId or tonumber(get(r,'mainIndex'))~=pointId then return nil,'Resource tile identity changed (tile '..tostring(pointId)..', main '..tostring(main)..', index '..tostring(index)..', resource main '..tostring(get(r,'mainIndex'))..')' end
+    if tostring(get(p,'serverId'))~=owner.server or tostring(get(r,'serverId'))~=owner.server then return nil,'Resource server is unknown or changed ('..tostring(get(p,'serverId'))..'/'..tostring(get(r,'serverId'))..' vs '..owner.server..')' end
     -- Strict absence: never interpret missing/native nil occupancy as empty.
     -- Live v27: an empty tile reports gatherMarchUuid 0 and gatherUid "" (empty text). A missing
     -- (nil) value is still unknown and refused.
@@ -69,11 +69,11 @@ local function safe_point(pointId,squad,radius)
     local resource=tonumber(lookup(tab,cfg,'resource_type'));local level=tonumber(lookup(tab,cfg,'level'))
     local wanted=enum('ResourceType',GATHER_TYPES[squad.resource])
     -- Owner 2026-10-21: the saved level is a maximum (10 = level 10 and below).
-    if resource~=wanted or not level or level>squad.level then return nil,'Resource type or level differs from saved squad settings' end
+    if resource~=wanted or not level or level>squad.level then return nil,'Resource type or level differs (tile type '..tostring(resource)..' level '..tostring(level)..', wanted '..tostring(wanted)..' up to '..tostring(squad.level)..')' end
     local home=tonumber(call(player(),'GetMainWorldPos'));if not home or home<1 or home>1000000 or pointId<1 or pointId>1000000 then return nil,'Native world coordinates unavailable'end
     -- Normal world point indexes are 1 + x + 1000*y.
     local a,b=home-1,pointId-1;local distance=math.sqrt((a%1000-b%1000)^2+(math.floor(a/1000)-math.floor(b/1000))^2)
-    if distance>radius then return nil,'Nearest matching node lies outside saved scan radius'end
+    if distance>radius then return nil,'Nearest matching node lies outside saved scan radius ('..math.floor(distance)..' > '..radius..')'end
     local black=get(rawget(_G,'SceneUtils'),'IsInBlackRange')
     if type(black)~='function'or black(pointId,tonumber(owner.server))~=false then return nil,'Resource safety in contaminated land is unverified'end
     return {pointId=pointId,configId=cfg,resourceType=resource,level=level,pointType=kind,distance=distance,native=r}
@@ -239,13 +239,15 @@ function M.Plan(kind,c,at)
             else
                 known[slot]=nil;row.step='searching';install()
                 local q=v.search
+                row.reason=v.lastReason
                 local function search_at(level)
                     q={pending=true,slot=slot,resource=s.resource,maxLevel=s.level,level=level,startedAt=at};v.search=q;search=q
                     return {readOnly=true,phase='search',route=enum('MsgDefines','FindResourcePoint'),args={enum('ResourceType',GATHER_TYPES[s.resource]),level},slot=slot,formation=v.formation,query=q},before
                 end
                 -- Saved level is a maximum: try it first, then each lower level, before giving up.
                 local function lower_or_none(reason)
-                    if q.level>1 then return search_at(q.level-1)end
+                    v.lastReason='Level '..tostring(q.level)..': '..tostring(reason)
+                    if q.level>1 then local j,b=search_at(q.level-1);row.reason=v.lastReason;return j,b end
                     row.step='nothing_available';row.reason=reason;v.search=nil;cursor=slot%4+1;return nil,before
                 end
                 if not q or q.resource~=s.resource or q.maxLevel~=s.level or at-(q.receivedAt or q.startedAt)>30000 then
