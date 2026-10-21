@@ -69,7 +69,7 @@ assert.equal(previewAfkProfileValid(profileA), true);
 for (const patch of [{ name: " " }, { squadIndexes: [] }, { executionLimit: NaN }, { executionLimit: 0.1 }, { levelFilterEnabled: true, minLevel: 5, maxLevel: 2 }, { distanceFilterEnabled: true, maxDistance: 0 }, { customTarget: true, targetKey: "query:", targetNameQuery: " " }]) assert.equal(previewAfkProfileValid({ ...profileA, ...patch }), false);
 
 assert.equal(automationDraftError("Treasure", { claimMin: 5, claimMax: 1 }), "automation.treasureDelayError");
-assert.equal(automationDraftError("Red Packet", { replyEnabled: true, replies: " " }), "automation.replyRequired");
+assert.equal(automationDraftError("Red Packet", { replyEnabled: true, replies: " " }), "", "Auto Reply without phrases still saves (owner 2026-10-21)");
 assert.equal(automationDraftError("Treasure", { treasureDispatchEnabled: true, dispatchSquads: [] }), "automation.treasureDispatchSquadRequired");
 assert.equal(automationDraftError("Dispatch Assist", { autoHelp: true, qualities: [], delaySeconds: [0, 0], intervalSeconds: 30 }), "automation.dispatchAssistConfigError");
 assert.equal(automationDraftError("Dispatch Assist", { autoHelp: false, qualities: ["ssr"], delaySeconds: [7, 3], intervalSeconds: 30 }), "automation.dispatchAssistConfigError");

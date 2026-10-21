@@ -68,6 +68,7 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     }}>{t("common.retry")}</button></p> : null}
     <PreviewConfigError config={config} t={t} />
     {validation ? <p role="alert">{t(validation)}</p> : null}
+    {config.draft.replyEnabled && !String(config.draft.replies ?? "").split(/\r?\n/).some(line => line.trim()) ? <p className="muted">{t("automation.replyRequired")}</p> : null}
     <div className="automation-config-actions"><button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} onClick={() => {
       const next = !expanded; setExpanded(next);
       try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ }

@@ -56,9 +56,9 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
         Range(config, "replyDelaySeconds", 0.1, 600);
         Range(config, "dispatchDelaySeconds", 0.1, 600);
         if (config["replies"] is not JsonArray replies || replies.Count > 100 ||
-            replies.Any(p => p is not JsonValue value || !value.TryGetValue<string>(out string? phrase) || string.IsNullOrWhiteSpace(phrase) || phrase.Length > 500) ||
-            config["replyEnabled"]!.GetValue<bool>() && replies.Count == 0)
-            throw Invalid("Replies require one or more nonempty phrases when enabled.");
+            replies.Any(p => p is not JsonValue value || !value.TryGetValue<string>(out string? phrase) || string.IsNullOrWhiteSpace(phrase) || phrase.Length > 500))
+            throw Invalid("Reply phrases must be nonempty and at most 500 characters.");
+        // Owner 2026-10-21: Auto Reply on with no phrases saves; the engine simply sends no reply until one is added.
         if (config["dispatchSquadPriority"] is not JsonArray squads || squads.Count > 4 ||
             squads.Any(s => s is not JsonValue number || !number.TryGetValue<int>(out int n) || n is < 1 or > 4) ||
             squads.Select(s => s!.GetValue<int>()).Distinct().Count() != squads.Count ||

@@ -35,7 +35,6 @@ export function automationDraftError(title, draft, maximumBuilders = 20) {
     };
     if (!pairValid("claimMin", "claimMax", [0, 0], 0, title === "Treasure" ? 600 : 60)) return title === "Treasure" ? "automation.treasureDelayError" : title === "Red Packet" ? "automation.redPacketDelayError" : "automation.fireworksDelayError";
     if (!pairValid("replyMin", "replyMax", [2, 5], 0.1, 600) || (title === "Treasure" && !pairValid("dispatchMin", "dispatchMax", [2, 5], 0.1, 600))) return "automation.interactionDelayError";
-    if (draft.replyEnabled && !String(draft.replies ?? "").split(/\r?\n/).some((line) => line.trim())) return "automation.replyRequired";
     if (title === "Treasure" && draft.treasureDispatchEnabled && !(draft.dispatchSquads ?? [1]).length) return "automation.treasureDispatchSquadRequired";
     const retry = Number(draft.dispatchRetry ?? 30);
     if (title === "Treasure" && (!Number.isInteger(retry) || retry < 1 || retry > 300)) return "automation.treasureDispatchRetryError";
