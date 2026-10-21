@@ -214,6 +214,10 @@ internal sealed partial class LWBridgeWindow
                             {
                                 "monster_afk_config_save" or "stamina_potion_config_save" => await monsterAfkConfigService!.InvokeAsync(command, payload, token),
                                 "automation_status" => await automationStatusService!.InvokeAsync(command, payload, token),
+                                "feature018_automation_config_get" or "feature018_automation_config_save" =>
+                                    await new AutomationTaskConfigCommandService(profileRuntimeConfigStore!).InvokeAsync(command, payload, token),
+                                "feature018_chat_config_get" or "feature018_chat_config_save" =>
+                                    await new ChatAutomationConfigCommandService(profileRuntimeConfigStore!).InvokeAsync(command, payload, token),
                                 _ => throw new InvalidDataException("Unsupported R18 profile proof command"),
                             };
                         }

@@ -74,15 +74,18 @@ local function safe_point(pointId,squad,radius)
     if type(black)~='function'or black(pointId,tonumber(owner.server))~=false then return nil,'Resource safety in contaminated land is unverified'end
     return {pointId=pointId,configId=cfg,resourceType=resource,level=level,pointType=kind,distance=distance,native=r}
 end
-local function fresh_record(rec,returning)
+local function fresh_record(rec)
     if not owned()then return nil end
     local f=form(rec.slot);if not f or tostring(get(f,'uuid'))~=rec.formation then return nil end
     -- Returning marches disappear from GetOwnerFormationMarch before arrival.
     -- Re-read the exact captured UUID; retain every ownership/GUID fence.
     local m=call(center('WorldMarchDataManager'),'GetMarch',tonumber(rec.uuid))
+    -- Arrival/collecting updates clear the creation GUID too. This record was
+    -- admitted with that GUID at creation; the exact UUID/owner/formation/server
+    -- stays required throughout its life. A different nonempty GUID is refused.
     if not m or tostring(get(m,'uuid'))~=rec.uuid or tostring(get(m,'ownerUid'))~=owner.uid or
        tostring(get(m,'ownerFormationUuid'))~=rec.formation or tostring(get(m,'serverId'))~=owner.server or
-       (get(m,'clientCreateGuid')~=rec.guid and not(returning and get(m,'clientCreateGuid')==''))then return nil end
+       (get(m,'clientCreateGuid')~=rec.guid and get(m,'clientCreateGuid')~='')then return nil end
     return m
 end
 local function guard(job)
@@ -271,7 +274,7 @@ function M.Verify(kind,job)
         -- is authoritative poststate, as in the established hotkey recall path.
         -- A dispatcher's cached callback can bypass this late Lua reply observer;
         -- report that honestly instead of requiring or inventing a reply witness.
-        local m=fresh_record(job.record,true)
+        local m=fresh_record(job.record)
         if not job.executionStarted or job.wireCount~=1 or not m or call(m,'GetMarchTargetType')~=enum('MarchTargetType','BACK_HOME')then
             local raw=call(center('WorldMarchDataManager'),'GetMarch',tonumber(job.record.uuid))
             return false,{reply=job.replyFields,replyApplied=job.replyApplied==true,marchPresent=raw~=nil,
@@ -317,10 +320,19 @@ end
 function M.FinishStop(kind)if M.Supports(kind)then detach();stopping=true end end
 function M.Observe(kind)
     if not M.Supports(kind)then return {state='unsupported'}end
-    local a=account();local out={readOnly=true,gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000}
+    local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000}
     for slot=1,4 do
         local f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
-        if id(get(f,'uuid'))and tostring(get(f,'ownerUid'))==a.uid then out.gatherSquadIndexes[#out.gatherSquadIndexes+1]=slot;out.gatherSquads[#out.gatherSquads+1]={squadIndex=slot,nativeFormationUuid=tostring(get(f,'uuid'))}end
+        if id(get(f,'uuid'))and tostring(get(f,'ownerUid'))==a.uid then
+            out.gatherSquadIndexes[#out.gatherSquadIndexes+1]=slot
+            local m=call(center('WorldMarchDataManager'),'GetOwnerFormationMarch',get(a.player,'uid'),get(f,'uuid'),get(a.player,'allianceId'))
+            out.gatherSquads[#out.gatherSquads+1]={squadIndex=slot,nativeFormationUuid=tostring(get(f,'uuid')),
+                marchUuid=m and tostring(get(m,'uuid')),ownerUid=m and tostring(get(m,'ownerUid')),
+                ownerFormationUuid=m and tostring(get(m,'ownerFormationUuid')),serverId=m and tostring(get(m,'serverId')),
+                targetPos=m and tonumber(get(m,'targetPos')),targetType=m and call(m,'GetMarchTargetType'),
+                collecting=m and call(m,'GetMarchTargetType')==enum('MarchTargetType','COLLECT'),clientCreateGuid=m and get(m,'clientCreateGuid'),
+                marchEndTime=m and tonumber(get(m,'endTime')),marchStartTime=m and tonumber(get(m,'startTime'))}
+        end
     end
     for _,key in ipairs({'metal','food','gold'})do out.gatherResources[#out.gatherResources+1]={resource=key,resourceType=enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[key]),maxLevel=10,levelLimitObservation='Original UI maximum; current search may refuse locked levels'}end
     return {state='confirmed',data=out}

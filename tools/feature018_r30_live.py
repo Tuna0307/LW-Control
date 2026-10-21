@@ -18,6 +18,8 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--kind',action='append',required=True)
     p.add_argument('--uid',choices=('4799432499002212','1183884595002296'),default='4799432499002212',help='Explicit owner-authorized proof UID; never server-only')
+    p.add_argument('--recover-gather-proof',type=Path,help='Exact prior worker performance receipt, only for recover-gather cleanup')
+    p.add_argument('--recover-observe-only',action='store_true',help='Read prior gather state only; never retry an uncertain recall')
     p.add_argument('--idle-seconds',type=int,default=20)
     p.add_argument('--op-timeout',type=int,default=150)
     p.add_argument('--keep-going',action='store_true',help='continue with the next independent service after a failure (never replays it)')
@@ -59,7 +61,15 @@ def main():
         (args.output/'idle-perf.json').write_text(json.dumps({'before':before,'after':after},indent=2))
         outcomes=[]
         for kind in args.kind:
-            result=submit(root,{'kind':'r23Ui','surface':'r30-'+kind},timeout=max(60,min(args.op_timeout,3700)),expected_uid=args.uid,expected_server=server)
+            if kind=='recover-gather':
+                from feature018_r30_recall_cleanup import recover
+                if args.recover_gather_proof is None:raise ValueError('Exact prior worker receipt required')
+                result=recover(root,args.output,args.uid,server,args.recover_gather_proof.resolve(strict=True),args.recover_observe_only)
+            elif kind=='performance':
+                from feature018_r30_performance import measure
+                result=measure(root,args.output,args.uid,server)
+            else:
+                result=submit(root,{'kind':'r23Ui','surface':'r30-'+kind},timeout=max(60,min(args.op_timeout,3700)),expected_uid=args.uid,expected_server=server)
             outcomes.append(result)
             (args.output/'operations.json').write_text(json.dumps(outcomes,indent=2))
             print('R30_OPERATION '+json.dumps({'kind':kind,'state':result.get('state'),
@@ -81,5 +91,7 @@ def main():
     if exit_record.get('restorationAuditError')or not all(exit_record.get('originalScriptsRestored',{}).values()):
         raise RuntimeError('Exact original restoration audit failed')
     print('R30_OWNED_EXIT_RESTORATION_PASS',flush=True)
+    if any(r.get('error')or r.get('state')in('failed','error')or r.get('result',{}).get('success')is False for r in outcomes):
+        raise RuntimeError('One or more R30 operations failed; cleanup passed but feature proof did not')
 
 if __name__=='__main__':main()

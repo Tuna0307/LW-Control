@@ -134,6 +134,8 @@ def main():
     vm=gathering()
     vm.execute('''
       hydrate();assert(dispatch(job));native_result();assert(verify(job));state.config.resourceGather.recallOnDisable=true
+      state.marches[41].clientCreateGuid=''
+      local j,b=plan();assert(j==nil and b.gatherSquads[1].pauseReason==nil,'Arrival update clearing GUID retains exact engine-owned march')
       local recall=gather.Stop('resourceGather').cleanupJobs[1];assert(dispatch(recall))
       gather.Stop('resourceGather');state.marches[41].targetType=9;state.marches[41].clientCreateGuid=''
       local yes,receipt=verify(recall)
