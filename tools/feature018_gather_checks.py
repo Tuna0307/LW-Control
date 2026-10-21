@@ -165,6 +165,13 @@ def main():
       classes.WorldGetDetailMessage.HandleMessage({}, {pointId=1011})
       assert(verify(d),'Same detail object after a reply is accepted');assert(plan().phase=='gather')
     ''')
+    vm=gathering()
+    vm.execute('''
+      state.detail={pointId=1011,resourceId=401,remainRes=100}
+      searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
+      local d=plan();assert(d.phase=='detail');assert(dispatch(d));assert(not verify(d))
+      state.now=state.now+5000;assert(verify(d),'The game popup detail is used after 5 s without a reply')
+    ''')
     # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
     vm=gathering()
     vm.execute('''
@@ -185,7 +192,7 @@ def main():
       assert(#state.sends==0 and state.reads==0,'Module load and SetBridge do zero work')
       hydrate()
       assert(#state.sends==2 and state.sends[1].route==80 and state.sends[1].args[1]==1 and state.sends[1].args[2]==10)
-      local a=state.sends[2].args;assert(#a==5 and a[1]==1011 and a[2]==123 and a[3]==0 and a[4]==7 and a[5]=='0','Source-native five-argument detail')
+      local a=state.sends[2].args;assert(#a==4 and a[1]==1011 and a[2]==123 and a[3]==0 and a[4]==7,'Same detail request as the game tile popup')
       assert(dispatch(job));assert(#state.sends==3 and not verify(job),'Submission is not success')
       native_result();state.marches[41].clientCreateGuid='unrelated';assert(not verify(job))
       state.marches[41].clientCreateGuid=state.createToken

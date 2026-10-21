@@ -285,7 +285,8 @@ function M.Plan(kind,c,at)
                     if not q.detail or d~=q.detail or at-(q.detailAt or 0)>10000 then
                         row.reason='Reading level '..tostring(t.level)..' tile at '..tostring((t.pointId-1)%1000)..','..tostring(math.floor((t.pointId-1)/1000))
                         local job={readOnly=true,phase='detail',route=enum('MsgDefines','WorldGetDetail'),
-                            args={t.pointId,tonumber(owner.server),0,t.pointType,'0'},slot=slot,formation=v.formation,
+                            -- Same call as the game's own tile popup (UIWorldPointCtrl): no owner uid for an unowned tile.
+                            args={t.pointId,tonumber(owner.server),0,t.pointType},slot=slot,formation=v.formation,
                             pointId=t.pointId,configId=t.configId,squad=s,radius=radius,previous=d,query=q}
                         detailJob=job;return job,before
                     elseif tonumber(get(d,'remainRes'))==nil or tonumber(get(d,'remainRes'))<=0 then
@@ -326,7 +327,10 @@ function M.Verify(kind,job)
     if job.phase=='detail'then
         local d=call(center('WorldPointDetailManager'),'GetDetailByPointId',job.pointId)
         if job.replied and job.replyError~=nil then job.query.detailError=job.replyError;detailJob=nil;return true,{readOnly=true,pointId=job.pointId,gameCode=job.replyError}end
-        if not d or (d==job.previous and not job.replied)or tonumber(get(d,'pointId'))~=job.pointId or tonumber(get(d,'resourceId'))~=job.configId then return false end
+        -- The game's own tile popup (opened by its search reply) may already hold this tile's detail;
+        -- after 5 s without our reply, that matching detail is used.
+        local settled=job.replied or d~=job.previous or (job.sentAt and clock()-job.sentAt>=5000)
+        if not d or not settled or tonumber(get(d,'pointId'))~=job.pointId or tonumber(get(d,'resourceId'))~=job.configId then return false end
         detailJob=nil
         job.query.detail=d;job.query.detailAt=clock();return true,{readOnly=true,pointId=job.pointId,remainRes=tonumber(get(d,'remainRes'))}
     elseif job.phase=='gather'then
