@@ -1637,3 +1637,33 @@ Workers never merge, publish, force-push or reset.
 | Alliance Center Resources | Original purpose/route still to be verified | Not recovered yet | Not run | Not run | NOT STARTED |
 | Alliance Gathering Dispatch | Original purpose/route still to be verified | Not recovered yet | Not run | Not run | NOT STARTED |
 | Trade Station | Availability/seasonality and purchase route still to be verified | Not recovered yet | Not run | Not run | NOT STARTED |
+
+### R30 lead continuation (Claude) — 2026-10-21 (Codex out of tokens again)
+- **Owner direction:** Official Application must keep trying while the chosen list is full ("spam until applied");
+  test on Science (10006), currently full. Implemented: while full (apply-list length >= `auto_wonder_config.k3`
+  or `GetApplyListFull`), re-read only the apply list every 3 s and apply the moment a place opens; a pass-through
+  `KingdomPositionApplyMessage.HandleMessage` observer reads the server reply, so an explicit refusal (errorCode) is
+  retried after 5 s instead of becoming a permanent "unconfirmed"; a server OK with no list entry is recorded as
+  accepted and never resent; a personal re-apply cooldown waits for `GetOwnApplyCD`. No reply within 15 s still stays
+  unconfirmed (no replay). The live-test harness refuses positions 10002/10003/10004.
+- Treatment was proven live by Codex (`native-ui-20261021-054735`): collected 5580 healed soldiers, started healing 1,
+  asked help 1, `gold=0`. That receipt is marked failed only because that build lacked the UI confirm attribute.
+- Wired in Codex's offline modules: Secret Task + Dispatch Assist + Ghost Ops (`feature018_missions_native.lua`),
+  Resource gathering (`feature018_gather_native.lua`), Excavation Stronghold + Alliance Center
+  (`feature018_alliance_resources_native.lua`), Trade Station (`feature018_trade_native.lua`): engine routing, package
+  entries, Desktop settings validation for every kind, native UI cards (the Secret Task card holds Dispatch Assist; new
+  native Gathering and Trade cards). The engine gained adapter-owned sends (`execute`; refused before the wire is not
+  uncertain) and one-shot verified cleanup (gathering recall on switch-off). Commit `e060a217`; all checks PASS.
+- **What the unknown cards are (plain words):** Excavation Stronghold Resources = collect the resources from strongholds
+  your alliance has captured (seasonal). Alliance Center Resources = collect what the alliance Military Center
+  buildings produce (seasonal). Alliance Gathering Dispatch = send your chosen idle squads, in priority order, to gather
+  at your alliance's Alliance Mine (the game allows one of your squads per mine); game route
+  `MarchUtil.StartMarch(COLLECT_ALLIANCE_BUILD_RESOURCE, minePoint, mineUuid, ...)`. Module in progress.
+- **BLOCKER — official game update today (manifest 1093 -> 1101, Lua content 26 -> 27):** the first lead live run
+  `native-ui-20261021-081726` never reached the game. The official launcher tried to patch the scripts while the bridge's
+  modified package was installed and failed (`LWLua decode failed: crc mismatch`), so the helper aborted
+  (`official_lua_update_failed`). Zero game requests; originals restored and verified; no journal. The launcher left its
+  own partial `LWScripts.data.tmp` and `LWScripts_27_26_u440.patch` in lwScripts (not ours; left untouched). Core files
+  (LastWar.exe, Assembly-CSharp.rdl) still match the admitted hashes. The update must finish through the official
+  launcher with original scripts before any live test; owner asked. The shipped app hits the same failure on every game
+  update until the game is opened normally once (product follow-up: settle and retry once on this error).
