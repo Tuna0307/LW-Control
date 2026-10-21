@@ -22,7 +22,7 @@ def gathering():
       LuaEntry.Player.GetMainWorldPos=function()return 1001 end
       LuaEntry.Player.allianceId='12'
       LuaEntry.DataConfig={CheckSwitch=function(self,k)assert(k=='slide_left_return');return not state.confirmRecall end}
-      ResourceType={Metal=1,Food=2,Gold=3};TableName={GatherResource=4}
+      ResourceType={Metal=1,Food=2,Gold=99,Wood=3};TableName={GatherResource=4}
       GetTableData=function(tab,cfg,k)assert(tab==4 and cfg==401);return ({resource_type=state.resType or 1,level=state.resLevel or 10})[k]end
       SceneUtils={IsInBlackRange=function(point,server)assert(point==1011 and server==123);return state.black==true end}
       DataCenter.ArmyFormationDataManager={GetOneArmyInfoByIndex=function(self,slot)state.reads=state.reads+1;return state.forms[slot]end}
@@ -136,6 +136,10 @@ def main():
       searchJob=plan();assert(dispatch(searchJob));find_result();assert(verify(searchJob))
       state.now=state.now+26000;local j=plan();assert(j.phase=='search'and j.args[2]==9,'A tile that never loads is given up after the wait')
     ''')
+    # Live owner 2026-10-22: a gold squad searches the game's gold mines (ResourceType.Wood), never ResourceType.Gold.
+    vm=gathering()
+    vm.execute('''state.config.resourceGather.squads[1].resource='gold';local j=plan()
+      assert(j.phase=='search'and j.args[1]==ResourceType.Wood,'Gold mines are ResourceType.Wood in the game search')''')
     # Owner 2026-10-21: level is a maximum. No level-10 tile -> level 9 is searched and gathered.
     vm=gathering()
     vm.execute('''

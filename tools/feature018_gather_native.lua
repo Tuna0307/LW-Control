@@ -2,6 +2,9 @@
 -- Original UI: off; squads off/metal/10; radius200; manual delay120s; recall false.
 -- No work on require. Requires scheduler execute/BeforeSend/cleanupJobs support.
 local M={}
+-- Live owner 2026-10-22: the game's own Search tab (WorldSearchItem 104-110) uses ResourceType Metal,
+-- Food and Wood for the three gatherable resources; the gold mine (金礦) is internally ResourceType.Wood.
+local GATHER_TYPES={metal='Metal',food='Food',gold='Wood'}
 local bridge,owner,settings,search,active,stopping
 local cursor=1
 local hooks,slots,known={},{},{}
@@ -64,7 +67,7 @@ local function safe_point(pointId,squad,radius)
     local lookup=rawget(_G,'GetTableData');if type(lookup)~='function'then error('Native resource config unavailable')end
     local tab=enum('TableName','GatherResource')
     local resource=tonumber(lookup(tab,cfg,'resource_type'));local level=tonumber(lookup(tab,cfg,'level'))
-    local wanted=enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[squad.resource])
+    local wanted=enum('ResourceType',GATHER_TYPES[squad.resource])
     -- Owner 2026-10-21: the saved level is a maximum (10 = level 10 and below).
     if resource~=wanted or not level or level>squad.level then return nil,'Resource type or level differs from saved squad settings' end
     local home=tonumber(call(player(),'GetMainWorldPos'));if not home or home<1 or home>1000000 or pointId<1 or pointId>1000000 then return nil,'Native world coordinates unavailable'end
@@ -238,7 +241,7 @@ function M.Plan(kind,c,at)
                 local q=v.search
                 local function search_at(level)
                     q={pending=true,slot=slot,resource=s.resource,maxLevel=s.level,level=level,startedAt=at};v.search=q;search=q
-                    return {readOnly=true,phase='search',route=enum('MsgDefines','FindResourcePoint'),args={enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[s.resource]),level},slot=slot,formation=v.formation,query=q},before
+                    return {readOnly=true,phase='search',route=enum('MsgDefines','FindResourcePoint'),args={enum('ResourceType',GATHER_TYPES[s.resource]),level},slot=slot,formation=v.formation,query=q},before
                 end
                 -- Saved level is a maximum: try it first, then each lower level, before giving up.
                 local function lower_or_none(reason)
@@ -369,7 +372,7 @@ function M.Observe(kind)
                 marchEndTime=m and tonumber(get(m,'endTime')),marchStartTime=m and tonumber(get(m,'startTime'))}
         end
     end
-    for _,key in ipairs({'metal','food','gold'})do out.gatherResources[#out.gatherResources+1]={resource=key,resourceType=enum('ResourceType',({metal='Metal',food='Food',gold='Gold'})[key]),maxLevel=10,levelLimitObservation='Original UI maximum; current search may refuse locked levels'}end
+    for _,key in ipairs({'metal','food','gold'})do out.gatherResources[#out.gatherResources+1]={resource=key,resourceType=enum('ResourceType',GATHER_TYPES[key]),maxLevel=10,levelLimitObservation='Original UI maximum; current search may refuse locked levels'}end
     return {state='confirmed',data=out}
 end
 return M
