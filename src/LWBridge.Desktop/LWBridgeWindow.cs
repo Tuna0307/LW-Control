@@ -53,6 +53,7 @@ internal sealed partial class LWBridgeWindow : Form
     private readonly string? language;
     private readonly string? theme;
     private readonly string uiRootPath;
+    private readonly bool liveUiReloadAllowed;
     private LWBridgeBackend backend = null!;
     private readonly MapDataStore? mapData;
     private readonly HostProbeCommandService? hostProbeService;
@@ -188,6 +189,9 @@ internal sealed partial class LWBridgeWindow : Form
             allowProofOverride: mapUiIntegrationProofPath is not null);
         this.uiRootPath = uiSelection.RootPath;
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || homeMapCampaignProofPath is not null;
+        // Live screen reload only for the normal owner app (never proofs, captures or probes).
+        liveUiReloadAllowed = !isolated && uiSelection.Mode == "canonical-production" &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") != "1";
         if (isolated && isolatedRootPath is not null)
             throw new ArgumentException("--isolated-root is restricted to normal production composition.");
         productionPaths = isolated
@@ -1230,6 +1234,7 @@ internal sealed partial class LWBridgeWindow : Form
                     """);
             }
             core.SetVirtualHostNameToFolderMapping("lwbridge.local", uiRootPath, CoreWebView2HostResourceAccessKind.DenyCors);
+            StartLiveUiReload(core);
             core.NavigationStarting += OnNavigationStarting;
             core.NewWindowRequested += (_, args) => args.Handled = true;
             core.WebMessageReceived += OnWebMessageReceived;
@@ -6306,6 +6311,7 @@ internal sealed partial class LWBridgeWindow : Form
 
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
+        StopLiveUiReload();
         StopFeature018HotkeyMonitoring();
         automationStatusService?.Dispose();
         home004RouteFaultTimer?.Stop();
