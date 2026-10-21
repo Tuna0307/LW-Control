@@ -31,6 +31,14 @@ def main():
             destination = target / source.relative_to(BUILT)
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
+    # The app verifies the folder against the identity fingerprint: remove leftovers of the old build.
+    wanted = {path.relative_to(BUILT) for path in BUILT.rglob('*') if path.is_file()}
+    for old in sorted(target.rglob('*'), reverse=True):
+        relative = old.relative_to(target)
+        if old.is_file() and relative not in wanted and old.name != IDENTITY:
+            old.unlink()
+        elif old.is_dir() and not any(old.iterdir()):
+            old.rmdir()
     temporary = target / (IDENTITY + '.tmp')
     shutil.copy2(BUILT / IDENTITY, temporary)
     temporary.replace(target / IDENTITY)
