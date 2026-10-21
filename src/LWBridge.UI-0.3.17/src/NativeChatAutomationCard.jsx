@@ -43,16 +43,6 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     const timer = setInterval(poll, 2000);
     return () => { cancelled = true; clearInterval(timer); };
   }, [profileId, online, kind, config.store]);
-  const run = async () => {
-    setBusy(true); setError("");
-    try {
-      await config.store.flush();
-      assertBridgeProfileOwner(bridge, profileId);
-      await bridge.invokeProfileScoped("feature018_chat_run", { kind });
-      setRuntime(await bridge.invokeProfileScoped("feature018_chat_status"));
-    } catch (e) { setError(e.message); }
-    finally { setBusy(false); }
-  };
   const row = runtime?.services?.[kind];
   const validation = automationDraftError(title, config.draft);
   const disabled = !online || !hydrated || busy || config.saving;
@@ -64,7 +54,7 @@ export function NativeChatAutomationCard({ title, description, online, profileId
           config.store.edit(draft => ({ ...draft, enabled: !draft.enabled }), false);
           void config.store.flush().catch(e => setError(e.message));
         }}><Switch checked={config.draft.enabled} /></button></div>
-    <div role="status" className="automation-card-meta-row">{!online ? t("status.disconnected") : row?.state ?? (config.draft.enabled ? t("common.waiting") : t("common.disabled"))}</div>
+    <div role="status" className="automation-card-meta-row">{!online ? t("status.disconnected") : ({ disabled: "common.disabled", waiting: "common.waiting", success: "common.success", nothing_available: "automation.nothingAvailable", unconfirmed: "automation.resultUnconfirmed" }[row?.state] ? t({ disabled: "common.disabled", waiting: "common.waiting", success: "common.success", nothing_available: "automation.nothingAvailable", unconfirmed: "automation.resultUnconfirmed" }[row.state]) : row?.state ?? (config.draft.enabled ? t("common.waiting") : t("common.disabled")))}</div>
     {runtime?.listener ? <p className="muted">{t("automation.chatObserved", { count: runtime.listener.observedMessages ?? 0 })}</p> : null}
     {row?.warning ? <p className="muted">{row.warning}</p> : null}
     {error ? <p role="alert" className="error-text">{error}</p> : null}
@@ -76,7 +66,7 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     <div className="automation-config-actions"><button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} onClick={() => {
       const next = !expanded; setExpanded(next);
       try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ }
-    }}>{t("settings.title")}</button><button type="button" className="automation-run-action" disabled={disabled || claimsUnavailable || !!validation} onClick={run}>{t(busy ? "automation.runningEllipsis" : "common.runNow")}</button></div>
+    }}>{t("settings.title")}</button></div>
     <fieldset className="automation-config-body" style={expanded ? undefined : { display: "none" }} disabled={disabled} onBlur={() => config.store.flush().catch(e => setError(e.message))}>
       <AutomationConfigPreview title={title} enabled={!disabled} previewState="" config={config} assistConfig={config} availableSquads={availableSquads} onLocalError={setError} />
     </fieldset>

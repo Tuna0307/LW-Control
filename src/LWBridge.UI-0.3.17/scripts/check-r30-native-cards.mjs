@@ -103,6 +103,7 @@ await flush(() => gather.querySelector('button[role=switch]').click());
 assert.equal(calls[before], "feature018_automation_stop:resourceGather", "Off stops gathering before saving");
 assert.equal(store.resourceGather.enabled, false);
 assert.ok(!document.querySelector('[data-preview-fixture]'), "Native cards never render fixtures");
+assert.ok(!document.querySelector(".automation-run-action"), "Owner 2026-10-21: no Run now button on Automation cards");
 await flush(() => page.unmount());
 // Trade Station with the real "not this season" reply must render, not crash the app.
 const trade = createRoot(document.getElementById("root"));

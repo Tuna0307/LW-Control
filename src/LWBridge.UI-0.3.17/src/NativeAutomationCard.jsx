@@ -54,12 +54,6 @@ export function NativeAutomationCard({ title, description, profileId, online, br
     } catch (e) { setError(e.message === "CONFIG_DRAFT_INVALID" ? t("configSave.failed") : e.message); }
     finally { setBusy(false); }
   };
-  const run = async () => {
-    setBusy(true);setError("");
-    try { await config.store.flush();assertBridgeProfileOwner(bridge, profileId);await bridge.invokeProfileScoped("feature018_automation_run", { kind }); }
-    catch (e) { setError(e.message); }
-    finally { setBusy(false); }
-  };
   const state = !online ? t("status.disconnected") : runtime?.state === "nothing_available" ? t("automation.nothingAvailable") : runtime?.state === "success" ? t("common.success") : runtime?.state === "disabled" || !config.draft.enabled && !runtime ? t("common.disabled") : runtime?.state === "unconfirmed" ? t("automation.resultUnconfirmed") : t("common.waiting");
   return <article className="automation-card" data-native-automation={kind} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
     <div className="automation-card-header"><div className="automation-card-title-group"><h3>{english(title)}</h3><p>{english(description)}</p></div>
@@ -79,10 +73,8 @@ export function NativeAutomationCard({ title, description, profileId, online, br
     {kind === "officialPosition" ? <div className="automation-actions"><label>{t("automation.targetPosition")}<select value={config.draft.positionId ?? 0} disabled={disabled} onChange={event => {
       config.store.edit(draft => ({ ...draft, positionId: Number(event.target.value) }), false);void config.store.flush().catch(e => setError(e.message));
     }}>{[[0, "none"], [10002, "vicePresident"], [10003, "strategyMinister"], [10004, "defenseMinister"], [10005, "constructionMinister"], [10006, "scienceMinister"], [10007, "internalAffairsMinister"]].map(([id, name]) => <option key={id} value={id}>{t(`automation.position.${name}`)}</option>)}</select></label></div> : null}
-    {collapsible || ["allianceHelp", "allianceGift", "strongholdResource", "allianceCenterResource"].includes(kind) ? <div className="automation-config-actions">
+    {collapsible ? <div className="automation-config-actions">
       {collapsible ? <button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} onClick={toggleExpanded}><span className="automation-config-trigger-label"><span>{t("settings.title")}</span></span><svg className="trigger-chevron" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" /></svg></button> : null}
-      {/* While switched on the service already runs immediately and keeps checking; Run now is a one-off for the off state. */}
-      {!config.draft.enabled && ["allianceHelp", "allianceGift", "strongholdResource", "allianceCenterResource", "allianceGather", "dispatch"].includes(kind) ? <button type="button" className="automation-run-action" disabled={disabled} onClick={run}>{t(busy ? "automation.runningEllipsis" : "common.runNow")}</button> : null}
     </div> : null}
     {collapsible ? <div className="automation-config-body" style={expanded ? undefined : { display: "none" }}>
     {MISSION_KINDS.includes(kind) ? <NativeMissionFields kind={kind} config={config} disabled={disabled} runtime={runtime} /> : null}
