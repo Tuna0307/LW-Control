@@ -371,16 +371,6 @@ internal sealed class LWBridgeBackend
             case "automation_status":
                 RequireOptionalProfile(payload);
                 return new { tasks = new Dictionary<string, object>() };
-            case "resource_automation_status":
-                RequireOptionalProfile(payload);
-                return new
-                {
-                    tasks = new Dictionary<string, object>
-                    {
-                        ["buildingResources"] = new { enabled = false, intervalMinutes = 60 },
-                        ["armedTruckReward"] = new { enabled = false, intervalMinutes = 60 },
-                    },
-                };
             case "map_scan_status":
                 return CreateCurrentMapScanStatus();
             case "map_scan_start":

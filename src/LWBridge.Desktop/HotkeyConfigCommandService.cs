@@ -398,6 +398,10 @@ internal sealed class ProfileRuntimeConfigStore
         // OWNER_DIRECTION R18: legacy task settings remain loadable but never run.
         tasks.Remove("allianceGarrison");
         tasks.Remove("zombieBus");
+        // Owner R30: retired Automation cards cannot reappear from an old profile.
+        foreach (string name in new[] { "construction", "soldierTraining", "stamina", "railway",
+                     "allianceTrainRide", "buildingResources", "armedTruckReward", "weekendShield", "attackShield" })
+            tasks.Remove(name);
         return tasks;
     }
 

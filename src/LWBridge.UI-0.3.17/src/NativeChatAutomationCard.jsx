@@ -19,6 +19,10 @@ export function NativeChatAutomationCard({ title, description, online, profileId
   const [busy, setBusy] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [configError, setConfigError] = useState("");
+  const expansionKey = `automation-settings:${profileId}:${kind}`;
+  const [expanded, setExpanded] = useState(() => {
+    try { return localStorage.getItem(expansionKey) === "true"; } catch { return false; }
+  });
   useEffect(() => {
     let cancelled = false, polling = false;
     setHydrated(false); setConfigError("");
@@ -69,8 +73,11 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     }}>{t("common.retry")}</button></p> : null}
     <PreviewConfigError config={config} t={t} />
     {validation ? <p role="alert">{t(validation)}</p> : null}
-    <div className="automation-config-actions"><button type="button" className="automation-run-action" disabled={disabled || claimsUnavailable || !!validation} onClick={run}>{t(busy ? "automation.runningEllipsis" : "common.runNow")}</button></div>
-    <fieldset className="automation-config-body" disabled={disabled} onBlur={() => config.store.flush().catch(e => setError(e.message))}>
+    <div className="automation-config-actions"><button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} onClick={() => {
+      const next = !expanded; setExpanded(next);
+      try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ }
+    }}>{t("settings.title")}</button><button type="button" className="automation-run-action" disabled={disabled || claimsUnavailable || !!validation} onClick={run}>{t(busy ? "automation.runningEllipsis" : "common.runNow")}</button></div>
+    <fieldset className="automation-config-body" style={expanded ? undefined : { display: "none" }} disabled={disabled} onBlur={() => config.store.flush().catch(e => setError(e.message))}>
       <AutomationConfigPreview title={title} enabled={!disabled} previewState="" config={config} assistConfig={config} availableSquads={availableSquads} onLocalError={setError} />
     </fieldset>
   </article>;

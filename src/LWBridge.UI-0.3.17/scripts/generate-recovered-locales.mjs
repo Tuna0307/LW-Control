@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { retiredAutomationKey } from "./r30-retired-automation.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -56,7 +57,7 @@ for (const [language, fileName] of Object.entries(sources)) {
 
   // OWNER_DIRECTION R18: retired automation cards must not return on regeneration.
   for (const key of Object.keys(messages)) {
-    if (key.startsWith("garrison.") || key.startsWith("zombieBus.")) delete messages[key];
+    if (key.startsWith("garrison.") || key.startsWith("zombieBus.") || retiredAutomationKey(key)) delete messages[key];
   }
 
   const banner = [

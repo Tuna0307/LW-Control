@@ -68,7 +68,6 @@ internal sealed partial class LWBridgeWindow : Form
     private VisualMetricsConfigCommandService? visualMetricsConfigService;
     private EquipmentConfigCommandService? equipmentConfigService;
     private MonsterAfkConfigCommandService? monsterAfkConfigService;
-    private ResourceAutomationConfigCommandService? resourceAutomationConfigService;
     private AutomationStatusCommandService? automationStatusService;
     private ClaimDelayConfigCommandService? claimDelayConfigService;
     private ProfileRuntimeConfigStore? profileRuntimeConfigStore;
@@ -86,7 +85,6 @@ internal sealed partial class LWBridgeWindow : Form
     private LocalConfigStore activeProfileConfig;
     private long profileRuntimeGeneration = 1;
     private Action<OverviewRecoveryStatus>? overviewRecoveryHandler;
-    private Action<object>? resourceAutomationStatusHandler;
     private Action<object>? manualMapScanStatusHandler;
     private Action? mapPlayerMarkHandler;
     private Action? dispatchPlunderHandler;
@@ -332,13 +330,6 @@ internal sealed partial class LWBridgeWindow : Form
         monsterAfkConfigService = profileRuntimeConfigStore is null
             ? null
             : new MonsterAfkConfigCommandService(profileRuntimeConfigStore);
-        resourceAutomationConfigService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
-            ? null
-            : new ResourceAutomationConfigCommandService(
-                profileRuntimeConfigStore,
-                Path.Combine(
-                    Path.GetDirectoryName(profileRuntimeConfigPath)!,
-                    "automation-status.json"));
         automationStatusService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
             ? null
             : new AutomationStatusCommandService(
@@ -457,7 +448,6 @@ internal sealed partial class LWBridgeWindow : Form
             visualMetricsConfigService = owner.VisualMetricsConfig;
             equipmentConfigService = owner.EquipmentConfig;
             monsterAfkConfigService = owner.MonsterAfkConfig;
-            resourceAutomationConfigService = owner.ResourceAutomationConfig;
             automationStatusService = owner.AutomationStatus;
             claimDelayConfigService = owner.ClaimDelayConfig;
             owner.TransferOwnership();
@@ -499,7 +489,6 @@ internal sealed partial class LWBridgeWindow : Form
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
             if (profileRuntimeConfigStore is not null) services.Add(new ChatAutomationConfigCommandService(profileRuntimeConfigStore));
-            if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
             if (automationStatusService is not null) services.Add(automationStatusService);
             if (claimDelayConfigService is not null) services.Add(claimDelayConfigService);
             productionCommands = services.Count switch
@@ -745,7 +734,6 @@ internal sealed partial class LWBridgeWindow : Form
             owner.Map317, owner.MapAutoScan, owner.CityLayoutDraft, owner.ProfileSettings,
             owner.RuntimeConfigStore, owner.RuntimeConfigPath, owner.HotkeyConfig,
             owner.VisualMetricsConfig, owner.EquipmentConfig, owner.MonsterAfkConfig,
-            owner.ResourceAutomationConfig,
             owner.AutomationStatus, owner.ClaimDelayConfig);
         lock (retainedProfileRuntimes)
             retainedProfileRuntimes.Add(profileId, runtime);
@@ -839,7 +827,6 @@ internal sealed partial class LWBridgeWindow : Form
         VisualMetricsConfigCommandService? VisualMetrics,
         EquipmentConfigCommandService? Equipment,
         MonsterAfkConfigCommandService? MonsterAfk,
-        ResourceAutomationConfigCommandService? ResourceAutomation,
         AutomationStatusCommandService? AutomationStatus,
         ClaimDelayConfigCommandService? ClaimDelay);
 
@@ -849,7 +836,7 @@ internal sealed partial class LWBridgeWindow : Form
         profileSettingsService, profileRuntimeConfigStore, profileRuntimeConfigPath,
         hotkeyConfigService, visualMetricsConfigService, equipmentConfigService,
         monsterAfkConfigService,
-        resourceAutomationConfigService, automationStatusService, claimDelayConfigService);
+        automationStatusService, claimDelayConfigService);
 
     private void ActivateProfileRuntime(RetainedProfileRuntime runtime)
     {
@@ -867,7 +854,6 @@ internal sealed partial class LWBridgeWindow : Form
         visualMetricsConfigService = runtime.VisualMetrics;
         equipmentConfigService = runtime.Equipment;
         monsterAfkConfigService = runtime.MonsterAfk;
-        resourceAutomationConfigService = runtime.ResourceAutomation;
         automationStatusService = runtime.AutomationStatus;
         claimDelayConfigService = runtime.ClaimDelay;
         if (homeMapCampaignProofPath is not null)
@@ -1083,12 +1069,6 @@ internal sealed partial class LWBridgeWindow : Form
                 OnOverviewRecoveryStatusChanged(generation, status);
             overviewLifecycleService.RecoveryStatusChanged += overviewRecoveryHandler;
         }
-        if (resourceAutomationConfigService is not null)
-        {
-            resourceAutomationStatusHandler = status =>
-                OnResourceAutomationStatusChanged(generation, status);
-            resourceAutomationConfigService.StatusChanged += resourceAutomationStatusHandler;
-        }
         if (map317CommandService is not null)
         {
             manualMapScanStatusHandler = status =>
@@ -1112,8 +1092,6 @@ internal sealed partial class LWBridgeWindow : Form
     {
         if (overviewLifecycleService is not null && overviewRecoveryHandler is not null)
             overviewLifecycleService.RecoveryStatusChanged -= overviewRecoveryHandler;
-        if (resourceAutomationConfigService is not null && resourceAutomationStatusHandler is not null)
-            resourceAutomationConfigService.StatusChanged -= resourceAutomationStatusHandler;
         if (map317CommandService is not null)
         {
             if (manualMapScanStatusHandler is not null)
@@ -1128,7 +1106,6 @@ internal sealed partial class LWBridgeWindow : Form
         if (mapAutoScanService is not null && mapAutoScanHandler is not null)
             mapAutoScanService.StateChanged -= mapAutoScanHandler;
         overviewRecoveryHandler = null;
-        resourceAutomationStatusHandler = null;
         manualMapScanStatusHandler = null;
         mapPlayerMarkHandler = null;
         dispatchPlunderHandler = null;
@@ -6156,31 +6133,6 @@ internal sealed partial class LWBridgeWindow : Form
                 new OverviewRecoveryStatus("idle", null, false, false, 0, null, 0, null, null, 0, false));
     }
 
-    private void OnResourceAutomationStatusChanged(long generation, object status)
-    {
-        if (sessionClosed || IsDisposed || !IsCurrentProfileRuntimeGeneration(generation)) return;
-        void Publish()
-        {
-            if (!IsCurrentProfileRuntimeGeneration(generation)) return;
-            DocumentSession session = documentSession;
-            if (IsCurrentDocument(session) &&
-                session.Subscriptions.Contains("bridge://resource-automation-status"))
-            {
-                SendEvent(
-                    session,
-                    "bridge://resource-automation-status",
-                    status);
-            }
-        }
-
-        try
-        {
-            if (InvokeRequired) BeginInvoke(Publish);
-            else Publish();
-        }
-        catch (InvalidOperationException) { }
-    }
-
     private void OnManualMapScanStatusChanged(long generation, object status)
     {
         if (sessionClosed || IsDisposed || !IsCurrentProfileRuntimeGeneration(generation)) return;
@@ -6506,7 +6458,6 @@ internal sealed partial class LWBridgeWindow : Form
             activeRequests = documentSession.Requests.ActiveCount,
             activeSubscriptions = documentSession.Subscriptions.Count,
             profileRuntimeEventsDetached = overviewRecoveryHandler is null &&
-                resourceAutomationStatusHandler is null &&
                 manualMapScanStatusHandler is null &&
                 mapPlayerMarkHandler is null &&
                 dispatchPlunderHandler is null &&

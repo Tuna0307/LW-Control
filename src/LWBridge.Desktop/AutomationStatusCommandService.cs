@@ -7,10 +7,7 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
 {
     internal static readonly string[] TaskNames =
     [
-        "construction",
-        "allianceTrainRide",
         "officialPosition",
-        "stamina",
         "staminaPotion",
         "treatment",
         "allianceDonate",
@@ -19,7 +16,6 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         "strongholdResource",
         "allianceCenterResource",
         "allianceGather",
-        "railway",
         "dispatch",
         "dispatchAssist",
         "ghostRecon",

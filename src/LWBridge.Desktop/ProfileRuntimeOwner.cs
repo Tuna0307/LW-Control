@@ -28,7 +28,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         VisualMetricsConfigCommandService visualMetricsConfig,
         EquipmentConfigCommandService equipmentConfig,
         MonsterAfkConfigCommandService monsterAfkConfig,
-        ResourceAutomationConfigCommandService resourceAutomationConfig,
         AutomationStatusCommandService automationStatus,
         ClaimDelayConfigCommandService claimDelayConfig,
         ProfileWindowFocusService focus,
@@ -48,7 +47,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         VisualMetricsConfig = visualMetricsConfig;
         EquipmentConfig = equipmentConfig;
         MonsterAfkConfig = monsterAfkConfig;
-        ResourceAutomationConfig = resourceAutomationConfig;
         AutomationStatus = automationStatus;
         ClaimDelayConfig = claimDelayConfig;
         Focus = focus;
@@ -69,7 +67,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
     internal VisualMetricsConfigCommandService VisualMetricsConfig { get; }
     internal EquipmentConfigCommandService EquipmentConfig { get; }
     internal MonsterAfkConfigCommandService MonsterAfkConfig { get; }
-    internal ResourceAutomationConfigCommandService ResourceAutomationConfig { get; }
     internal AutomationStatusCommandService AutomationStatus { get; }
     internal ClaimDelayConfigCommandService ClaimDelayConfig { get; }
     internal ProfileWindowFocusService Focus { get; }
@@ -118,9 +115,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
             fullProfileRoot,
             "runtime",
             "automation-status.json");
-        var resourceAutomation = new ResourceAutomationConfigCommandService(
-            runtimeConfigStore,
-            automationStatusPath);
         var automationStatus = new AutomationStatusCommandService(
             runtimeConfigStore,
             automationStatusPath);
@@ -217,7 +211,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 visualMetrics,
                 equipment,
                 monsterAfk,
-                resourceAutomation,
                 automationStatus,
                 claimDelay,
             ];
@@ -251,7 +244,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 visualMetrics,
                 equipment,
                 monsterAfk,
-                resourceAutomation,
                 automationStatus,
                 claimDelay,
                 focus,

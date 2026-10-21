@@ -1590,3 +1590,7 @@ and an owner-test ZIP from `tools/feature018_r30_package.py` (copy the R29 scrip
 Workers never merge, publish, force-push or reset.
 
 ### R30 progress (worker updates this)
+- 2026-10-21 Part 0: removed the two retired tabs and nine retired cards, their preview fields/defaults/runtime fixtures, dedicated Resource Claims Desktop service/wiring, task status entries and legacy profile task settings. Retired feature catalog keys are removed in all nine languages and fenced against regeneration. Shared Gathering shield-status text is retained.
+- Chat: all three native cards have default-collapsed Settings with expansion remembered per profile/card. Mounted inert check exercises collapse/reopen/remount for each card; Treasure remains unavailable and no claims were tested.
+- Verification: Release Desktop build PASS (0 warnings/errors), Desktop.Checks PASS (`HOME_FEATURE_DELIVERY_CHECKS_OK`); removal/localization/mounted Chat checks PASS. Full UI suite PASS, including the mounted removals/Chat check. No game session or installed script was touched for Part 0.
+- Recovery underway: read original AutomationPanel from `origin/research/offline-controller` with `git show`, and v26 package admission passes (3/26, original entry `50f3ae90…137`). REA static artifact evidence `ev_38e82f66d52d6e316c62c0aaf162aba1f904242e80ac3f009cfa39f5b725c671` inventories the recovered Automation JavaScript; static analysis is not engine/live proof. Original engines remain UNKNOWN; native adaptation/scheduler will be labelled OWN_DESIGN.

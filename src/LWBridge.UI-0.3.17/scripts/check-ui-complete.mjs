@@ -89,7 +89,7 @@ const equipmentPreview = fs.readFileSync(path.join(root, "src", "previewEquipmen
 const previewCoverageSource = [app, pages, mapPage, mapPreview, equipmentPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
-  "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
+  "automation-config", "automation-saving", "automation-saved", "automation-save-error",
   "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure",
   "map-auto-scheduled", "map-loading", "map-error",
   "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
