@@ -35,7 +35,7 @@ local officialAppointmentVersions,officialObservation={},nil
 -- Owner direction 2026-10-21: while the chosen list is full, keep checking and
 -- apply as soon as a place opens. Only the apply list is re-read while full.
 local OFFICIAL_FULL_RETRY_MS,OFFICIAL_REFUSED_RETRY_MS=3000,5000
-local officialApplyFresh,officialFull={},{}
+local officialApplyFresh,officialFull,officialLastReason={},{},{}
 -- KingdomPositionApplyMessage.HandleMessage 17-25 only shows errorCode as a tip.
 -- Pass-through observer (same pattern as FindMonster in the AFK adapter).
 local officialReply=nil
@@ -231,27 +231,32 @@ function M.Plan(kind,c,at)
         official_listener()
         if not officialFresh[position]or at-officialFresh[position]>30000 then
             return {readOnly=true,phase='officialList',route=route('KingdomPositionApplyList'),args={tostring(position)},
-                positionId=position,version=officialVersions[position]or 0},{positionId=position,fresh=false}
+                positionId=position,version=officialVersions[position]or 0},{positionId=position,fresh=false,reason=officialLastReason[position]}
         end
         if officialFull[position]and at-(officialApplyFresh[position]or 0)>=OFFICIAL_FULL_RETRY_MS-500 then
             return {readOnly=true,phase='officialApplyList',route=route('KingdomPositionApplyList'),args={tostring(position)},
-                positionId=position,version=officialVersions[position]or 0},{positionId=position,full=true}
+                -- Keep the last explanation visible while the list is re-read (owner 2026-10-22: "Waiting" alone was unclear).
+                positionId=position,version=officialVersions[position]or 0},{positionId=position,full=true,reason=officialLastReason[position]}
         end
         local before=official_state(position);local manager=center('OfficialApplyManager')
         if before.queued or before.appointed or before.currentPositionId==position or before.ownApplicationPosition>0 then
-            officialFull[position]=nil;return nil,before
+            officialFull[position]=nil
+            before.reason=(before.appointed or before.currentPositionId==position)and 'You already hold this position'
+                or 'Applied; waiting for the President to approve'
+            officialLastReason[position]=before.reason;return nil,before
         end
         if not call(manager,'CheckCanApply',tostring(position))then before.reason='This position is not available for applications';return nil,before end
         before.full=official_full(position,before.applyQueueLength)
         officialFull[position]=before.full or nil
         local reason,cd=call(manager,'GetOwnApplicantData',tostring(position),false)
         if before.full then
-            before.reason=reason and tostring(reason)~=''and tostring(reason)or 'The application list is full; checking again'
+            before.reason=reason and tostring(reason)~=''and tostring(reason)or 'The application list is full; checking again every 3 seconds'
+            officialLastReason[position]=before.reason
             -- Re-plan each second; the list itself is re-read at most every 3 s (gate above).
             before.retryMs=1000;return nil,before
         end
         if reason and tostring(reason)~=''then
-            before.reason=tostring(reason)
+            before.reason=tostring(reason);officialLastReason[position]=before.reason
             -- A personal re-apply cooldown is temporary: check again when it ends.
             if tonumber(cd)and tonumber(cd)>0 then before.retryMs=math.min(math.max(tonumber(cd)+1000,OFFICIAL_FULL_RETRY_MS),3600000)end
             return nil,before
@@ -370,7 +375,7 @@ function M.Stop(kind)
         for _,r in ipairs(officialEvents.rows)do pcall(call,officialEvents.manager,'RemoveListener',r[1],r[2])end
         officialEvents=nil;officialFresh={};officialObservation=nil
     end
-    if kind=='officialPosition'then official_reply_release();officialApplyFresh={};officialFull={}end
+    if kind=='officialPosition'then official_reply_release();officialApplyFresh={};officialFull={};officialLastReason={}end
 end
 function M.Observe(kind,c,at,scope)
     local a=adapter(kind);if a and a.Observe then return a.Observe(kind,c,at,scope)end
