@@ -395,7 +395,7 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
             const rangeWarning = profile.kind === "farm" && profile.searchable && previewAfkLevelOutOfRange(profile, target);
             const runtimeRows = profile.squadIndexes.map((squadIndex) => profileRuntime.find((row) => row.squadIndex === squadIndex)).filter(Boolean);
             return <div
-              className={`monster-afk-profile-card ${editingId === profile.id ? "active" : ""} ${profile.enabled ? "" : "disabled"} ${dragOverProfileId === profile.id ? "drag-over" : ""}`}
+              className={`monster-afk-profile-card ${editingId === profile.id && showEditor ? "active" : ""} ${profile.enabled ? "" : "disabled"} ${dragOverProfileId === profile.id ? "drag-over" : ""}`}
               key={profile.id}
               onDragEnd={() => { setDraggedProfileId(""); setDragOverProfileId(""); }}
               onDragOver={(event) => { if (!draggedProfileId || profileAction) return; event.preventDefault(); setDragOverProfileId(profile.id); }}
@@ -407,7 +407,7 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
                 <span className="monster-afk-enabled-track" aria-hidden="true" />
                 <span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span>
               </label>
-              <button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); setCompositionError(""); }}>
+              <button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id && showEditor} aria-expanded={editingId === profile.id && showEditor} onClick={() => { const open = editingId === profile.id && showEditor; setEditingId(profile.id); setShowEditor(!open); setCompositionError(""); }}>
                 <span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></span>
                 <span>{profile.levelFilterEnabled ? `${profile.minLevel}-${profile.maxLevel}` : t("squad.afkAnyLevel")} · {profile.distanceFilterEnabled ? profile.maxDistance : t("squad.afkAnyDistance")}</span>
                 {profile.kind === "farm" && profile.searchable ? <span className={rangeWarning ? "monster-afk-level-warning" : ""}>{target?.attackMinLevel != null && target?.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: target.attackMinLevel, max: target.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}{rangeWarning ? ` · ${t("squad.afkLevelOutOfRange")}` : ""}</span> : null}
