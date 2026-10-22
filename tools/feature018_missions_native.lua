@@ -17,9 +17,9 @@ local function rows(list)
     table.sort(out,function(a,b)return tostring(get(a,'uuid')or '')<tostring(get(b,'uuid')or '')end);return out
 end
 -- Ghost action -> the game's reply message for it.
-local GHOST_REPLY={ghostCreate='GhostReconJoinTeamMessage',ghostJoin='GhostReconJoinTeamMessage',ghostShare='GhostReconHandleSendChatMessage',
+local GHOST_REPLY={ghostDeploy='GhostReconPutPointInWorldMessage',ghostCreate='GhostReconJoinTeamMessage',ghostJoin='GhostReconJoinTeamMessage',ghostShare='GhostReconHandleSendChatMessage',
     ghostStart='GhostReconStartTeamMessage',ghostClaim='GhostReconRewardMessage'}
-local GHOST_REPLIES={'GhostReconJoinTeamMessage','GhostReconHandleSendChatMessage','GhostReconStartTeamMessage','GhostReconRewardMessage'}
+local GHOST_REPLIES={'GhostReconPutPointInWorldMessage','GhostReconJoinTeamMessage','GhostReconHandleSendChatMessage','GhostReconStartTeamMessage','GhostReconRewardMessage'}
 local specs={dispatch={event='DispatchTaskUpdateAll',query='DispatchGetTasks'},
     dispatchAssist={event='DispatchTaskUpdateAlliance',query='DispatchGetAllianceTasks'},
     ghostRecon={event='GhostreconTaskRefreshAll',query='GhostreconGetTaskList'}}
@@ -240,7 +240,12 @@ local function ghost_plan(c,at,s)
         for _,t in ipairs(tasks)do
             if tostring(get(t,'ownerId'))==uid()and (num(t,'completionTime')or 0)==0 and (num(t,'taskExpireTime')or math.huge)>at then
                 local cfg=call(manager,'GetTaskTemplate',get(t,'cfgId'))
-                if (num(t,'teamStartTime')or 0)==0 then
+                if (num(t,'pointId')or 0)==0 then
+                    -- Live owner 2026-10-22: an own mission is first deployed to the map (the game's Deploy
+                    -- button, UIGhostreconTaskBtnPanel.OnClickDeployBtn -> GhostReconPutPointInWorld(uuid));
+                    -- creating the team before that is refused (E000000).
+                    local before=mission_state(t);local p,b=plan(s,'GhostReconPutPointInWorld',{identity(t)},before,'ghostDeploy');p.uuid=before.uuid;return p,b
+                elseif (num(t,'teamStartTime')or 0)==0 then
                     local heroes=recommend('ghostRecon',t,cfg,{})
                     if heroes then local before=mission_state(t);local p,b=plan(s,'GhostReconJoinTeam',{identity(t),heroes,1},before,'ghostCreate');p.uuid=before.uuid;return p,b end
                 else
@@ -326,6 +331,7 @@ function M.Verify(kind,job)
     elseif job.phase=='dispatchAssist'then
         after.assistCount=tonumber(call(center('ActDispatchTaskDataManager'),'GetTodayAssistNum'))
         confirmed=not t and after.assistCount==job.before.assistCount+1
+    elseif job.phase=='ghostDeploy'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and (num(t,'pointId')or 0)>0
     elseif job.phase=='ghostCreate'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and member(t)~=nil and (num(t,'teamStartTime')or 0)>0
     elseif job.phase=='ghostJoin'then confirmed=t and member(t)~=nil
     elseif job.phase=='ghostShare'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and (num(t,'sendChatTime')or 0)>=job.sentAt-1000 and num(t,'sendChatTime')>(job.before.sendChatTime or 0)

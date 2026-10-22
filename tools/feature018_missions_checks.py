@@ -22,7 +22,7 @@ def runtime(kind='dispatch'):
         RemoveListener=function(self,event,cb)if state.callbacks[event]==cb then state.callbacks[event]=nil end end}
       EventManager={GetInstance=function()state.reads=state.reads+1;return state.em end}
       for _,r in ipairs({'DispatchGetTasks','DispatchGetAllianceTasks','DispatchStart','DispatchReward','DispatchTaskRefresh','DispatchAssist',
-        'GhostreconGetTaskList','GhostReconGetAllianceTaskList','GhostReconJoinTeam','GhostReconStartTeam','GhostReconReward','GhostReconHandleSendChat'})do MsgDefines[r]=r end
+        'GhostreconGetTaskList','GhostReconGetAllianceTaskList','GhostReconJoinTeam','GhostReconStartTeam','GhostReconReward','GhostReconHandleSendChat','GhostReconPutPointInWorld'})do MsgDefines[r]=r end
       state.own={};state.allies={};state.assists=0;state.tokens={count=4};state.ghosts={};state.ghostAllies={}
       DataCenter.ActDispatchTaskDataManager={GetAllSingleTasks=function()state.reads=state.reads+1;return state.own end,
         GetAllAllianceTasks=function()state.reads=state.reads+1;return state.allies end,
@@ -40,7 +40,7 @@ def runtime(kind='dispatch'):
       package.preload['UI.UIFormation.UIFormationDispatchTask.Controller.UIFormationDispatchTaskCtrl']=function()return recommendation end
       package.preload['UI.UIDispatchTask.Ghostrecon.Formation.Controller.UIGhostreconFormationCtrl']=function()return recommendation end
       replyModules={}
-      for _,name in ipairs({'GhostReconJoinTeamMessage','GhostReconHandleSendChatMessage','GhostReconStartTeamMessage','GhostReconRewardMessage'})do
+      for _,name in ipairs({'GhostReconPutPointInWorldMessage','GhostReconJoinTeamMessage','GhostReconHandleSendChatMessage','GhostReconStartTeamMessage','GhostReconRewardMessage'})do
         replyModules[name]={HandleMessage=function()return 'original-'..name end}
         package.preload['Net.Msgs.Ghostrecon.'..name]=function()return replyModules[name]end
       end
@@ -54,7 +54,7 @@ def runtime(kind='dispatch'):
       function task(id,color,owner)return {uuid=id,cfgId=1,ownerInfo={uid=owner or '1001'},cfg={color=color or 5,is_special=0},pointId=50,
         targetServer=123,completionTime=0,rewarded=0}end
       function ghost(id,owner)
-        return {uuid=id,cfgId=1,ownerId=owner or '1001',ownerServer=123,targetServer=123,
+        return {uuid=id,cfgId=1,ownerId=owner or '1001',ownerServer=123,targetServer=123,pointId=777,
           completionTime=0,teamStartTime=0,sendChatTime=0,taskExpireTime=state.now+600000,actEndTime=state.now+600000,
           memberList={},MemberIsFull=function(self)return #self.memberList>=5 end}
       end
@@ -182,6 +182,14 @@ def main():
       acquire();assert(state.sends[2].route=='GhostReconGetAllianceTaskList')
       emit('ghostAlliance');step();step();assert(state.sends[3].route=='GhostReconJoinTeam'and state.sends[3].args[3]==2)
       t.memberList[2]={uid='1001',rewarded=0,canReward=1};state.ghosts[1]=t;reconcile();assert(status().confirmed==1)
+    ''')
+    # Live owner 2026-10-22: an undeployed own mission is deployed to the map first (game Deploy button).
+    vm=runtime('ghostRecon')
+    vm.execute('''
+      local t=ghost('own');t.pointId=0;state.ghosts[1]=t;acquire()
+      assert(state.sends[2].route=='GhostReconPutPointInWorld'and state.sends[2].args[1]=='own','Deploy before creating the team')
+      t.pointId=4242;reconcile();assert(status().confirmed==1)
+      step();assert(state.sends[#state.sends].route=='GhostReconJoinTeam'and state.sends[#state.sends].args[3]==1,'Then create the team')
     ''')
     # Live owner 2026-10-22: a refused Ghost action retries later instead of locking the card,
     # and a clean game reply confirms even when the refreshed list lacks the expected field.
