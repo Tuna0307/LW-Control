@@ -17,11 +17,6 @@ internal static class AutomationMissionConfig
             ["enabled"] = false, ["autoHelp"] = false, ["qualities"] = new JsonArray(),
             ["delaySeconds"] = new JsonArray(0, 0), ["intervalSeconds"] = 30,
         },
-        "ghostRecon" => new()
-        {
-            ["enabled"] = false, ["autoStartOwn"] = false, ["autoJoinAlliance"] = false,
-            ["autoClaimRewards"] = false, ["allianceFilter"] = "special",
-        },
         _ => null,
     };
 
@@ -38,7 +33,7 @@ internal static class AutomationMissionConfig
             Strings(config["weeklyQualities"], ["none", "ssr", "ur"], 7, 7, false, "Choose one valid quality for each of the seven weekdays.");
             config["enabled"] = execute || collect;
         }
-        else if (kind == "dispatchAssist")
+        else
         {
             bool help = Boolean(config, "autoHelp");
             var qualities = Strings(config["qualities"], ["n", "r", "sr", "ssr", "ur", "special"], help ? 1 : 0, 6, true, "Select the Secret Task qualities to assist.");
@@ -49,13 +44,6 @@ internal static class AutomationMissionConfig
             Integer(config["intervalSeconds"], 5, 300, "Dispatch Assist interval must be 5–300 whole seconds.");
             config["qualities"] = qualities;
             config["enabled"] = help;
-        }
-        else
-        {
-            bool start = Boolean(config, "autoStartOwn"), join = Boolean(config, "autoJoinAlliance"), claim = Boolean(config, "autoClaimRewards");
-            if (config["allianceFilter"] is not JsonValue value || !value.TryGetValue<string>(out var filter) || filter is not ("sr" or "ur" or "special"))
-                throw Invalid("Select SR or above, UR or above, or starred Ghost Ops missions.");
-            config["enabled"] = start || join || claim;
         }
         return config;
     }

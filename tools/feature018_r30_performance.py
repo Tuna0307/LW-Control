@@ -9,7 +9,7 @@ import time
 from feature018_live_queue import submit
 
 KINDS=('allianceHelp','allianceGift','allianceDonate','officialPosition','treatment',
-       'dispatch','dispatchAssist','ghostRecon','resourceGather','strongholdResource',
+       'dispatch','dispatchAssist','resourceGather','strongholdResource',
        'allianceCenterResource','allianceGather','tradeStation')
 
 
@@ -61,7 +61,6 @@ def measure(root, output, uid, server):
             if kind=='officialPosition':c['positionId']=10006
             if kind=='dispatch':c.update(autoExecute=True,collectRewards=True,weeklyQualities=['none']*7)
             if kind=='dispatchAssist':c.update(autoHelp=True,qualities=['n','r','sr','ssr','ur','special'])
-            if kind=='ghostRecon':c.update(autoStartOwn=True,autoJoinAlliance=True,autoClaimRewards=True)
             if kind=='resourceGather':
                 c.update(recallOnDisable=True)
                 for s in c['squads']:s.update(enabled=s['squadIndex']==1,resource='food',level=1)

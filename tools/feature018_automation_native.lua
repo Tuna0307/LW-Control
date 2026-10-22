@@ -3,7 +3,7 @@
 local M={}
 local MISSIONS,ALLIANCE='DataCenter.Global.LWBridgeFeature018MissionsNative','DataCenter.Global.LWBridgeFeature018AllianceResourcesNative'
 local moduleNames={treatment='DataCenter.Global.LWBridgeFeature018TreatmentNative',
-    dispatch=MISSIONS,dispatchAssist=MISSIONS,ghostRecon=MISSIONS,
+    dispatch=MISSIONS,dispatchAssist=MISSIONS,
     resourceGather='DataCenter.Global.LWBridgeFeature018GatherNative',
     strongholdResource=ALLIANCE,allianceCenterResource=ALLIANCE,
     tradeStation='DataCenter.Global.LWBridgeFeature018TradeNative',

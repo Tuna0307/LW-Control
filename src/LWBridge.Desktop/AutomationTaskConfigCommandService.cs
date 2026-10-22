@@ -7,7 +7,7 @@ namespace LWBridge.Desktop;
 internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigStore store) : INativeAsyncCommandService
 {
     internal static readonly string[] Kinds = ["allianceHelp", "allianceGift", "allianceDonate", "officialPosition", "treatment",
-        "dispatch", "dispatchAssist", "ghostRecon", "resourceGather", "strongholdResource", "allianceCenterResource", "tradeStation", "allianceGather"];
+        "dispatch", "dispatchAssist", "resourceGather", "strongholdResource", "allianceCenterResource", "tradeStation", "allianceGather"];
     private static readonly int[] GatherRadii = [50, 100, 150, 200, 250, 300, 400, 500];
     public bool CanHandle(string command) => command is "feature018_automation_config_get" or "feature018_automation_config_save";
 
@@ -46,7 +46,7 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
         var config = Default(kind);
         if (!Kinds.Contains(kind, StringComparer.Ordinal) || input.ValueKind != JsonValueKind.Object ||
             input.EnumerateObject().Any(p => !config.ContainsKey(p.Name))) throw Invalid("Unexpected Automation setting.");
-        if (kind is "dispatch" or "dispatchAssist" or "ghostRecon")
+        if (kind is "dispatch" or "dispatchAssist")
             return AutomationMissionConfig.Validate(kind, JsonNode.Parse(input.GetRawText())!.AsObject());
         foreach (var property in input.EnumerateObject()) config[property.Name] = JsonNode.Parse(property.Value.GetRawText());
         if (config["enabled"] is not JsonValue boolean || !boolean.TryGetValue<bool>(out _))

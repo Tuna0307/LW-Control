@@ -1,17 +1,16 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useI18n } from "./i18n.jsx";
 
 // RECOVERED original AutomationPanel contracts. These are native profile settings;
 // no preview fixture or runtime state supplies a setting or an action identity.
-export const MISSION_KINDS = ["dispatch", "dispatchAssist", "ghostRecon"];
+export const MISSION_KINDS = ["dispatch", "dispatchAssist"];
 const weeklyDefaults = ["none", "ur", "none", "none", "none", "ur", "none"];
 const assistQualities = ["n", "r", "sr", "ssr", "ur", "special"];
-const switches = { dispatch: ["autoExecute", "collectRewards"], dispatchAssist: ["autoHelp"], ghostRecon: ["autoStartOwn", "autoJoinAlliance", "autoClaimRewards"] };
+const switches = { dispatch: ["autoExecute", "collectRewards"], dispatchAssist: ["autoHelp"] };
 
 export function defaultMissionConfig(kind) {
   if (kind === "dispatch") return { enabled: false, autoExecute: false, collectRewards: false, delayMinutes: 3, weeklyQualities: [...weeklyDefaults] };
   if (kind === "dispatchAssist") return { enabled: false, autoHelp: false, qualities: [], delaySeconds: [0, 0], intervalSeconds: 30 };
-  if (kind === "ghostRecon") return { enabled: false, autoStartOwn: false, autoJoinAlliance: false, autoClaimRewards: false, allianceFilter: "special" };
   return null;
 }
 
@@ -41,7 +40,6 @@ export function validMissionDraft(kind, draft) {
   if (!defaults || typeof draft.enabled !== "boolean" || Object.keys(draft).some(key => !(key in defaults)) || switches[kind].some(key => typeof draft[key] !== "boolean")) return false;
   if (draft.enabled !== switches[kind].some(key => draft[key])) return false;
   if (kind === "dispatch") return integer(draft.delayMinutes, 0, 1440) && Array.isArray(draft.weeklyQualities) && draft.weeklyQualities.length === 7 && draft.weeklyQualities.every(value => ["none", "ssr", "ur"].includes(value));
-  if (kind === "ghostRecon") return ["sr", "ur", "special"].includes(draft.allianceFilter);
   return Array.isArray(draft.qualities) && draft.qualities.length <= 6 && new Set(draft.qualities).size === draft.qualities.length && draft.qualities.every(value => assistQualities.includes(value)) &&
     (!draft.autoHelp || draft.qualities.length > 0) && Array.isArray(draft.delaySeconds) && draft.delaySeconds.length === 2 && draft.delaySeconds.every(value => integer(value, 0, 86400)) &&
     Number(draft.delaySeconds[0]) <= Number(draft.delaySeconds[1]) && integer(draft.intervalSeconds, 5, 300);
@@ -50,7 +48,6 @@ export function validMissionDraft(kind, draft) {
 export function NativeMissionFields({ kind, config, disabled, runtime }) {
   const { t, language } = useI18n();
   const [error, setError] = useState("");
-  const fieldId = useId();
   if (!MISSION_KINDS.includes(kind)) return null;
   const draft = { ...defaultMissionConfig(kind), ...config.draft };
   const valid = validMissionDraft(kind, draft);
@@ -88,14 +85,7 @@ export function NativeMissionFields({ kind, config, disabled, runtime }) {
       </div>
       {!valid ? <p className="error-text" role="alert">{t("automation.dispatchAssistConfigError")}</p> : null}
     </section> : null}
-    {kind === "ghostRecon" ? <section className="automation-settings-section">
-      {checkbox("autoStartOwn", "automation.ghost.autoStartOwn")}
-      {checkbox("autoJoinAlliance", "automation.ghost.autoJoinAlliance")}
-      <fieldset className="automation-compact-choice-group" disabled={disabled}><legend>{t("automation.ghost.allianceFilter")}</legend>{["sr", "ur", "special"].map(filter => <label key={filter}><input type="radio" name={`native-ghost-filter-${fieldId}`} checked={draft.allianceFilter === filter} value={filter} onChange={() => commit({ allianceFilter: filter })} />{t(`automation.ghost.filter.${filter}`)}</label>)}</fieldset>
-      {checkbox("autoClaimRewards", "automation.ghost.autoClaimRewards")}
-    </section> : null}
     {observed?.available != null ? <div className="automation-status-row"><span>{t("automation.available")}</span><strong>{observed.available}</strong></div> : null}
-    {observed?.allianceCandidates != null ? <div className="automation-status-row"><span>{t("automation.ghost.allianceCandidates")}</span><strong>{observed.allianceCandidates}</strong></div> : null}
     {error ? <p className="error-text" role="alert">{error}</p> : null}
   </div>;
 }

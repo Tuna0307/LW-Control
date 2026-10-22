@@ -46,7 +46,7 @@ RETIRED_FEATURES = (
     "Automatic Alliance Train Boarding", "Auto Training", "Automatic Construction", "Free Stamina", "Trucks",
 )
 AUTOMATION_KEYS = ("allianceHelp", "allianceGift", "allianceDonate", "officialPosition", "treatment",
-    "dispatch", "dispatchAssist", "ghostRecon", "resourceGather", "strongholdResource",
+    "dispatch", "dispatchAssist", "resourceGather", "strongholdResource",
     "allianceCenterResource", "allianceGather", "tradeStation")
 
 

@@ -35,7 +35,6 @@ const automationCards = {
   daily: [
     ["Automatic Treatment", "Treat wounded soldiers, request Alliance help, and collect completed treatment every 2 seconds without using Gold."],
     ["Secret Task", "Claim completed rewards, then continue refreshing and dispatching eligible Secret Tasks."],
-    ["Ghost Ops", "Start and share your Ghost Ops, join eligible alliance missions, and claim rewards on time."],
   ],
   alliance: [
     ["Alliance Tech Donations", "Automatically donate standard resources to Alliance Tech."],
@@ -117,8 +116,6 @@ function automationRuntimePresentation(title, runtime, enabled, configDraft, t, 
       return { summary: rows(["automation.wounded", text(runtime.wounded)], ["automation.treating", text(runtime.treating)]), status: rows(["automation.wounded", text(runtime.wounded)], ["automation.treating", text(runtime.treating)], ["automation.treatmentBatches", text(runtime.batchesStarted)], ["automation.soldiersQueued", text(runtime.soldiersQueued)], ["automation.helpsRequested", text(runtime.helpsRequested)], ["automation.collected", text(runtime.collected)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
     case "Secret Task":
       return { summary: rows(["automation.dispatched", runtime.dispatched], ["automation.pendingClaims", runtime.pendingClaims]), status: rows(["automation.nextRun", (enabled || configDraft.collectRewards) ? previewFutureTime(runtime.nextScheduledAt, language) : "-"], ["automation.qualifiedTotal", `${text(runtime.qualified ?? runtime.details?.qualified ?? 0)} / ${text(runtime.available ?? runtime.details?.available ?? 0)}`], ["automation.dispatched", text(runtime.dispatched ?? 0)], ["automation.refreshed", text(runtime.refreshed ?? 0)], ["automation.claimed", text(runtime.claimed ?? 0)], ["automation.pendingClaims", text(runtime.pendingClaims ?? 0)], ["automation.nextClaim", previewFutureTime(runtime.nextContinuationAt, language)], ["automation.superRefresh", t(runtime.capabilities?.superRefresh === true ? "common.available" : runtime.capabilities?.superRefresh === false ? "automation.normalRefresh" : "common.notChecked")]) };
-    case "Ghost Ops":
-      return { status: rows(["automation.nextClaim", configDraft.ghostClaimRewards ? previewFutureTime(runtime.nextClaimAt, language) : "-"]) };
     case "Alliance Tech Donations":
       return { summary: rows(["automation.remaining", text(runtime.remaining)], ["automation.donated", text(runtime.donated)]), status: rows(["automation.currentTech", text(runtime.scienceId)], ["automation.remaining", text(runtime.remaining)], ["automation.donated", text(runtime.donated)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
     case "Automatic Official Application":
@@ -177,7 +174,6 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
   const [replyEnabled] = fieldState("replyEnabled", false);
   const [treasureDispatchEnabled] = fieldState("treasureDispatchEnabled", false);
   const dispatchAssistEnabled = assistConfig.draft.autoHelp ?? false;
-  const [ghostJoinEnabled, setGhostJoinEnabled] = fieldState("ghostJoinEnabled", false, true);
   const [draggedTreasureSquad, setDraggedTreasureSquad] = useState(null);
   const [treasureDragOverSquad, setTreasureDragOverSquad] = useState(null);
   const [draggedGatherSquad, setDraggedGatherSquad] = useState(null);
@@ -267,9 +263,6 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
       </section>
     </>;
   }
-  if (title === "Ghost Ops") {
-    return <><ToggleRow label={t("automation.ghost.autoJoinAlliance")} checked={ghostJoinEnabled} disabled={!enabled} onChange={setGhostJoinEnabled} />{ghostJoinEnabled ? <div className="automation-section"><strong>{t("automation.ghost.allianceFilter")}</strong><div className="automation-compact-choice-group">{["sr","ur","special"].map((filter) => <label className="automation-compact-choice" key={filter}><input type="radio" name="preview-ghost-filter" value={filter} checked={(config.draft.ghostFilter ?? "special") === filter} onChange={() => setNow("ghostFilter", filter)} disabled={!enabled} /><span>{t(`automation.ghost.filter.${filter}`)}</span></label>)}</div></div> : null}<label className="automation-checkbox-row"><input type="checkbox" {...checkNow("ghostClaimRewards")} disabled={!enabled} /><span>{t("automation.ghost.autoClaimRewards")}</span></label><div className="automation-inline-status"><span>{t("automation.ghost.ownPending")}: {runtime.ownPending ?? 0}</span><span>{t("automation.ghost.allianceCandidates")}: {runtime.allianceCandidates ?? 0}</span><span>{t("automation.claimed")}: {runtime.claimed ?? 0}</span></div></>;
-  }
   if (title === "Alliance Tech Donations") {
     return <div className="automation-actions"><label>{t("automation.donateThreshold")}<input type="number" min="1" max="30" step="1" {...field("threshold", "15")} disabled={!enabled} /></label></div>;
   }
@@ -296,7 +289,7 @@ function AutomationCard({ title, description, online = false, previewEnabled, pr
   const assistConfig = usePreviewConfig(() => initialAutomationDraft("Dispatch Assist", previewState), (draft) => !automationDraftError("Dispatch Assist", draft), failFirstAssistSave, `automation:${profileScope}:${previewState}:${title}:dispatchAssist`);
   const visibleDraftError = sourceVisibleDraftError(title, config.draft, maximumBuilders);
   const enabled = config.draft.enabled === true;
-  const active = title === "Secret Task" ? enabled || config.draft.collectRewards === true : title === "Ghost Ops" ? enabled || config.draft.ghostJoinEnabled === true || config.draft.ghostClaimRewards === true : enabled;
+  const active = title === "Secret Task" ? enabled || config.draft.collectRewards === true : enabled;
   const runtimeState = runtime.state;
   const presentation = automationRuntimePresentation(title, runtime, active, config.draft, t, language);
   const [fieldError, setFieldError] = useState("");
@@ -305,7 +298,7 @@ function AutomationCard({ title, description, online = false, previewEnabled, pr
     if (title === "Alliance Gathering Dispatch" && value && !(config.draft.allianceGatherSquads ?? [1, 2]).length) { setFieldError("automation.allianceGatherSquadRequired"); return; }
     setFieldError("");
     const nextDraft = (draft) => ({ ...draft, enabled: value });
-    if (["Red Packet", "Fireworks / Egg", "Treasure", "Secret Task", "Ghost Ops"].includes(title)) {
+    if (["Red Packet", "Fireworks / Egg", "Treasure", "Secret Task"].includes(title)) {
       config.store.edit(nextDraft, false);
       config.store.flush().catch(() => {});
     } else config.store.edit(nextDraft);
@@ -319,7 +312,7 @@ function AutomationCard({ title, description, online = false, previewEnabled, pr
   const [expanded, setExpanded] = useState(false);
   const actionBusy = false;
   const actionLabel = (title === "Secret Task") && runtime.running ? "common.stop" : automationActionLabels[title];
-  const toggleLabel = title === "Ghost Ops" ? "automation.ghost.autoStartOwn" : "automation.autoExecute";
+  const toggleLabel = "automation.autoExecute";
   return (
     <article className={`automation-card${enabled ? " is-enabled" : ""}`} data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <div className="automation-card-header">

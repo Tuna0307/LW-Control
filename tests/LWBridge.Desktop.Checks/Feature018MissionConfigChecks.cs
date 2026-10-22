@@ -8,7 +8,7 @@ internal static class Feature018MissionConfigChecks
     internal static void Run()
     {
         if (AutomationMissionConfig.Default("other") is not null) throw new Exception("Unknown mission default accepted");
-        foreach (string kind in new[] { "dispatch", "dispatchAssist", "ghostRecon" })
+        foreach (string kind in new[] { "dispatch", "dispatchAssist" })
         {
             var first = AutomationMissionConfig.Default(kind)!;
             var second = AutomationMissionConfig.Default(kind)!;
@@ -24,13 +24,13 @@ internal static class Feature018MissionConfigChecks
         foreach (var (kind, input) in new (string, string)[]
         {
             ("dispatch", "{\"collectRewards\":true}"),
-            ("ghostRecon", "{\"autoJoinAlliance\":true}"),
-            ("ghostRecon", "{\"autoClaimRewards\":true}"),
             ("dispatchAssist", "{\"autoHelp\":true,\"qualities\":[\"special\"]}"),
         })
             if (!AutomationMissionConfig.Validate(kind, JsonNode.Parse(input)!.AsObject())["enabled"]!.GetValue<bool>()) throw new Exception("Independent mission switch did not activate engine");
-        if (AutomationMissionConfig.Validate("ghostRecon", new() { ["enabled"] = true })["enabled"]!.GetValue<bool>())
+        if (AutomationMissionConfig.Validate("dispatch", new() { ["enabled"] = true })["enabled"]!.GetValue<bool>())
             throw new Exception("Master enabled bypassed independent mission switches");
+        // Owner 2026-10-22: Ghost Ops automation removed.
+        if (AutomationMissionConfig.Default("ghostRecon") is not null) throw new Exception("Removed Ghost Ops settings still accepted");
         foreach (var (kind, input) in new (string, string)[]
         {
             ("dispatch", "{\"delayMinutes\":\"3\"}"), ("dispatch", "{\"delayMinutes\":-1}"),
@@ -42,8 +42,7 @@ internal static class Feature018MissionConfigChecks
             ("dispatchAssist", "{\"delaySeconds\":[3,2]}"), ("dispatchAssist", "{\"delaySeconds\":[0,86401]}"),
             ("dispatchAssist", "{\"delaySeconds\":[0,\"2\"]}"), ("dispatchAssist", "{\"delaySeconds\":[0,2,3]}"),
             ("dispatchAssist", "{\"intervalSeconds\":4}"), ("dispatchAssist", "{\"intervalSeconds\":301}"),
-            ("ghostRecon", "{\"allianceFilter\":\"all\"}"), ("ghostRecon", "{\"autoStartOwn\":null}"),
-            ("ghostRecon", "{\"authorizedUid\":\"999\"}"), ("dispatch", "{\"runNow\":true}"),
+            ("dispatch", "{\"runNow\":true}"), ("dispatch", "{\"authorizedUid\":\"999\"}"),
         })
         {
             try { AutomationMissionConfig.Validate(kind, JsonNode.Parse(input)!.AsObject());throw new Exception("Invalid mission configuration accepted: " + input); }

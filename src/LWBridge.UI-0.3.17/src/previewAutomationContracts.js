@@ -9,7 +9,6 @@ export function initialAutomationDraft(title, previewState = "") {
   if (title === "Alliance Gathering Dispatch") return { enabled: false, allianceGatherSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1, 2] };
   if (title === "Secret Task") return { enabled: previewState === "automation-runtime-running", collectRewards: false, delayMinutes: "3", weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"] };
   if (title === "Dispatch Assist") return { autoHelp: previewState === "automation-assist-auto", qualities: ["ssr", "ur"], delaySeconds: ["0", "0"], intervalSeconds: "30" };
-  if (title === "Ghost Ops") return { enabled: false, ghostJoinEnabled: false, ghostFilter: "special", ghostClaimRewards: false };
   if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return { enabled: false, claimMin: "0", claimMax: "0", replyEnabled: false, replyMin: "2", replyMax: "5", replies: "", ...(title === "Treasure" ? { treasureSearchEnabled: false, treasureDispatchEnabled: previewState === "automation-squads-34", dispatchMin: "2", dispatchMax: "5", dispatchRetry: "30", dispatchSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1] } : {}) };
   return { enabled: false };
 }

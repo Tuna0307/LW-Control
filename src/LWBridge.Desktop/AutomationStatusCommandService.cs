@@ -18,7 +18,6 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         "allianceGather",
         "dispatch",
         "dispatchAssist",
-        "ghostRecon",
         "monsterSweep",
     ];
     private readonly ProfileRuntimeConfigStore store;

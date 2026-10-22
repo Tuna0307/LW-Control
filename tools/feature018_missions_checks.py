@@ -77,7 +77,7 @@ def runtime(kind='dispatch'):
 def main():
     # Off is a gate before subscriptions, list reads and clocks; Stop also fences
     # old callbacks/Verify continuations, independent of the scheduler's off gate.
-    for kind in ['dispatch','dispatchAssist','ghostRecon']:
+    for kind in ['dispatch','dispatchAssist']:
         vm=runtime(kind)
         vm.execute('''
           local n=state.reads;assert(native.Supports(kind));assert(native.Plan(kind,{enabled=false},state.now)==nil)
@@ -96,7 +96,7 @@ def main():
             if failure=='error':
                 vm.execute("EventId=nil;configure();step();assert(status().state=='error'and #state.sends==0 and next(state.callbacks)==nil)")
             elif failure=='empty':
-                vm.execute("acquire();if kind=='ghostRecon'then emit('ghostAlliance');step();step()end;assert(status().state=='nothing_available'and status().submitted==0);engine.Stop(request)")
+                vm.execute("acquire();assert(status().state=='nothing_available'and status().submitted==0);engine.Stop(request)")
             else:
                 vm.execute("configure();step();state.savedSends=#state.sends")
                 vm.execute("LuaEntry.Player.uid='1002'" if failure=='wrongAccount' else "state.token='other'")
@@ -157,93 +157,19 @@ def main():
             'delay':'state.config.dispatchAssist.delaySeconds={60,60}','noAlliance':"LuaEntry.Player.allianceId=''"}[guard])
         vm.execute("acquire();assert(status().submitted==0)")
 
-    vm=runtime('ghostRecon')
-    vm.execute('''
-      local t=ghost('own');state.ghosts[1]=t;acquire()
-      assert(state.sends[2].route=='GhostReconJoinTeam'and state.sends[2].args[3]==1)
-      t.teamStartTime=state.now;t.memberList={{uid='1001',rewarded=0,canReward=1}};reconcile();assert(status().confirmed==1)
-      step();assert(state.sends[#state.sends].route=='GhostReconHandleSendChat')
-      assert(state.sends[#state.sends].args[2]==1 and state.sends[#state.sends].args[3]=='0')
-      t.sendChatTime=state.now;reconcile();assert(status().confirmed==2)
-      t.memberList[2]={uid='1002'};t.memberList[3]={uid='1003'};t.memberList[4]={uid='1004'};t.memberList[5]={uid='1005'}
-      step();assert(state.sends[#state.sends].route=='GhostReconStartTeam');t.completionTime=state.now+100000;reconcile()
-      assert(status().confirmed==3)
-    ''')
-    vm=runtime('ghostRecon')
-    vm.execute('''
-      local t=ghost('reward');t.teamStartTime=10;t.completionTime=state.now-1;t.memberList={{uid='1001',rewarded=0,canReward=1}}
-      state.ghosts[1]=t;acquire();assert(state.sends[2].route=='GhostReconReward')
-      t.memberList[1].rewarded=1;reconcile();assert(status().confirmed==1)
-    ''')
-    vm=runtime('ghostRecon')
-    vm.execute('''
-      state.config.ghostRecon.autoStartOwn=false
-      local t=ghost('ally','1002');t.teamStartTime=state.now;t.memberList={{uid='1002'}};state.ghostAllies[1]=t
-      acquire();assert(state.sends[2].route=='GhostReconGetAllianceTaskList')
-      emit('ghostAlliance');step();step();assert(state.sends[3].route=='GhostReconJoinTeam'and state.sends[3].args[3]==2)
-      t.memberList[2]={uid='1001',rewarded=0,canReward=1};state.ghosts[1]=t;reconcile();assert(status().confirmed==1)
-    ''')
-    # Live owner 2026-10-22: an undeployed own mission is deployed to the map first (game Deploy button).
-    vm=runtime('ghostRecon')
-    vm.execute('''
-      local t=ghost('own');t.pointId=0;state.ghosts[1]=t;acquire()
-      assert(state.sends[2].route=='GhostReconPutPointInWorld'and state.sends[2].args[1]=='own','Deploy before creating the team')
-      t.pointId=4242;reconcile();assert(status().confirmed==1)
-      step();assert(state.sends[#state.sends].route=='GhostReconJoinTeam'and state.sends[#state.sends].args[3]==1,'Then create the team')
-    ''')
-    # Live owner 2026-10-22: a refused Ghost action retries later instead of locking the card,
-    # and a clean game reply confirms even when the refreshed list lacks the expected field.
-    vm=runtime('ghostRecon')
-    vm.execute('''
-      local t=ghost('own');state.ghosts[1]=t;acquire();assert(state.sends[2].route=='GhostReconJoinTeam')
-      assert(replyModules.GhostReconJoinTeamMessage.HandleMessage({}, {errorCode='E9'})=='original-GhostReconJoinTeamMessage')
-      step();step();assert(status().state~='unconfirmed','A refused action is not uncertain')
-      assert(status().refused==1)
-    ''')
-    vm=runtime('ghostRecon')
-    vm.execute('''
-      local t=ghost('own');t.teamStartTime=state.now;t.memberList={{uid='1001',rewarded=0,canReward=1}};state.ghosts[1]=t
-      acquire();assert(state.sends[#state.sends].route=='GhostReconHandleSendChat')
-      replyModules.GhostReconHandleSendChatMessage.HandleMessage({}, {})
-      reconcile();assert(status().confirmed==1,'A clean share reply is the acceptance')
-    ''')
-    for guard in ['closed','heroes','foreignReward','noReward']:
-        vm=runtime('ghostRecon')
-        vm.execute("state.config.ghostRecon.autoJoinAlliance=false;state.ghosts[1]=ghost('g')")
-        vm.execute({'closed':'state.open=false','heroes':'state.heroEligible=false',
-            'foreignReward':"state.config.ghostRecon.autoStartOwn=false;local t=state.ghosts[1];t.completionTime=state.now-1;t.memberList={{uid='1002',rewarded=0,canReward=1}}",
-            'noReward':"state.config.ghostRecon.autoStartOwn=false;local t=state.ghosts[1];t.completionTime=state.now-1;t.memberList={{uid='1001',rewarded=0,canReward=0}}"}[guard])
-        vm.execute('acquire();assert(status().submitted==0)')
-
-    for guard in ['partialTeam','superCondition']:
-        vm=runtime('ghostRecon')
-        vm.execute("state.config.ghostRecon.autoJoinAlliance=false;local t=ghost('g');t.teamStartTime=state.now;t.sendChatTime=state.now;t.memberList={{uid='1001'}};state.ghosts[1]=t")
-        if guard=='superCondition':
-            vm.execute("local t=state.ghosts[1];for i=2,5 do t.memberList[i]={uid=tostring(1000+i)}end;state.cfg.superCondions={{num=1}}")
-        vm.execute('acquire();assert(status().submitted==0)')
-    for guard in ['own','joined','full','expired','quality','rewardLimit']:
-        vm=runtime('ghostRecon')
-        vm.execute("state.config.ghostRecon.autoStartOwn=false;local t=ghost('g','1002');t.teamStartTime=state.now;t.memberList={{uid='1002'}};state.ghostAllies[1]=t")
-        vm.execute({'own':"state.ghostAllies[1].ownerId='1001'",'joined':"state.ghostAllies[1].memberList[2]={uid='1001'}",
-            'full':"for i=2,5 do state.ghostAllies[1].memberList[i]={uid=tostring(1000+i)}end",
-            'expired':'state.ghostAllies[1].teamStartTime=1','quality':'state.cfg.special=false',
-            'rewardLimit':'state.ghostFull=true'}[guard])
-        vm.execute("acquire();if kind=='ghostRecon'and state.sends[2]then emit('ghostAlliance');step();step()end;assert(status().submitted==0)")
-
     # A thrown/uncertain write is never retried after timeout or off/on. The
     # scheduler owns the persistent tombstone; the adapter only sends follow-up reads.
-    for kind in ['dispatch','dispatchAssist','ghostRecon']:
+    for kind in ['dispatch','dispatchAssist']:
         vm=runtime(kind)
         if kind=='dispatch':vm.execute("state.own={task('d')}")
-        elif kind=='dispatchAssist':vm.execute("local t=task('a',5,'1002');t.completionTime=state.now-1;state.allies={t}")
-        else:vm.execute("state.ghosts[1]=ghost('g')")
+        else:vm.execute("local t=task('a',5,'1002');t.completionTime=state.now-1;state.allies={t}")
         vm.execute('''
           state.throw=true;acquire();assert(status().submitted==1 and status().confirmed==0)
           state.now=state.now+16000;engine.Pump();assert(status().state=='unconfirmed')
           local n=status().submitted;engine.Stop(request);state.config[kind].enabled=true;configure();step()
           assert(status().submitted==n and status().state=='unconfirmed','Uncertain action must never replay')
         ''')
-    print('FEATURE018_R30_MISSIONS_LUA_PASS dispatch claim token-refresh weekly hero-capacity assist qualities delay exact-UID ghost create-share-start join claim zero-off stop fresh-state uncertain no-replay account lease empty error')
+    print('FEATURE018_R30_MISSIONS_LUA_PASS dispatch claim token-refresh weekly hero-capacity assist qualities delay exact-UID ghost-removed zero-off stop fresh-state uncertain no-replay account lease empty error')
 
 
 if __name__=='__main__':

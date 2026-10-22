@@ -72,7 +72,7 @@ internal sealed partial class LWBridgeWindow
             await WaitDom("!!document.querySelector('[data-automation-category=alliance]')");
             string category = kind switch
             {
-                "treatment" or "dispatch" or "dispatchAssist" or "ghostRecon" => "daily",
+                "treatment" or "dispatch" or "dispatchAssist" => "daily",
                 "resourceGather" => "resourceGather",
                 "tradeStation" => "trade",
                 _ => "alliance",
@@ -147,7 +147,6 @@ internal sealed partial class LWBridgeWindow
             string[] after = kind switch
             {
                 "dispatch" => ["(()=>{const c=document.querySelectorAll('[data-native-mission-fields=dispatch] .automation-inline-checkbox input')[1];if(c&&!c.checked)c.click();})()"],
-                "ghostRecon" => ["(()=>{const c=document.querySelectorAll('[data-native-mission-fields=ghostRecon] .automation-inline-checkbox input');[1,2].forEach(i=>{if(c[i]&&!c[i].checked)c[i].click();});})()"],
                 _ => [],
             };
             foreach (string step in after)

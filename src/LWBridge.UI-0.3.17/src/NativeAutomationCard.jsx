@@ -33,7 +33,7 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   const [ready, setReady] = useState(false), [error, setError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false), [dragged, setDragged] = useState(null), [dragOver, setDragOver] = useState(null);
   const runtime = services?.[kind] ?? null;
   // Original 0.3.17: the multi-option cards collapse their settings (closed by default, remembered).
-  const collapsible = ["dispatch", "ghostRecon", "allianceGather"].includes(kind);
+  const collapsible = ["dispatch", "allianceGather"].includes(kind);
   const expansionKey = `automation-settings:${profileId}:${kind}`;
   const [expanded, setExpanded] = useState(() => { try { return localStorage.getItem(expansionKey) === "true"; } catch { return false; } });
   const toggleExpanded = () => { const next = !expanded;setExpanded(next);try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ } };

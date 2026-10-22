@@ -305,7 +305,6 @@ export function previewAutomationRuntime(title, previewState = "") {
   const byTitle = {
     "Automatic Treatment": { ...common, wounded: 148, treating: 96, batchesStarted: 2, soldiersQueued: 96, helpsRequested: 2, collected: 52 },
     "Secret Task": { ...common, qualified: 4, available: 6, refreshed: 2, dispatched: 3, claimed: 2, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 25), nextContinuationAt: fixtureTime(19, 55), capabilities: { superRefresh: false }, running },
-    "Ghost Ops": { ...common, nextClaimAt: fixtureTime(19, 35), ownPending: 1, allianceCandidates: 2, claimed: 4 },
     "Alliance Tech Donations": { ...common, scienceId: 71001, remaining: 6, donated: 24 },
     "Automatic Official Application": { ...common, positionId: 10005, currentPositionId: 0, applyQueueLength: 3 },
     "Alliance Help": { ...common, available: 7, processed: 5 },

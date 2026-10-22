@@ -1,7 +1,7 @@
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { MISSION_KINDS, normalizeMissionDraft, validMissionDraft } from "./NativeMissionFields.jsx";
 export const AUTOMATION_TASKS = { "Alliance Help": "allianceHelp", "Alliance Gifts": "allianceGift", "Alliance Tech Donations": "allianceDonate", "Automatic Official Application": "officialPosition", "Automatic Treatment": "treatment",
-  "Secret Task": "dispatch", "Ghost Ops": "ghostRecon", "Excavation Stronghold Resources": "strongholdResource", "Alliance Center Resources": "allianceCenterResource",
+  "Secret Task": "dispatch", "Excavation Stronghold Resources": "strongholdResource", "Alliance Center Resources": "allianceCenterResource",
   "Alliance Gathering Dispatch": "allianceGather" };
 const intervalKinds = ["allianceGift", "strongholdResource", "allianceCenterResource"];
 export function validAutomationDraft(kind, draft) {
