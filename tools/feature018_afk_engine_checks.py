@@ -59,6 +59,10 @@ def main():
         target.leaderHeroCount=1;assert(not engine.JoinReady(r,target,wait,102));target.leaderHeroCount=5
         r.leaderListMode='blacklist';assert(not engine.JoinReady(r,target,wait,102));r.leaderListMode='off'
         target.departureTime=300;assert(not engine.JoinReady(r,target,wait,102));target.departureTime=120
+        -- Audit 2026-10-23 AUDIT-05: position 3 already taken (3 members), seats left -> join now, no delay.
+        target.memberCount=3;assert(engine.JoinReady(r,target,{},200),'Occupied position joins immediately')
+        r.leaderListMode='blacklist';assert(not engine.JoinReady(r,target,{},200),'Restrictions still apply');r.leaderListMode='off'
+        target.memberCount=2
         r.mode='delay';r.delaySeconds={2,4};wait={}
         assert(not engine.JoinReady(r,target,wait,100,function()return 0.5 end))
         assert(not engine.JoinReady(r,target,wait,102,function()return 0 end),'Delay must not reroll')

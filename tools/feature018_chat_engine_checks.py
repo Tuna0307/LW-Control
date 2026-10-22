@@ -159,6 +159,63 @@ def main():
       assert(claimReply.HandleMessage({}, {})=='original-claim')
       t=engine.Status().data.services.treasure;assert(t.claimed==1 and t.notJoined>=1)
     ''')
+    # Audit 2026-10-23 AUDIT-02: two joined digs finish together. The claim reply names no dig, so only
+    # one claim is in flight; the second goes out after the first reply and both are counted.
+    vm.execute('''
+      local T=engine._Treasure;local claimReply=require('Net.Msgs.RadarCenter.DetectEventClaimTreasureMessage')
+      local function claims()local n=0;for _,x in ipairs(state.sent)do if x[1]==12 then n=n+1 end end;return n end
+      state.marches[503]={targetUuid=9102,GetMarchTargetType=function()return 40 end}
+      state.marches[504]={targetUuid=9103,GetMarchTargetType=function()return 40 end}
+      local base=claims();local claimedBefore=T.stats.claimed
+      state.callbacks[1](msg(600,'9102',401));state.callbacks[1](msg(600,'9103',402))
+      state.now=state.now+5000;engine.Pump();engine.Pump()
+      assert(claims()==base+1,'Only one Treasure claim waits for a reply at a time')
+      claimReply.HandleMessage({}, {});state.now=state.now+100;engine.Pump()
+      assert(claims()==base+2,'The second claim follows the first reply')
+      claimReply.HandleMessage({}, {});state.now=state.now+100;engine.Pump()
+      assert(T.stats.claimed==claimedBefore+2 and T.claiming==nil,'Both claims are counted, none left pending')
+    ''')
+    # AUDIT-03: switching Treasure off releases an in-flight map request and the shared lock.
+    vm.execute('''
+      local T=engine._Treasure;local removed=0
+      T.aoi={manager={},current={Remove=function()removed=removed+1 end},added={7,8},int32={Parse=function(x)return x end},started=state.now}
+      rawset(_G,'__lwbridgeAoiOwner',T.aoi)
+      state.config.treasure.enabled=false;assert(engine.Configure(request).state=='confirmed')
+      state.config.redPacket={enabled=true,claimDelaySeconds={0,0}}
+      assert(engine.Configure(request).state=='confirmed')
+      state.now=state.now+1000;engine.Pump()
+      assert(T.aoi==nil and rawget(_G,'__lwbridgeAoiOwner')==nil and removed==2,'Off Treasure releases its map request')
+      state.config.treasure.enabled=true;state.config.redPacket={enabled=false};assert(engine.Configure(request).state=='confirmed')
+    ''')
+    # AUDIT-01: a dig found by one account is never dispatched by the next account.
+    vm.execute('''
+      local T=engine._Treasure
+      state.config.treasure.dispatchDelaySeconds={10,10};assert(engine.Configure(request).state=='confirmed')
+      for k in pairs(state.marches)do state.marches[k]=nil end;state.dispatchedSquad=nil
+      T.digs={};T.lookups={};T.shareSeen={}
+      state.callbacks[1]({post=50,seqId=500,roomId='a',group=2,attachmentId={pos=500*1000+300+1,sid=123}})
+      state.now=state.now+100;engine.Pump()
+      assert(T.digs['9001']and T.digs['9001'].state=='queued','Dig found and waiting for its dispatch delay')
+      LuaEntry.Player.uid='2002';LuaEntry.Player.allianceId='99';request.authorizedUid='2002';state.token='owner-2'
+      local forms={};for i=1,4 do forms[i]={uuid=700+i,index=i,ownerUid='2002'}end
+      DataCenter.ArmyFormationDataManager={GetOneArmyInfoByIndex=function(self,i)return forms[i]end}
+      assert(engine.Configure(request).state=='confirmed')
+      for _=1,20 do state.now=state.now+1000;engine.Pump()end
+      assert(state.dispatchedSquad==nil,'The next account never marches to the previous account dig')
+    ''')
+    # AUDIT-04: a Red Packet queued at 01:59 is not claimed after the 02:00 stop.
+    vm.execute('''
+      local realDate=os.date;local hm={1,59}
+      os.date=function(f,t)if f=='*t'then return {hour=hm[1],min=hm[2]}end;return realDate(f,t)end
+      state.config={redPacket={enabled=true,claimDelaySeconds={2,2},activeHours={enabled=true,start='08:00',['end']='02:00'}},
+        fireworks={enabled=false},treasure={enabled=false}}
+      assert(engine.Configure(request).state=='confirmed')
+      local before=#state.sent
+      state.callbacks[1](msg(611,'late-packet',600))
+      hm={2,0};state.now=state.now+3000;engine.Pump()
+      assert(#state.sent==before,'Queued before the stop time, not sent after it')
+      os.date=realDate
+    ''')
     # Owner 2026-10-22: active hours 08:00-02:00 cross midnight; outside them a new claim does not start.
     vm.execute('''
       local realDate=os.date;local hour=3
@@ -174,7 +231,7 @@ def main():
       local f=engine.Status().data.services.fireworks;assert(f.offHours==true and f.activeFrom=='08:00')
       os.date=realDate
     ''')
-    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure share->dig->claim (alliance only, 3-tile search, joined-only, schedule), delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan, active hours')
+    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure share->dig->claim (alliance only, 3-tile search, joined-only, schedule), delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan, active hours, audit 01-04')
 
 
 if __name__ == '__main__':

@@ -61,6 +61,9 @@ function M.JoinReady(r,t,wait,clock,random)
         local range=r.slotRange or {2,2}
         wait.position=wait.position or random(range[1],range[2])
         if t.memberCount+1<wait.position then wait.at=nil;return false,'waiting_join_delay' end
+        -- Displayed contract (squad.join.hint.slot, audit 2026-10-23 AUDIT-05): the chosen position is
+        -- already taken but seats remain -> join now, without the position delay.
+        if t.memberCount+1>wait.position then return true,'position_passed' end
         wait.at=wait.at or clock+(r.slotDelaySeconds or 0)
     else
         local range=r.delaySeconds or {0,0}

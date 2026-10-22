@@ -238,7 +238,7 @@ function T.AddDig(t,config)
     if T.digs[t.uuid]then return end
     T.stats.digsFound=T.stats.digsFound+1
     if t.complete or t.claimed or t.full then T.digs[t.uuid]={uuid=t.uuid,state='closed',at=clock()};return end
-    T.digs[t.uuid]={uuid=t.uuid,pointIndex=t.pointIndex,server=t.server,expires=t.expires,at=clock(),
+    T.digs[t.uuid]={uuid=t.uuid,pointIndex=t.pointIndex,server=t.server,expires=t.expires,at=clock(),account=owner and owner.account,
         state=t.working and 'joined'or 'queued',due=clock()+delay(config.dispatchDelaySeconds or {2,5})}
 end
 local function own_dig_march(uuid)
@@ -270,6 +270,12 @@ function T.Dispatch(d,config)
     local ready,valid=invoke(util,'CheckFormation',get(selected,'uuid'),kind,tonumber(d.uuid),d.pointIndex,back)
     if not kind or not ok or not ready or valid~=true then d.due=clock()+retry;d.reason='The game refused this squad for the dig';return end
     if not owned()then return end
+    -- Audit 2026-10-23 AUDIT-01: only the account that found the dig may send to it, and the dig must
+    -- still be our alliance's, unfinished, at the same tile right before the march.
+    local w=world();local here=w and select(2,call(w,'GetPointInfo',d.pointIndex));local fresh=here and T.Native(here)
+    if d.account~=owner.account or not fresh or fresh.uuid~=d.uuid or fresh.complete or fresh.full then
+        d.state='closed';d.reason='The dig is no longer valid for this account';return
+    end
     -- Tombstone before the game route: an exception is uncertain and never launches a second march.
     d.state='sent';d.sentAt=clock();d.slot=get(selected,'index')
     local sent,error=invoke(util,'SendCreateMarchMessage',get(selected,'uuid'),kind,d.pointIndex,tonumber(d.uuid),-1,back,true,d.server)
@@ -302,6 +308,13 @@ function T.Release()
     if T.hook and T.hook.module.HandleMessage==T.hook.wrapper then T.hook.module.HandleMessage=T.hook.previous end
     T.hook=nil;T.claiming=nil
 end
+-- The claim reply names no dig, so only one engine claim may be waiting for it (audit 2026-10-23
+-- AUDIT-02); the next one goes out right after that reply or after 15 s without one.
+function T.Busy(job)
+    local c=T.claiming
+    if c and c.state=='sent'and clock()-c.sentAt>=15000 then T.claiming=nil;return false end
+    return c~=nil and c~=job and c.state=='sent'
+end
 function T.Claim(job)
     local route=get(rawget(_G,'MsgDefines'),'DetectEventClaimTreasure');local network=rawget(_G,'SFSNetwork')
     if not route or type(get(network,'SendMessage'))~='function'then return false,'Native treasure claim unavailable'end
@@ -315,7 +328,13 @@ function T.Claim(job)
     return invoke(network,'SendMessage',route,tonumber(job.uuid),server)
 end
 function T.Pump(config)
-    if not active(config)or not owned()then return end
+    -- AUDIT-03: an in-flight map request is released as soon as Treasure is off or outside its hours,
+    -- so the shared lock (also used by Alliance Gathering) and the added view blocks never linger.
+    if not active(config)or not owned()then
+        if T.aoi then T.AoiCleanup()end
+        for _,l in ipairs(T.lookups)do if l.state=='loading'then l.state='new'end end
+        return
+    end
     -- 1. Shared spots: find the real dig within 3 tiles, loading the area once if needed.
     if T.aoi and (reflect(T.aoi.manager,'isRecvViewPoints')==true or clock()-T.aoi.started>3000)then
         local l=T.aoi.lookup;local t=l and T.Near(l.pos);T.AoiCleanup()
@@ -492,6 +511,7 @@ local function has_chat_work()
     return false
 end
 M._HasChatWork=has_chat_work
+M._Treasure=T -- inert checks only
 function M.Pump()
     if not has_chat_work()then return end
     if not owned()then return end
@@ -503,7 +523,11 @@ function M.Pump()
         if job.state=='queued'and job.kind=='treasure'and not T.Joined(job.uuid)then
             -- Owner 2026-10-22: never claim a dig our squad did not join.
             job.state='not_joined';T.stats.notJoined=T.stats.notJoined+1
-        elseif job.state=='queued'and (config.enabled or job.force)and job.due<=clock()then
+        elseif job.state=='queued'and job.kind=='treasure'and T.Busy(job)then
+            -- Wait for the reply to the claim already in flight.
+        -- AUDIT-04: active hours are checked again at the send. Treasure claims are only queued for digs
+        -- our squad joined, and those finish after the stop time (owner 2026-10-22).
+        elseif job.state=='queued'and (job.force or (job.kind=='treasure'and config.enabled==true)or active(config))and job.due<=clock()then
             if job.expires and job.expires<=clock()then job.state='expired'
             elseif claimed(job)then job.state='already_claimed'
             else
@@ -543,7 +567,11 @@ function M.Configure(request)
     local yes,settings=pcall(json.decode,request.confirmedChatConfig or '')
     if not yes or type(settings)~='table'then return fail('Confirmed Chat settings unavailable')end
     local ledger_signature=signature..'/'..tostring(token)
-    if ledger_owner~=ledger_signature then M.CleanupAfterLeaseLoss();queue={};seen={}end
+    if ledger_owner~=ledger_signature then
+        M.CleanupAfterLeaseLoss();queue={};seen={}
+        -- AUDIT-01: the previous account's shared spots and digs never carry over.
+        T.lookups={};T.shareSeen={};T.digs={}
+    end
     ledger_owner=ledger_signature
     owner={account=signature,token=token};configs=settings
     -- Status/configuration is polled by the host. Only Pump's 15 s fallback
