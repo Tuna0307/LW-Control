@@ -16,12 +16,12 @@ export function NativeTradeCard({ profileId, online, bridge = backendBridge }) {
   const { t } = useI18n();
   const config = usePreviewConfigAdapter({ enabled: false, crossServerEnabled: false, selectedItemIds: [], selectedCurrencyIds: [15, 650053] },
     createAutomationAdapter(bridge, profileId, KIND, online, draft => validAutomationDraft(KIND, draft)), `automation-native:${profileId}:${KIND}`);
-  const [ready, setReady] = useState(false), [error, setError] = useState(""), [runtime, setRuntime] = useState(null), [observation, setObservation] = useState(null), [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false), [error, setError] = useState(""), [statusError, setStatusError] = useState(""), [runtime, setRuntime] = useState(null), [observation, setObservation] = useState(null), [busy, setBusy] = useState(false);
   useEffect(() => {
     let closed = false;
     setReady(false);setRuntime(null);
     void config.store.refresh().then(() => { if (!closed) setReady(true); }).catch(e => { if (!closed) setError(e.message); });
-    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) setRuntime(services?.[KIND] ?? null); }, e => { if (!closed) setError(e.message); }) : () => {};
+    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) { setRuntime(services?.[KIND] ?? null);setStatusError(""); } }, e => { if (!closed) setStatusError(e.message); }) : () => {};
     return () => { closed = true;unsubscribe(); };
   }, [config.store, online, profileId]);
   useEffect(() => {
@@ -60,7 +60,7 @@ export function NativeTradeCard({ profileId, online, bridge = backendBridge }) {
     <NativeCardHeader title={t("automation.tradeStation.title")} description={t("automation.tradeStation.description")} checked={draft.enabled === true} disabled={disabled} onToggle={() => { void toggle(); }} />
     <NativeCardStatus t={t} online={online} enabled={draft.enabled === true} state={runtime?.state}
       rows={[[t("automation.confirmedCount"), runtime?.confirmed > 0 ? runtime.confirmed : null]]}
-      note={runtime?.before?.reason && runtime?.state !== "disabled" ? runtime.before.reason : null} errors={[runtime?.error, error]} />
+      note={runtime?.before?.reason && runtime?.state !== "disabled" ? runtime.before.reason : null} errors={[runtime?.error, statusError, error]} />
     <PreviewConfigError config={config} t={t} />
     <NativeCardSettings t={t}>
       <NativeTradeFields config={config} runtime={runtime} observation={observation} disabled={disabled || draft.enabled} t={t} />

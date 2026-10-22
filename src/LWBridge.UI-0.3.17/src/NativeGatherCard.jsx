@@ -22,13 +22,13 @@ export function defaultGatherSquads(squads) {
 export function NativeGatherCard({ profileId, online, bridge = backendBridge }) {
   const { t, language } = useI18n();
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, KIND, online, draft => validAutomationDraft(KIND, draft)), `automation-native:${profileId}:${KIND}`);
-  const [ready, setReady] = useState(false), [error, setError] = useState(""), [runtime, setRuntime] = useState(null), [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false), [error, setError] = useState(""), [statusError, setStatusError] = useState(""), [runtime, setRuntime] = useState(null), [busy, setBusy] = useState(false);
   const [expanded, toggleExpanded, setExpanded] = useRememberedExpansion(`automation-settings:${profileId}:${KIND}`);
   useEffect(() => {
     let closed = false;
     setReady(false);setRuntime(null);
     void config.store.refresh().then(() => { if (!closed) setReady(true); }).catch(e => { if (!closed) setError(e.message); });
-    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) setRuntime(services?.[KIND] ?? null); }, e => { if (!closed) setError(e.message); }) : () => {};
+    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) { setRuntime(services?.[KIND] ?? null);setStatusError(""); } }, e => { if (!closed) setStatusError(e.message); }) : () => {};
     return () => { closed = true;unsubscribe(); };
   }, [config.store, online, profileId]);
   const draft = config.draft;
@@ -57,7 +57,7 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
   return <article className={`automation-card automation-card-wide${draft.enabled ? " is-enabled" : ""}`} data-native-automation={KIND} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
     <NativeCardHeader title={t("automation.category.resourceGather")} description={t("automation.resourceGather.description")} checked={draft.enabled === true} disabled={disabled} onToggle={toggle} />
     <NativeCardStatus t={t} online={online} enabled={draft.enabled === true} state={runtime?.state === "unconfirmed" ? "unconfirmed" : draft.enabled ? "waiting" : "disabled"}
-      rows={[[t("automation.confirmedCount"), runtime?.confirmed > 0 ? runtime.confirmed : null]]} errors={[runtime?.error, error]} />
+      rows={[[t("automation.confirmedCount"), runtime?.confirmed > 0 ? runtime.confirmed : null]]} errors={[runtime?.error, statusError, error]} />
     <PreviewConfigError config={config} t={t} />
     <NativeCardSettings t={t} collapsible expanded={expanded} onToggle={toggleExpanded} disabled={disabled}>
       <div className="automation-form-grid">

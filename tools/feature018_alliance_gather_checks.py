@@ -105,7 +105,35 @@ def main():
       for _=1,20 do step();answer();if pm.isRecvViewPoints==false then pm.isRecvViewPoints=true end end
       assert(#state.starts==1,'The drop found by the search is gathered')
     ''')
-    print('FEATURE018_R30_ALLIANCE_GATHER_LUA_PASS doom-drop fresh-detail priority one-per-drop off no-alliance full empty busy other-alliance no-drop account uncertain no-replay refused-before stop camera-free-search')
+    # Doom Elites die to alliance rallies; the rally list (map-wide) gives the tile to check once the
+    # rally has fought, so a drop far from the base and the camera is still found.
+    vm=alliance()
+    vm.execute('''
+      local pm=CS.SceneManager.World.PointManager
+      local set={};state.requests={}
+      pm._curViewIndex={Contains=function(self,n)return set[n]==true end,Add=function(self,n)set[n]=true;return true end,Remove=function(self,n)set[n]=nil;return true end}
+      pm.isRecvViewPoints=true
+      CS.System={Int32={Parse=function(t)return tonumber(t)end},Array={CreateInstance=function()return {SetValue=function()end}end}}
+      typeof=function(x)return x end
+      CS.WorldGetBlockMessage={Request=function()return {}end,Instance={Send=function(self,r)
+        state.requests[#state.requests+1]={x=r.x,y=r.y};pm.isRecvViewPoints=false
+        if r.x==900 and r.y==100 then state.points[1]=state.far end
+      end}}
+      LuaEntry.Player.GetMainWorldPos=function()return nil end
+      AllianceTeamType={ATTACK_BOSS=2}
+      state.far={PointType=26,pointIndex=5005,uuid=900,allianceId='77',serverId=123,configId=4001}
+      state.points[1]={PointType=1,pointIndex=2}
+      DataCenter.AllianceWarDataManager={AllianceWarList={[55]={type=2,attackAllianceId='77',targetPointId=100*1000+900+1,server=123},
+        [56]={type=2,attackAllianceId='88',targetPointId=7}}}
+      for _=1,5 do step()end
+      assert(#state.requests==0,'Nothing is requested while the rally has not fought yet')
+      DataCenter.AllianceWarDataManager.AllianceWarList={}
+      for _=1,40 do step();answer();if pm.isRecvViewPoints==false then pm.isRecvViewPoints=true end end
+      assert(state.requests[1].x==900 and state.requests[1].y==100,'The finished rally target is checked')
+      for _,r in ipairs(state.requests)do assert(r.x==900 and r.y==100,'Only our alliance rally is checked')end
+      assert(next(set)==nil and #state.starts==1,'The drop at the rally spot is gathered')
+    ''')
+    print('FEATURE018_R30_ALLIANCE_GATHER_LUA_PASS doom-drop fresh-detail priority one-per-drop off no-alliance full empty busy other-alliance no-drop account uncertain no-replay refused-before stop camera-free-search rally-target')
 
 
 if __name__=='__main__':main()

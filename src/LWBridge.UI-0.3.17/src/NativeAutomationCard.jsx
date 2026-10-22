@@ -30,7 +30,7 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   const { english, t } = useI18n();
   const kind = AUTOMATION_TASKS[title];
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, kind, online, draft => validAutomationDraft(kind, draft)), `automation-native:${profileId}:${kind}`);
-  const [ready, setReady] = useState(false), [error, setError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false), [dragged, setDragged] = useState(null), [dragOver, setDragOver] = useState(null);
+  const [ready, setReady] = useState(false), [error, setError] = useState(""), [statusError, setStatusError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false), [dragged, setDragged] = useState(null), [dragOver, setDragOver] = useState(null);
   const runtime = services?.[kind] ?? null;
   // Original 0.3.17: the multi-option cards collapse their settings (closed by default, remembered).
   const collapsible = ["dispatch", "allianceGather"].includes(kind);
@@ -39,7 +39,7 @@ export function NativeAutomationCard({ title, description, profileId, online, br
     let closed = false;
     setReady(false);setServices(null);
     void config.store.refresh().then(() => { if (!closed) setReady(true); }).catch(e => { if (!closed) setError(e.message); });
-    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) setServices(services); }, e => { if (!closed) setError(e.message); }) : () => {};
+    const unsubscribe = online ? subscribeAutomationStatus(bridge, profileId, services => { if (!closed) { setServices(services);setStatusError(""); } }, e => { if (!closed) setStatusError(e.message); }) : () => {};
     return () => { closed = true;unsubscribe(); };
   }, [config.store, online, profileId, kind]);
   const disabled = !ready || !online || busy || config.saving;
@@ -59,7 +59,7 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   const rows = [...counts.map(key => [t(key === "scienceId" ? "automation.currentTech" : `automation.${key}`), runtime?.[key] ?? (runtime?.after ?? runtime?.before)?.[key]]),
     [t("automation.confirmedCount"), runtime?.confirmed > 0 ? runtime.confirmed : null]];
   const note = runtime?.before?.reason && runtime?.state !== "disabled" ? runtime.before.reason : null;
-  const errors = [runtime?.error, error && <>{error}<button type="button" className="automation-error-retry" onClick={() => { void config.store.refresh().then(() => { setReady(true);setError(""); }).catch(e => setError(e.message)); }}>{t("common.retry")}</button></>];
+  const errors = [runtime?.error, statusError, error && <>{error}<button type="button" className="automation-error-retry" onClick={() => { void config.store.refresh().then(() => { setReady(true);setError(""); }).catch(e => setError(e.message)); }}>{t("common.retry")}</button></>];
   const allianceGather = kind === "allianceGather" ? (() => {
     const order = Array.isArray(config.draft.allianceGatherSquads) ? config.draft.allianceGatherSquads : [1, 2];
     const listed = [...order, ...[1, 2, 3, 4].filter(slot => !order.includes(slot))];

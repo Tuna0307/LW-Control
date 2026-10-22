@@ -20,6 +20,8 @@ export function subscribeAutomationStatus(bridge, profileId, onServices, onError
         for (const listener of hub.listeners) listener.onServices(hub.last);
       } catch (error) {
         for (const listener of hub.listeners) listener.onError?.(error);
+        // A game reconnect fails one read; re-read soon so the error clears instead of lingering 5 s.
+        setTimeout(read, 1000);
       } finally { hub.polling = false; }
     };
     hub.read = read;

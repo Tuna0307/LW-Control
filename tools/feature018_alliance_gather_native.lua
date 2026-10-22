@@ -58,6 +58,10 @@ local function loaded_points()
     end
     return out
 end
+local function world_loaded()
+    local w=world();local pm=get(w,'PointManager')or reflected(w,'PointManager')
+    return tonumber(get(get(pm,'_pointInfos')or reflected(pm,'_pointInfos'),'Count'))~=nil
+end
 local function typed(p)
     local cast,typeof=rawget(_G,'cast'),rawget(_G,'typeof');local cls=get(rawget(_G,'CS'),'WorldAllianceCollectResource')
     if get(p,'configId')==nil and type(cast)=='function'and type(typeof)=='function'and cls then
@@ -125,6 +129,37 @@ local function aoi_request(c,cx,cy)
     return true
 end
 -- One sweep step per call; true while a step is in flight.
+-- Doom Elites are killed by alliance rallies, and the game keeps every alliance rally (with its
+-- target tile) in AllianceWarList wherever it is on the map. Remember each monster rally's target;
+-- once the rally is gone (fought), look at that spot twice for the drop it may have left.
+local RALLY_SCAN_DELAYS_MS={3000,30000}
+local function watch_rallies(c,at)
+    c.rallies=c.rallies or {};c.rallyScans=c.rallyScans or {}
+    local alliance=tostring(get(player(),'allianceId')or '')
+    local boss=get(rawget(_G,'AllianceTeamType'),'ATTACK_BOSS')
+    local list=get(center('AllianceWarDataManager'),'AllianceWarList')
+    if type(list)~='table'then return end
+    local seen={}
+    for uuid,war in pairs(list)do
+        local pointId=tonumber(get(war,'targetPointId'))
+        if pointId and pointId>0 and tostring(get(war,'attackAllianceId'))==alliance and (boss==nil or get(war,'type')==boss)then
+            local key=tostring(uuid);seen[key]=true
+            c.rallies[key]={pointId=pointId,server=tonumber(get(war,'server'))or tonumber(c.server)}
+        end
+    end
+    for key,r in pairs(c.rallies)do
+        if not seen[key]then
+            c.rallies[key]=nil
+            for _,delay in ipairs(RALLY_SCAN_DELAYS_MS)do c.rallyScans[#c.rallyScans+1]={pointId=r.pointId,due=at+delay}end
+            c.rallyFought=(c.rallyFought or 0)+1
+        end
+    end
+end
+local function due_rally_scan(c,at)
+    for i,scan in ipairs(c.rallyScans or {})do
+        if at>=scan.due then table.remove(c.rallyScans,i);return scan end
+    end
+end
 local function sweep(c,at)
     if c.aoi then
         if c.aoi.started==nil then c.aoi.started=at end
@@ -132,6 +167,12 @@ local function sweep(c,at)
         if replied or at-c.aoi.started>3000 then pcall(remember,c,at);aoi_cleanup(c)end
         return true
     end
+    local scan=due_rally_scan(c,at)
+    if scan then
+        c.scanningRally=true
+        return aoi_request(c,(scan.pointId-1)%1000,math.floor((scan.pointId-1)/1000))
+    end
+    c.scanningRally=nil
     if c.sweepPauseUntil and at<c.sweepPauseUntil then return false end
     if not c.sweepQueue then
         local home=tonumber(call(player(),'GetMainWorldPos'));if not home or home<1 then return false end
@@ -217,6 +258,9 @@ function M.Plan(kind,config,at)
     if call(player(),'IsInAlliance')~=true then return nil,{available=0,reason='Join an alliance first'}end
     if tonumber(call(player(),'GetCurWorldId'))~=0 then return nil,{available=0,reason='Alliance gathering requires the normal world'}end
     local c=context()
+    pcall(watch_rallies,c,at)
+    -- The game only keeps world points (and shows the pickaxe) while the world map is open.
+    if not world_loaded()then return nil,{available=0,reason='Waiting for the world map: open it in the game so drops can be seen'}end
     local ok,found,open,needRead=pcall(drops,c,at)
     if not ok then return nil,{available=0,reason=tostring(found)}end
     if needRead then
@@ -227,7 +271,8 @@ function M.Plan(kind,config,at)
     for _,d in ipairs(found)do if d.skip then c.lastSeen={at=at,text='Drop at '..d.where..': '..d.skip}end end
     local swept,busy=pcall(sweep,c,at)
     if #open==0 and swept and busy then
-        before.reason=('Searching the map around your base for Doom Elite drops ('..tostring(c.sweepDone or 0)..'/'..tostring(c.sweepTotal or 0)..')')
+        before.reason=c.scanningRally and 'Checking where an alliance rally just fought for a Doom Elite drop'
+            or ('Searching the map around your base for Doom Elite drops ('..tostring(c.sweepDone or 0)..'/'..tostring(c.sweepTotal or 0)..')')
         before.retryMs=1000;return nil,before
     end
     if #open==0 then
