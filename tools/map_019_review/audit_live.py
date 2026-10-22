@@ -48,6 +48,7 @@ def audit(root):
         if fallback and (fallback.get('runId') or fallback.get('scanRunId')) == terminal.get('scanRunId'):
             effective = 'camera-fallback'
         row = {'ordinal': ordinal, 'round': entry.get('round'), 'workload': workload, 'selectedTypes': selected,
+               'serverId': terminal.get('serverId'),
                'requestedMethod': entry.get('method'), 'effectiveMethod': effective,
                'seconds': entry.get('seconds'), 'terminalPhase': terminal.get('phase'),
                'errorType': entry.get('errorType'), 'error': redacted(entry.get('error')) if entry.get('error') else None,

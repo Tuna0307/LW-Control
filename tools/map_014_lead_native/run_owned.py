@@ -41,6 +41,7 @@ def review_plan(scenario, environ):
 def managed_deadline_seconds(scenario,environ):
     plan=review_plan(scenario,environ)
     if plan: return plan['deadlineSeconds']
+    if scenario=='mobile-review': return 1860
     return 2100 if scenario=='direct-full' and environ.get('LWBRIDGE_MAP015_PAIRED_TRUCK')=='1' else 1860 if scenario.startswith('benchmark-') else 780
 def persisted_snapshot(path):
     """Hash published row identities without exposing private records in a receipt."""
@@ -55,10 +56,14 @@ def persisted_snapshot(path):
     return dict(rows=count,sha256=digest.hexdigest(),jobs=jobs)
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe','lod-snapshot','direct-aoi','hold-lens','direct-full','shape-review','benchmark-review']+['benchmark-'+kind for kind in BENCHMARK_WORKLOADS]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe','lod-snapshot','direct-aoi','hold-lens','direct-full','shape-review','mobile-review','benchmark-review']+['benchmark-'+kind for kind in BENCHMARK_WORKLOADS]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
     if opt.saved_db and opt.scenario!='stop': p.error('--saved-db is only supported for stop')
-    if opt.scenario in ('benchmark-review','shape-review'):
+    if opt.scenario in ('benchmark-review','shape-review','mobile-review'):
         os.environ['LWBRIDGE_FEATURE018_BACKGROUND_ONLY']='1'
+    diagnostic_dll=(REPO/'tools/map_019_review/mobile_native/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll'
+        if opt.scenario=='mobile-review' else Path(__file__).parent/'bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll')
+    if opt.scenario=='mobile-review' and not diagnostic_dll.is_file():
+        p.error('Build the opt-in mobile_native diagnostic before launching its owned game')
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
     plan=review_plan(opt.scenario,os.environ)
@@ -157,9 +162,12 @@ def main():
         scene=observe_scene_gate(directory/'live-resource',directory,profile=profile,
             session=session,challenge=challenge,game_pid=started['gamePid'])
         (directory/'scene-admission.json').write_text(json.dumps(scene,indent=2))
-        dll=Path(__file__).parent/'bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll'
+        dll=diagnostic_dll
         source_files=(REPO/'tools/current_live_resource_probe.lua',REPO/'tools/current_overview_bridge.lua',
             Path(__file__),Path(__file__).with_name('Program.cs'),REPO/'tools/map_019_review/frame_telemetry.lua')
+        if opt.scenario=='mobile-review':
+            source_files+=(REPO/'tools/map_019_review/mobile_native/Program.cs',
+                REPO/'tools/map_019_review/mobile_native/MobileReview.csproj')
         launch_sources={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
             for file in source_files if file.is_file()}
         launch_binaries={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
