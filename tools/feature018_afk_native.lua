@@ -233,6 +233,29 @@ potion.Bind({Owned=owned,Now=now,Snapshot=stamina_snapshot,Use=function(o,item)
     local ok,value=pcall(net.SendMessage,route,{uuid=item.uuid,num=1})
     return ok and value~=false,not ok and tostring(value) or nil
 end})
+-- Owner 2026-10-22: join a rally directly, without opening the team screen. Same call the
+-- screen's Dispatch makes (UIFormationSelectListNewCtrl 1352): MarchUtil.OnJoinRally(formation,
+-- rallyType, rallyUuid, rallyPoint, stamina) -> StartMarch(JOIN_RALLY, point, rallyUuid, -1, formation).
+local function direct_join(slot,t)
+    local f=form(slot);if not f then return nil,'Assigned rally squad absent' end
+    local ok_busy,busy=march(slot);if not ok_busy or busy~=nil then return nil,'Assigned rally squad is busy' end
+    local fresh=attack.AutomationRallyInfo(t.uuid,true)
+    if not fresh or fresh.monsterId~=t.monsterId then return nil,'Native monster rally target changed' end
+    call(f,'ConscriptSoldier')
+    if not tonumber(get(f,'totalSoldierNum'))or tonumber(get(f,'totalSoldierNum'))<=0 then return nil,'Assigned rally squad lacks native troops' end
+    local join=get(rawget(_G,'MarchUtil'),'OnJoinRally');local types=rawget(_G,'MarchTargetType')
+    if type(join)~='function'or not get(types,'JOIN_RALLY')then return nil,'Native rally join unavailable' end
+    local _,energy=call(center('ArmyFormationDataManager'),'GetCurStaminaByUuid',get(f,'uuid'))
+    local formation=id(get(f,'uuid'))
+    -- From here a send may have happened: an error is kept as an uncertain tombstone, never retried.
+    local ok,err=pcall(join,get(f,'uuid'),get(types,'RALLY_FOR_BOSS'),tonumber(fresh.uuid),fresh.pointIndex,tonumber(energy)or 0)
+    if not ok then
+        jobs[slot]={activity='monsterSweep',uncertain=true,target=t,error=tostring(err)}
+        error('Native rally join outcome uncertain: '..tostring(err))
+    end
+    jobs[slot]={activity='monsterSweep',target=t,sentAt=now(),phase='directAck',join=true,formation=formation}
+    return tostring(slot)
+end
 local function send(o,slot,p,t)
     if not owned(o) or not free(slot,p) then return nil,'Assigned squad/account changed' end
     local f=fields(slot,o)
@@ -252,6 +275,11 @@ local function send(o,slot,p,t)
                 return tostring(slot)
             end
             return nil,receipt.error or 'Continuous rally join not dispatched'
+        end
+        if p.kind=='join'then
+            local token,why=direct_join(slot,t)
+            if token then jobs[slot].activity=p.activity or 'monsterSweep' end
+            return token,why
         end
         receipt=attack.AutomationRallyOpen(f,clear_input,t,p.kind=='join')
         if receipt.state=='failed' or receipt.state=='unsupported' then return nil,receipt.error end
@@ -275,6 +303,20 @@ local function observe(job,allow_send)
     local native=jobs[job.slot]
     if not native then return {failed=true,error='Native pending march missing'} end
     if native.uncertain then return {failed=true,error='Native send outcome uncertain; restart suppressed'} end
+    if native.phase=='directAck' then
+        -- Confirmed when the squad's own march to the rally appears.
+        local ok,m=march(job.slot)
+        local type_ok,kind=call(m,'GetMarchTargetType')
+        if ok and m~=nil and id(get(m,'uuid'))and (not type_ok or kind~=get(rawget(_G,'MarchTargetType'),'BACK_HOME'))then
+            native.phase='battle';native.marchUuid=id(get(m,'uuid'))
+            native.ack={serverAcknowledgementCorrelated=true,directJoin=true,marchUuid=native.marchUuid}
+            joined[native.target.uuid]=true
+            return {step='joining',acknowledged=true,receipt=native.ack}
+        elseif now()-native.sentAt>30 then
+            return {failed=true,error='Rally join was not confirmed by a native march'}
+        end
+        return {step='joining'}
+    end
     if native.phase=='chooser' then
         if allow_send==false then return {step='waiting_event'}end
         if now()-native.sentAt>20 then return {failed=true,error='Native rally chooser timed out; no retry'}end

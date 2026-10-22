@@ -8,7 +8,8 @@ export function chatDraft(value = {}) {
     replies: (value.replies ?? []).join("\n"), treasureSearchEnabled: value.searchEnabled === true,
     treasureDispatchEnabled: value.dispatchEnabled === true,
     dispatchMin: value.dispatchDelaySeconds?.[0] ?? 2, dispatchMax: value.dispatchDelaySeconds?.[1] ?? 5,
-    dispatchRetry: value.dispatchRetrySeconds ?? 30, dispatchSquads: value.dispatchSquadPriority ?? [1] };
+    dispatchRetry: value.dispatchRetrySeconds ?? 30, dispatchSquads: value.dispatchSquadPriority ?? [1],
+    claimSchedule: Array.isArray(value.claimSchedule) ? value.claimSchedule.map(row => ({ ...row })) : null };
 }
 // Owner 2026-10-21: "Min 10, Max 0" means 10 seconds - raise Max to Min instead of refusing to save.
 export function settleChatDelayPairs(draft) {
@@ -25,7 +26,8 @@ export function chatConfig(draft) {
     replies: draft.replies.split(/\r?\n/).map(line => line.trim()).filter(Boolean),
     searchEnabled: draft.treasureSearchEnabled, dispatchEnabled: draft.treasureDispatchEnabled,
     dispatchDelaySeconds: [Number(draft.dispatchMin), Number(draft.dispatchMax)],
-    dispatchRetrySeconds: Number(draft.dispatchRetry), dispatchSquadPriority: draft.dispatchSquads };
+    dispatchRetrySeconds: Number(draft.dispatchRetry), dispatchSquadPriority: draft.dispatchSquads,
+    ...(Array.isArray(draft.claimSchedule) ? { claimSchedule: draft.claimSchedule.map(row => ({ start: row.start, end: row.end, min: Number(row.min), max: Number(row.max) })) } : {}) };
 }
 export function createChatAdapter(bridge, profileId, kind, valid, online) {
   const invoke = (command, payload = {}) => {

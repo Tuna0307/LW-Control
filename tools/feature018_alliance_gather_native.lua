@@ -85,15 +85,20 @@ local function drops(c,at)
     for _,raw in ipairs(loaded_points())do
         local p=typed(raw);local pointId=tonumber(get(p,'pointIndex')or get(p,'PointIndex')or get(p,'pointId'))
         local uuid=id(get(p,'uuid'));local owner=get(p,'allianceId')
+        if pointId and uuid and owner~=nil and tostring(owner)~=alliance then
+            c.lastSeen={at=at,text='Drop at '..tostring((pointId-1)%1000)..','..tostring(math.floor((pointId-1)/1000))..' belongs to another alliance'}
+        end
         if pointId and uuid and (owner==nil or tostring(owner)==alliance)then
             local drop={pointId=pointId,uuid=uuid,rawUuid=get(p,'uuid'),configId=tonumber(get(p,'configId')),server=tonumber(get(p,'serverId'))or tonumber(c.server)}
             found[#found+1]=drop
-            if not own_march_at(pointId,uuid)then
+            drop.where=tostring((pointId-1)%1000)..','..tostring(math.floor((pointId-1)/1000))
+            if own_march_at(pointId,uuid)then drop.skip='your squad is already there'
+            else
                 local read=c.read[uuid]
                 -- The detail list is keyed by the reply's own uuid value (the point's long uuid), not text.
                 local manager=center('WorldPointDetailManager')
                 local detail=call(manager,'GetAllianceResourceData',drop.rawUuid)or call(manager,'GetAllianceResourceData',uuid)
-                if not read or not detail or at-read>DETAIL_FRESH_MS then needRead=needRead or drop
+                if not read or not detail or at-read>DETAIL_FRESH_MS then needRead=needRead or drop;drop.skip=read and not detail and 'the game returned no details' or 'reading details'
                 else
                     local players=get(detail,'playerInfoLiset');local mine=false
                     for _,v in pairs(players or {})do if tostring(get(v,'uid'))==c.uid then mine=true end end
@@ -101,7 +106,10 @@ local function drops(c,at)
                     local cap=tonumber(get(line,'guard_num'))
                     local remain=tonumber(select(2,pcall(call,detail,'GetCurResourceValue')))or tonumber(get(detail,'remainValue'))
                     drop.remain=remain;drop.gatherers=count(players);drop.cap=cap
-                    if not mine and remain and remain>0 and (not cap or drop.gatherers<cap)then open[#open+1]=drop end
+                    if mine then drop.skip='you are already gathering it'
+                    elseif not remain or remain<=0 then drop.skip='no resources left'
+                    elseif cap and drop.gatherers>=cap then drop.skip='full ('..drop.gatherers..'/'..cap..')'
+                    else open[#open+1]=drop end
                 end
             end
         end
@@ -129,8 +137,10 @@ function M.Plan(kind,config,at)
             args={needRead.rawUuid,needRead.server,needRead.pointId},uuid=needRead.uuid,version=c.version,key=c.key},{available=#open,drops=#found}
     end
     local before={available=#open,drops=#found}
+    for _,d in ipairs(found)do if d.skip then c.lastSeen={at=at,text='Drop at '..d.where..': '..d.skip}end end
     if #open==0 then
-        before.reason=#found==0 and 'No Doom Elite resource drop in the loaded world area'or 'Every nearby drop is full, empty or already has your squad'
+        local last=c.lastSeen and (' · last seen '..(select(2,pcall(os.date,'%H:%M',math.floor(c.lastSeen.at/1000)))or'?')..': '..c.lastSeen.text)or''
+        before.reason=(#found==0 and 'No Doom Elite resource drop in the loaded world area'or 'Every nearby drop is full, empty or already has your squad')..last
         return nil,before
     end
     for _,slot in ipairs(squads)do
