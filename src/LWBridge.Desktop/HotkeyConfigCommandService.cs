@@ -50,9 +50,45 @@ internal sealed class ProfileRuntimeConfigStore
         storageGate = StorageGates.GetOrAdd(this.path, static _ => new object());
     }
 
+    // Audit 2026-10-23 W06: the in-process gate alone let two app processes read the same old file and
+    // each replace it, losing one save. A named mutex per settings file extends the whole
+    // read/modify/write across processes; the in-process gate stays for same-process callers.
+    private ExclusiveScope Exclusive()
+    {
+        Monitor.Enter(storageGate);
+        Mutex? mutex = null;
+        try
+        {
+            string name = @"Local\LWBridgeRuntimeConfig-" + Convert.ToHexString(
+                System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(path.ToUpperInvariant())));
+            mutex = new Mutex(false, name);
+            bool owned;
+            try { owned = mutex.WaitOne(TimeSpan.FromSeconds(10)); }
+            catch (AbandonedMutexException) { owned = true; /* the previous owner exited; we hold it now */ }
+            if (!owned) throw StateUnavailable();
+            return new ExclusiveScope(storageGate, mutex);
+        }
+        catch
+        {
+            mutex?.Dispose();
+            Monitor.Exit(storageGate);
+            throw;
+        }
+    }
+
+    private readonly struct ExclusiveScope(object gate, Mutex mutex) : IDisposable
+    {
+        public void Dispose()
+        {
+            try { mutex.ReleaseMutex(); } catch (ApplicationException) { }
+            mutex.Dispose();
+            Monitor.Exit(gate);
+        }
+    }
+
     internal HotkeyConfig ReadHotkeys()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -71,7 +107,7 @@ internal sealed class ProfileRuntimeConfigStore
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -88,7 +124,7 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal VisualMetricsConfig ReadVisualMetrics()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -111,7 +147,7 @@ internal sealed class ProfileRuntimeConfigStore
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -129,7 +165,7 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal JsonObject ReadEquipmentConfig()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -145,7 +181,7 @@ internal sealed class ProfileRuntimeConfigStore
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -179,7 +215,7 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal JsonObject ReadTasksSnapshot()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -224,7 +260,7 @@ internal sealed class ProfileRuntimeConfigStore
                 "Scheduler key is required.",
                 nameof(schedulerKey));
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -279,7 +315,7 @@ internal sealed class ProfileRuntimeConfigStore
             throw new ArgumentException("Task name is required.", nameof(taskName));
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {

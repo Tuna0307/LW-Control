@@ -455,10 +455,11 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     try {
       await draftQueueRef.current;
       requireCityOwner(owner);
-      await backendBridge.invokeProfileScoped("city_layout_draft_clear", { revision: draftRevisionRef.current });
+      const cleared = await backendBridge.invokeProfileScoped("city_layout_draft_clear", { revision: draftRevisionRef.current });
       requireCityOwner(owner);
-      draftRevisionRef.current = 0;
-      setDraftRevision(0);
+      // The store keeps a cleared marker with the next revision (audit W04); continue from it.
+      draftRevisionRef.current = Number(cleared?.revision) || 0;
+      setDraftRevision(draftRevisionRef.current);
       setHistory({ past: [], present: [], future: [] });
       savedSignatureRef.current = "";
       setStale(false);

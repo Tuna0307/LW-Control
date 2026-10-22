@@ -26,6 +26,7 @@ await HomeR1AdoptionChecks.RunAsync();
 await HomeStaleAdoptionChecks.RunAsync();
 await HomeSecondaryRuntimeCompositionChecks.RunAsync();
 await Feature018HotkeyConfigChecks.RunAsync();
+await AuditFindingsChecks.RunAsync();
 await Feature018RetiredTasksChecks.RunAsync();
 await Feature018OwnedGameExchangeChecks.RunAsync();
 await Feature018AfkRuntimeChecks.RunAsync();

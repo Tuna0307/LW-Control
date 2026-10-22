@@ -173,23 +173,30 @@ internal sealed class ProfileRegistryStore : IDisposable
         lock (gate)
         {
             ThrowIfDisposed();
-            List<ProfileRegistryEntry> existing = ReadProfiles();
-            if (maxProfiles < 2 || existing.Count >= maxProfiles)
+            if (maxProfiles < 2)
                 throw new BridgeCommandException("PROFILE_LIMIT_REACHED", "Local profile capacity has been reached.");
 
+            // Audit 2026-10-23 W05: the instance lock does not cover another app window on the same
+            // registry. Count and insert in ONE statement inside a write-locking (IMMEDIATE) transaction,
+            // so two windows can never both take the last slot.
             string profileId = "local-" + Guid.NewGuid().ToString("N");
-            long order = existing.Count == 0 ? 0 : existing.Max(profile => profile.DisplayOrder) + 1;
+            using SqliteTransaction transaction = connection.BeginTransaction(deferred: false);
             using SqliteCommand insert = connection.CreateCommand();
+            insert.Transaction = transaction;
             insert.CommandText = """
                 INSERT INTO profiles(id, display_name, role_name, server_id, game_uid,
                     note, display_order, enabled, locked_reason, is_primary, created_at, updated_at)
-                VALUES ($id, $name, NULL, NULL, NULL, '', $order, 1, NULL, 0, $now, $now)
+                SELECT $id, 'Local ' || (COUNT(*) + 1), NULL, NULL, NULL, '',
+                    COALESCE(MAX(display_order) + 1, 0), 1, NULL, 0, $now, $now
+                FROM profiles
+                HAVING COUNT(*) < $max
                 """;
             insert.Parameters.AddWithValue("$id", profileId);
-            insert.Parameters.AddWithValue("$name", "Local " + (existing.Count + 1));
-            insert.Parameters.AddWithValue("$order", order);
+            insert.Parameters.AddWithValue("$max", maxProfiles);
             insert.Parameters.AddWithValue("$now", nowUnixMilliseconds);
-            insert.ExecuteNonQuery();
+            if (insert.ExecuteNonQuery() != 1)
+                throw new BridgeCommandException("PROFILE_LIMIT_REACHED", "Local profile capacity has been reached.");
+            transaction.Commit();
         }
     }
 

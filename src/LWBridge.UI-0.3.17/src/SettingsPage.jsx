@@ -1,6 +1,7 @@
 import { formatDiagnosticBytes, previewUpdateStatus, updateDownloadVisible, updateManualCooldownSeconds, updateStatusBusy } from "./previewRemainingPagesContracts.js";
 import { useEffect, useRef, useState } from "react";
 import { backendBridge } from "./backendBridge.js";
+import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { useI18n } from "./i18n.jsx";
 import { ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
 
@@ -115,8 +116,12 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
         visualSourceRef.current = saved;
         setVisualPreferences(saved);
       } else {
+        // Audit 2026-10-23 W07: every game call below, the rollback included, is for the profile that
+        // started this change; after a profile switch nothing is sent to the newly selected profile.
+        const ownerProfile = backendBridge.profileId;
         let appliedToGame = false;
         if (online) {
+          assertBridgeProfileOwner(backendBridge, ownerProfile);
           await backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
             showFps: saved.showFps === true,
             showPing: saved.showPing === true,
@@ -124,6 +129,7 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
           appliedToGame = true;
         }
         try {
+          assertBridgeProfileOwner(backendBridge, ownerProfile);
           const stored = await backendBridge.invokeProfileScoped("visual_metrics_config_save", {
             showFps: saved.showFps === true,
             showPing: saved.showPing === true,
@@ -135,7 +141,7 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
           visualSourceRef.current = normalized;
           setVisualPreferences(normalized);
         } catch (error) {
-          if (appliedToGame) {
+          if (appliedToGame && backendBridge.profileId === ownerProfile) {
             await backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
               showFps: previousVisual.showFps === true,
               showPing: previousVisual.showPing === true,

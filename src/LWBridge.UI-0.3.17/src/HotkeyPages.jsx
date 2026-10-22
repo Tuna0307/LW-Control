@@ -4,6 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import { Switch, PanelTitle } from "./sharedPageUI.jsx";
 import { backendBridge } from "./backendBridge.js";
 
+// Audit 2026-10-23 W08: Hotkeys and Mini Games each save the whole hotkey object. Run every
+// fresh-read + save one after another (shared by both pages), so one switch save never undoes another.
+let hotkeySaveChain = Promise.resolve();
+function saveHotkeyFieldInOrder(field, value) {
+  const run = hotkeySaveChain.catch(() => {}).then(async () => {
+    const fresh = await backendBridge.invokeProfileScoped("hotkey_config_get");
+    return backendBridge.invokeProfileScoped("hotkey_config_save", { ...fresh, [field]: value });
+  });
+  hotkeySaveChain = run;
+  return run;
+}
+
 function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = false }) {
   const { t } = useI18n();
   const enabled = config[card.key] === true;
@@ -146,8 +158,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       } else {
         // Original 0.3.17 performs a fresh get before every whole-object save,
         // so another tab's updated fields are retained.
-        const fresh = await backendBridge.invokeProfileScoped("hotkey_config_get");
-        saved = await backendBridge.invokeProfileScoped("hotkey_config_save", { ...fresh, [field]: nextConfig[field] });
+        saved = await saveHotkeyFieldInOrder(field, nextConfig[field]);
       }
       if (!backendBridge.isCurrentProfileOwner(owner)) return;
       sourceConfigRef.current = saved;

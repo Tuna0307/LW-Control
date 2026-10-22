@@ -169,11 +169,13 @@ namespace LWBridge.GamePipe
                 if (!CurrentWorker(generation)) return;
                 WriteFrame(opened, helloJson);
                 TraceStage("hello_frame_written");
+                FileStream own;
                 lock (Gate)
                 {
                     if (!CurrentWorker(generation))
                         return;
                     stream = opened;
+                    own = opened;
                     opened = null;
                     WriteState("connected");
                 }
@@ -188,30 +190,42 @@ namespace LWBridge.GamePipe
                         return;
                     }
 
-                    Stream? current;
-                    lock (Gate) current = stream;
-                    if (current is not FileStream fileStream)
-                        return;
-
-                    int next = outboundSequence + 1;
-                    string outboundPath = OutboundPath(next);
-                    if (File.Exists(outboundPath))
+                    // Audit 2026-10-23 W01: the lease read above can wait on file contention while a
+                    // successor connects. Mailbox files, sequence counters and the runtime directory are
+                    // shared, so they are only touched under the gate after re-checking that this worker
+                    // and its own stream are still current. Pipe I/O uses this worker's own stream only.
+                    string? json = null;
+                    lock (Gate)
                     {
-                        string json =
-                            File.ReadAllText(outboundPath, Encoding.UTF8);
-                        WriteFrame(current, json);
-                        outboundSequence = next;
-                        try { File.Delete(outboundPath); } catch { }
+                        if (!CurrentWorker(generation) || !ReferenceEquals(stream, own))
+                            return;
+                        int next = outboundSequence + 1;
+                        string outboundPath = OutboundPath(next);
+                        if (File.Exists(outboundPath))
+                        {
+                            json = File.ReadAllText(outboundPath, Encoding.UTF8);
+                            outboundSequence = next;
+                            try { File.Delete(outboundPath); } catch { }
+                        }
+                    }
+                    if (json != null)
+                    {
+                        WriteFrame(own, json);
                         continue;
                     }
 
                     if (TryGetAvailableFrameBytes(
-                            fileStream.SafeFileHandle,
+                            own.SafeFileHandle,
                             out int frameBytes) &&
                         frameBytes > 0)
                     {
-                        string frame = ReadFrame(current);
-                        WriteInboundFrame(frame);
+                        string frame = ReadFrame(own);
+                        lock (Gate)
+                        {
+                            if (!CurrentWorker(generation) || !ReferenceEquals(stream, own))
+                                return;
+                            WriteInboundFrame(frame);
+                        }
                         continue;
                     }
 

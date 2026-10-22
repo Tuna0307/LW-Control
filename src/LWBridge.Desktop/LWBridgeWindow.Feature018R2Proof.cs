@@ -214,7 +214,7 @@ internal sealed partial class LWBridgeWindow
                         { profileId = owner.ProfileId, revision = saved?.Revision }, JsonOptions.Default), token);
                     evidence["cityDraftSaveReadClear"] = new { saved, reread, cleared,
                         persisted = saved?.Revision == reread?.Revision,
-                        clearedToOriginal = cleared?.Revision == 0 && cleared?.Value is null };
+                        clearedToOriginal = cleared?.Revision > saved?.Revision && cleared?.Value is null };
                 }
             }
             if (before is { } baselineCity)
