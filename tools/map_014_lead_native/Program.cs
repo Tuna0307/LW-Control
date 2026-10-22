@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot" or "direct-aoi" or "hold-lens" or "direct-full")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot" or "direct-aoi" or "hold-lens" or "direct-full" or "shape-review")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -55,8 +55,9 @@ OverviewMapScanSession? ReadSession()
 string? zoomSwitch = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_COVERAGE_ZOOM");
 bool zoomOff = string.Equals(zoomSwitch, "off", StringComparison.OrdinalIgnoreCase);
 double? zoomOverride = double.TryParse(zoomSwitch, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double zo) ? zo : null;
-CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false, double? zoomArg=null, int? fovArg=null) => new(ReadSession,runtime,probe,
-    hooks: marchProbe ? new CurrentClientMapBlockSourceHooks { ObserveMarchFreshness = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
+CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false, double? zoomArg=null, int? fovArg=null, bool coarseBoss=false) => new(ReadSession,runtime,probe,
+    hooks: coarseBoss ? new CurrentClientMapBlockSourceHooks { UseCoarseZombieBossMap = true }
+        : marchProbe ? new CurrentClientMapBlockSourceHooks { ObserveMarchFreshness = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
         : bounded ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
         : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomArg ?? zoomOverride, CoverageFovOverride = fovArg } : null,
     waitForHealthySession: async (expected, token) =>
@@ -84,13 +85,20 @@ using var commands = new Map317CommandService(Path.Combine(root,"map-014.db"),
     new CurrentClientMap317ScanProvider(source), new CurrentClientMap317ActionProvider(source), false,
     source.GetMapStatusContextAsync);
 bool pairedTruck = scenario == "direct-full" && Environment.GetEnvironmentVariable("LWBRIDGE_MAP015_PAIRED_TRUCK") == "1";
-using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(benchmarking ? 30 : pairedTruck ? 35 : 12));
+// Only this explicit review matrix may extend the historical 30-minute benchmark bound.
+bool reviewMatrix = scenario == "benchmark-review";
+int reviewMinutes = int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_MAX_MINUTES"), out int configuredMinutes)
+    && configuredMinutes is >= 1 and <= 180 ? configuredMinutes : 180;
+if (reviewMatrix && Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_MAX_MINUTES") is not null &&
+    (!int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_MAX_MINUTES"), out int checkedMinutes) || checkedMinutes is <1 or >180))
+    throw new ArgumentException("MAP019 max minutes must be 1..180");
+using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(reviewMatrix ? reviewMinutes : benchmarking ? 30 : pairedTruck ? 35 : 12));
 async Task<JsonElement> Invoke(string command, object payload)
 {
     var value = await commands.InvokeAsync(command, JsonSerializer.SerializeToElement(payload,JsonOptions.Default),cts.Token);
     return JsonSerializer.SerializeToElement(value,JsonOptions.Default);
 }
-async Task<JsonElement> Camera(string label)
+async Task<JsonElement> CameraWithToken(string label, CancellationToken cameraToken)
 {
     var id = "map014camera" + Guid.NewGuid().ToString("N");
     var path = Path.Combine(probe,"runtime-diagnostic.txt");
@@ -103,7 +111,7 @@ async Task<JsonElement> Camera(string label)
     var deadline=Stopwatch.StartNew();
     while (deadline.Elapsed<TimeSpan.FromSeconds(15))
     {
-        cts.Token.ThrowIfCancellationRequested();
+        cameraToken.ThrowIfCancellationRequested();
         if (ReadSession() is null) throw new InvalidOperationException("Own native session retired");
         try
         {
@@ -122,10 +130,11 @@ async Task<JsonElement> Camera(string label)
             }
         }
         catch(IOException) {} catch(JsonException) {}
-        await Task.Delay(100,cts.Token);
+        await Task.Delay(100,cameraToken);
     }
     throw new TimeoutException("Independent native camera checkpoint timed out");
 }
+Task<JsonElement> Camera(string label) => CameraWithToken(label,cts.Token);
 async Task<JsonElement> ZoomFixture(string mode, double zoom)
 {
     // Harness-only (see map014_zoom_fixture.lua): reproduce a zoomed-in owner camera and restore it.
@@ -517,35 +526,90 @@ if (scenario == "lens-matrix")
     Console.WriteLine("MAP014_LENS_MATRIX_DONE rows=" + matrixRows.Count);
     return;
 }
+if (scenario == "shape-review")
+{
+    await Map019ShapeReview.RunAsync(source, session, root, ReadSession, Camera, cts.Token);
+    return;
+}
 if (benchmarking)
 {
-    string workload = scenario["benchmark-".Length..];
-    string[] kinds = workload switch {
+    string[] reviewDefaults = ["city","resource","monster","zombie_boss","dispatch","ghost","treasure","railway","truck","city-resource","all-nine"];
+    string[] workloads = reviewMatrix ? (Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_WORKLOADS") ?? string.Join(',', reviewDefaults))
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) : [scenario["benchmark-".Length..]];
+    if (workloads.Length == 0 || workloads.Distinct(StringComparer.Ordinal).Count() != workloads.Length)
+        throw new ArgumentException("Review workloads must be nonempty and unique");
+    string[] Kinds(string selectedWorkload) => selectedWorkload switch {
         "mixed" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost"],
+        "all-nine" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost","treasure"],
+        "all-nonboss" => ["city","resource","monster","truck","railway","dispatch","ghost","treasure"],
+        "city-resource" => ["city","resource"],
         "all-nontruck" => ["city","resource","monster","zombie_boss","railway","dispatch","ghost","treasure"],
         "truck-dispatch" => ["truck","dispatch"],
-        _ => [workload]
+        _ => [selectedWorkload]
     };
-    if (kinds.Any(kind => !MapScanContract.AllTypes.Contains(kind))) throw new ArgumentException("Unsupported benchmark kind");
+    if (workloads.Any(workload => Kinds(workload).Any(kind => !MapScanContract.AllTypes.Contains(kind))))
+        throw new ArgumentException("Unsupported benchmark kind");
     var measurements = new List<object>();
+    JsonElement ProcessSample()
+    {
+        try
+        {
+            if (!OwnProcessMatches()) throw new InvalidOperationException("Exact game process identity changed");
+            using var game = Process.GetProcessById(session.GamePid);
+            game.Refresh();
+            return JsonSerializer.SerializeToElement(new { available = true, capturedAtUtc = DateTimeOffset.UtcNow,
+                totalCpuSeconds = game.TotalProcessorTime.TotalSeconds, workingSetBytes = game.WorkingSet64,
+                privateBytes = game.PrivateMemorySize64, peakWorkingSetBytesProcessLifetime = game.PeakWorkingSet64,
+                logicalProcessors = Environment.ProcessorCount, fpsMeasured = false });
+        }
+        catch (Exception error) when (error is ArgumentException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            return JsonSerializer.SerializeToElement(new { available = false, error = error.Message, fpsMeasured = false });
+        }
+    }
+    bool CompleteTrainReceipt(JsonElement receipt)
+    {
+        bool IntIs(string name, int expected) => receipt.TryGetProperty(name, out var value) && value.TryGetInt32(out int actual) && actual == expected;
+        return receipt.TryGetProperty("state", out var state) && state.GetString() == "proven" &&
+            IntIs("initialRequestsSent",625) && IntIs("rectanglesCompleted",625) && IntIs("unprovenRectangles",0) &&
+            IntIs("responseFenceSize",25) && IntIs("requestsPerSecond",20) &&
+            receipt.TryGetProperty("responseAttribution",out var attribution) && attribution.GetString()=="bounded_sequential_fences" &&
+            receipt.TryGetProperty("requestsSent",out var sentValue) && sentValue.TryGetInt32(out int sent) && sent is >=625 and <=1875 &&
+            receipt.TryGetProperty("repairPasses",out var passValue) && passValue.TryGetInt32(out int passes) && passes is >=0 and <=2 &&
+            IntIs("repairRequestsSent",sent-625) && (passes > 0 || sent == 625) && sent <= 625*(passes+1) &&
+            receipt.TryGetProperty("pushesObserved",out var pushValue) && pushValue.TryGetInt32(out int pushes) && pushes >=625 && pushes <=sent &&
+            receipt.TryGetProperty("cameraStable",out var stable) && stable.ValueKind==JsonValueKind.True &&
+            receipt.TryGetProperty("curViewRestored",out var restored) && restored.ValueKind==JsonValueKind.True;
+    }
     // Existing City A/B has an independently qualified bounded-lens run.
     // For the user's Truck/Dispatch/mixed reproduction, FOV20 is NOT admitted
     // (it previously missed real moving Trucks). Repeat only the current
     // supported serial LOD0 full-world route instead of silently crossing
     // experimental camera modes in a production performance comparison.
-    int rounds = int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_ROUNDS"), out int configuredRounds) && configuredRounds is >= 1 and <= 6
-        ? configuredRounds : workload == "city" ? 6 : 2;
+    string? roundsRaw = Environment.GetEnvironmentVariable(reviewMatrix ? "LWBRIDGE_MAP019_ROUNDS" : "LWBRIDGE_MAP014_BENCH_ROUNDS");
+    int? roundsOverride = int.TryParse(roundsRaw, out int configuredRounds) && configuredRounds is >= 1 and <= 6 ? configuredRounds : null;
+    if (roundsRaw is not null && roundsOverride is null) throw new ArgumentException("Benchmark rounds must be 1..6");
     // The owner reported the slowdown in Fast mode; default stays Normal for old receipts.
     string benchScanMode = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_MODE") == "fast" ? "fast" : "normal";
     // MAP-015 owner A/B: a single exact-owned game session may alternate
     // direct camera-free and the existing camera route. Empty retains MAP-014
     // lens qualification behavior so prior benchmark scripts remain valid.
-    string[] methodConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP015_BENCH_METHODS") ?? "")
+    string[] methodConfigs = (Environment.GetEnvironmentVariable(reviewMatrix ? "LWBRIDGE_MAP019_METHODS" : "LWBRIDGE_MAP015_BENCH_METHODS") ?? (reviewMatrix ? "direct,camera" : ""))
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    if (methodConfigs.Any(mode => mode is not ("direct" or "camera")))
-        throw new ArgumentException("LWBRIDGE_MAP015_BENCH_METHODS supports only direct,camera");
+    if (reviewMatrix && methodConfigs.Length == 0) throw new ArgumentException("MAP019 methods cannot be empty");
+    if (methodConfigs.Any(mode => mode is not ("direct" or "camera") && !(reviewMatrix && mode == "coarse-boss")))
+        throw new ArgumentException("Benchmark methods support direct,camera; review alone also supports coarse-boss");
+    if (methodConfigs.Contains("coarse-boss") && workloads.Any(workload => workload != "zombie_boss"))
+        throw new ArgumentException("coarse-boss requires only the zombie_boss workload");
+    await using var remoteScope = reviewMatrix ? await Map019ServerScope.EnterAsync(source,CameraWithToken,root,cts.Token) : null;
+    int ordinal = 0;
+    foreach (string workload in workloads)
+    {
+    string[] kinds = Kinds(workload);
+    int rounds = roundsOverride ?? (reviewMatrix ? 4 : workload == "city" ? 6 : 2);
     for (int round=0; round<rounds; round++)
     {
+        int measurementOrdinal = ordinal++;
         bool bounded = workload == "city" && round%2 == 1;
         // LWBRIDGE_MAP014_BENCH_CONFIGS="130:120,600:150" alternates lens:fov per round (A/B accuracy + speed).
         string[] benchConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_CONFIGS") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -560,6 +624,7 @@ if (benchmarking)
         var measuredSource = sourceMethod switch {
             "direct" => MakeSource(false),
             "camera" => MakeSource(false, forceLegacy: true),
+            "coarse-boss" => MakeSource(false, coarseBoss: true),
             _ => MakeSource(bounded, forceLegacy: !bounded, zoomArg: roundZoom, fovArg: roundFov),
         };
         var context = await measuredSource.GetCurrentContextAsync(cts.Token);
@@ -569,8 +634,8 @@ if (benchmarking)
         double? fixtureZoom = double.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_FIXTURE_ZOOM"),
             System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double fz) ? fz : null;
         if (fixtureZoom is double requestedZoom) { await ZoomFixture("set", requestedZoom); await Task.Delay(1500,cts.Token); }
-        var cameraBefore = await Camera($"benchmark-{round}-before");
-        using var measuredCommands = new Map317CommandService(Path.Combine(root,$"benchmark-{round}.db"),
+        var cameraBefore = await Camera($"benchmark-{measurementOrdinal}-before");
+        using var measuredCommands = new Map317CommandService(Path.Combine(root,$"benchmark-{measurementOrdinal}.db"),
             new CurrentClientMap317ScanProvider(measuredSource), new CurrentClientMap317ActionProvider(measuredSource), false,
             measuredSource.GetMapStatusContextAsync);
         async Task<JsonElement> Call(string name,object payload) => JsonSerializer.SerializeToElement(
@@ -579,6 +644,60 @@ if (benchmarking)
         // file left over from an earlier scan is never a qualifying receipt.
         string metricsPath = Path.Combine(probe,"map-fullworld-probe-metrics.json");
         if(File.Exists(metricsPath)) File.Delete(metricsPath);
+        string frameTelemetryPath = Path.Combine(probe,"map019-frame-telemetry.json");
+        void CopyFrameTelemetry(string edge)
+        {
+            if (Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_TELEMETRY") != "1" || !File.Exists(frameTelemetryPath)) return;
+            // Raw owner-bound telemetry stays private under this exact attempt.
+            // Repeated frameCount windows must be differenced, never read as a per-round FPS sample.
+            try
+            {
+                using var frameDoc = JsonDocument.Parse(File.ReadAllText(frameTelemetryPath));
+                var value = frameDoc.RootElement;
+                if (value.GetProperty("profileId").GetString()!=session.ProfileId || value.GetProperty("sessionId").GetString()!=session.SessionId ||
+                    value.GetProperty("challenge").GetString()!=session.Challenge || value.GetProperty("gamePid").GetString()!=session.GamePid.ToString()) return;
+                File.WriteAllText(Path.Combine(root,$"benchmark-{measurementOrdinal}-frames-{edge}.json"),value.GetRawText());
+            }
+            catch (IOException) { } catch (JsonException) { }
+        }
+        JsonElement? processIdleBefore = null;
+        if (Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_TELEMETRY") == "1")
+        {
+            CopyFrameTelemetry("idle-before");
+            processIdleBefore = ProcessSample();
+            await Task.Delay(3000,cts.Token);
+        }
+        JsonElement processBefore = ProcessSample();
+        CopyFrameTelemetry("before");
+        long sampledPeakWorkingSetBytes = 0, sampledPeakPrivateBytes = 0;
+        int memorySamples = 0;
+        var nextMemorySample = TimeSpan.Zero;
+        DateTimeOffset roundStartedAt = DateTimeOffset.UtcNow;
+        JsonElement? coarseEvidence = null;
+        var coarseRequestIds = new HashSet<string>(StringComparer.Ordinal);
+        void CaptureCoarseEvidence()
+        {
+            if (sourceMethod != "coarse-boss") return;
+            try
+            {
+                string path = Path.Combine(probe,"bulk-aoi-diagnostic-result.json");
+                using var coarseDoc = JsonDocument.Parse(File.ReadAllText(path));
+                var value = coarseDoc.RootElement;
+                bool StringIs(string name,string expected) => value.TryGetProperty(name,out var field) && field.GetString()==expected;
+                if (!StringIs("profileId",session.ProfileId) || !StringIs("launchSessionId",session.SessionId) ||
+                    !StringIs("challenge",session.Challenge) || !StringIs("requestMode","zoom") ||
+                    !value.TryGetProperty("gamePid",out var pid) || pid.GetInt32()!=session.GamePid ||
+                    !value.TryGetProperty("capturedAt",out var time) || !DateTimeOffset.TryParse(time.GetString(),out var capturedAt) ||
+                    capturedAt < roundStartedAt.AddSeconds(-1) || capturedAt > DateTimeOffset.UtcNow.AddSeconds(2) ||
+                    !value.TryGetProperty("requestId",out var requestIdValue)) return;
+                string requestId = requestIdValue.GetString() ?? "";
+                if (!requestId.StartsWith("monsterlod2",StringComparison.Ordinal) || !requestId.All(char.IsLetterOrDigit)) return;
+                coarseEvidence = value.Clone();
+                if (coarseRequestIds.Add(requestId))
+                    File.Copy(path,Path.Combine(root,$"benchmark-{measurementOrdinal}-coarse-{requestId}.json"),true);
+            }
+            catch (IOException) { } catch (JsonException) { }
+        }
         var timer=Stopwatch.StartNew();
         try
         {
@@ -586,17 +705,33 @@ if (benchmarking)
             while(true)
             {
                 terminal=await Call("map_scan_status",new{});
+                CaptureCoarseEvidence();
+                if (Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_TELEMETRY") == "1" && timer.Elapsed >= nextMemorySample)
+                {
+                    JsonElement sample = ProcessSample();
+                    if (sample.TryGetProperty("workingSetBytes",out var working) && sample.TryGetProperty("privateBytes",out var privateValue))
+                    {
+                        sampledPeakWorkingSetBytes = Math.Max(sampledPeakWorkingSetBytes,working.GetInt64());
+                        sampledPeakPrivateBytes = Math.Max(sampledPeakPrivateBytes,privateValue.GetInt64());
+                        memorySamples++;
+                    }
+                    nextMemorySample = timer.Elapsed + TimeSpan.FromSeconds(1);
+                }
                 if (!terminal.GetProperty("isReading").GetBoolean() && terminal.GetProperty("phase").GetString() is "completed" or "failed" or "cancelled") break;
                 await Task.Delay(100,cts.Token);
             }
             timer.Stop();
+            JsonElement processAfter = ProcessSample();
+            CopyFrameTelemetry("after");
+            double? processCpuSeconds = processBefore.TryGetProperty("totalCpuSeconds",out var beforeCpu) &&
+                processAfter.TryGetProperty("totalCpuSeconds",out var afterCpu) ? afterCpu.GetDouble()-beforeCpu.GetDouble() : null;
             if (terminal.GetProperty("phase").GetString()!="completed") throw new InvalidOperationException(terminal.GetRawText());
-            var cameraAfter=await Camera($"benchmark-{round}-after");
+            var cameraAfter=await Camera($"benchmark-{measurementOrdinal}-after");
             if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),cameraAfter.GetProperty("cameraSnapshot")))
                 throw new InvalidDataException("Independent benchmark camera checkpoint differs after full scan.");
             var summary=await Call("map_summary",new{});
-            bool nativeFastTruck = sourceMethod == "direct" && workload == "truck";
-            if (!nativeFastTruck)
+            bool nativeFastMobile = sourceMethod == "direct" && kinds.All(kind => kind is "truck" or "railway");
+            if (!nativeFastMobile && sourceMethod != "coarse-boss")
             {
                 if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
                 using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
@@ -607,33 +742,133 @@ if (benchmarking)
                     provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
                     provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
                     throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
-                File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
+                File.Copy(metricsPath,Path.Combine(root,$"benchmark-{measurementOrdinal}-probe-metrics.json"));
             }
             JsonElement? directEvidence = null;
-            string directEvidencePath = Path.Combine(probe,nativeFastTruck ? "fast-truck-scan-result.json" : "camera-free-scan-result.json");
+            bool ReceiptBelongs(JsonElement receipt) =>
+                receipt.TryGetProperty("scanRunId",out var run) && run.GetString()==terminal.GetProperty("scanRunId").GetString() &&
+                receipt.TryGetProperty("profileId",out var profile) && profile.GetString()==session.ProfileId &&
+                receipt.TryGetProperty("launchSessionId",out var launch) && launch.GetString()==session.SessionId &&
+                receipt.TryGetProperty("challenge",out var challenge) && challenge.GetString()==session.Challenge &&
+                receipt.TryGetProperty("gamePid",out var pid) && pid.TryGetInt32(out int gamePid) && gamePid==session.GamePid &&
+                receipt.TryGetProperty("serverId",out var server) && server.GetInt32()==terminal.GetProperty("serverId").GetInt32();
+            string directEvidencePath = Path.Combine(probe,nativeFastMobile ? "fast-truck-scan-result.json" : "camera-free-scan-result.json");
             if (sourceMethod == "direct" && File.Exists(directEvidencePath))
             {
                 using var directDocument = JsonDocument.Parse(File.ReadAllText(directEvidencePath));
-                if (directDocument.RootElement.TryGetProperty("scanRunId",out var correlated) &&
-                    correlated.GetString() == terminal.GetProperty("scanRunId").GetString())
+                if (ReceiptBelongs(directDocument.RootElement))
+                {
                     directEvidence = directDocument.RootElement.Clone();
+                    File.Copy(directEvidencePath,Path.Combine(root,$"benchmark-{measurementOrdinal}-direct-evidence.json"),true);
+                }
             }
             string effectiveMethod = sourceMethod != "direct" ? sourceMethod :
                 directEvidence is JsonElement evidence && evidence.TryGetProperty("state",out var stateValue) &&
                 stateValue.GetString() == "proven" ? "direct" : "camera-fallback";
-            if (nativeFastTruck && (effectiveMethod != "direct" ||
+            // A valid native discovery receipt can precede a managed hydration
+            // rejection. In that case the published scan used camera fallback.
+            // Never infer effective acquisition solely from state=proven.
+            JsonElement? fallbackEvidence = null;
+            if (sourceMethod == "direct")
+            {
+                string fallbackPath = Path.Combine(probe,"map015-direct-fallback.json");
+                try
+                {
+                    using var fallbackDoc = JsonDocument.Parse(File.ReadAllText(fallbackPath));
+                    var fallback = fallbackDoc.RootElement;
+                    if (fallback.TryGetProperty("runId",out var fallbackRun) &&
+                        fallbackRun.GetString()==terminal.GetProperty("scanRunId").GetString())
+                    {
+                        fallbackEvidence=fallback.Clone();
+                        effectiveMethod="camera-fallback";
+                        File.Copy(fallbackPath,Path.Combine(root,$"benchmark-{measurementOrdinal}-fallback.json"),true);
+                    }
+                }
+                catch (IOException) { } catch (JsonException) { }
+            }
+            if (sourceMethod == "coarse-boss")
+            {
+                CaptureCoarseEvidence();
+                effectiveMethod = coarseEvidence is JsonElement coarse && coarse.TryGetProperty("state",out var coarseState) &&
+                    coarseState.GetString()=="proven" && coarse.TryGetProperty("zoomWholeWorldCoarse",out var wholeWorld) &&
+                    wholeWorld.ValueKind==JsonValueKind.True ? "coarse-boss" : "camera-fallback";
+            }
+            if (nativeFastMobile && (effectiveMethod != "direct" ||
                 directEvidence is not JsonElement truckReceipt ||
-                truckReceipt.GetProperty("pushesObserved").GetInt32() != 625 ||
-                truckReceipt.GetProperty("requestsSent").GetInt32() != 625 ||
-                truckReceipt.GetProperty("cameraStable").ValueKind != JsonValueKind.True ||
-                truckReceipt.GetProperty("curViewRestored").ValueKind != JsonValueKind.True))
-                throw new InvalidDataException("Benchmark did not qualify genuine 625-push native fast Truck acquisition.");
-            measurements.Add(new{round,method=sourceMethod,effectiveMethod,
+                !CompleteTrainReceipt(truckReceipt)))
+                throw new InvalidDataException("Benchmark did not qualify genuine complete native fast mobile acquisition with bounded repairs.");
+            if (effectiveMethod == "direct" && nativeFastMobile)
+                effectiveMethod = kinds.Contains("truck") ? "direct-fast-truck" : "direct-fast-railway";
+            if (sourceMethod == "direct" && !nativeFastMobile && kinds.Any(kind => kind is "truck" or "railway"))
+            {
+                string mobilePath = Path.Combine(probe,"fast-truck-scan-result.json");
+                if (File.Exists(mobilePath))
+                {
+                    using var mobileDoc = JsonDocument.Parse(File.ReadAllText(mobilePath));
+                    if (ReceiptBelongs(mobileDoc.RootElement))
+                        File.Copy(mobilePath,Path.Combine(root,$"benchmark-{measurementOrdinal}-mobile-evidence.json"),true);
+                }
+            }
+            measurements.Add(new{round,ordinal=measurementOrdinal,workload,selectedTypes=kinds,method=sourceMethod,effectiveMethod,
                 directEvidenceState=directEvidence is JsonElement sourceState && sourceState.TryGetProperty("state",out var stateProperty) ? stateProperty.GetString() : null,
                 directEvidenceError=directEvidence is JsonElement sourceError && sourceError.TryGetProperty("error",out var errorProperty) && errorProperty.ValueKind==JsonValueKind.String ? errorProperty.GetString() : null,
-                scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
+                scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,
+                processIdleBefore,processBefore,processAfter,processCpuSeconds,
+                sampledPeakWorkingSetBytes,sampledPeakPrivateBytes,memorySamples,memorySamplingIntervalSeconds=1,
+                fallbackEvidence,coarseEvidence,coarseEvidenceBinding=sourceMethod=="coarse-boss" ? "owner+capture-window; native validator correlates requestId; bulk schema omits scanRunId/serverId" : null,
+                averageMachineCpuPercent=processCpuSeconds is double cpu ? (double?)(100*cpu/timer.Elapsed.TotalSeconds/Environment.ProcessorCount) : null,
+                fpsMeasured=false,terminal,summary,cameraBefore,cameraAfter});
             File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
             Console.WriteLine($"MAP014_BENCHMARK {workload} round={round} lens={(bounded?20:120)} seconds={timer.Elapsed.TotalSeconds:F3}");
+        }
+        catch (Exception error) when (reviewMatrix && !cts.IsCancellationRequested)
+        {
+            // Preserve the negative before deciding if another round is safe.
+            timer.Stop();
+            CopyFrameTelemetry("failed-after");
+            CaptureCoarseEvidence();
+            bool sawOwnedNativeReceipt = false, nativeRestorationVerified = true;
+            foreach (string lane in new[] { "camera-free", "fast-truck" })
+            {
+                try
+                {
+                    using var failedNative = JsonDocument.Parse(File.ReadAllText(Path.Combine(probe,lane+"-scan-result.json")));
+                    JsonElement value = failedNative.RootElement;
+                    if (terminal.ValueKind==JsonValueKind.Object && terminal.TryGetProperty("scanRunId",out var terminalRun) &&
+                        value.TryGetProperty("scanRunId",out var failedRun) && failedRun.GetString()==terminalRun.GetString() &&
+                        value.TryGetProperty("profileId",out var failedProfile) && failedProfile.GetString()==session.ProfileId &&
+                        value.TryGetProperty("launchSessionId",out var failedSession) && failedSession.GetString()==session.SessionId &&
+                        value.TryGetProperty("challenge",out var failedChallenge) && failedChallenge.GetString()==session.Challenge &&
+                        value.TryGetProperty("gamePid",out var failedPid) && failedPid.GetInt32()==session.GamePid)
+                    {
+                        sawOwnedNativeReceipt = true;
+                        nativeRestorationVerified &= value.TryGetProperty("cameraStable",out var stable) && stable.ValueKind==JsonValueKind.True &&
+                            value.TryGetProperty("curViewRestored",out var restored) && restored.ValueKind==JsonValueKind.True;
+                        File.WriteAllText(Path.Combine(root,$"benchmark-{measurementOrdinal}-{lane}-failed-evidence.json"),value.GetRawText());
+                    }
+                }
+                catch (IOException) { } catch (JsonException) { }
+            }
+            measurements.Add(new { round,ordinal=measurementOrdinal,workload,selectedTypes=kinds,method=sourceMethod,
+                effectiveMethod="unqualified",seconds=timer.Elapsed.TotalSeconds,errorType=error.GetType().Name,
+                error=error.Message,terminal,processIdleBefore,processBefore,processAfter=ProcessSample(),coarseEvidence,fpsMeasured=false });
+            File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
+            Console.Error.WriteLine($"MAP019_BENCHMARK_FAILED {workload} round={round} {error.GetType().Name}: {error.Message}");
+            using var failedStopCts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+            await measuredCommands.InvokeAsync("map_scan_stop",JsonSerializer.SerializeToElement(new{}),failedStopCts.Token);
+            if (ReadSession()!=session) throw new InvalidOperationException("Review aborted after failure: exact owner/session is no longer admitted",error);
+            var failedCamera = await Camera($"benchmark-{measurementOrdinal}-failed-after");
+            bool cameraRestored = JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),failedCamera.GetProperty("cameraSnapshot"));
+            string? failedPhase = terminal.ValueKind==JsonValueKind.Object && terminal.TryGetProperty("phase",out var phase) ? phase.GetString() : null;
+            // Continue only a settled failed/cancelled direct scan with independently
+            // matching camera and positive restoration flags on every same-run receipt.
+            // A validation error after completion, missing receipt, candidate failure,
+            // ownership drift or uncertain native cleanup retires the whole session.
+            if (sourceMethod!="direct" || failedPhase is not ("failed" or "cancelled") ||
+                !cameraRestored || !sawOwnedNativeReceipt || !nativeRestorationVerified)
+                throw new InvalidOperationException("Review aborted after failure: safe exact native restoration was not independently verified",error);
+            File.WriteAllText(Path.Combine(root,$"benchmark-{measurementOrdinal}-failure-cleanup.json"),JsonSerializer.Serialize(new {
+                safeToContinue=true,failedPhase,exactOwnerAdmitted=true,cameraRestored,nativeRestorationVerified,failedCamera }));
         }
         finally
         {
@@ -641,6 +876,7 @@ if (benchmarking)
             using var stopCts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
             await measuredCommands.InvokeAsync("map_scan_stop",JsonSerializer.SerializeToElement(new{}),stopCts.Token);
         }
+    }
     }
     return;
 }

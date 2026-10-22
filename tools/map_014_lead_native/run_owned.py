@@ -11,6 +11,37 @@ REPO=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(REPO/'tools'))
 import run_overview_bridge_current as current
 api=current.base
+
+REVIEW_WORKLOADS=('city','resource','monster','zombie_boss','dispatch','ghost','treasure','railway','truck','city-resource','all-nine')
+BENCHMARK_WORKLOADS=REVIEW_WORKLOADS+('truck-dispatch','mixed','all-nontruck','all-nonboss')
+
+def review_plan(scenario, environ):
+    """Validate opt-in matrix before admitting/starting any game session."""
+    if scenario!='benchmark-review': return None
+    workloads=tuple(value.strip() for value in environ.get('LWBRIDGE_MAP019_WORKLOADS',','.join(REVIEW_WORKLOADS)).split(',') if value.strip())
+    methods=tuple(value.strip() for value in environ.get('LWBRIDGE_MAP019_METHODS','direct,camera').split(',') if value.strip())
+    rounds=int(environ.get('LWBRIDGE_MAP019_ROUNDS','4'))
+    minutes=int(environ.get('LWBRIDGE_MAP019_MAX_MINUTES','180'))
+    if not workloads or len(set(workloads))!=len(workloads) or any(value not in BENCHMARK_WORKLOADS for value in workloads):
+        raise ValueError('MAP019 workloads must be unique supported benchmark workloads')
+    if not methods or any(value not in ('direct','camera','coarse-boss') for value in methods):
+        raise ValueError('MAP019 methods must contain direct, camera and/or coarse-boss')
+    if 'coarse-boss' in methods and workloads!=('zombie_boss',):
+        raise ValueError('coarse-boss requires only the zombie_boss workload')
+    if not 1<=rounds<=6 or not 1<=minutes<=180:
+        raise ValueError('MAP019 rounds must be 1..6 and max minutes 1..180')
+    server=environ.get('LWBRIDGE_MAP019_SERVER')
+    if server is not None and server not in ('2175','2180','2198','2203'):
+        raise ValueError('MAP019 server must be an owner-supplied read-only target')
+    return dict(workloads=workloads,methods=methods,roundsPerWorkload=rounds,
+        measurements=len(workloads)*rounds,deadlineSeconds=minutes*60,
+        methodOrder='Methods alternate by round within each workload; direct,camera,direct,camera is two pairs',
+        gameActions=0)
+
+def managed_deadline_seconds(scenario,environ):
+    plan=review_plan(scenario,environ)
+    if plan: return plan['deadlineSeconds']
+    return 2100 if scenario=='direct-full' and environ.get('LWBRIDGE_MAP015_PAIRED_TRUCK')=='1' else 1860 if scenario.startswith('benchmark-') else 780
 def persisted_snapshot(path):
     """Hash published row identities without exposing private records in a receipt."""
     digest=hashlib.sha256()
@@ -24,15 +55,36 @@ def persisted_snapshot(path):
     return dict(rows=count,sha256=digest.hexdigest(),jobs=jobs)
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe','lod-snapshot','direct-aoi','hold-lens','direct-full']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','ghost','treasure','zombie_boss','truck-dispatch','mixed','all-nontruck']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe','lod-snapshot','direct-aoi','hold-lens','direct-full','shape-review','benchmark-review']+['benchmark-'+kind for kind in BENCHMARK_WORKLOADS]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
     if opt.saved_db and opt.scenario!='stop': p.error('--saved-db is only supported for stop')
+    if opt.scenario in ('benchmark-review','shape-review'):
+        os.environ['LWBRIDGE_FEATURE018_BACKGROUND_ONLY']='1'
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
+    plan=review_plan(opt.scenario,os.environ)
+    if plan: (directory/'benchmark-plan.json').write_text(json.dumps(plan,indent=2))
+    if opt.scenario=='shape-review':
+        # Explicit private experiment, never a shipped/default probe mutation.
+        sys.path.insert(0,str(REPO/'tools/map_019_review'))
+        from shape_probe import instrument
+        original_probe=api.resource_probe_source()
+        shape_probe=instrument(original_probe)
+        api.resource_probe_source=lambda: shape_probe
+        (directory/'shape-probe-source.lua').write_bytes(shape_probe)
+        (directory/'shape-probe-hashes.json').write_text(json.dumps({
+            'productionSourceSha256':hashlib.sha256(original_probe).hexdigest(),
+            'privateProbeSha256':hashlib.sha256(shape_probe).hexdigest(),
+            'scope':'raw City/Resource discovery only; 80/160 AOIs; serial; no engine publication',
+        },indent=2))
     os.environ['LWBRIDGE_REBUILD_DATA_ROOT']=str(directory)
     # Passive scene observation prevents this diagnostic host from invoking
     # world entry while the official client is still loading its City scene.
     trace_source=REPO/'tools/map_009_offline/map013_wrapper_trace.lua'
     own_trace=directory/'map013-wrapper-trace.lua'; shutil.copyfile(trace_source,own_trace)
+    if os.environ.get('LWBRIDGE_MAP019_TELEMETRY')=='1':
+        combined=own_trace.read_bytes()+b'\n'+(REPO/'tools/map_019_review/frame_telemetry.lua').read_bytes()
+        if len(combined)>24000: raise RuntimeError('MAP019 telemetry exceeds wrapper trace size cap')
+        own_trace.write_bytes(combined)
     if os.environ.get('LWBRIDGE_MAP014_FIXTURE_ZOOM'):
         # Harness-only test fixtures (zoom/terrain/direct): never part of the shipped probe.
         fixture=(Path(__file__).parent/'map014_zoom_fixture.lua').read_bytes()
@@ -106,9 +158,18 @@ def main():
             session=session,challenge=challenge,game_pid=started['gamePid'])
         (directory/'scene-admission.json').write_text(json.dumps(scene,indent=2))
         dll=Path(__file__).parent/'bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll'
+        source_files=(REPO/'tools/current_live_resource_probe.lua',REPO/'tools/current_overview_bridge.lua',
+            Path(__file__),Path(__file__).with_name('Program.cs'),REPO/'tools/map_019_review/frame_telemetry.lua')
+        launch_sources={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
+            for file in source_files if file.is_file()}
+        launch_binaries={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
+            for file in dll.parent.glob('LWBridge*.dll')}
+        (directory/'diagnostic-launch-hashes.json').write_text(json.dumps(dict(
+            sourceHashesAtLaunch=launch_sources,binaryHashesAtLaunch=launch_binaries,
+            note='Source files at launch are not proof that the compiled DLL was built from them; binary hashes identify the actual runtime artifacts.'),indent=2))
         with (directory/'managed-native.log').open('w',encoding='utf8') as log:
             process=subprocess.Popen(['dotnet',str(dll),str(directory/'owner.json'),opt.scenario],stdout=log,stderr=subprocess.STDOUT)
-            deadline=time.monotonic()+(2100 if opt.scenario=='direct-full' and os.environ.get('LWBRIDGE_MAP015_PAIRED_TRUCK')=='1' else 1860 if opt.scenario.startswith('benchmark-') else 780)
+            deadline=time.monotonic()+managed_deadline_seconds(opt.scenario,os.environ)
             while process.poll() is None:
                 if time.monotonic()>deadline:
                     process.terminate(); process.wait(timeout=30); raise TimeoutError('Own managed diagnostic exceeded its bound')
@@ -153,7 +214,7 @@ def main():
             externalAccountActions=0,adapterSha256=hashlib.sha256(own_adapter.read_bytes()).hexdigest())
         if retained is not None:
             receipt['retainedPublicationProof']=retained['pass']
-        receipt['workingSourceHashes']={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
+        receipt['workingSourceHashesAtCompletion']={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
             for file in (REPO/'tools/current_live_resource_probe.lua',REPO/'tools/current_overview_bridge.lua',
                          Path(__file__),Path(__file__).with_name('Program.cs'))}
         (directory/'final.json').write_text(json.dumps(receipt,indent=2)); print('MAP014_RAW_ATTEMPT',directory,flush=True)
