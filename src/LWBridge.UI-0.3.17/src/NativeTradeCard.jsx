@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { backendBridge } from "./backendBridge.js";
 import { useI18n } from "./i18n.jsx";
-import { Switch } from "./sharedPageUI.jsx";
+import { NativeCardHeader, NativeCardSettings, NativeCardStatus } from "./NativeCardShell.jsx";
 import { PreviewConfigError, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { createAutomationAdapter, validAutomationDraft } from "./automationRuntime.js";
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
@@ -56,18 +56,14 @@ export function NativeTradeCard({ profileId, online, bridge = backendBridge }) {
     } catch (e) { setError(e.message === "CONFIG_DRAFT_INVALID" ? t("configSave.failed") : e.message); }
     finally { setBusy(false); }
   };
-  const state = !online ? t("status.disconnected") : runtime?.state === "nothing_available" ? t("automation.nothingAvailable") : runtime?.state === "success" ? t("common.success") : !draft.enabled ? t("common.disabled") : runtime?.state === "unconfirmed" ? t("automation.resultUnconfirmed") : t("common.waiting");
   return <article className={`automation-card trade-station-card${draft.enabled ? " is-enabled" : ""}`} data-native-automation={KIND} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
-    <div className="automation-card-header">
-      <div className="automation-card-title-group"><h3>{t("automation.tradeStation.title")}</h3><p>{t("automation.tradeStation.description")}</p></div>
-      <button type="button" role="switch" className="automation-header-switch" aria-label={t("automation.tradeStation.title")} aria-checked={draft.enabled === true} disabled={disabled} onClick={() => { void toggle(); }}><Switch checked={draft.enabled === true} /></button>
-    </div>
-    <p role="status">{state}</p>
-    {runtime?.confirmed > 0 ? <p>{t("automation.confirmedActions", { count: runtime.confirmed })}</p> : null}
-    {runtime?.error ? <p role="alert" className="error-text">{runtime.error}</p> : null}
-    {runtime?.before?.reason ? <p className="muted">{runtime.before.reason}</p> : null}
-    {error ? <p role="alert" className="error-text">{error}</p> : null}
+    <NativeCardHeader title={t("automation.tradeStation.title")} description={t("automation.tradeStation.description")} checked={draft.enabled === true} disabled={disabled} onToggle={() => { void toggle(); }} />
+    <NativeCardStatus t={t} online={online} enabled={draft.enabled === true} state={runtime?.state}
+      rows={[[t("automation.confirmedCount"), runtime?.confirmed > 0 ? runtime.confirmed : null]]}
+      note={runtime?.before?.reason && runtime?.state !== "disabled" ? runtime.before.reason : null} errors={[runtime?.error, error]} />
     <PreviewConfigError config={config} t={t} />
-    <NativeTradeFields config={config} runtime={runtime} observation={observation} disabled={disabled || draft.enabled} t={t} />
+    <NativeCardSettings t={t}>
+      <NativeTradeFields config={config} runtime={runtime} observation={observation} disabled={disabled || draft.enabled} t={t} />
+    </NativeCardSettings>
   </article>;
 }

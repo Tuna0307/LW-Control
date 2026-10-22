@@ -24,17 +24,17 @@ export function NativeTradeFields({ config, runtime, observation, disabled, t })
   };
   return <div className="trade-station-panel" data-native-trade-fields="true">
     <p className="trade-station-warning">{t("automation.tradeStation.warning")}</p>
-    <label><input type="checkbox" checked={draft.crossServerEnabled === true} disabled={disabled}
+    <label className="automation-inline-checkbox"><input type="checkbox" checked={draft.crossServerEnabled === true} disabled={disabled}
       onChange={event => { void save({ crossServerEnabled: event.target.checked }); }} />{t("automation.tradeStation.crossServer")}</label>
-    <fieldset className="trade-station-currencies" disabled={disabled}>
+    {currencies.length > 0 ? <fieldset className="trade-station-currencies" disabled={disabled}>
       <legend>{t("automation.tradeStation.currencies")}</legend>
       {currencies.map(currency => <label key={currency.id}>
         <input type="checkbox" checked={(draft.selectedCurrencyIds ?? []).includes(currency.id)}
           onChange={event => toggle("selectedCurrencyIds", currency.id, event.target.checked)} />
         {currency.name || `#${currency.id}`}{currency.balance != null ? ` (${currency.balance.toLocaleString()})` : ""}
       </label>)}
-    </fieldset>
-    <fieldset disabled={disabled}>
+    </fieldset> : null}
+    <fieldset className="trade-station-currencies" disabled={disabled}>
       <legend>{t("automation.tradeStation.goodsToBuy")}</legend>
       {!catalog || items.length === 0 ? <p className="muted">{t("automation.tradeStation.noGoods")}</p> : null}
       <div className="trade-station-good-grid">{items.map(item => {
@@ -50,7 +50,7 @@ export function NativeTradeFields({ config, runtime, observation, disabled, t })
         </label>;
       })}</div>
     </fieldset>
-    {data?.reason ? <p className="muted">{data.reason}</p> : null}
-    {error ? <p role="alert" className="error-text">{error}</p> : null}
+    {data?.reason ? <p className="automation-card-note">{data.reason}</p> : null}
+    {error ? <div role="alert" className="automation-error">{error}</div> : null}
   </div>;
 }

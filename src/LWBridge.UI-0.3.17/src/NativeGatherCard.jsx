@@ -1,7 +1,7 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { backendBridge } from "./backendBridge.js";
 import { useI18n } from "./i18n.jsx";
-import { Switch } from "./sharedPageUI.jsx";
+import { NativeCardHeader, NativeCardSettings, NativeCardStatus, useRememberedExpansion } from "./NativeCardShell.jsx";
 import { PreviewConfigError, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { createAutomationAdapter, validAutomationDraft } from "./automationRuntime.js";
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
@@ -21,11 +21,9 @@ export function defaultGatherSquads(squads) {
 
 export function NativeGatherCard({ profileId, online, bridge = backendBridge }) {
   const { t, language } = useI18n();
-  const settingsId = useId();
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, KIND, online, draft => validAutomationDraft(KIND, draft)), `automation-native:${profileId}:${KIND}`);
   const [ready, setReady] = useState(false), [error, setError] = useState(""), [runtime, setRuntime] = useState(null), [busy, setBusy] = useState(false);
-  const expansionKey = `automation-settings:${profileId}:${KIND}`;
-  const [expanded, setExpanded] = useState(() => { try { return localStorage.getItem(expansionKey) === "true"; } catch { return false; } });
+  const [expanded, toggleExpanded, setExpanded] = useRememberedExpansion(`automation-settings:${profileId}:${KIND}`);
   useEffect(() => {
     let closed = false;
     setReady(false);setRuntime(null);
@@ -56,22 +54,12 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
   };
   const rawRows = runtime?.before?.gatherSquads;
   const rows = Array.isArray(rawRows) ? rawRows : rawRows && typeof rawRows === "object" ? Object.values(rawRows) : [];
-  const state = !online ? t("status.disconnected") : !draft.enabled ? t("common.disabled") : runtime?.state === "unconfirmed" ? t("automation.resultUnconfirmed") : t("common.waiting");
-  return <article className={`automation-card${draft.enabled ? " is-enabled" : ""}`} data-native-automation={KIND} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
-    <div className="automation-card-header">
-      <div className="automation-card-title-group"><h3>{t("automation.category.resourceGather")}</h3><p>{t("automation.resourceGather.description")}</p></div>
-      <button type="button" role="switch" className="automation-header-switch" aria-label={t("automation.category.resourceGather")} aria-checked={draft.enabled === true} disabled={disabled} onClick={toggle}><Switch checked={draft.enabled === true} /></button>
-    </div>
-    <p role="status">{state}</p>
-    {runtime?.confirmed > 0 ? <p>{t("automation.confirmedActions", { count: runtime.confirmed })}</p> : null}
-    {runtime?.error ? <p role="alert" className="error-text">{runtime.error}</p> : null}
-    {error ? <p role="alert" className="error-text">{error}</p> : null}
+  return <article className={`automation-card automation-card-wide${draft.enabled ? " is-enabled" : ""}`} data-native-automation={KIND} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
+    <NativeCardHeader title={t("automation.category.resourceGather")} description={t("automation.resourceGather.description")} checked={draft.enabled === true} disabled={disabled} onToggle={toggle} />
+    <NativeCardStatus t={t} online={online} enabled={draft.enabled === true} state={runtime?.state === "unconfirmed" ? "unconfirmed" : draft.enabled ? "waiting" : "disabled"}
+      rows={[[t("automation.confirmedCount"), runtime?.confirmed > 0 ? runtime.confirmed : null]]} errors={[runtime?.error, error]} />
     <PreviewConfigError config={config} t={t} />
-    <div className="automation-config-actions"><button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} aria-controls={settingsId} onClick={() => { const next = !expanded;setExpanded(next);try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ } }}>
-      <span className="automation-config-trigger-label"><span>{t("settings.title")}</span></span>
-      <svg className="trigger-chevron" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" /></svg>
-    </button></div>
-    <fieldset id={settingsId} className="automation-config-body" hidden={!expanded} style={expanded ? undefined : { display: "none" }} disabled={disabled}>
+    <NativeCardSettings t={t} collapsible expanded={expanded} onToggle={toggleExpanded} disabled={disabled}>
       <div className="automation-form-grid">
         <label><span>{t("automation.resourceGather.scanRadius")}</span><select value={draft.scanRadius ?? 200} onChange={event => { void save({ scanRadius: Number(event.target.value) }); }}>{RADII.map(radius => <option key={radius} value={radius}>{radius}</option>)}</select></label>
         <label><span>{t("automation.resourceGather.manualResumeDelay")}</span><select value={Math.round((draft.manualResumeDelaySeconds ?? 120) / 60)} onChange={event => { void save({ manualResumeDelaySeconds: Number(event.target.value) * 60 }); }}>{Array.from({ length: 30 }, (_, i) => i + 1).map(minutes => <option key={minutes} value={minutes}>{minutes}</option>)}</select></label>
@@ -88,6 +76,6 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
           <span className="automation-resource-gather-state muted">{t(`automation.resourceGather.state.${step}`)}{row?.manualResumeAt ? <small>{t("automation.resourceGather.manualResumeAt", { time: new Date(row.manualResumeAt).toLocaleTimeString(language) })}</small> : null}{row?.reason ? <small>{row.reason}</small> : null}</span>
         </div>;
       })}
-    </fieldset>
+    </NativeCardSettings>
   </article>;
 }

@@ -1,7 +1,7 @@
 import { useI18n } from "./i18n.jsx";
 import { formatSheepElapsed, HOTKEY_CARDS, mergeHotkeyField, MINI_GAME_HOTKEY_CARDS, previewHotkeyConfig, previewSheepStatus, sheepStatusKey } from "./previewRemainingPagesContracts.js";
 import { useEffect, useRef, useState } from "react";
-import { Switch, ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
+import { Switch, PanelTitle } from "./sharedPageUI.jsx";
 import { backendBridge } from "./backendBridge.js";
 
 function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = false }) {
@@ -437,9 +437,13 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       {(hotkeyConfig || isMiniGames) ? <div className="hotkey-grid">
         {hotkeyConfig ? cards.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />) : null}
         {isMiniGames ? <article className="hotkey-card">
-          <h3>{t("miniGames.treasureChest.title")}</h3>
+          {/* Same header as the other cards: title on the left, switch on the right. */}
+          <div className="hotkey-card-header">
+            <h3>{t("miniGames.treasureChest.title")}</h3>
+            <button className="hotkey-switch" type="button" role="switch" aria-checked={hotkeyConfig?.treasureChestHint === true} disabled={!hotkeyConfig || pendingField !== null}
+              aria-label={t("miniGames.treasureChest.enabled")} onClick={() => { if (hotkeyConfig) saveHotkeyField({ ...hotkeyConfig, treasureChestHint: hotkeyConfig.treasureChestHint !== true }, "treasureChestHint"); }}><Switch checked={hotkeyConfig?.treasureChestHint === true} /></button>
+          </div>
           <p>{t("miniGames.treasureChest.description")}</p>
-          <ToggleRow label={t("miniGames.treasureChest.enabled")} checked={hotkeyConfig?.treasureChestHint === true} disabled={!hotkeyConfig || pendingField !== null} onChange={(enabled) => { if (hotkeyConfig) saveHotkeyField({ ...hotkeyConfig, treasureChestHint: enabled }, "treasureChestHint"); }} />
           {!previewEnabled && chestMarker.visible ? <span className="hotkey-state enabled">{t("miniGames.treasureChest.marker")}</span> : null}
           {!previewEnabled && hotkeyConfig?.treasureChestHint === true && chestMarker.unavailable && !chestMarker.visible ? <small>{t("miniGames.treasureChest.unavailable")}</small> : null}
         </article> : null}
