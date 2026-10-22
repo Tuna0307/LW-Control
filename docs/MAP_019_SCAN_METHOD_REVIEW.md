@@ -1,65 +1,102 @@
-# MAP-019 scanner method review — phase 1
+# MAP-019 scanner method review — phase 1 report
 
-Status: **IN_PROGRESS — repeated native comparisons are running.**
+Status: **READY_FOR_OWNER_DECISION** (lead-completed, 2026-10-23, Asia/Singapore).
 
-Base: `codex/feature-recovery-018` at `ee3ebe0221a0049512fdb7d23acb610d009db83b`.
-Branch: `codex/map-scan-method-019`; draft PR [15](https://github.com/Tuna0307/LW-Control/pull/15).
-Date: 2026-10-23 (Asia/Singapore). Production behavior is unchanged.
+Branch `codex/map-scan-method-019`, draft PR [15](https://github.com/Tuna0307/LW-Control/pull/15). The worker (Codex)
+built the tools, source-route review and first live runs; the lead stopped the worker's queue mid-run (owner
+request; exact Stop and original-script restoration verified, 14 completed rounds kept) and ran the remaining
+matrix. Production behaviour is unchanged in phase 1.
 
-Keep the current scanner while qualification continues. No measured candidate currently
-justifies a production change. This is a checkpoint, not final phase-1 acceptance.
+## Answer in one paragraph
 
-## Completed native evidence
+**Yes, for finding objects the current camera-free method is the best measured method for every kind**: about
+9–11 times faster than the old camera scan at the same accuracy (point kinds 17–24 s), and for Trucks and Railway it
+finds 2–3 times **more** than the camera scan. No tested alternative beats it: smaller requests are 87 % slower,
+the coarse Zombie Boss map is 2–3× faster but misses 60–75 % of bosses, and a lower Truck request rate is not
+faster. **Two real defects were found instead:** on a server with no Zombie Bosses (home 2212 today) a Zombie Boss
+scan wastes ~224 s and errors, and an **all-nine scan there fails completely after ~5 minutes and saves nothing**.
 
-All paths below are private/ignored, under `artifacts/`. They contain the genuine owned-session
-logs, native receipts and SQLite databases; no fixture population is used as live evidence.
+## 1. Speed and accuracy per kind (same game session, current method vs old camera scan)
 
-| Experiment | Observation | Receipt |
+"Diff" = identities present in only one of the two scans. A method is accurate when its cross-method diff is no
+larger than the same-method drift (the change between two scans of the same method, from objects really moving,
+spawning or disappearing).
+
+| Kind (server) | Current | Camera | Rows (cur / cam) | Cross diff | Same-method drift | Verdict |
+|---|---|---|---|---|---|---|
+| City (2212) | 20.8–23.5 s | 196.9–199.1 s | 4,395 / 4,395 | 0–2 | 0 (cur), 2 (cam) | equal, 9× faster |
+| Resource (2212) | 21.9–22.6 s | 195.9–198.8 s | 7,996–7,999 / 8,001–8,004 | 4–175 | 179 (cur, ~7 min apart), 31 (cam, adjacent) | equal (drift grows with time) |
+| Monster (2212) | 24.0 s | 201.0–201.3 s | 9,583–9,595 / 9,605–9,642 | 92–157 | 130 (cur), 119 (cam) | equal |
+| Secret Task (2212) | 16.9 s | 188.9 s | 349 / 349 | 2 | 0 (earlier pair) | equal, 11× faster |
+| Ghost (2212) | 16.6–16.9 s | 191.4 s | 208–209 / 209 | 0–1 | 1 | equal |
+| Treasure (2212) | 16.5–16.9 s | 193.7 s | 24–25 / 25 | 0–1 | 1 | equal |
+| Railway (2212) | 60.4–61.2 s | 204.6 s | 4 / **2** | 2 | 0 | current finds more |
+| Truck (2212) | 52.2–79.0 s | 197.9 s | 196 / **74** | 178–186 | 160 | current finds 2.6× more |
+| Zombie Boss (2180) | 54.7–55.3 s | 199.0 s | 220–226 / 225 | 19–25 | 40 | equal |
+| Zombie Boss (2198) | 54.0–55.0 s | 197.5 s | 278–286 / 279 | 17–27 | 42 | equal |
+| Zombie Boss (2203) | 33.5–36.9 s | 197.9 s | 121–127 / 124 | 9–11 | 20 | equal |
+| Zombie Boss (2175, worker) | 31.8–35.4 s | 213.6–213.7 s | 90–103 / 93 | 5–24 | 23 (cur), 12 (cam) | equal within the larger drift |
+| City + Resource (2212) | 25.0–27.4 s | — | 4,395 + 7,998 | — | 0 / 1 | — |
+| All nine (2175) | 114.0–120.5 s | — | 3,523 City, 8,007 Res, 13,919 Mon, 173 Boss, 197 Truck, 1 Rail, 564 Secret, 201 Ghost, 14 Treasure | — | City 0, Res 1, Mon 71, Boss 9 | — |
+| **All nine (2212, no bosses)** | **failed after 306–315 s** | — | **nothing saved** | — | — | **defect D2** |
+| **Zombie Boss (2212, no bosses)** | **failed after 224–225 s** | — | — | — | — | **defect D1** |
+
+Fields were compared, not only counts: City names, levels, owners, alliance, protection and shield times are equal
+across methods (only `health` changes between any two scans); Monster positions differ only for moving monsters;
+Treasure `remainingBoxes` and Secret Task completion change naturally; Zombie Boss protection times change naturally.
+
+## 2. Alternatives tested
+
+| Alternative | Result | Verdict |
 |---|---|---|
-| Initial City control | Two current-method rounds: 22.1977841 s and 21.4574106 s, 4,396 rows each | `map014-lead-live/native-benchmark-city-20261023-010948/final.json` and `benchmark.json` |
-| Nine individual kinds, two current rounds | 18 attempted rounds. City, Resource, Monster, Secret Task, Ghost, Treasure, Railway and Truck completed. Zombie Boss on 2212 returned no confirmed rows and failed its empty-source verification; this is a retained negative, not a zero-population accuracy pass. | `map019/live-singles-audit.json`; raw `map014-lead-live/native-benchmark-review-20261023-011407` |
-| Zombie Boss on owner-approved 2175 | Current: 31.804805 s / 90 rows, 35.3548011 s / 103 rows. Camera: 213.5846062 s / 93 rows, 213.6939215 s / 93 rows. Equal counts in the camera pair conceal 12 changed identities; current drift is 23 identities. Cross-method differences are 5, 13, 24 and 14; parity is not universally within both drift controls. | `map019/live-boss-2175-audit.json`; raw `map014-lead-live/native-benchmark-review-20261023-013427` |
-| Opt-in coarse Boss on 2175 | 13.745269 s and 14.4247918 s, 27 rows each. All 27 are a subset of current results; 63–76 current identities are missing, exceeding drift. Reject for accuracy. Whole-world point-cell geometry does not prove all Boss/march delivery. | Same Boss audit; `map019/coarse-boss-footprint-caveat.json`, `coarse-boss-loss-pattern.json` |
-| Request shape, raw City + Resource discovery | 160 areas: 22.558 s / 22.276 s; 80 areas: 42.931 s / 41.089 s. Mean 80-area time is 19.593 s (87.405%) slower. Each covers 10,000 AOIs; 63 vs 125 requests. All four have 4,395 stable City identities. This excludes Resource detail hydration and product publication. | `map019/shapes-audit.json`; raw `map014-lead-live/native-shape-review-20261023-014438` |
+| Smaller requests (80 areas instead of 160; worker) | 41.1–42.9 s vs 22.3–22.6 s, same 4,395 Cities | 87 % slower — reject |
+| Bigger requests (320/640 areas; MAP-015) | server returns almost nothing; 160 is the server limit | reject |
+| Coarse Zombie Boss map (LOD2, opt-in; worker, 2175) | 13.7–14.4 s but 27 bosses vs 90–103 | misses 60–75 % — reject |
+| Truck request rate 15/s vs 20/s (lead) | 20/s: 38.7–47.6 s, 180–192 Trucks; 15/s: 48.5–48.8 s, 179–193 | not faster, same count — keep 20/s |
+| Several requests in flight (MAP-015) | server answers about one at a time; overlapped requests lost half / 7 % of points | reject as tested; a reply-time capture variant is untested (see 4) |
+| Game's own search/list messages (source review) | Monster/Resource/Secret Task searches return one nearest result; Train list is an "enemy recommendation"; minimap is alliance-only | none is a full list — complement only |
+| Remote server without switching (source review) | the game's parser drops replies for another server | keep switching (≈1.5 s each way measured) |
+| Incremental refresh (source review) | update messages exist but no replay/gap guarantee | not a safe full refresh |
 
-Every completed session above has exact owned Stop and original-script restoration.
-The 2175 test returned to 2212 in 1.4833498 s and independently restored exact camera geometry.
-The preferred test UID was not the authenticated account; all work remained read-only.
-The owner explicitly authorized closing the existing app/game; that initial admission dependency
-was resolved through normal app close and exact script recovery, not a remaining blocker.
-Receipts: `map019/authorized-owner-app-close.json`, `authorized-session-recovery.json`,
-`account-admission.json`. Game language remains Chinese; no desktop input or game actions.
+Source locators for every route: `docs/MAP_019_SOURCE_ROUTES.md`.
 
-## Current measurements and remaining work
+## 3. Load and risk
 
-One serial queue owns the live game at a time. It is collecting current/camera/camera/current
-for the eight other individual kinds, typical City + Resource, and all nine on 2175, followed
-by two all-nine home controls. Each successor requires the predecessor's exact Stop and
-script restoration. Configuration and progress: `map019/queue/index.json`.
-A separate opt-in Truck 20-vs-15 requests/s experiment has been built but not run.
+Point kinds use 63 requests per scan (one at a time, 160 areas each); Trucks/Railway use 625 small requests at
+20/s with missing ones re-sent. This matches what the game itself sends while a player scrolls the map, at a
+higher rate; the owner accepted camera-free requests on 2026-10-16. Network bytes were not measured (local file
+sizes are not wire bytes). No game action was sent in any run.
 
-The final report will contain one table for each assigned question, with per-kind identity,
-field, timing and load results. Current Unity frame-counter and PID CPU/memory observations
-are available; they are not independent display FPS or causal performance estimates.
-Actual transport bytes are not measured. Local JSON/SQLite sizes are never wire bytes.
+## 4. Defects found (recommended phase 2)
 
-## Source-backed alternatives and reproduction
+- **D1 — Zombie Boss with no bosses on the server.** The scanner treats "zero bosses" as unverified, falls back to
+  the 200 s camera scan, which also finds none, then reports an error (`CurrentClientMapBlockSource.FastCity.cs`,
+  `RequireZombieBossSourceRows`). Fix: accept a verified empty result when the full sweep was proven complete (the
+  same rule Railway already uses), so the scan returns "none" in ~20–50 s.
+- **D2 — All-nine fails completely on such a server.** Because of D1, the whole all-nine scan (306–315 s) fails and
+  saves none of the other eight kinds. Fix D1; additionally, a failure in one kind should not discard the others.
+- Optional, untested: two requests in flight with each reply captured as it arrives. Earlier evidence says the
+  server answers one at a time, so the expected gain is small; only worth a bounded experiment.
 
-[MAP_019_SOURCE_ROUTES.md](MAP_019_SOURCE_ROUTES.md) records current installed-game source
-locators for LOD, fold-up, scoped search/list/radar/minimap/event queries, Truck pushes,
-remote-server parsing and incremental updates. Static scope limits are kept distinct from
-native positive/negative results. Safe parallel pre-parser association, LOD1 population
-coverage and complete incremental replay remain unqualified; no globally fastest or
-all-alternatives-exhausted claim is justified.
+## 5. Evidence (private, under `artifacts/`, ignored)
 
-[Diagnostic README](../tools/map_019_review/README.md) documents commands, exact opt-in
-flags, timing scopes and restoration gates. [Request plan](../tools/map_019_review/REQUEST_PLAN.md)
-contains geometry-only combined-sweep hypotheses; it sends no requests.
+| Run | Receipt |
+|---|---|
+| Worker: City control, singles, Boss 2175, coarse Boss, shape | `map019/live-singles-audit.json`, `live-boss-2175-audit.json`, `shapes-audit.json`, `coarse-boss-*.json` |
+| Worker queue (stopped by lead; 14 rounds kept) | `map019/live-singles-ab-partial-audit.json` ← `map014-lead-live/native-benchmark-review-20261023-014746` |
+| Lead: Ghost/Treasure/Railway/Truck A/B | `map019/lead-rest-ab-audit.json` ← `native-benchmark-review-20261023-021732` |
+| Lead: Truck rate | `map019/lead-truck-rate-audit.json` ← `native-mobile-review-20261023-023707` |
+| Lead: Zombie Boss 2180 / 2198 / 2203 | `map019/lead-boss-2180-audit.json`, `-2198-`, `-2203-` ← `…-024733`, `…-025335`, `…-025936` |
+| Lead: City+Resource, all nine at home | `map019/lead-home-combined-audit.json` ← `…-030457` |
+| Lead: all nine on 2175 | `map019/lead-all-nine-2175-audit.json` ← `…-031701` |
+| Lead queue log | `map019/lead-queue.log` (every step: exact Stop true, installed files unchanged) |
 
-Validation completed at this checkpoint: 49 FEATURE018 inert suites, UI check, Desktop checks,
-74 MAP014 tests, 24 MAP015 tests and 22 MAP019 diagnostic tests. Earlier shared npm-install
-contention was resolved by sequential checks. Historical package test fixtures were corrected
-only in tests; runtime packaging and production scanner files remain unchanged.
+Commands: `python tools/map_014_lead_native/run_owned.py benchmark-review` with `LWBRIDGE_MAP019_WORKLOADS`,
+`_METHODS`, `_ROUNDS`, `_MAX_MINUTES`, `_SERVER` (2175/2180/2198/2203 only); `run_owned.py mobile-review`; audits with
+`tools/map_019_review/audit_live.py` / `audit_mobile.py --run <dir> --output <json>`. Every run: one owned game
+session, read-only scans, no input or game actions, exact Stop, original scripts restored. Game language Chinese.
 
-No merge, publication, ZIP or phase-2 default change. Final status is pending the live matrix
-and interpretation; independent lead acceptance is required.
+## Limits
+
+A finite set of trials cannot prove no better method exists. Untested: reply-time capture with several requests
+in flight; LOD1 for kinds other than Zombie Boss. Timings are on this PC and network on 2026-10-23.
