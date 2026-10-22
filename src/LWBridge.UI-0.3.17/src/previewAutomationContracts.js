@@ -36,6 +36,7 @@ export function automationDraftError(title, draft, maximumBuilders = 20) {
     if (!pairValid("replyMin", "replyMax", [2, 5], 0.1, 600) || (title === "Treasure" && !pairValid("dispatchMin", "dispatchMax", [2, 5], 0.1, 600))) return "automation.interactionDelayError";
     if (title === "Treasure" && draft.treasureDispatchEnabled && !(draft.dispatchSquads ?? [1]).length) return "automation.treasureDispatchSquadRequired";
     if (title === "Treasure" && Array.isArray(draft.claimSchedule) && draft.claimSchedule.some((row) => !/^\d\d:\d\d$/.test(row.start ?? "") || !/^\d\d:\d\d$/.test(row.end ?? "") || String(row.min).trim() === "" || String(row.max).trim() === "" || !(Number(row.min) >= 0) || !(Number(row.max) <= 600) || Number(row.min) > Number(row.max))) return "automation.treasureScheduleError";
+    if (draft.activeHoursEnabled && (!/^\d\d:\d\d$/.test(draft.activeStart ?? "") || !/^\d\d:\d\d$/.test(draft.activeEnd ?? "") || draft.activeStart === draft.activeEnd)) return "automation.activeHoursError";
     const retry = Number(draft.dispatchRetry ?? 30);
     if (title === "Treasure" && (!Number.isInteger(retry) || retry < 1 || retry > 300)) return "automation.treasureDispatchRetryError";
   }

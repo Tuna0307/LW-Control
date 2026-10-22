@@ -9,7 +9,9 @@ export function chatDraft(value = {}) {
     treasureDispatchEnabled: value.dispatchEnabled === true,
     dispatchMin: value.dispatchDelaySeconds?.[0] ?? 2, dispatchMax: value.dispatchDelaySeconds?.[1] ?? 5,
     dispatchRetry: value.dispatchRetrySeconds ?? 30, dispatchSquads: value.dispatchSquadPriority ?? [1],
-    claimSchedule: Array.isArray(value.claimSchedule) ? value.claimSchedule.map(row => ({ ...row })) : null };
+    claimSchedule: Array.isArray(value.claimSchedule) ? value.claimSchedule.map(row => ({ ...row })) : null,
+    activeHoursEnabled: value.activeHours?.enabled === true, activeStart: value.activeHours?.start ?? "08:00",
+    activeEnd: value.activeHours?.end ?? "02:00" };
 }
 // Owner 2026-10-21: "Min 10, Max 0" means 10 seconds - raise Max to Min instead of refusing to save.
 export function settleChatDelayPairs(draft) {
@@ -27,6 +29,7 @@ export function chatConfig(draft) {
     searchEnabled: draft.treasureSearchEnabled, dispatchEnabled: draft.treasureDispatchEnabled,
     dispatchDelaySeconds: [Number(draft.dispatchMin), Number(draft.dispatchMax)],
     dispatchRetrySeconds: Number(draft.dispatchRetry), dispatchSquadPriority: draft.dispatchSquads,
+    activeHours: { enabled: draft.activeHoursEnabled === true, start: draft.activeStart ?? "08:00", end: draft.activeEnd ?? "02:00" },
     ...(Array.isArray(draft.claimSchedule) ? { claimSchedule: draft.claimSchedule.map(row => ({ start: row.start, end: row.end, min: Number(row.min), max: Number(row.max) })) } : {}) };
 }
 export function createChatAdapter(bridge, profileId, kind, valid, online) {

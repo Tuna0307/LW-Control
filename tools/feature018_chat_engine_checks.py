@@ -159,7 +159,22 @@ def main():
       assert(claimReply.HandleMessage({}, {})=='original-claim')
       t=engine.Status().data.services.treasure;assert(t.claimed==1 and t.notJoined>=1)
     ''')
-    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure share->dig->claim (alliance only, 3-tile search, joined-only, schedule), delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan')
+    # Owner 2026-10-22: active hours 08:00-02:00 cross midnight; outside them a new claim does not start.
+    vm.execute('''
+      local realDate=os.date;local hour=3
+      os.date=function(f,t)if f=='*t'then return {hour=hour,min=0}end;return realDate(f,t)end
+      local w={activeHours={enabled=true,start='08:00',['end']='02:00'}}
+      hour=8;assert(engine._InHours(w));hour=23;assert(engine._InHours(w));hour=1;assert(engine._InHours(w))
+      hour=2;assert(not engine._InHours(w));hour=7;assert(not engine._InHours(w))
+      assert(engine._InHours({activeHours={enabled=false,start='08:00',['end']='02:00'}}))
+      hour=3;state.config.fireworks={enabled=true,claimDelaySeconds={0,0},activeHours=w.activeHours}
+      assert(engine.Configure(request).state=='confirmed')
+      local before=#state.sent;state.callbacks[1](msg(693,'7777',300));state.now=state.now+1000;engine.Pump()
+      assert(#state.sent==before,'No claim outside active hours')
+      local f=engine.Status().data.services.fireworks;assert(f.offHours==true and f.activeFrom=='08:00')
+      os.date=realDate
+    ''')
+    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure share->dig->claim (alliance only, 3-tile search, joined-only, schedule), delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan, active hours')
 
 
 if __name__ == '__main__':

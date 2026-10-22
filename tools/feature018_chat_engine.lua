@@ -82,6 +82,22 @@ local function describe(msg)
     return {kind=kind,uuid=tostring(uuid),data=data,message=msg,key=key,expires=expire(msg,data,kind),
         roomId=get(msg,'roomId'),seqId=get(msg,'seqId'),server=server}
 end
+-- Owner 2026-10-22: optional active hours per Chat service (this computer's clock), e.g. 08:00-02:00
+-- across midnight. Outside them no new claim, reply, share lookup or dig dispatch starts.
+local function minutes(text)
+    local h,m=tostring(text or''):match('^(%d%d):(%d%d)$');if h then return tonumber(h)*60+tonumber(m)end
+end
+local function in_hours(config)
+    local w=type(config)=='table'and config.activeHours
+    if type(w)~='table'or w.enabled~=true then return true end
+    local a,b=minutes(w.start),minutes(w['end']);if not a or not b or a==b then return true end
+    local ok,t=pcall(os.date,'*t');if not ok or type(t)~='table'then return true end
+    local now=t.hour*60+t.min
+    if a<b then return now>=a and now<b end
+    return now>=a or now<b
+end
+local function active(config)return type(config)=='table'and config.enabled==true and in_hours(config)end
+M._InHours=in_hours
 local function delay(range)
     range=type(range)=='table'and range or {0,0}
     local a,b=tonumber(range[1])or 0,tonumber(range[2])or 0
@@ -299,7 +315,7 @@ function T.Claim(job)
     return invoke(network,'SendMessage',route,tonumber(job.uuid),server)
 end
 function T.Pump(config)
-    if config.enabled~=true or not owned()then return end
+    if not active(config)or not owned()then return end
     -- 1. Shared spots: find the real dig within 3 tiles, loading the area once if needed.
     if T.aoi and (reflect(T.aoi.manager,'isRecvViewPoints')==true or clock()-T.aoi.started>3000)then
         local l=T.aoi.lookup;local t=l and T.Near(l.pos);T.AoiCleanup()
@@ -347,10 +363,10 @@ local function observe(msg,from_event,force)
         if from_event then listener.eventMessages=listener.eventMessages+1 else listener.retainedMessages=listener.retainedMessages+1 end
         listener.lastMessageAt=clock();listener.lastPost=get(msg,'post')
     end
-    if (configs.treasure or {}).enabled==true then T.Share(msg)end
+    if active(configs.treasure)then T.Share(msg)end
     local job=describe(msg);if not job then return end
     local config=configs[job.kind]or {}
-    if not force and config.enabled~=true then return end
+    if not force and not active(config)then return end
     if job.expires and job.expires<=clock()then return end
     if queue[job.key]then queue[job.key].message=msg;queue[job.key].data=job.data;return end
     local count=0;for _ in pairs(queue)do count=count+1 end
@@ -506,7 +522,7 @@ function M.Pump()
         if reply.at<=clock()then
             table.remove(replies,i)
             local config=configs[reply.job.kind]or {}
-            if config.replyEnabled and owned()then
+            if config.replyEnabled and active(config)and owned()then
                 local mgr=chat_manager();local ok,allowed=call(mgr,'CheckRoomSend',reply.job.roomId)
                 if ok and allowed then call(mgr,'SendChatMsg',{roomId=reply.job.roomId,msg=reply.phrase,
                     post=get(rawget(_G,'PostType'),'Text_Normal')})end
@@ -547,6 +563,8 @@ function M.Status()
         for _,r in ipairs(replies)do if r.job.kind==kind then s.replyPendingCount=s.replyPendingCount+1 end end
         for _,job in pairs(queue)do if job.kind==kind and (job.state=='queued'or job.state=='sent')then s.pendingCount=s.pendingCount+1 end end
         if not owned()then s.state='disconnected'elseif not s.enabled and s.pendingCount==0 then s.state='disabled'end
+        s.offHours=s.enabled and not in_hours(config)or nil
+        s.activeFrom=s.offHours and config.activeHours.start or nil
         s.capabilities={claims=true,reply=true,search=kind=='treasure',dispatch=kind=='treasure',noSpending=true}
         if kind=='treasure'then
             for k,v in pairs(T.stats)do s[k]=v end

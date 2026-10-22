@@ -17,6 +17,8 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
         ["dispatchEnabled"] = false, ["dispatchDelaySeconds"] = new JsonArray(2d, 5d),
         ["dispatchSquadPriority"] = new JsonArray(1), ["dispatchRetrySeconds"] = 30,
         ["claimSchedule"] = DefaultSchedule(),
+        // Owner 2026-10-22: optional active hours (this computer's clock); may cross midnight.
+        ["activeHours"] = new JsonObject { ["enabled"] = false, ["start"] = "08:00", ["end"] = "02:00" },
     };
 
     // Owner 2026-10-22: Treasure claim delay by time of day (computer clock), random within each row.
@@ -54,7 +56,7 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
     {
         if (input.ValueKind != JsonValueKind.Object) throw Invalid("Chat config must be an object.");
         var allowed = new HashSet<string>(["enabled", "claimDelaySeconds", "replyEnabled", "replyDelaySeconds", "replies",
-            "searchEnabled", "dispatchEnabled", "dispatchDelaySeconds", "dispatchSquadPriority", "dispatchRetrySeconds", "claimSchedule"], StringComparer.Ordinal);
+            "searchEnabled", "dispatchEnabled", "dispatchDelaySeconds", "dispatchSquadPriority", "dispatchRetrySeconds", "claimSchedule", "activeHours"], StringComparer.Ordinal);
         if (input.EnumerateObject().Any(p => !allowed.Contains(p.Name))) throw Invalid("Unexpected Chat setting.");
         var config = Default(kind);
         foreach (JsonProperty property in input.EnumerateObject()) config[property.Name] = JsonNode.Parse(property.Value.GetRawText());
@@ -76,6 +78,10 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
             throw Invalid("Treasure dispatch retry must be 1–300 seconds.");
         if (config["claimSchedule"] is not JsonArray schedule || schedule.Count > 12 || schedule.Any(row => !ValidScheduleRow(row)))
             throw Invalid("Each claim time row needs a start and end time (HH:MM) and a delay of 0–600 seconds with minimum ≤ maximum.");
+        if (config["activeHours"] is not JsonObject { Count: 3 } hours ||
+            hours["enabled"] is not JsonValue on || !on.TryGetValue<bool>(out _) ||
+            !Time(hours["start"]) || !Time(hours["end"]) || hours["start"]!.GetValue<string>() == hours["end"]!.GetValue<string>())
+            throw Invalid("Active hours need a different start and end time (HH:MM).");
         if (kind != "treasure")
             foreach (string name in new[] { "searchEnabled", "dispatchEnabled", "dispatchDelaySeconds", "dispatchSquadPriority", "dispatchRetrySeconds", "claimSchedule" }) config.Remove(name);
         return config;

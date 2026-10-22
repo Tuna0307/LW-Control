@@ -62,7 +62,7 @@ export function NativeChatAutomationCard({ title, description, online, profileId
     <NativeCardHeader title={english(title)} description={english(description)} checked={config.draft.enabled} disabled={disabled || claimsUnavailable} onToggle={onToggle} />
     <NativeCardStatus t={t} online={online} enabled={config.draft.enabled === true} state={state}
       rows={[[t("automation.claimed"), row?.claimed > 0 ? row.claimed : null]]}
-      note={[runtime?.listener ? t("automation.chatObserved", { count: runtime.listener.observedMessages ?? 0 }) : "", row?.warning ?? ""].filter(Boolean).join(" · ")}
+      note={[row?.offHours ? t("automation.offHours", { time: row.activeFrom ?? "" }) : "", runtime?.listener ? t("automation.chatObserved", { count: runtime.listener.observedMessages ?? 0 }) : "", row?.warning ?? ""].filter(Boolean).join(" · ")}
       errors={[error, retry, validation ? t(validation) : null]} />
     <PreviewConfigError config={config} t={t} />
     <NativeCardSettings t={t} collapsible expanded={expanded} onToggle={toggleExpanded} disabled={disabled} onBlur={() => config.store.flush().catch(e => setError(e.message))}>
