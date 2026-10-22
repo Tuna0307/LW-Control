@@ -33,7 +33,7 @@ local function context()
     if not ctx then
         local manager=call(rawget(_G,'EventManager'),'GetInstance')
         local event=enum('EventId','WorldGetAllianceCollectResDetailUpdate')
-        ctx={key=key,uid=uid,server=server,manager=manager,event=event,version=0,read={}}
+        ctx={key=key,uid=uid,server=server,manager=manager,event=event,version=0,read={},known={}}
         ctx.fn=function()if ctx then ctx.version=ctx.version+1 end end
         call(manager,'AddListener',event,ctx.fn)
     end
@@ -65,6 +65,89 @@ local function typed(p)
     end
     return p
 end
+-- Owner 2026-10-22: the game's pickaxe shows drops tens of tiles away that are not in the loaded map
+-- area. When none is in view, ask the server for the map around your base piece by piece (3x3 map
+-- blocks, 30x30 tiles, within SWEEP_RADIUS tiles) without moving the camera, and remember drops found.
+local SWEEP_RADIUS,SWEEP_STEP,SWEEP_PAUSE_MS,KNOWN_TTL_MS=60,30,30000,15*60000
+local function set_field(o,k,v)
+    local ok,t=pcall(function()return o:GetType()end);if not ok or not t then return false end
+    local flags=52;pcall(function()local B=CS.System.Reflection.BindingFlags;flags=B.Instance+B.Public+B.NonPublic end)
+    local okf,f=pcall(function()return t:GetField(k,flags)end)
+    if okf and f then return pcall(function()f:SetValue(o,v)end)end
+    return false
+end
+local function remember(c,at)
+    local alliance=tostring(get(player(),'allianceId')or '')
+    for _,raw in ipairs(loaded_points())do
+        local p=typed(raw);local pointId=tonumber(get(p,'pointIndex')or get(p,'PointIndex')or get(p,'pointId'))
+        local uuid=id(get(p,'uuid'));local owner=get(p,'allianceId')
+        if pointId and uuid and owner~=nil and tostring(owner)~=alliance then c.known[uuid]=nil end
+        if pointId and uuid and (owner==nil or tostring(owner)==alliance)then
+            c.known[uuid]={pointId=pointId,uuid=uuid,rawUuid=get(p,'uuid'),configId=tonumber(get(p,'configId')),
+                server=tonumber(get(p,'serverId'))or tonumber(c.server),seenAt=at}
+        end
+    end
+end
+local function aoi_cleanup(c)
+    local a=c.aoi;if not a then return end
+    for _,n in ipairs(a.added)do pcall(function()a.current:Remove(a.int32.Parse(tostring(n)))end)end
+    if a.replyFlag~=nil then set_field(a.manager,'isRecvViewPoints',a.replyFlag)end
+    if rawget(_G,'__lwbridgeAoiOwner')==a then rawset(_G,'__lwbridgeAoiOwner',nil)end
+    c.aoi=nil
+end
+local function aoi_request(c,cx,cy)
+    if rawget(_G,'__lwbridgeAoiOwner')~=nil then return false end
+    local w=world();local manager=get(w,'PointManager')or reflected(w,'PointManager')
+    local current=get(manager,'_curViewIndex')or reflected(manager,'_curViewIndex')
+    local cs=rawget(_G,'CS');if not w or not manager or not current or not cs then return false end
+    local a={manager=manager,current=current,added={},int32=get(get(cs,'System'),'Int32'),
+        replyFlag=get(manager,'isRecvViewPoints'),started=nil}
+    if a.replyFlag==nil then a.replyFlag=reflected(manager,'isRecvViewPoints')end
+    c.aoi=a;rawset(_G,'__lwbridgeAoiOwner',a)
+    local ok=pcall(function()
+        local bx,by=math.floor(cx/10),math.floor(cy/10);local indices={}
+        for ay=math.max(0,by-1),math.min(99,by+1)do for ax=math.max(0,bx-1),math.min(99,bx+1)do indices[#indices+1]=ay*100+ax end end
+        local r=cs.WorldGetBlockMessage.Request()
+        r.bigMap,r.x,r.y,r.serverId,r.worldId,r.type,r.lod=0,cx,cy,tonumber(c.server),0,0,0
+        r.blockSize,r.firstTime,r.battleFieldFirst=10,false,false
+        r.leftBottom=math.max(0,(by-1)*10)*1000+math.max(0,(bx-1)*10)+1
+        r.rightTop=math.min(999,(by+2)*10)*1000+math.min(999,(bx+2)*10)+1
+        local arr=cs.System.Array.CreateInstance(typeof(cs.System.Int32),#indices)
+        for k,n in ipairs(indices)do
+            local number=a.int32.Parse(tostring(n));arr:SetValue(number,k-1)
+            if not current:Contains(number)and current:Add(number)then a.added[#a.added+1]=n end
+        end
+        r.index=arr
+        set_field(manager,'isRecvViewPoints',false)
+        cs.WorldGetBlockMessage.Instance:Send(r)
+    end)
+    if not ok then aoi_cleanup(c);return false end
+    return true
+end
+-- One sweep step per call; true while a step is in flight.
+local function sweep(c,at)
+    if c.aoi then
+        if c.aoi.started==nil then c.aoi.started=at end
+        local replied=(get(c.aoi.manager,'isRecvViewPoints')or reflected(c.aoi.manager,'isRecvViewPoints'))==true
+        if replied or at-c.aoi.started>3000 then pcall(remember,c,at);aoi_cleanup(c)end
+        return true
+    end
+    if c.sweepPauseUntil and at<c.sweepPauseUntil then return false end
+    if not c.sweepQueue then
+        local home=tonumber(call(player(),'GetMainWorldPos'));if not home or home<1 then return false end
+        local hx,hy=(home-1)%1000,math.floor((home-1)/1000);c.sweepQueue={}
+        for dy=-SWEEP_RADIUS,SWEEP_RADIUS,SWEEP_STEP do for dx=-SWEEP_RADIUS,SWEEP_RADIUS,SWEEP_STEP do
+            local x,y=hx+dx,hy+dy
+            if x>=0 and x<1000 and y>=0 and y<1000 then c.sweepQueue[#c.sweepQueue+1]={x,y}end
+        end end
+        table.sort(c.sweepQueue,function(a,b)return (a[1]-hx)^2+(a[2]-hy)^2<(b[1]-hx)^2+(b[2]-hy)^2 end)
+        c.sweepTotal=#c.sweepQueue
+    end
+    local nxt=table.remove(c.sweepQueue,1)
+    if not nxt then c.sweepQueue=nil;c.sweepPauseUntil=at+SWEEP_PAUSE_MS;return false end
+    c.sweepDone=(c.sweepTotal or 0)-#c.sweepQueue
+    return aoi_request(c,nxt[1],nxt[2])
+end
 local function own_march_at(pointId,uuid)
     local wanted=enum('MarchTargetType','ALLIANCE_RESOURCE_COLLECT')
     for _,m in pairs(call(center('WorldMarchDataManager'),'GetOwnerMarches',get(player(),'uid'),get(player(),'allianceId'))or {})do
@@ -82,9 +165,13 @@ local function count(list)local n=0;for _ in pairs(list or {})do n=n+1 end;retur
 local function drops(c,at)
     local alliance=tostring(get(player(),'allianceId')or '')
     local found,open,needRead={},{},nil
-    for _,raw in ipairs(loaded_points())do
-        local p=typed(raw);local pointId=tonumber(get(p,'pointIndex')or get(p,'PointIndex')or get(p,'pointId'))
-        local uuid=id(get(p,'uuid'));local owner=get(p,'allianceId')
+    pcall(remember,c,at)
+    for uuid,k in pairs(c.known)do if at-k.seenAt>KNOWN_TTL_MS then c.known[uuid]=nil end end
+    local candidates={}
+    for _,k in pairs(c.known)do candidates[#candidates+1]=k end
+    for _,k in ipairs(candidates)do
+        local pointId,uuid,owner=k.pointId,k.uuid,nil
+        local p={configId=k.configId,serverId=k.server,uuid=k.rawUuid}
         if pointId and uuid and owner~=nil and tostring(owner)~=alliance then
             c.lastSeen={at=at,text='Drop at '..tostring((pointId-1)%1000)..','..tostring(math.floor((pointId-1)/1000))..' belongs to another alliance'}
         end
@@ -107,7 +194,7 @@ local function drops(c,at)
                     local remain=tonumber(select(2,pcall(call,detail,'GetCurResourceValue')))or tonumber(get(detail,'remainValue'))
                     drop.remain=remain;drop.gatherers=count(players);drop.cap=cap
                     if mine then drop.skip='you are already gathering it'
-                    elseif not remain or remain<=0 then drop.skip='no resources left'
+                    elseif not remain or remain<=0 then drop.skip='no resources left';c.known[uuid]=nil
                     elseif cap and drop.gatherers>=cap then drop.skip='full ('..drop.gatherers..'/'..cap..')'
                     else open[#open+1]=drop end
                 end
@@ -138,6 +225,11 @@ function M.Plan(kind,config,at)
     end
     local before={available=#open,drops=#found}
     for _,d in ipairs(found)do if d.skip then c.lastSeen={at=at,text='Drop at '..d.where..': '..d.skip}end end
+    local swept,busy=pcall(sweep,c,at)
+    if #open==0 and swept and busy then
+        before.reason=('Searching the map around your base for Doom Elite drops ('..tostring(c.sweepDone or 0)..'/'..tostring(c.sweepTotal or 0)..')')
+        before.retryMs=1000;return nil,before
+    end
     if #open==0 then
         local last=c.lastSeen and (' · last seen '..(select(2,pcall(os.date,'%H:%M',math.floor(c.lastSeen.at/1000)))or'?')..': '..c.lastSeen.text)or''
         before.reason=(#found==0 and 'No Doom Elite resource drop in the loaded world area'or 'Every nearby drop is full, empty or already has your squad')..last
@@ -185,7 +277,7 @@ function M.Verify(kind,job)
 end
 function M.Stop(kind)
     if kind~='allianceGather'then return end
-    if ctx then pcall(call,ctx.manager,'RemoveListener',ctx.event,ctx.fn)end
+    if ctx then pcall(call,ctx.manager,'RemoveListener',ctx.event,ctx.fn);aoi_cleanup(ctx)end
     ctx=nil
 end
 return M

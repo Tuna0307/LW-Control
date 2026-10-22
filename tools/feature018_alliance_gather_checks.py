@@ -74,13 +74,38 @@ def main():
         elif case=='refusedBefore':vm.execute('state.forms[2].ConscriptSoldier=function()end;state.forms[1].ConscriptSoldier=function()end')
         elif case=='stop':vm.execute('engine.Stop(request)')
         vm.execute('step();step()')
-        if case in ['full','empty','busy','otherAlliance','noDrop']:vm.execute("assert(#state.starts==0 and status().state=='nothing_available')")
+        if case in ['full','empty','busy','otherAlliance']:vm.execute("assert(#state.starts==0 and status().state=='nothing_available')")
+        elif case=='noDrop':vm.execute("assert(#state.starts==1,'A drop seen earlier is remembered after it leaves the loaded map area')")
         elif case in ['wrongAccount','stop']:vm.execute('assert(#state.starts==0 and not engine.IsActive())')
         elif case=='refusedBefore':vm.execute("assert(#state.starts==0 and status().state=='waiting' and status().submitted==0,'Refused before the game call is not uncertain')")
         else:
             vm.execute("assert(#state.starts==1);state.now=state.now+16000;engine.Pump();assert(status().state=='unconfirmed')")
             vm.execute("for _=1,120 do step();answer()end;assert(#state.starts==1,'Never replay an uncertain march')")
-    print('FEATURE018_R30_ALLIANCE_GATHER_LUA_PASS doom-drop fresh-detail priority one-per-drop off no-alliance full empty busy other-alliance no-drop account uncertain no-replay refused-before stop')
+    # Owner 2026-10-22: a drop outside the loaded area (the pickaxe's 38-54 km) is found by asking the
+    # server for the map around the base without moving the camera, then remembered and gathered.
+    vm=alliance()
+    vm.execute('''
+      local pm=CS.SceneManager.World.PointManager
+      local set={};state.blocks=0
+      pm._curViewIndex={Contains=function(self,n)return set[n]==true end,Add=function(self,n)set[n]=true;return true end,Remove=function(self,n)set[n]=nil;return true end}
+      pm.isRecvViewPoints=true
+      CS.System={Int32={Parse=function(t)return tonumber(t)end},Array={CreateInstance=function()return {SetValue=function()end}end}}
+      typeof=function(x)return x end
+      CS.WorldGetBlockMessage={Request=function()return {}end,Instance={Send=function(self,r)
+        state.blocks=state.blocks+1;assert(r.lod==0 and r.serverId==123)
+        pm.isRecvViewPoints=false
+        if state.blocks==3 then pm._pointInfos=setmetatable({Count=2},{__index=function(_,i)return state.points[i]end})end
+      end}}
+      LuaEntry.Player.GetMainWorldPos=function()return 500*1000+500+1 end
+      local hidden=state.points[1];state.points[1]={PointType=1,pointIndex=2}
+      for _=1,4 do step();if state.blocks>0 and not pm.isRecvViewPoints then pm.isRecvViewPoints=true end end
+      assert(state.blocks>=1,'The map around the base is requested when no drop is in view')
+      assert(next(set)==nil,'Added map blocks are removed again after each reply')
+      state.points[1]=hidden
+      for _=1,20 do step();answer();if pm.isRecvViewPoints==false then pm.isRecvViewPoints=true end end
+      assert(#state.starts==1,'The drop found by the search is gathered')
+    ''')
+    print('FEATURE018_R30_ALLIANCE_GATHER_LUA_PASS doom-drop fresh-detail priority one-per-drop off no-alliance full empty busy other-alliance no-drop account uncertain no-replay refused-before stop camera-free-search')
 
 
 if __name__=='__main__':main()

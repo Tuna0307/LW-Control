@@ -183,16 +183,19 @@ function T.AoiCleanup()
     local a=T.aoi;if not a then return end
     for _,n in ipairs(a.added)do call(a.current,'Remove',a.int32.Parse(tostring(n)))end
     if a.replyFlag~=nil then set_field(a.manager,'isRecvViewPoints',a.replyFlag)end
+    if rawget(_G,'__lwbridgeAoiOwner')==a then rawset(_G,'__lwbridgeAoiOwner',nil)end
     T.aoi=nil
 end
 -- Ask the server for the 3x3 map blocks around a shared spot without moving the camera.
 function T.AoiRequest(pos)
     local w=world();local manager=reflect(w,'PointManager');local current=reflect(manager,'_curViewIndex')
     local cs=rawget(_G,'CS');if not w or not manager or not current or not cs then return false end
+    -- One camera-free map request at a time across services (Alliance Gathering also uses this).
+    if rawget(_G,'__lwbridgeAoiOwner')~=nil then return false end
     local i=pos-1;local x,y=i%1000,math.floor(i/1000);local cx,cy=math.floor(x/10),math.floor(y/10)
     local a={manager=manager,current=current,added={},int32=get(get(cs,'System'),'Int32'),
         replyFlag=reflect(manager,'isRecvViewPoints'),started=clock()}
-    T.aoi=a
+    T.aoi=a;rawset(_G,'__lwbridgeAoiOwner',a)
     local ok=pcall(function()
         local indices={}
         for ay=math.max(0,cy-1),math.min(99,cy+1)do for ax=math.max(0,cx-1),math.min(99,cx+1)do indices[#indices+1]=ay*100+ax end end
@@ -309,7 +312,8 @@ function T.Pump(config)
             local t=T.Near(l.pos)
             if t then T.AddDig(t,config);l.state='found'
             elseif not T.aoi then
-                if T.AoiRequest(l.pos)then T.aoi.lookup=l;l.state='loading'else l.state='no_dig'end
+                if T.AoiRequest(l.pos)then T.aoi.lookup=l;l.state='loading'
+                elseif rawget(_G,'__lwbridgeAoiOwner')==nil or clock()-l.at>15000 then l.state='no_dig'end
             end
         end
     end
