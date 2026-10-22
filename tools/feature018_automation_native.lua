@@ -241,8 +241,12 @@ function M.Plan(kind,c,at)
         local before=official_state(position);local manager=center('OfficialApplyManager')
         if before.queued or before.appointed or before.currentPositionId==position or before.ownApplicationPosition>0 then
             officialFull[position]=nil
-            before.reason=(before.appointed or before.currentPositionId==position)and 'You already hold this position'
+            -- Live 2026-10-22: appointed=true with currentPositionId 0 means accepted and waiting in the
+            -- appointment queue, not holding the position yet.
+            before.reason=before.currentPositionId==position and 'You hold this position now'
+                or before.appointed and ('Accepted; waiting in the appointment queue ('..tostring(before.appointmentQueueLength or '?')..' in line)')
                 or 'Applied; waiting for the President to approve'
+            before.done=true
             officialLastReason[position]=before.reason;return nil,before
         end
         if not call(manager,'CheckCanApply',tostring(position))then before.reason='This position is not available for applications';return nil,before end

@@ -99,7 +99,7 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   return <article className={`automation-card${config.draft.enabled ? " is-enabled" : ""}`} data-native-automation={kind} data-automation-state={runtime?.state ?? "unobserved"} data-automation-confirmed={runtime?.confirmed ?? 0}>
     <NativeCardHeader title={english(title)} description={english(description)} checked={config.draft.enabled} onToggle={toggle}
       disabled={disabled || kind === "officialPosition" && !config.draft.enabled && !Number(config.draft.positionId)} />
-    <NativeCardStatus t={t} online={online} enabled={config.draft.enabled === true} state={runtime?.state} rows={rows} note={note} errors={errors} />
+    <NativeCardStatus t={t} online={online} enabled={config.draft.enabled === true} state={runtime?.before?.done ? "success" : runtime?.state} rows={rows} note={note} errors={errors} />
     <PreviewConfigError config={config} t={t} />
     {settings ? <NativeCardSettings t={t} collapsible={collapsible} expanded={expanded} onToggle={toggleExpanded} disabled={disabled}>{settings}</NativeCardSettings> : null}
   </article>;
