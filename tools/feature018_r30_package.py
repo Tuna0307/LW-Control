@@ -135,7 +135,7 @@ def verify_r30_feature_sources() -> None:
         "tools/feature018_treatment_native.lua": ("gold", "function M.Verify"),
         "tools/feature018_missions_native.lua": ("function M.Verify", "function M.Stop"),
         "tools/feature018_alliance_resources_native.lua": ("function M.Verify", "function M.Stop"),
-        "tools/feature018_alliance_gather_native.lua": ("COLLECT_ALLIANCE_BUILD_RESOURCE", "function M.Verify"),
+        "tools/feature018_alliance_gather_native.lua": ("ALLIANCE_RESOURCE_COLLECT", "WorldGetAllianceCollectResDetail", "function M.Verify"),
         "tools/feature018_trade_native.lua": ("SeasonHasTradingStation", "function M.Verify"),
         "tools/feature018_equipment_actions.lua": (
             "observe_final_burst", "tx.burstComplete=true", 'fields.queryOnly=="1"',
