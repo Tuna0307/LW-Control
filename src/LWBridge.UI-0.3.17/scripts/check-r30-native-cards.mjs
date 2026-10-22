@@ -78,8 +78,14 @@ const alliance = document.querySelector('[data-native-automation=allianceGather]
 const squadBoxes = () => [...alliance.querySelectorAll('.automation-squad-priority-item input')];
 await flush(() => squadBoxes()[2].click());
 assert.deepEqual(store.allianceGather.allianceGatherSquads, [1, 2, 3]);
-await flush(() => alliance.querySelectorAll('.automation-squad-move')[1].click());
-assert.deepEqual(store.allianceGather.allianceGatherSquads, [1, 3, 2], "Up moves a squad earlier in priority");
+const items = () => [...alliance.querySelectorAll('.automation-squad-priority-item')];
+const fire = (node, type) => { const event = new window.Event(type, { bubbles: true, cancelable: true });event.dataTransfer = { setData() {}, effectAllowed: "", dropEffect: "" };node.dispatchEvent(event); };
+assert.equal(alliance.querySelectorAll('.automation-squad-move').length, 0, "No arrow buttons (recovered drag handle)");
+assert.equal(alliance.querySelectorAll('.automation-squad-drag-handle').length, 3);
+await flush(() => fire(items()[2], 'dragstart'));
+await flush(() => fire(items()[1], 'dragover'));
+await flush(() => fire(items()[1], 'drop'));
+assert.deepEqual(store.allianceGather.allianceGatherSquads, [1, 3, 2], "Dragging squad 3 onto squad 2 raises its priority");
 await flush(() => alliance.querySelector('button[role=switch]').click());
 assert.equal(store.allianceGather.enabled, true);
 for (const box of squadBoxes().filter(b => b.checked).slice(0, 2)) await flush(() => box.click());

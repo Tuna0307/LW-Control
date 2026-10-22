@@ -143,7 +143,7 @@ function automationRuntimePresentation(title, runtime, enabled, configDraft, t, 
 }
 
 // Recovered index-BVfnK1wp.js Vr: source glyphs used by Automation ordering controls.
-function AutomationIcon({ name }) {
+export function AutomationIcon({ name }) {
   return <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
     {name === "arrow-up" ? <path d="M8 13.5v-11M3.5 7 8 2.5 12.5 7" /> : null}
     {name === "arrow-down" ? <path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" /> : null}

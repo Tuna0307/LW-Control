@@ -23,7 +23,9 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
   const { t, language } = useI18n();
   const settingsId = useId();
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, KIND, online, draft => validAutomationDraft(KIND, draft)), `automation-native:${profileId}:${KIND}`);
-  const [ready, setReady] = useState(false), [error, setError] = useState(""), [runtime, setRuntime] = useState(null), [busy, setBusy] = useState(false), [expanded, setExpanded] = useState(false);
+  const [ready, setReady] = useState(false), [error, setError] = useState(""), [runtime, setRuntime] = useState(null), [busy, setBusy] = useState(false);
+  const expansionKey = `automation-settings:${profileId}:${KIND}`;
+  const [expanded, setExpanded] = useState(() => { try { return localStorage.getItem(expansionKey) === "true"; } catch { return false; } });
   useEffect(() => {
     let closed = false;
     setReady(false);setRuntime(null);
@@ -65,11 +67,11 @@ export function NativeGatherCard({ profileId, online, bridge = backendBridge }) 
     {runtime?.error ? <p role="alert" className="error-text">{runtime.error}</p> : null}
     {error ? <p role="alert" className="error-text">{error}</p> : null}
     <PreviewConfigError config={config} t={t} />
-    <div className="automation-config-actions"><button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} aria-controls={settingsId} onClick={() => setExpanded(value => !value)}>
+    <div className="automation-config-actions"><button type="button" className={`automation-config-trigger${expanded ? " is-open" : ""}`} aria-expanded={expanded} aria-controls={settingsId} onClick={() => { const next = !expanded;setExpanded(next);try { localStorage.setItem(expansionKey, String(next)); } catch { /* Storage may be unavailable. */ } }}>
       <span className="automation-config-trigger-label"><span>{t("settings.title")}</span></span>
       <svg className="trigger-chevron" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" /></svg>
     </button></div>
-    <fieldset id={settingsId} className="automation-config-body" hidden={!expanded} disabled={disabled}>
+    <fieldset id={settingsId} className="automation-config-body" hidden={!expanded} style={expanded ? undefined : { display: "none" }} disabled={disabled}>
       <div className="automation-form-grid">
         <label><span>{t("automation.resourceGather.scanRadius")}</span><select value={draft.scanRadius ?? 200} onChange={event => { void save({ scanRadius: Number(event.target.value) }); }}>{RADII.map(radius => <option key={radius} value={radius}>{radius}</option>)}</select></label>
         <label><span>{t("automation.resourceGather.manualResumeDelay")}</span><select value={Math.round((draft.manualResumeDelaySeconds ?? 120) / 60)} onChange={event => { void save({ manualResumeDelaySeconds: Number(event.target.value) * 60 }); }}>{Array.from({ length: 30 }, (_, i) => i + 1).map(minutes => <option key={minutes} value={minutes}>{minutes}</option>)}</select></label>

@@ -7,6 +7,7 @@ import { AUTOMATION_TASKS, createAutomationAdapter, validAutomationDraft } from 
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { subscribeAutomationStatus } from "./automationStatusHub.js";
 import { MISSION_KINDS, NativeMissionFields, toggleMissionMaster } from "./NativeMissionFields.jsx";
+import { AutomationIcon } from "./AutomationPage.jsx";
 
 const INTERVAL_KINDS = ["allianceGift", "strongholdResource", "allianceCenterResource"];
 
@@ -29,7 +30,7 @@ export function NativeAutomationCard({ title, description, profileId, online, br
   const { english, t } = useI18n();
   const kind = AUTOMATION_TASKS[title];
   const config = usePreviewConfigAdapter({ enabled: false }, createAutomationAdapter(bridge, profileId, kind, online, draft => validAutomationDraft(kind, draft)), `automation-native:${profileId}:${kind}`);
-  const [ready, setReady] = useState(false), [error, setError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false), [error, setError] = useState(""), [services, setServices] = useState(null), [busy, setBusy] = useState(false), [dragged, setDragged] = useState(null), [dragOver, setDragOver] = useState(null);
   const runtime = services?.[kind] ?? null;
   // Original 0.3.17: the multi-option cards collapse their settings (closed by default, remembered).
   const collapsible = ["dispatch", "ghostRecon", "allianceGather"].includes(kind);
@@ -88,9 +89,15 @@ export function NativeAutomationCard({ title, description, profileId, online, br
       return <div className="automation-actions"><p className="muted">{t("automation.allianceGatherSquadPriority")}</p>
         <div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.allianceGatherSquadPriority")}>{listed.map(slot => {
           const position = order.indexOf(slot);
-          return <div className={`automation-squad-priority-item${position >= 0 ? " selected" : ""}`} key={slot}>
-            <label><input type="checkbox" checked={position >= 0} disabled={disabled} onChange={event => save(event.target.checked ? [...order, slot] : order.filter(value => value !== slot))} /><span>{t("automation.squad", { index: slot })}</span></label>
-            {position > 0 ? <button type="button" className="automation-squad-move" disabled={disabled} aria-label={`${t("automation.squad", { index: slot })} ↑`} onClick={() => { const next = [...order];next.splice(position - 1, 0, next.splice(position, 1)[0]);save(next); }}>↑</button> : null}
+          const selected = position >= 0;
+          // Recovered 0.3.17: selected squads are reordered by dragging (drag handle), not buttons.
+          return <div className={`automation-squad-priority-item${selected ? " selected" : ""}${dragged === slot ? " dragging" : ""}${dragOver === slot ? " drag-over" : ""}`} key={slot} draggable={selected && !disabled}
+            onDragStart={event => { if (!selected) return; if (event.dataTransfer) { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(slot)); } setDragged(slot); }}
+            onDragOver={event => { if (selected && dragged !== null && dragged !== slot) { event.preventDefault(); if (event.dataTransfer) event.dataTransfer.dropEffect = "move"; setDragOver(slot); } }}
+            onDrop={event => { event.preventDefault(); const source = order.indexOf(dragged);setDragged(null);setDragOver(null); if (source < 0 || position < 0 || source === position) return; const next = [...order];next.splice(position, 0, next.splice(source, 1)[0]);save(next); }}
+            onDragEnd={() => { setDragged(null);setDragOver(null); }}>
+            <label><input type="checkbox" checked={selected} disabled={disabled} onChange={event => save(event.target.checked ? [...order, slot] : order.filter(value => value !== slot))} /><span>{t("automation.squad", { index: slot })}</span></label>
+            {selected ? <span className="automation-squad-drag-handle" aria-hidden="true"><AutomationIcon name="drag" /></span> : null}
           </div>;
         })}</div>
         {runtime?.after?.dispatched || runtime?.before?.available != null ? <div className="automation-status-row"><span>{t("automation.allianceGatherAvailable")}</span><strong>{runtime?.before?.available ?? 0}</strong></div> : null}
