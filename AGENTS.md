@@ -1,3 +1,8 @@
+Latest lead assignment, 2026-10-23: worker (Codex) does LWB317-MAP-SCAN-METHOD-REVIEW-019 — measure whether the
+current Map scanner is really the best method (speed, accuracy, alternatives), phase 1 report only, no production
+change. Read docs/work-items/LWB317-MAP-SCAN-METHOD-REVIEW-019.md. New branch codex/map-scan-method-019 from
+codex/feature-recovery-018, draft PR. Background only; Map scanning is read-only, no game actions.
+
 Latest lead update, 2026-10-21: R29 (all tabs except Automation) finished and published as a pre-release; merge
 waits for owner test. Worker does FEATURE-RECOVERY-018 R30 = Automation tab (removals, Chat collapse, real
 engines for the kept cards) — see the R30 section of docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
