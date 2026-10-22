@@ -25,10 +25,13 @@ local function valid(c)
 end
 -- Owner 2026-10-22: each squad can be "launch" only, "join" only, or "both" (default: launch when
 -- Launch rallies is on and no own rally exists, otherwise join).
+-- The Launch rallies switch was removed (owner 2026-10-22): a squad without a saved role keeps the
+-- old meaning of that switch (on = both, off = join only); an explicit "both" always may launch.
 local function squad_role(c,slot)
     local roles=type(c.squadRoles)=='table'and c.squadRoles or {}
     local r=roles[tostring(slot)]or roles[slot]
-    return (r=='launch'or r=='join')and r or 'both'
+    if r=='launch'or r=='join'or r=='both'then return r end
+    return c.activeRally and 'both' or 'join'
 end
 function M.Bind(adapter)api=assert(adapter);return M end
 function M.Start(owner,config)
@@ -94,7 +97,7 @@ function M.Pump()
         if not run.pending[slot] and api.Free(slot)then
             local mode=squad_role(run.config,slot)
             local role=mode=='launch'and 'leader' or mode=='join'and 'member'
-                or (run.config.activeRally and not leader_exists and 'leader' or 'member')
+                or (not leader_exists and 'leader' or 'member')
             local chosen
             if role=='leader'then
                 -- A launch-only squad waits while your own rally is already running; it never joins.

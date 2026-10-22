@@ -90,10 +90,26 @@ def main():
         engine.Pump();assert(engine.Status().lastError==nil,'Recovered AFK cycle must clear stale lastError')
         engine.Stop()
     ''')
+    # Owner 2026-10-22: per-squad level ranges inside one profile (Squad 1 1-80, Squad 2 1-40).
+    lua.execute('''
+        local sent={}
+        local lvl=60
+        engine.Bind({Owned=function()return true end,Free=function()return true end,Stamina=function()return 100,5 end,
+            Targets=function()return {{uuid='m'..lvl,monster=true,player=false,monsterType=0,level=lvl,nameKey='z'}}end,
+            Send=function(o,slot)sent[#sent+1]=slot;return 'n'..slot end,Observe=function()return {completed=false}end,MaxLevel=function()return 99 end})
+        local p={id='j',enabled=true,kind='farm',monsterType=0,squadIndexes={1,2},executionLimit=0,
+            squadLevels={['1']={min=1,max=80},['2']={min=1,max=40}}}
+        assert(not engine.Start({},{enabled=true,strategies={{id='bad',enabled=true,kind='farm',monsterType=0,squadIndexes={1},executionLimit=0,squadLevels={['1']={min=5,max=2}}}}}))
+        assert(engine.Start({},{enabled=true,strategies={p}}))
+        engine.Pump();assert(#sent==1 and sent[1]==1,'A level-60 target suits Squad 1 (1-80) but not Squad 2 (1-40)')
+        engine.Stop();sent={};lvl=30
+        assert(engine.Start({},{enabled=true,strategies={p}}));engine.Pump();assert(#sent==2,'A level-30 target suits both squads')
+        engine.Stop()
+    ''')
     for name in ['feature018_afk_native.lua', 'feature018_attack_actions.lua']:
         source = (ROOT / 'tools' / name).read_text(encoding='utf-8')
         assert lua.eval('function(s) local f,e=load(s);return f~=nil,e end')(source)[0], name
-    print('FEATURE018_AFK_ENGINE_CHECKS_OK: lifecycle, shared limits, pause, Stop, typed monster filters, transient error recovery')
+    print('FEATURE018_AFK_ENGINE_CHECKS_OK: lifecycle, shared limits, pause, Stop, typed monster filters, transient error recovery, per-squad level ranges')
 
 
 if __name__ == '__main__':

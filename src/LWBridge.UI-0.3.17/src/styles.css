@@ -249,3 +249,12 @@
   font-size: var(--font-footnote);
 }
 .automation-squad-priority-item:has(.automation-squad-role) { grid-template-columns: minmax(0,1fr) auto auto; }
+/* AFK profile: the list target is inactive while a custom name keyword is used. */
+.monster-afk-target-unused select { opacity: .55; }
+/* AFK profile: optional level range per assigned squad. */
+.monster-afk-squad-levels { display: grid; gap: 6px; }
+.monster-afk-squad-levels-title { font-size: var(--font-footnote); font-weight: 600; color: var(--text); }
+.monster-afk-squad-level { display: flex; align-items: center; gap: 10px; min-height: 30px; }
+.monster-afk-squad-level .monster-afk-check-row { min-width: 92px; }
+.monster-afk-squad-level-inputs { display: inline-flex; align-items: center; gap: 6px; }
+.monster-afk-squad-level-inputs input { width: 72px; min-height: 28px; text-align: right; font-variant-numeric: tabular-nums; }

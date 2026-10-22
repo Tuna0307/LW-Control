@@ -62,6 +62,7 @@ export function previewAfkProfileValid(profile) {
   if (profile.targetKey.startsWith("query:") && !profile.targetNameQuery?.trim()) return false;
   if (profile.levelFilterEnabled && (!(profile.minLevel > 0) || (!profile.progressiveLevels && profile.maxLevel < profile.minLevel))) return false;
   if (profile.distanceFilterEnabled && !(profile.maxDistance > 0)) return false;
+  for (const range of Object.values(profile.squadLevels || {})) if (!Number.isInteger(range?.min) || range.min < 1 || !Number.isInteger(range?.max) || range.max < range.min) return false;
   if (!Number.isInteger(profile.monsterType) || profile.monsterType < 0) return false;
   if (profile.kind === "join" && !validJoinRestrictions(normalizeJoinRestrictions(profile.joinRestrictions))) return false;
   return true;

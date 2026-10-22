@@ -35,6 +35,14 @@ local function matches(p,t,level)
     return true
 end
 M.Matches=matches
+-- Owner 2026-10-22: a squad may have its own level range inside a profile (e.g. Squad 1 1-80,
+-- Squad 2 1-40). Without one, the squad uses the profile's level settings.
+local function slot_profile(p,slot)
+    local r=type(p.squadLevels)=='table'and (p.squadLevels[tostring(slot)]or p.squadLevels[slot])
+    if type(r)~='table'or type(r.min)~='number'or type(r.max)~='number'then return p end
+    return setmetatable({levelFilterEnabled=true,progressiveLevels=false,minLevel=r.min,maxLevel=r.max},{__index=p})
+end
+M.SlotProfile=slot_profile
 -- OWN_DESIGN interpretation of recovered join controls. The randomly chosen
 -- position/delay is retained per rally, rather than rerolled on every frame.
 function M.JoinReady(r,t,wait,clock,random)
@@ -79,6 +87,14 @@ local function validate_config(config)
             if p.levelFilterEnabled and (type(p.minLevel)~='number' or p.minLevel<1 or p.minLevel%1~=0 or
                not p.progressiveLevels and (type(p.maxLevel)~='number' or p.maxLevel<p.minLevel or p.maxLevel%1~=0)) then return nil,'Invalid AFK level range' end
             if p.distanceFilterEnabled and (type(p.maxDistance)~='number' or p.maxDistance<=0)then return nil,'Invalid distance limit'end
+            if p.squadLevels~=nil then
+                if type(p.squadLevels)~='table'then return nil,'Invalid squad level ranges'end
+                for k,r in pairs(p.squadLevels)do
+                    local slot=tonumber(k)
+                    if not slot or slot<1 or slot>4 or slot%1~=0 or type(r)~='table'or type(r.min)~='number'or type(r.max)~='number'or
+                       r.min<1 or r.min%1~=0 or r.max%1~=0 or r.max<r.min then return nil,'Invalid squad level ranges'end
+                end
+            end
         end
     end
     return true
@@ -172,10 +188,12 @@ function M.Pump()
                 local stamina,cost=api.Stamina(slot,p)
                 if not stamina or not cost or stamina<cost then row.step='waiting_stamina';run.state='waiting'
                 else
-                    local targets,reason=api.Targets(p,run.levels[p.id])
+                    local sp=slot_profile(p,slot)
+                    local level=sp==p and run.levels[p.id] or nil
+                    local targets,reason=api.Targets(sp,level or (sp~=p and sp.minLevel or nil))
                     row.step=reason or 'waiting_nearby_target'
                     for _,target in ipairs(targets or {}) do
-                        if matches(p,target,run.levels[p.id]) then
+                        if matches(sp,target,level) then
                             row.currentTarget=copy(target)
                             -- Fresh mutable account and squad checks at the last
                             -- boundary; the adapter repeats them before native send.

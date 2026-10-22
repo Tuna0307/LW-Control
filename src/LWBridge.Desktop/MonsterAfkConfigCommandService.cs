@@ -160,6 +160,22 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
                 throw Invalid("invalid monster AFK level range");
         }
 
+        // Owner 2026-10-22: optional per-squad level range {"1":{"min":1,"max":80}}.
+        if (strategy.TryGetProperty("squadLevels", out JsonElement squadLevels))
+        {
+            if (squadLevels.ValueKind != JsonValueKind.Object)
+                throw Invalid("invalid monster AFK squad level ranges");
+            foreach (JsonProperty range in squadLevels.EnumerateObject())
+            {
+                if (range.Name is not ("1" or "2" or "3" or "4") || range.Value.ValueKind != JsonValueKind.Object)
+                    throw Invalid("invalid monster AFK squad level ranges");
+                long min = ReadPositiveIntegerOrZero(range.Value, "min");
+                long max = ReadPositiveIntegerOrZero(range.Value, "max");
+                if (min <= 0 || max < min)
+                    throw Invalid("invalid monster AFK squad level ranges");
+            }
+        }
+
         if (!TryReadBoolean(strategy, "enabled", out bool enabled))
             throw Invalid("invalid monster AFK strategy state");
 
