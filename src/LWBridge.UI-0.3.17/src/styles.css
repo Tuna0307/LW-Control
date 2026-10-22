@@ -266,3 +266,7 @@
 .treasure-schedule-row input { min-width: 0; min-height: 28px; font-variant-numeric: tabular-nums; }
 .treasure-schedule-remove { min-height: 28px; padding: 0; border-radius: 6px; }
 .treasure-schedule-add { justify-self: start; min-height: 28px; padding: 3px 10px; font-size: var(--font-footnote); }
+
+/* Official Application: target time with its Clear button */
+.automation-inline-field { display: flex; align-items: center; gap: 8px; }
+.automation-inline-field input { flex: 1; min-width: 0; }

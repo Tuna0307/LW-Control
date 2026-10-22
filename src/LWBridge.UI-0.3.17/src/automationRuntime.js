@@ -22,7 +22,8 @@ export function validAutomationDraft(kind, draft) {
   return typeof draft.enabled === "boolean" && (!intervalKinds.includes(kind) || Number.isInteger(Number(draft.intervalMinutes)) && Number(draft.intervalMinutes) >= 1 && Number(draft.intervalMinutes) <= 1440)
     && (kind !== "treatment" || Number.isInteger(Number(draft.amountPerArmy)) && Number(draft.amountPerArmy) >= 1 && Number(draft.amountPerArmy) <= 1000000)
     && (kind !== "allianceDonate" || Number.isInteger(Number(draft.threshold)) && Number(draft.threshold) >= 1 && Number(draft.threshold) <= 30)
-    && (kind !== "officialPosition" || [0, 10002, 10003, 10004, 10005, 10006, 10007].includes(Number(draft.positionId)) && (!draft.enabled || Number(draft.positionId) !== 0));
+    && (kind !== "officialPosition" || [0, 10002, 10003, 10004, 10005, 10006, 10007].includes(Number(draft.positionId)) && (!draft.enabled || Number(draft.positionId) !== 0)
+      && (draft.targetTime === undefined || draft.targetTime === "" || /^([01]\d|2[0-3]):[0-5]\d$/.test(draft.targetTime)));
 }
 export function createAutomationAdapter(bridge, profileId, kind, online, valid) {
   const invoke = (command, payload = {}) => {

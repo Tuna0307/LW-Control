@@ -90,7 +90,10 @@ export function NativeAutomationCard({ title, description, profileId, online, br
     : kind === "allianceDonate" ? numberField("threshold", "automation.donateThreshold", 1, 30, 15)
     : kind === "officialPosition" ? <div className="automation-actions"><label>{t("automation.targetPosition")}<select value={config.draft.positionId ?? 0} onChange={event => {
       config.store.edit(draft => ({ ...draft, positionId: Number(event.target.value) }), false);flush();
-    }}>{[[0, "none"], [10002, "vicePresident"], [10003, "strategyMinister"], [10004, "defenseMinister"], [10005, "constructionMinister"], [10006, "scienceMinister"], [10007, "internalAffairsMinister"]].map(([id, name]) => <option key={id} value={id}>{t(`automation.position.${name}`)}</option>)}</select></label></div>
+    }}>{[[0, "none"], [10002, "vicePresident"], [10003, "strategyMinister"], [10004, "defenseMinister"], [10005, "constructionMinister"], [10006, "scienceMinister"], [10007, "internalAffairsMinister"]].map(([id, name]) => <option key={id} value={id}>{t(`automation.position.${name}`)}</option>)}</select></label>
+      <label>{t("automation.officialTargetTime")}<span className="automation-inline-field"><input type="time" value={config.draft.targetTime ?? ""} onChange={event => config.store.edit(draft => ({ ...draft, targetTime: event.target.value }))} onBlur={flush} />
+        {config.draft.targetTime ? <button type="button" className="automation-error-retry" onClick={() => { config.store.edit(draft => ({ ...draft, targetTime: "" }), false);flush(); }}>{t("automation.officialTargetClear")}</button> : null}</span></label>
+      <p className="muted">{t(config.draft.targetTime ? "automation.officialTargetHint" : "automation.officialAsapHint")}</p></div>
     : MISSION_KINDS.includes(kind) || kind === "allianceGather" ? <>
       {MISSION_KINDS.includes(kind) ? <NativeMissionFields kind={kind} config={config} disabled={disabled} runtime={runtime} /> : null}
       {allianceGather}

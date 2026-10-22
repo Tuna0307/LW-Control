@@ -22,7 +22,7 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
     {
         "allianceGift" => new() { ["enabled"] = false, ["intervalMinutes"] = 120 },
         "allianceDonate" => new() { ["enabled"] = false, ["threshold"] = 15 },
-        "officialPosition" => new() { ["enabled"] = false, ["positionId"] = 0 },
+        "officialPosition" => new() { ["enabled"] = false, ["positionId"] = 0, ["targetTime"] = "" }, // targetTime "" = as soon as possible
         "treatment" => new() { ["enabled"] = false, ["amountPerArmy"] = 1 },
         // RECOVERED original UI defaults: off; squads off/metal/10; radius 200; manual delay 120 s; no recall.
         "resourceGather" => new()
@@ -60,6 +60,9 @@ internal sealed class AutomationTaskConfigCommandService(ProfileRuntimeConfigSto
         if (kind == "officialPosition" && (config["positionId"] is not JsonValue position || !position.TryGetValue<int>(out int id) ||
             id is not (0 or 10002 or 10003 or 10004 or 10005 or 10006 or 10007) || id == 0 && config["enabled"]!.GetValue<bool>()))
             throw Invalid("Select one available official position before enabling.");
+        if (kind == "officialPosition" && (config["targetTime"] is not JsonValue target || !target.TryGetValue<string>(out string? at) ||
+            at.Length != 0 && !(at.Length == 5 && at[2] == ':' && int.TryParse(at[..2], out int h) && int.TryParse(at[3..], out int m) && h is >= 0 and < 24 && m is >= 0 and < 60)))
+            throw Invalid("The target time must be empty or HH:MM.");
         if (kind is "strongholdResource" or "allianceCenterResource" &&
             (config["intervalMinutes"] is not JsonValue every || !every.TryGetValue<int>(out int interval2) || interval2 is < 1 or > 1440))
             throw Invalid("Collection interval must be 1–1440 whole minutes.");

@@ -111,6 +111,28 @@ def main():
       reply:HandleMessage({});step();state.callbacks[14](10005);state.callbacks[15](10005);step()
       assert(status().state=='success'and status().after.serverAccepted==true)
     ''')
-    print('FEATURE018_R30_OFFICIAL_LUA_PASS exact-position exact-UID fresh-list optimistic-rejection off stop account nothing error uncertain no-replay full-retry refusal-retry')
+    # Owner 2026-10-22: "have it by" a time - wait while a turn taken now would end before it, then apply.
+    vm=official()
+    vm.execute('''
+      local T=300000
+      local d=os.date('*t');local m=(d.hour*60+d.min+60)%1440
+      state.config.officialPosition.targetTime=string.format('%02d:%02d',m//60,m%60);engine.Configure(request)
+      local function queue(n)local q={};for k=0,n-1 do q[#q+1]={uid='30'..k,appointTime=state.now+k*T}end;return q end
+      function applies()local n=0;for _,s in ipairs(state.sends)do if s.route==90 then n=n+1 end end;return n end
+      state.appointments=queue(3);prepare();step()
+      assert(applies()==0 and status().before.projectedStart==state.now-1000+3*T or status().before.projectedStart~=nil,'projected start known')
+      assert(applies()==0 and tostring(status().before.reason):find('Waiting to apply so your turn covers',1,true),'Too early: waits')
+      state.appointments=queue(12);state.now=state.now+31000
+      for _=1,40 do step();local r=state.sends[#state.sends].route;if r==91 then state.callbacks[14](10005)elseif r==92 then state.callbacks[15](10005)end;if applies()>0 then break end end
+      assert(applies()==1,'Applies once a turn from the end of the queue covers the target time')
+    ''')
+    vm=official()
+    vm.execute('''
+      state.appointments={{uid='2001',appointTime=state.now+1000},{uid='1001',appointTime=state.now+301000},{uid='2003',appointTime=state.now+601000}}
+      prepare();step()
+      assert(tostring(status().before.reason):find('#2 of 3 in the appointment queue',1,true),'Shows our place: '..tostring(status().before.reason))
+      assert(tostring(status().before.reason):find('your turn at',1,true))
+    ''')
+    print('FEATURE018_R30_OFFICIAL_LUA_PASS exact-position exact-UID fresh-list optimistic-rejection off stop account nothing error uncertain no-replay full-retry refusal-retry target-time queue-place')
 
 if __name__=='__main__':main()
