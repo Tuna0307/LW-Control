@@ -16,6 +16,10 @@ local function rows(list)
     local out={};for _,v in pairs(list)do out[#out+1]=v end
     table.sort(out,function(a,b)return tostring(get(a,'uuid')or '')<tostring(get(b,'uuid')or '')end);return out
 end
+-- Ghost action -> the game's reply message for it.
+local GHOST_REPLY={ghostCreate='GhostReconJoinTeamMessage',ghostJoin='GhostReconJoinTeamMessage',ghostShare='GhostReconHandleSendChatMessage',
+    ghostStart='GhostReconStartTeamMessage',ghostClaim='GhostReconRewardMessage'}
+local GHOST_REPLIES={'GhostReconJoinTeamMessage','GhostReconHandleSendChatMessage','GhostReconStartTeamMessage','GhostReconRewardMessage'}
 local specs={dispatch={event='DispatchTaskUpdateAll',query='DispatchGetTasks'},
     dispatchAssist={event='DispatchTaskUpdateAlliance',query='DispatchGetAllianceTasks'},
     ghostRecon={event='GhostreconTaskRefreshAll',query='GhostreconGetTaskList'}}
@@ -41,14 +45,31 @@ local function ensure(kind)
     s.manager=em;states[kind]=s
     local ok,err=pcall(function()
         listen(specs[kind].event,function()if states[kind]==s then s.version=s.version+1 end end)
-        if kind=='ghostRecon'then listen('GhostreconAllianceTaskRefresh',function()if states[kind]==s then s.allianceVersion=s.allianceVersion+1 end end)end
+        if kind=='ghostRecon'then
+            listen('GhostreconAllianceTaskRefresh',function()if states[kind]==s then s.allianceVersion=s.allianceVersion+1 end end)
+            -- Live owner 2026-10-22: Ghost Ops locked on "unconfirmed". Watch the game's reply to each
+            -- Ghost action: a refusal (errorCode) retries later, a clean reply is the server's acceptance.
+            s.replies={};s.hooks={}
+            for _,name in ipairs(GHOST_REPLIES)do
+                local module=require('Net.Msgs.Ghostrecon.'..name);local previous=get(module,'HandleMessage')
+                if type(previous)~='function'then error('Native '..name..' reply handler unavailable')end
+                local wrapper=function(self,response,...)
+                    pcall(function()if states[kind]==s then
+                        local r=s.replies[name]or {seq=0};s.replies[name]={seq=r.seq+1,error=get(response,'errorCode')}
+                    end end)
+                    return previous(self,response,...)
+                end
+                module.HandleMessage=wrapper;s.hooks[#s.hooks+1]={module=module,wrapper=wrapper,previous=previous}
+            end
+        end
     end)
     if not ok then M.Stop(kind);error(err)end
     return s
 end
 local function plan(s,action,args,before,phase)
+    local name=GHOST_REPLY[phase];local seen=name and s.replies and s.replies[name]
     return {route=route(action),args=args,phase=phase,uid=s.uid,generation=s.generation,
-        version=s.version,continue=true},before
+        version=s.version,continue=true,replyName=name,replySeq=seen and seen.seq or 0},before
 end
 local function query(s,kind,phase)
     local p,b=plan(s,specs[kind].query,{}, {fresh=false},phase or 'missionList');p.readOnly=true;return p,b
@@ -286,6 +307,12 @@ function M.Verify(kind,job)
         job.postQuerySent=true;job.postQueryVersion=s.version;job.followupReads=1
         get(rawget(_G,'SFSNetwork'),'SendMessage')(route(specs[kind].query));return false
     end
+    local reply=job.replyName and s.replies and s.replies[job.replyName]
+    reply=reply and reply.seq>job.replySeq and reply or nil
+    if reply and reply.error~=nil then
+        -- The game refused the action (nothing happened): retry later, never an uncertain lock.
+        s.freshAt=nil;return false,{uuid=job.uuid,phase=job.phase,gameCode=tostring(reply.error)},60000
+    end
     if s.version<=job.postQueryVersion then return false end
     local t=task_by_uuid(current_state(kind),job.uuid);local after=t and mission_state(t)or {uuid=job.uuid,missing=true}
     local confirmed=false
@@ -304,11 +331,15 @@ function M.Verify(kind,job)
     elseif job.phase=='ghostShare'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and (num(t,'sendChatTime')or 0)>=job.sentAt-1000 and num(t,'sendChatTime')>(job.before.sendChatTime or 0)
     elseif job.phase=='ghostStart'then confirmed=t and tostring(get(t,'ownerId'))==s.uid and (num(t,'completionTime')or 0)>job.sentAt
     elseif job.phase=='ghostClaim'then confirmed=(t==nil and s.version>job.postQueryVersion)or t and member(t)~=nil and num(member(t),'rewarded')==1 end
+    -- A clean game reply to our own Ghost action is the server's acceptance, even when the refreshed
+    -- list does not show the exact field we expected.
+    if not confirmed and reply and reply.error==nil then confirmed=true;after.acceptedByReply=true end
     if confirmed then s.freshAt=job.sentAt;s.allianceFreshAt=nil end
     return confirmed,after
 end
 function M.Stop(kind)
     local s=states[kind];states[kind]=nil
     if s then for _,r in ipairs(s.listeners)do pcall(call,s.manager,'RemoveListener',r[1],r[2])end end
+    if s and s.hooks then for i=#s.hooks,1,-1 do local h=s.hooks[i];if h.module.HandleMessage==h.wrapper then h.module.HandleMessage=h.previous end end end
 end
 return M

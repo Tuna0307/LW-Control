@@ -149,7 +149,7 @@ function M.Pump()
     for kind,c in pairs(configs)do
         if c.enabled==true or force[kind]then
             local r=row(kind);local job=pending[kind]
-            if uncertain[kind]then r.state='unconfirmed';r.error='An earlier action is unconfirmed; it will not be sent again'
+            if uncertain[kind]then r.state='unconfirmed';r.error='An earlier action ('..tostring(uncertain[kind].phase or uncertain[kind].route)..') is unconfirmed; it will not be sent again'
             elseif job then
                 local yes,confirmed,after,retryMs=measured(kind,native.Verify,kind,job)
                 if yes and not confirmed and retryMs and not job.readOnly then

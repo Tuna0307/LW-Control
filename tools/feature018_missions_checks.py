@@ -39,6 +39,11 @@ def runtime(kind='dispatch'):
       local recommendation={GetRecommendHeroList=function()if state.heroError then error('native hero error')end;return state.heroes or {'h1','h2','h3'},state.heroEligible end}
       package.preload['UI.UIFormation.UIFormationDispatchTask.Controller.UIFormationDispatchTaskCtrl']=function()return recommendation end
       package.preload['UI.UIDispatchTask.Ghostrecon.Formation.Controller.UIGhostreconFormationCtrl']=function()return recommendation end
+      replyModules={}
+      for _,name in ipairs({'GhostReconJoinTeamMessage','GhostReconHandleSendChatMessage','GhostReconStartTeamMessage','GhostReconRewardMessage'})do
+        replyModules[name]={HandleMessage=function()return 'original-'..name end}
+        package.preload['Net.Msgs.Ghostrecon.'..name]=function()return replyModules[name]end
+      end
       package.preload['UI.UIFormation.UIFormationDispatchTask.View.UIFormationDispatchTaskView']=function()return {CalculateMarchTime=function()return 2500 end}end
       SFSNetwork.SendMessage=function(route,...)
         state.sends[#state.sends+1]={route=route,args={...}}
@@ -177,6 +182,22 @@ def main():
       acquire();assert(state.sends[2].route=='GhostReconGetAllianceTaskList')
       emit('ghostAlliance');step();step();assert(state.sends[3].route=='GhostReconJoinTeam'and state.sends[3].args[3]==2)
       t.memberList[2]={uid='1001',rewarded=0,canReward=1};state.ghosts[1]=t;reconcile();assert(status().confirmed==1)
+    ''')
+    # Live owner 2026-10-22: a refused Ghost action retries later instead of locking the card,
+    # and a clean game reply confirms even when the refreshed list lacks the expected field.
+    vm=runtime('ghostRecon')
+    vm.execute('''
+      local t=ghost('own');state.ghosts[1]=t;acquire();assert(state.sends[2].route=='GhostReconJoinTeam')
+      assert(replyModules.GhostReconJoinTeamMessage.HandleMessage({}, {errorCode='E9'})=='original-GhostReconJoinTeamMessage')
+      step();step();assert(status().state~='unconfirmed','A refused action is not uncertain')
+      assert(status().refused==1)
+    ''')
+    vm=runtime('ghostRecon')
+    vm.execute('''
+      local t=ghost('own');t.teamStartTime=state.now;t.memberList={{uid='1001',rewarded=0,canReward=1}};state.ghosts[1]=t
+      acquire();assert(state.sends[#state.sends].route=='GhostReconHandleSendChat')
+      replyModules.GhostReconHandleSendChatMessage.HandleMessage({}, {})
+      reconcile();assert(status().confirmed==1,'A clean share reply is the acceptance')
     ''')
     for guard in ['closed','heroes','foreignReward','noReward']:
         vm=runtime('ghostRecon')
