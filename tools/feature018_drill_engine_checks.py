@@ -56,7 +56,28 @@ def main():
       drill.Pump();assert(#sends==before+1 and sends[#sends].role=='member')
       drill.Stop();drill.Fail('fixture');assert(drill.Status().state=='failed' and not drill.Status().running)
     ''')
-    print('FEATURE018_DRILL_ENGINE_CHECKS_OK: event lifecycle, priority, Stop, limits, stamina/account pause, monster-only joins')
+    # Owner 2026-10-22: Squad 4 launch only, Squad 1 join only.
+    vm = LuaRuntime(unpack_returned_tuples=True)
+    vm.globals().drill = vm.execute((ROOT / 'tools/feature018_drill_engine.lua').read_text(encoding='utf-8'))
+    vm.execute('''
+      local sends,stages,busy={},{},{}
+      local event={active=true,target={uuid='m',monster=true,player=false},rallies={},ownRallyExists=false}
+      drill.Bind({Owned=function()return true end,Snapshot=function()return event end,Free=function(slot)return not busy[slot]end,
+        Stamina=function()return 100,10 end,JoinReady=function()return true end,
+        Send=function(o,slot,role,target)sends[#sends+1]={slot=slot,role=role};busy[slot]=true;return slot end,
+        CancelUnsent=function()return false end,Observe=function()return {step='joining'}end})
+      assert(not drill.Start({token='y'},{enabled=true,activeRally=false,squadIndexes={1,4},squadRoles={['4']='both',['9']='join'}}))
+      assert(not drill.Start({token='y'},{enabled=true,activeRally=false,squadIndexes={1,4},squadRoles={['4']='lead'}}))
+      local config={enabled=true,activeRally=false,squadIndexes={1,4},squadRoles={['1']='join',['4']='launch'}}
+      assert(drill.Start({token='y'},config))
+      drill.Pump();assert(#sends==1 and sends[1].slot==4 and sends[1].role=='leader','Squad 4 launches even with Launch rallies off; Squad 1 never launches')
+      event.rallies={{uuid='r',monsterUuid='m',monster=true,player=false,joinable=true}}
+      drill.Pump();assert(#sends==2 and sends[2].slot==1 and sends[2].role=='member','Squad 1 joins')
+      busy={};event.ownRallyExists=true;sends={}
+      drill.Pump();drill.Pump()
+      for _,s in ipairs(sends)do assert(not(s.slot==4 and s.role=='member'),'Launch-only squad never joins')end
+    ''')
+    print('FEATURE018_DRILL_ENGINE_CHECKS_OK: event lifecycle, priority, Stop, limits, stamina/account pause, monster-only joins, per-squad launch/join roles')
 
 
 if __name__ == '__main__':

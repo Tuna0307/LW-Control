@@ -241,3 +241,11 @@
 .trade-station-panel .trade-station-warning { margin: 0; }
 .automation-form-grid label.automation-inline-checkbox,
 .automation-config-body > label.automation-inline-checkbox { display: flex; grid-column: 1 / -1; color: var(--text); }
+/* Alliance Drill: per-squad role picker inside the squad priority chip. */
+.automation-squad-priority-item .automation-squad-role {
+  min-width: 0;
+  height: 26px;
+  padding: 2px 6px;
+  font-size: var(--font-footnote);
+}
+.automation-squad-priority-item:has(.automation-squad-role) { grid-template-columns: minmax(0,1fr) auto auto; }

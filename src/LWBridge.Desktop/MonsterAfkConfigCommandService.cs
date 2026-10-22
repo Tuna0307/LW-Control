@@ -73,6 +73,18 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
             "duplicate alliance drill squad");
         if (drillEnabled && drillSquadCount == 0)
             throw Invalid("alliance drill squad required");
+        // Owner 2026-10-22: optional per-squad role, "launch" only, "join" only or "both".
+        if (allianceDrill.TryGetProperty("squadRoles", out JsonElement squadRoles))
+        {
+            if (squadRoles.ValueKind != JsonValueKind.Object)
+                throw Invalid("invalid alliance drill squad roles");
+            foreach (JsonProperty role in squadRoles.EnumerateObject())
+            {
+                if (role.Name is not ("1" or "2" or "3" or "4") || role.Value.ValueKind != JsonValueKind.String ||
+                    role.Value.GetString() is not ("launch" or "join" or "both"))
+                    throw Invalid("invalid alliance drill squad roles");
+            }
+        }
 
         var strategyIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (JsonElement strategy in strategies.EnumerateArray())

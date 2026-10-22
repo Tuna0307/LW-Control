@@ -14,7 +14,21 @@ local function valid(c)
         if type(slot)~='number' or slot%1~=0 or slot<1 or slot>4 or seen[slot] then return false end
         seen[slot]=true
     end
+    if c.squadRoles~=nil then
+        if type(c.squadRoles)~='table'then return false end
+        for k,v in pairs(c.squadRoles)do
+            local slot=tonumber(k)
+            if not slot or slot%1~=0 or slot<1 or slot>4 or (v~='launch'and v~='join'and v~='both')then return false end
+        end
+    end
     return true
+end
+-- Owner 2026-10-22: each squad can be "launch" only, "join" only, or "both" (default: launch when
+-- Launch rallies is on and no own rally exists, otherwise join).
+local function squad_role(c,slot)
+    local roles=type(c.squadRoles)=='table'and c.squadRoles or {}
+    local r=roles[tostring(slot)]or roles[slot]
+    return (r=='launch'or r=='join')and r or 'both'
 end
 function M.Bind(adapter)api=assert(adapter);return M end
 function M.Start(owner,config)
@@ -78,9 +92,13 @@ function M.Pump()
     for _,job in pairs(run.pending)do if job.role=='leader'then leader_exists=true end end
     for _,slot in ipairs(run.config.squadIndexes)do
         if not run.pending[slot] and api.Free(slot)then
-            local role=run.config.activeRally and not leader_exists and 'leader' or 'member'
+            local mode=squad_role(run.config,slot)
+            local role=mode=='launch'and 'leader' or mode=='join'and 'member'
+                or (run.config.activeRally and not leader_exists and 'leader' or 'member')
             local chosen
-            if role=='leader'then chosen=target
+            if role=='leader'then
+                -- A launch-only squad waits while your own rally is already running; it never joins.
+                if not leader_exists then chosen=target end
             else
                 for _,rally in ipairs(event.rallies or {})do
                     if rally.monster==true and rally.player~=true and rally.joinable==true and
