@@ -139,6 +139,8 @@ def main():
       state.config={redPacket={enabled=false},fireworks={enabled=false},treasure={enabled=true,claimDelaySeconds={0,0},
         dispatchEnabled=true,dispatchDelaySeconds={0,0},dispatchSquadPriority={2,1},dispatchRetrySeconds=5,
         claimSchedule={{start='00:00',['end']='12:00',min=1,max=1},{start='12:00',['end']='00:00',min=1,max=1}}}}
+      -- The game's ping (400 ms here) is subtracted from the scheduled 1 s delay.
+      CS.GameEntry={Network={m_proxy={GetPing=function()return 400 end}}}
       assert(engine.Configure(request).state=='confirmed')
       -- World chat shares are ignored; the alliance share points at the empty tile beside the dig.
       state.callbacks[1]({post=50,seqId=90,roomId='w',group=1,attachmentId={pos=share,sid=123}})
@@ -151,8 +153,8 @@ def main():
       -- A different finished dig (not joined) is never claimed; ours is claimed after the 1 s schedule delay.
       local before=#state.sent
       state.callbacks[1](msg(600,'8888',92));state.callbacks[1](msg(600,'9001',93))
-      state.now=state.now+500;engine.Pump();assert(#state.sent==before,'Waits for the scheduled delay')
-      state.now=state.now+600;engine.Pump()
+      state.now=state.now+500;engine.Pump();assert(#state.sent==before,'Waits for the scheduled delay minus ping')
+      state.now=state.now+150;engine.Pump()
       assert(#state.sent==before+1 and state.sent[#state.sent][1]==12 and state.sent[#state.sent][2]==9001 and state.sent[#state.sent][3]==123)
       assert(claimReply.HandleMessage({}, {})=='original-claim')
       t=engine.Status().data.services.treasure;assert(t.claimed==1 and t.notJoined>=1)

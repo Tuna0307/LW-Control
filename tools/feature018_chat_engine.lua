@@ -107,6 +107,13 @@ local function set_field(o,k,v)
     if yes and f then return call(f,'SetValue',o,v)end
     return false
 end
+-- The game's own round-trip ping (GameKit.Base.NetRawProxy.GetPing, milliseconds; same source as Show ping).
+function T.Ping()
+    local cs=rawget(_G,'CS');local network=get(get(cs,'GameEntry'),'Network')
+    local proxy=reflect(network,'m_proxy');if not proxy then return 0 end
+    local ok,ping=call(proxy,'GetPing');ping=ok and tonumber(ping)or tonumber(reflect(proxy,'_ping'))
+    return (ping and ping>0 and ping<5000)and ping or 0
+end
 function T.Delay(config)
     local rows=type(config.claimSchedule)=='table'and config.claimSchedule or {}
     local ok,t=pcall(os.date,'*t');local minute=ok and type(t)=='table'and t.hour*60+t.min
@@ -116,7 +123,10 @@ function T.Delay(config)
             local a,b=tonumber(sh)*60+tonumber(sm),tonumber(eh)*60+tonumber(em)
             if (a<=b and minute>=a and minute<b)or(a>b and (minute>=a or minute<b))then
                 local lo=tonumber(r.min)or 0;local hi=math.max(lo,tonumber(r.max)or lo)
-                return (lo+math.random()*(hi-lo))*1000
+                -- Owner 2026-10-22: 耗時 is measured by the server, so the trip there and back (one ping) is
+                -- already part of it. Wait the chosen time minus the ping, never below 0.
+                local ping=T.Ping();T.lastPing=ping
+                return math.max(0,(lo+math.random()*(hi-lo))*1000-ping)
             end
         end
     end
@@ -539,7 +549,7 @@ function M.Status()
             s.dispatchPendingCount=0
             for _,d in pairs(T.digs)do if d.state=='queued'or d.state=='sent'then s.dispatchPendingCount=s.dispatchPendingCount+1 end
                 if d.reason then s.lastDigReason=d.reason end end
-            s.lastSearchReason=T.lastReason
+            s.lastSearchReason=T.lastReason;s.pingMs=T.lastPing
         end
         if array then array(s.receipts)end
     end
