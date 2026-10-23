@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-23",
+  "assignmentBase": "85c9fc1b6e6f9a284f18fae216d69abb84900e81",
+  "releasedBaseline": "45e151c87350c8b8cf4d046a889ac6a735c12556",
+  "implementationBranch": "codex/lwtool-full-improvement",
+  "implementationCommits": [
+    {
+      "commit": "73b510ca",
+      "subject": "perf: cache exact game lease validation"
+    },
+    {
+      "commit": "ccfd924f",
+      "subject": "perf: reduce retained UI background polling"
+    },
+    {
+      "commit": "26eb5255",
+      "subject": "perf: reuse AFK monster snapshot per pump"
+    },
+    {
+      "commit": "5a1fdc5f",
+      "subject": "fix: preserve lease revocation visibility"
+    }
+  ],
+  "measurements": {
+    "leaseValidation": {
+      "harness": "tools/lwtool_improvement_bench/LeaseCacheBench.csproj",
+      "iterationsPerTrial": 40000,
+      "trials": 3,
+      "latestMedianBaselineWallMs": 1435.7986,
+      "latestMedianCandidateWallMs": 817.6073,
+      "latestMedianWallSpeedup": 1.7560980681067795,
+      "latestMedianBaselineCpuMs": 1406.25,
+      "latestMedianCandidateCpuMs": 796.875,
+      "modeledFullParseUpperBoundPerSecondBefore": 100,
+      "modeledFullParseUpperBoundPerSecondAfter": 4,
+      "modeledFullParseReductionPercent": 96,
+      "scope": "Inert exact production parser versus candidate cache; no game launch. Cache-hit metadata checks are not counted as eliminated filesystem activity."
+    },
+    "afkMonsterSnapshot": {
+      "harness": "tools/feature018_afk_native_checks.py",
+      "profiles": 4,
+      "squadsPerProfile": 4,
+      "baselineWorldMarchEnumerationsPerPump": 16,
+      "candidateWorldMarchEnumerationsPerPump": 1,
+      "reductionPercent": 93.75,
+      "sends": 0,
+      "scope": "One targetless inert scheduler Pump; send-edge owner/squad/target validation remains live."
+    },
+    "uiWatchdogCadence": {
+      "statusIntervalSeconds": 5,
+      "bridgeReadsPerMinuteBefore": 36,
+      "bridgeReadsPerMinuteAfter": 24,
+      "bridgeReadReductionPercent": 33.333333333333336,
+      "periodicLocalConfigReadsPerMinuteBefore": 12,
+      "periodicLocalConfigReadsPerMinuteAfter": 0,
+      "hiddenMapSummaryPollsPerMinuteBefore": 12,
+      "hiddenMapSummaryPollsPerMinuteAfter": 0,
+      "scope": "Deterministic source cadence; native status/proxy watchdog and event fast path retained."
+    },
+    "inertAuthenticatedPipe": {
+      "harness": "tools/lwtool_improvement_bench/PipeRttBench.csproj",
+      "realWindowsNamedPipes": true,
+      "readOnlyRttSamples": 500,
+      "p50Ms": 0.211,
+      "p95Ms": 0.3472,
+      "p99Ms": 0.478,
+      "minMs": 0.1443,
+      "maxMs": 27.3928,
+      "soakSeconds": 60,
+      "heartbeatsSent": 12,
+      "failedRpcSessions": 0,
+      "cpuMs": 328.125,
+      "privateBytesDelta": -8192,
+      "workingSetDelta": 1982464,
+      "handlesDelta": 1,
+      "threadsDelta": -4,
+      "scope": "Production host/handshake/registry/framing over a task-owned inert client; no game, Lua adapter or automation."
+    }
+  },
+  "baselineRegression": {
+    "desktop": {
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release",
+      "result": "PASS HOME_FEATURE_DELIVERY_CHECKS_OK",
+      "seconds": 98.7
+    },
+    "ui": {
+      "command": "npm.cmd run check",
+      "workingDirectory": "src/LWBridge.UI-0.3.17",
+      "result": "PASS",
+      "seconds": 56.469
+    }
+  },
+  "crossProductLivePerformance": {
+    "status": "UNRESOLVED",
+    "reason": "No task-owned background-safe equivalent connected LwTool/LW-Control game session was available. LwTool source proves connect and late-connect can auto-start AFK/chat, so competitor idle benchmarking was not attempted without first disabling and verifying automation through supported controls.",
+    "unknowns": [
+      "cold/warm Start-to-native-ready",
+      "Start-to-game/account-final-connected",
+      "equivalent connected-idle CPU/private/working-set/disk/IPC",
+      "real adapter/game read-only RTT",
+      "matched game process cost"
+    ]
+  },
+  "retainedAccuracyAndOwnershipInvariants": [
+    "authenticated host-pipe profile/session/token/client-image admission",
+    "exact game PID/path/process-start identity",
+    "fail-closed readiness",
+    "generation/revision fencing",
+    "bounded cancellation",
+    "exact-owner Stop and restoration",
+    "Map source/completeness/publication contracts",
+    "uncertain-send no-replay behavior",
+    "accepted account and feature restrictions"
+  ],
+  "privateCompetitorArtifactsIncluded": false,
+  "gameLaunchesDuringProgramme": 0,
+  "gameplayActionsDuringProgramme": 0
+}
