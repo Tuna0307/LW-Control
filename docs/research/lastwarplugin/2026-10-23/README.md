@@ -12,11 +12,13 @@ The current evidence does **not** establish whether LastWarPlugin connects to th
 
 ## Reading order
 
-1. [CONNECTION_COMPARISON.md](CONNECTION_COMPARISON.md): authoritative scope, current connection findings and measurement plan.
-2. [LEAD_REVIEW.md](LEAD_REVIEW.md): independently checked findings and corrections.
-3. [WORKER_REPORT.md](WORKER_REPORT.md): archived worker findings; read together with the lead corrections.
-4. [NEXT_WORKER_PROMPT.md](NEXT_WORKER_PROMPT.md): self-contained continuation instructions for another AI worker.
-5. [evidence-index.json](evidence-index.json): source identity, retained file hashes and local-only evidence index.
+1. [CONNECTION_METHOD_REPORT.md](CONNECTION_METHOD_REPORT.md): completed connection-method investigation and owner-facing verdict.
+2. [connection-method-evidence.json](connection-method-evidence.json): sanitized machine-readable source anchors, native offsets, measurements and evidence limits for that report.
+3. [CONNECTION_COMPARISON.md](CONNECTION_COMPARISON.md): earlier authoritative scope, connection findings and measurement plan.
+4. [LEAD_REVIEW.md](LEAD_REVIEW.md): independently checked earlier findings and corrections.
+5. [WORKER_REPORT.md](WORKER_REPORT.md): archived worker findings; read together with the lead corrections.
+6. [NEXT_WORKER_PROMPT.md](NEXT_WORKER_PROMPT.md): self-contained continuation instructions for another AI worker.
+7. [evidence-index.json](evidence-index.json): source identity, retained file hashes and local-only evidence index.
 
 ## What is retained in Git
 

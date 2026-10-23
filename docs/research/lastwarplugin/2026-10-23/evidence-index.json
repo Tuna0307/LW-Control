@@ -66,6 +66,16 @@
       "path": "scripts/embedded-02-inline-01.js",
       "bytes": 16492,
       "sha256": "96576d2414294d21953bce912aa82ee9b83960fac97d399484e740eb8569e16e"
+    },
+    {
+      "path": "CONNECTION_METHOD_REPORT.md",
+      "bytes": 36049,
+      "sha256": "b139306b7e03853b701fe5742fd266e1c8ad3c59ef6afdddfa8304f20b1d0703"
+    },
+    {
+      "path": "connection-method-evidence.json",
+      "bytes": 12048,
+      "sha256": "3f2efbec0380a06e657bc7265f25368ea881c1187f0f59f9364ca089de7c74d7"
     }
   ],
   "local_only_files": [
