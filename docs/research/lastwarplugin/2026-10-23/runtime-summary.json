@@ -1,0 +1,18 @@
+{
+  "evidence_class": "WORKER_RECORDED_RUNTIME; reviewed from receipt, not rerun by lead",
+  "target_sha256": "3d90f6c2d12f8aecd2035406ecaaaef7c109b6fff8a8a48e12c1c0be002ac311",
+  "duration_seconds": 8,
+  "process_count": 7,
+  "process_names": [
+    "LastWarPlugin.exe",
+    "msedgewebview2.exe"
+  ],
+  "encrypted_artifacts_observed": 0,
+  "settings_before_after_identical": true,
+  "no_input_or_authentication": "Worker report; unauthenticated boundary only",
+  "cleanup": "Worker reports zero task processes after cleanup; not a new observation by publisher",
+  "limitations": [
+    "Eight-second unauthenticated sample; no post-login game connection or performance measurement.",
+    "Machine paths, detailed process command lines, cache inventories and settings values omitted."
+  ]
+}

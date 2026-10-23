@@ -1,0 +1,19 @@
+{
+  "scope": "Controlled execution of byte-exact recovered renderer with mock IPC and sample profiles; no native target, network, or game action",
+  "before": {
+    "launchButtonDisabled": true,
+    "anyConnecting": true,
+    "launching": false,
+    "ipcCalls": 0
+  },
+  "after": {
+    "launching": true,
+    "ipcCalls": 1,
+    "lastCall": {
+      "action": "launch",
+      "profile": "audit-B",
+      "menu_mode": "overlay"
+    }
+  },
+  "conclusion": "Double-click can send launch while a different profile is connecting if _launching is false. Native backend admission remains unknown."
+}
