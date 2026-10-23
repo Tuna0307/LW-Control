@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "@modelcontextprotocol/client": "2.3.1",
-    "rea-agents": "6.4.0"
+    "rea-agents": "6.7.0"
   }
 }

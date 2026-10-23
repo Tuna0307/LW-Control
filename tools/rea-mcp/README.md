@@ -1,6 +1,7 @@
 # Project-local REA MCP
 
-Installed 2026-10-12 from the official npm `rea-agents` release **6.4.0**;
+Installed 2026-10-12 from official npm `rea-agents` **6.4.0** and updated
+2026-10-23 to the latest published release **6.7.0**;
 upstream https://github.com/morluto/rea. Exact dependency versions and package
 integrity are pinned in package-lock.json. No global npm installation is required.
 
@@ -23,18 +24,38 @@ terminal. Chat On Steroids' own MCP plugin list was not modified; project JSON i
 not proof that another host has imported/connected the server. CLI inspection
 remains available without restarting or controlling any application window.
 
-The matching release workflow is in `.agents/skills/reverse-engineer-anything`.
-Its seven instruction files match the npm bundle. They are REA third-party
+The matching release workflow is in `.agents/skills/reverse-engineer-anything`
+(skill version **42**). Its seven instruction files match the 6.7.0 npm bundle. They are REA third-party
 instructions, subject to project/owner execution authority. Read them when using
 REA for shipped artifacts; ordinary repository reads do not require REA.
 
-Actual installed production stdio verification passed initialize, tools/list
-(170), prompts/list (6), binary_session and inspect_managed_artifact against the
+Actual installed 6.7.0 production stdio verification passed initialize, tools/list
+(207), prompts/list (6), binary_session and inspect_managed_artifact against the
 built Map assembly. Repeat a bounded read-only integration check with:
 
 ```powershell
 node tools/rea-mcp/verify.mjs src/LWBridge.Map-0.3.17/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Map_0_3_17.dll
 ```
+
+The 2026-10-23 update preserves the existing project MCP registration and Ghidra/JDK
+paths. Pre-update manifests, registration files and skill files are backed up under
+ignored `artifacts/rea-update-20261023`. A chat that already loaded 6.4.0 must
+reconnect/restart its MCP connection to load the 207-tool catalog. Fresh stdio
+connections and the project CLI use 6.7.0 immediately. npm reported that the old
+process still holds its native addon, so it left an ignored `.rea-agents-*`
+cleanup directory; do not remove a loaded addon or stop unrelated sessions.
+
+`rea doctor --client codex` checks the user-level registration and reports it missing
+on this machine; the effective project-scoped registration is independently confirmed
+with `codex.cmd mcp get rea --json`. Do not add a global registration to satisfy
+that diagnostic. With the project's existing environment values, `rea doctor
+--provider ghidra --json` reports healthy, including the Windows native controls.
+
+The 6.7.0 native smoke check also passed against the previously admitted
+`xlua-proxy-plain.dll`: real Ghidra assembly, pseudocode, procedure body,
+callers/callees and incoming references were returned, and `close_binary` succeeded.
+Raw evidence is retained under ignored `artifacts/rea-toolchain/update-6.7.0-native`.
+The compact update receipt is `docs/proof/REA-MCP-UPDATE-2026-10-23.json`.
 
 ## MAP-013 portable Ghidra native provider (2026-10-12)
 

@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-23",
+  "scope": "Project-local REA MCP runtime and matching workflow update; no target execution or game action",
+  "package": {
+    "name": "rea-agents",
+    "previousVersion": "6.4.0",
+    "version": "6.7.0",
+    "upstream": "https://github.com/morluto/rea",
+    "tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.7.0.tgz",
+    "integrity": "sha512-yhIx2ioJYYT1C/tONfYeitC6LhnKmCh+ZwRUOgYuhSc733lGhkkt73zhug9WmLgxoMdKuqIYGCoBfD4fXkOhFw==",
+    "installation": "npm.cmd install --prefix tools/rea-mcp --save-exact rea-agents@6.7.0 --ignore-scripts --no-audit --no-fund"
+  },
+  "workflow": {
+    "version": "42",
+    "fileCount": 7,
+    "matchesPublishedBundle": true,
+    "previousWorkflowMatchedOldBundleIgnoringLineEndings": true
+  },
+  "registration": {
+    "projectFilesPreserved": [".codex/config.toml", ".mcp.json"],
+    "effectiveEntryVerifiedBy": "codex.cmd mcp get rea --json",
+    "globalRegistrationAdded": false,
+    "existingChatRequiresReconnect": true
+  },
+  "runtime": {
+    "node": "24.18.0",
+    "ghidra": "12.1.4",
+    "jdk": "21.0.12.1",
+    "prerequisitesChanged": false,
+    "scopedGhidraDoctorHealthy": true,
+    "windowsNativeControlsVerified": true
+  },
+  "freshMcpSmoke": {
+    "serverVersion": "6.7.0",
+    "alignment": "aligned",
+    "tools": 207,
+    "prompts": 6,
+    "cliCommands": 153,
+    "managedMetadata": "complete",
+    "managedInspectionEvidenceId": "ev_18fa1ee1788aba64e918d4037f2266cb73e5e83389ac078b3e2a967562418d47",
+    "command": "node tools/rea-mcp/verify.mjs src/LWBridge.Map-0.3.17/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Map_0_3_17.dll",
+    "rawReceipt": "artifacts/rea-update-20261023/mcp-smoke.json"
+  },
+  "nativeSmoke": {
+    "target": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006/c-extracted/xlua-proxy-plain.dll",
+    "targetSha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+    "nativeCodeProven": true,
+    "coverage": ["procedure body", "assembly", "pseudocode", "callers", "callees", "incoming references"],
+    "overviewEvidenceId": "ev_41cc3ed34f395e6f8ae87064a7acb16ab02cfa0926ea44419a7eb9e6cef60484",
+    "pseudocodeEvidenceId": "ev_1e62453e6bf0588e18976d24a249eb5011725c01993b9fc2dca0b7a6533cddb7",
+    "closeSucceeded": true,
+    "rawReceipt": "artifacts/rea-toolchain/update-6.7.0-native/summary.json"
+  },
+  "backupDirectory": "artifacts/rea-update-20261023",
+  "limitations": [
+    "Existing clients retain the previous server process until reconnected; fresh connections were verified separately.",
+    "npm retained an ignored old-package cleanup directory because the existing server holds its native addon; installation succeeded.",
+    "The client-scoped doctor inspects the missing user-level Codex registration; the effective project registration was verified independently.",
+    "Successful native smoke inspection does not establish that LastWarPlugin full auto-analysis now completes or recover its encrypted payload."
+  ]
+}
