@@ -1,3 +1,7 @@
+Latest lead release, 2026-10-23: owner declared the program done for now. Lead merged codex/feature-recovery-018
+(e205f40a: R30 Automation, both audits fixed, MAP-019 scanner review + Zombie Boss/empty-scan fixes, Map clear-all)
+into main and published GitHub release lw-control-v1.0-2026-10-23. No worker task open.
+
 Latest lead assignment, 2026-10-23: worker (Codex) does LWB317-MAP-SCAN-METHOD-REVIEW-019 — measure whether the
 current Map scanner is really the best method (speed, accuracy, alternatives), phase 1 report only, no production
 change. Read docs/work-items/LWB317-MAP-SCAN-METHOD-REVIEW-019.md. New branch codex/map-scan-method-019 from

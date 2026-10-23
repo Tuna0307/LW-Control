@@ -1,12 +1,9 @@
 # LW-Control application candidate
 
-**Latest Windows build:** [Download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/map-owner-test-2026-10-15/LW-Control-MAP014-OWNER-RC-0c19da1850dd.zip) · [Release details](https://github.com/Tuna0307/LW-Control/releases/tag/map-owner-test-2026-10-15).
-Extract the complete ZIP into a fresh writable folder and run **LWBridge.Desktop.exe**.
-Includes the verified Home Launch fixes, zoom-independent Map scan correction,
-per-tile black-land detection, Zombie Boss category and Ghost reward filters.
-Real City-only and eight-kind packaged scans passed. Whole Map remains partial;
-Ghost plunder, Treasure claims and other documented limits remain unfinished.
-See [lead acceptance and limits](docs/reviews/2026-10-15-MAP-014-OWNER-TEST-MERGE.md).
+**Latest Windows build (v1.0, 2026-10-23):** [Download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/lw-control-v1.0-2026-10-23/LW-Control-FEATURE-018-R30-OWNER-TEST-e205f40a92ef.zip) · [Release details](https://github.com/Tuna0307/LW-Control/releases/tag/lw-control-v1.0-2026-10-23).
+Extract the complete ZIP into a fresh writable folder and run **LWBridge.Desktop.exe** (inside `LW-Control-UI`).
+All tabs: Home, Map Data, Squads / AFK, Automation, Equipment, City Layout, Hotkeys, Mini Games and Settings.
+Map scanner review: docs/MAP_019_SCAN_METHOD_REVIEW.md. Audits: artifacts are local; fixes are in the git history.
 
 **Previous stable release:** [Available Map v0.6.0](https://github.com/Tuna0307/LW-Control/releases/tag/map-available-v0.6.0).
 The previous stable ZIP uses **Launch LWBridge.cmd**; the latest ZIP uses **LWBridge.Desktop.exe**. Requires the .NET 10
