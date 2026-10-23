@@ -133,6 +133,12 @@ def main():
         if text=='{}'then return {}end
         if text=='drill-fixture'then return {allianceDrill={enabled=true,activeRally=true,squadIndexes={1}}}end
         if text=='stamina-fixture'then return {enabled=true,minStamina=101,preferFifty=false}end
+        if text=='afk-cache-fixture'then
+          local strategies={}
+          for p=1,4 do strategies[p]={id='cache'..p,enabled=true,kind='farm',monsterType=99,
+            squadIndexes={1,2,3,4},executionLimit=0,levelFilterEnabled=false,searchable=false}end
+          return {enabled=true,strategies=strategies}
+        end
         return {enabled=true,strategies={}}
       end}end
       overview={Feature018OwnerToken=function()return state.lease and 'owned' or nil end,Feature018SessionToken=function()return state.lease end}
@@ -183,6 +189,29 @@ def main():
       require('Net.Msgs.FindMonsterMessage').HandleMessage({}, {uuid=503,pointId=100106})
       local second=native_adapter.Targets(p,10);assert(#second==1 and state.moves==2,
         'Each new native search result must acquire its own AOI, not inherit a prior moved flag')
+      -- Improvement programme: four enabled profiles x four free squads with no
+      -- matching target previously rebuilt the same GetAllMarches snapshot 16
+      -- times in one scheduler Pump. The candidate may share only that raw
+      -- read-only snapshot within the Pump; mutation admission remains live.
+      native.Stop();state.march=nil;state.visible=nil
+      local old_form=DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex
+      local old_all=DataCenter.WorldMarchDataManager.GetAllMarches
+      DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=function(self,slot)
+        if slot>=1 and slot<=4 then return {uuid=100+slot,ownerUid='1001',index=slot,ConscriptSoldier=function()end}end
+      end
+      state.allMarchCalls=0
+      DataCenter.WorldMarchDataManager.GetAllMarches=function()
+        state.allMarchCalls=state.allMarchCalls+1;return {target}
+      end
+      fields.confirmedAfkConfig='afk-cache-fixture'
+      assert(native.Start(fields).state=='confirmed')
+      state.now=state.now+1;local sends_before_cache=state.sends;native.Pump()
+      assert(state.allMarchCalls==1,'One AFK Pump must enumerate the shared world-march snapshot once, got '..state.allMarchCalls)
+      assert(state.sends==sends_before_cache,'No-match cache fixture must never send')
+      print('AFK_MONSTER_SNAPSHOT_BENCH baseline_enumerations=16 candidate_enumerations='..state.allMarchCalls..' reduction_pct=93.75')
+      native.Stop();fields.confirmedAfkConfig='fixture'
+      DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=old_form
+      DataCenter.WorldMarchDataManager.GetAllMarches=old_all
       -- Regression: the retired category returns EMPTY, while current
       -- Energy/UseItem routes name real owned stock. Ignore buy routes.
       ResLackContextType={Energy=3};LWResourceLackGetWay={UseItem=1}
@@ -258,7 +287,7 @@ def main():
 
 
     ''')
-    print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, no replay')
+    print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, one-pump monster snapshot cache, no replay')
 
 
 if __name__ == '__main__':

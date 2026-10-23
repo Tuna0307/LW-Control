@@ -7,6 +7,7 @@ local potion=require('DataCenter.Global.LWBridgeFeature018StaminaEngine')
 local drill=require('DataCenter.Global.LWBridgeFeature018DrillEngine')
 local drill_acquired_at=0
 local bridge,array,owner,search,last_pump
+local target_scan_cache,target_scan_cache_active
 local jobs,seen,join_wait,continuous_ready,joined,kicked={},{},{},{},{},{}
 local function get(o,k) if o==nil then return nil end;local ok,v=pcall(function()return o[k]end);if ok then return v end;return nil end
 local function call(o,k,...) local f=get(o,k);if type(f)~='function' then return false end;return pcall(f,o,...) end
@@ -138,7 +139,20 @@ local function targets(p,level)
             end
         end
     end
-    local all=available_monsters();local found={}
+    local all
+    if target_scan_cache_active then
+        -- One native AFK scheduler pump can ask for targets once per eligible
+        -- profile/squad. The underlying world-march snapshot is common to all
+        -- of those read-only filters, while Send() independently revalidates
+        -- account, squad state and exact target immediately before mutation.
+        -- Cache only this raw snapshot for this engine.Pump invocation; Catalog,
+        -- Drill and the next one-second pump continue to observe live state.
+        if target_scan_cache==nil then target_scan_cache=available_monsters() end
+        all=target_scan_cache
+    else
+        all=available_monsters()
+    end
+    local found={}
     for _,t in ipairs(all)do
         if (not seen[t.uuid] or seen[t.uuid]<=now()) and engine.Matches(p,t,level)then found[#found+1]=t end
     end
@@ -593,7 +607,9 @@ function M.Pump()
     if not potion_ok then potion.Fail(potion_error)end
     local drill_ok,drill_error=pcall(drill.Pump)
     if not drill_ok then drill.Fail(tostring(drill_error))end
+    target_scan_cache=nil;target_scan_cache_active=true
     local ok,error=pcall(engine.Pump)
+    target_scan_cache_active=false;target_scan_cache=nil
     if not ok then engine.Stop(tostring(error))end
 end
 function M.CleanupAfterLeaseLoss()
