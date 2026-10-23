@@ -32,6 +32,7 @@ function previewHomeState(name) {
     case "home-root-busy-missing": return { ...base, busy: "gameRoot", gameRootStatus: { valid: false, root: "" } };
     case "home-root-busy-valid": return { ...base, busy: "gameRoot" };
     case "home-running-disconnected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false } };
+    case "home-exited-managed": return { ...base, proxyStatus: { gameRunning: false, runtimeManaged: true, repairRequired: false } };
     case "home-connected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, online: true, presentationOnline: true, autoLaunchGame: true, autoReconnect: true };
     case "home-repair": return { ...base, proxyStatus: { gameRunning: true, repairRequired: true } };
     case "home-recovery-waiting": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "waiting" } };
@@ -85,6 +86,9 @@ export function HomePage({
   const rootResolved = state.rootResolved === true;
   const rootValid = state.gameRootStatus?.valid === true;
   const gameRunning = state.proxyStatus?.gameRunning === true;
+  // An exited exact owner still needs native Stop to restore its installation
+  // and retire its journal before Start can admit a successor.
+  const runtimeManaged = state.proxyStatus?.runtimeManaged === true;
   const repairRequired = state.proxyStatus?.repairRequired === true;
   const recoveryState = state.gameRecoveryStatus?.state || "idle";
   const recovering = RECOVERY_ACTIVE_STATES.has(recoveryState);
@@ -97,8 +101,8 @@ export function HomePage({
     && typeof onStartGame === "function"
     && typeof onStopGame === "function"
     && typeof onUpdateAndRestart === "function";
-  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !rootBusy && !proxyBusy && !launching;
-  const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !rootBusy && !proxyBusy && !launching;
+  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !runtimeManaged && !recovering && !rootBusy && !proxyBusy && !launching;
+  const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || runtimeManaged || recovering) && !rootBusy && !proxyBusy && !launching;
 
   let status = t("setup.checking");
   if (rootResolved) {
@@ -106,6 +110,7 @@ export function HomePage({
     else if (launching) status = t("setup.launchingGame");
     else if (proxyBusy) status = t("common.processing");
     else if (recovering) status = t(`recovery.state.${recoveryState}`);
+    else if (!gameRunning && runtimeManaged) status = t("error.GAME_EXITED_RESTORE_REQUIRED");
     else if (repairRequired) status = t("setup.repairRequired");
     else if (gameRunning) status = t(
       state.online ? "status.gameRunning"

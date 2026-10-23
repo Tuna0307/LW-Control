@@ -537,6 +537,11 @@ assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
     assert.equal(homeFn(lookup, "RECOVERY_RECORD_COMMIT_FAILED"), expected,
       `${language}: session-save failure must not disappear into generic action failure`);
     assert.equal(sidebarFn(lookup, new Error("RECOVERY_RECORD_COMMIT_FAILED")), expected);
+    const cleanup = HOME_LAUNCH_FEEDBACK[language]["error.GAME_EXITED_RESTORE_REQUIRED"];
+    assert.ok(cleanup && cleanup !== "GAME_EXITED_RESTORE_REQUIRED",
+      `${language}: exited exact-owner restoration must have localized actionable feedback`);
+    assert.equal(homeFn(lookup, "GAME_EXITED_RESTORE_REQUIRED"), cleanup);
+    assert.equal(sidebarFn(lookup, new Error("GAME_EXITED_RESTORE_REQUIRED")), cleanup);
   }
 }
 {
@@ -581,6 +586,17 @@ assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
       originalKr({rootResolved, rootValid, gameRunning, needsRepair, recovering, busy, launching}),
       `H-02/H-18/H-45 original Kr conditional Home gate parity flags=${flags}`,
     );
+    const retainedOwner = actual({
+      ...state,
+      proxyStatus: { ...state.proxyStatus, runtimeManaged: true },
+    }, activeStates, provider, provider, provider);
+    assert.equal(retainedOwner.canStart, false,
+      `retained exact ownership must block successor Start flags=${flags}`);
+    assert.equal(retainedOwner.canStop, rootResolved && rootValid && !busy && !launching,
+      `retained exact owner must remain eligible for confirmed native cleanup flags=${flags}`);
+    assert.equal(retainedOwner.repairOnClose,
+      originalKr({rootResolved, rootValid, gameRunning, needsRepair, recovering, busy, launching}).repairOnClose,
+      "retained ownership cannot change the normal repair/update routing");
     if (rootResolved && rootValid) {
       const pickingRoot = { ...state, busy: "gameRoot" };
       const choosing = actual(pickingRoot, activeStates, provider, provider, provider);
