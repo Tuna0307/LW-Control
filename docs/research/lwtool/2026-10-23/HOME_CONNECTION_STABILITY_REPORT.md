@@ -212,6 +212,26 @@ and external sampler persist only sanitized state and error classes.
 The RTT figure is for the authenticated Windows named-pipe/correlation layer and
 is **not** presented as live game-thread RTT.
 
+### Connected-idle resource observation
+
+The same sampler also captured controller/game CPU, working set, private bytes
+and process I/O throughout both long observations:
+
+| Run / process | CPU p50 / p95 | Working set start→end | Private start→end | Read / write |
+| --- | --- | --- | --- | --- |
+| baseline 15m / host | 0.312% / 0.703% | 119.29→119.89 MiB | 37.47→42.85 MiB | 344.07 / 0.78 MiB |
+| baseline 15m / game | 9.922% / 17.109% | 1247.89→882.92 MiB | 1824.22→1894.79 MiB | 246.80 / 1.17 MiB |
+| candidate 30m / host | 0.234% / 0.625% | 130.90→118.71 MiB | 48.52→43.34 MiB | 693.90 / 1.67 MiB |
+| candidate 30m / game | 13.203% / 20.243% | 1264.75→1243.41 MiB | 1824.80→2146.15 MiB | 622.76 / 4.01 MiB |
+
+These runs satisfy the requested connected-idle resource observation, but they
+are different lengths and occurred at different game phases.  Therefore the
+lower candidate host CPU and the higher candidate game CPU/private-memory value
+are **not** attributed causally to the direct queue.  The supported transport
+performance result is narrower: direct mode stayed active for all 1801 candidate
+soak samples with zero numbered-mailbox backlog, while authenticated host-only
+RTT remained sub-millisecond at p99.
+
 ## 6. Whole-game recovery, Stop and no-replay safety
 
 Baseline exact-handle exit recovery reached a healthy successor in 26.031 s; the
@@ -242,6 +262,62 @@ through `HOME_FEATURE_DELIVERY_CHECKS_OK`, all 49 Lua suites, direct queue plus
 real inert named-pipe checks, isolated pipe recovery, full UI checks, release UI
 (3 viewport/language variants, 16 conditional states, 41 screenshots, 0 errors),
 Home fault-harness checks and package-boundary checks.
+
+## 8. Final source-pinned package
+
+The final Windows package was built only after the implementation/research
+checkpoint was committed and pushed:
+
+- source commit:
+  `eefa29e4571b28dfcb7a6f7300865b76d9672123`;
+- source tree:
+  `0c75ea1a4fd7085b265817f704021ee0e8c63f88`;
+- source-input digest:
+  `ae4285db9064aafbc3ae186cd3d994e9792d56373fbe00a71dd527a8e414c45d`
+  across 718 tracked source/tool inputs;
+- package:
+  `artifacts/lwtool-home-stability-20261023/final-package-eefa29e4/LW-Control-lwtool-improvement-eefa29e4571b.zip`;
+- ZIP SHA-256:
+  `84605da8b97d176c945ce3cfaec201e0bbcae365238c0c26988b0c8b7c7cae0b`;
+- 10,360,495 bytes, 105 ZIP entries, 29 bridge/source identities verified.
+
+The integrity packager re-opened the ZIP and verified every payload hash, the
+production-UI fingerprint, source identity and privacy boundaries.  A clean
+extract then passed the inert Home capture and the disabled-profile normal
+release smoke without launching Last War.
+
+The same extracted executable was subsequently run against a fresh isolated
+profile and the real game.  Production Start reached full game/account health in
+44.312 s and the live transport reported direct mode active with no numbered
+mailbox files.  Five retained-registration route drops stayed on the same exact
+game and recovered in
+`1.248597 / 1.276668 / 1.277956 / 1.281073 / 1.268071 s`
+(median `1.276668 s`, max `1.281073 s`).  The managed adapter again failed
+first; the sampler saw no game/server-unhealthy samples and no matching
+login/network markers.
+
+Finally, the packaged executable passed the atomic retained-route-drop +
+production Stop path: the exact owner exited, desired-running state cleared, no
+successor appeared during the settle window, and all three current official
+scripts were independently re-hashed equal to the fresh pre-test backup.
+
+The package remains marked `INDEPENDENT_REVIEW_REQUIRED`.  No merge to
+`main` and no public release are part of this work item.
+
+## 9. Rollback
+
+The Home-stability production change is isolated in implementation commit
+`eefa29e4571b28dfcb7a6f7300865b76d9672123` on
+`codex/lwtool-full-improvement`.  Before any eventual merge, rollback is to
+revert that commit (or reset the feature branch to its pre-Home checkpoint
+`98af12e2b762a5e830b84d8088dc134332da950e` when branch history policy permits)
+and discard the `eefa29e4` package.  Do not use an image-wide process kill or
+manually replace game scripts as part of rollback.
+
+The final packaged Stop already restored the current official
+`LWScripts.data`, `LWScripts.txt` and `version.txt` byte-for-byte to the
+fresh pre-test backup, and all task-owned game/host processes were closed.
+Therefore no installed-game rollback action is pending at handoff.
 
 No merge to `main` and no release are authorized by this report.  Final handoff
 stops at independent lead review.

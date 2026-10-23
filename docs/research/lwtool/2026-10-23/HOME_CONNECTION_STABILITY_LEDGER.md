@@ -206,9 +206,28 @@ and LW-Control live qualification continues.
 
 Remaining boundary at this ledger revision:
 
-- create/push the coherent implementation commit;
-- build and live-verify the source-pinned package from that pushed commit;
-- record final package identity;
 - independent lead review.
+
+## Final source-pinned package receipt
+
+- pushed source commit:
+  `eefa29e4571b28dfcb7a6f7300865b76d9672123`;
+- package SHA-256:
+  `84605da8b97d176c945ce3cfaec201e0bbcae365238c0c26988b0c8b7c7cae0b`;
+- package entries: 105; size: 10,360,495 bytes; verified bridges: 29;
+- clean-extract inert Home capture: PASS;
+- clean-extract disabled-profile normal-release smoke: PASS, zero new game
+  processes;
+- packaged production Start→healthy: `44.312 s`, direct mode active, no
+  numbered mailbox files;
+- five packaged same-game route recoveries:
+  `1.248597 / 1.276668 / 1.277956 / 1.281073 / 1.268071 s`, median
+  `1.276668 s`, max `1.281073 s`;
+- packaged atomic Stop-during-reconnect: PASS; exact old owner exited, no
+  successor, byte-exact official script restoration;
+- target LW-Control/LastWar test processes closed after the final receipt.
+
+Package status remains `INDEPENDENT_REVIEW_REQUIRED`; there is no main merge or
+release authorization in this work item.
 
 No merge to `main` and no release are part of this work item.

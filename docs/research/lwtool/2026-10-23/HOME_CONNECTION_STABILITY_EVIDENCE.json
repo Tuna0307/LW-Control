@@ -24,7 +24,29 @@
       "heartbeatAgeMaxSeconds": 0.854,
       "routeFalseSamples": 0,
       "gameUnhealthySamples": 0,
-      "loginNetworkMarkerCount": 0
+      "loginNetworkMarkerCount": 0,
+      "resources": {
+        "host": {
+          "cpuP50PercentAllLogical": 0.312,
+          "cpuP95PercentAllLogical": 0.703,
+          "workingSetStartMiB": 119.29,
+          "workingSetEndMiB": 119.89,
+          "privateStartMiB": 37.47,
+          "privateEndMiB": 42.85,
+          "readMiBTotal": 344.07,
+          "writeMiBTotal": 0.78
+        },
+        "game": {
+          "cpuP50PercentAllLogical": 9.922,
+          "cpuP95PercentAllLogical": 17.109,
+          "workingSetStartMiB": 1247.89,
+          "workingSetEndMiB": 882.92,
+          "privateStartMiB": 1824.22,
+          "privateEndMiB": 1894.79,
+          "readMiBTotal": 246.80,
+          "writeMiBTotal": 1.17
+        }
+      }
     },
     "heartbeatPublicationStall": {
       "firstFailedLayer": "lua_heartbeat",
@@ -81,6 +103,29 @@
       "freshMonitorRouteFalseSamples": 0,
       "freshMonitorGameUnhealthySamples": 0,
       "loginNetworkMarkerCount": 0,
+      "resources": {
+        "host": {
+          "cpuP50PercentAllLogical": 0.234,
+          "cpuP95PercentAllLogical": 0.625,
+          "workingSetStartMiB": 130.90,
+          "workingSetEndMiB": 118.71,
+          "privateStartMiB": 48.52,
+          "privateEndMiB": 43.34,
+          "readMiBTotal": 693.90,
+          "writeMiBTotal": 1.67
+        },
+        "game": {
+          "cpuP50PercentAllLogical": 13.203,
+          "cpuP95PercentAllLogical": 20.243,
+          "workingSetStartMiB": 1264.75,
+          "workingSetEndMiB": 1243.41,
+          "privateStartMiB": 1824.80,
+          "privateEndMiB": 2146.15,
+          "readMiBTotal": 622.76,
+          "writeMiBTotal": 4.01
+        },
+        "comparisonCaveat": "Baseline was 15 minutes and candidate was 30 minutes at different game phases. The measurements satisfy connected-idle observation requirements but are not attributed causally to the direct queue."
+      },
       "naturalHeartbeatReadTransient": {
         "observed": true,
         "firstSampleElapsedSeconds": 1793.234,
@@ -161,6 +206,52 @@
     "packageBoundaryChecks": "PASS",
     "diffCheck": "PASS"
   },
-  "finalPackage": null,
+  "finalPackage": {
+    "sourceCommit": "eefa29e4571b28dfcb7a6f7300865b76d9672123",
+    "sourceGitTree": "0c75ea1a4fd7085b265817f704021ee0e8c63f88",
+    "sourceInputSha256": "ae4285db9064aafbc3ae186cd3d994e9792d56373fbe00a71dd527a8e414c45d",
+    "sourceInputFileCount": 718,
+    "relativePath": "artifacts/lwtool-home-stability-20261023/final-package-eefa29e4/LW-Control-lwtool-improvement-eefa29e4571b.zip",
+    "sha256": "84605da8b97d176c945ce3cfaec201e0bbcae365238c0c26988b0c8b7c7cae0b",
+    "bytes": 10360495,
+    "zipEntries": 105,
+    "bridgesVerified": 29,
+    "productionUiFingerprintVerified": true,
+    "privacyBoundaryVerified": true,
+    "cleanExtractHomeCapture": {
+      "passed": true,
+      "exitCode": 0,
+      "temporaryRootsRemaining": 0
+    },
+    "cleanExtractNormalRelease": {
+      "passed": true,
+      "registryStayedDisabled": true,
+      "newGameProcesses": 0
+    },
+    "liveHomeReplay": {
+      "productionStartPassed": true,
+      "startToHealthySeconds": 44.312,
+      "directTransportActive": true,
+      "numberedMailboxFilesObserved": 0,
+      "sameGameRouteCycles": 5,
+      "sameExactGameAcrossAllCycles": true,
+      "firstFailedLayer": "managed_adapter",
+      "routeRecoverySeconds": [
+        1.248597,
+        1.276668,
+        1.277956,
+        1.281073,
+        1.268071
+      ],
+      "routeRecoveryMedianSeconds": 1.276668,
+      "routeRecoveryMaxSeconds": 1.281073,
+      "gameUnhealthySamples": 0,
+      "loginNetworkMarkerCount": 0,
+      "atomicStopDuringReconnectPassed": true,
+      "noSuccessorDuringSettle": true,
+      "officialScriptsRestored": true
+    },
+    "status": "INDEPENDENT_REVIEW_REQUIRED"
+  },
   "remainingUnknown": "The owner's original visible intermittent disconnect was not naturally reproduced. A single sub-second heartbeat read/publication transient was observed naturally, but it did not lose the route/game and is not promoted to the owner's symptom."
 }
