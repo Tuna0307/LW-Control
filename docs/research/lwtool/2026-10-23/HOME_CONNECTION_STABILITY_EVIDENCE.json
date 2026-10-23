@@ -253,5 +253,14 @@
     },
     "status": "INDEPENDENT_REVIEW_REQUIRED"
   },
-  "remainingUnknown": "The owner's original visible intermittent disconnect was not naturally reproduced. A single sub-second heartbeat read/publication transient was observed naturally, but it did not lose the route/game and is not promoted to the owner's symptom."
+  "remainingUnknown": "The owner's original visible intermittent disconnect was not naturally reproduced. A single sub-second heartbeat read/publication transient was observed naturally, but it did not lose the route/game and is not promoted to the owner's symptom.",
+  "leadFinalAcceptance": {
+    "status": "ACCEPTED_FOR_OWNER_STRESS_TEST_SCOPE",
+    "date": "2026-10-24",
+    "productionSourceCommit": "ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb",
+    "report": "docs/reviews/2026-10-23-HOME-FINAL-ACCEPTANCE.md",
+    "originalSpontaneousCauseNotReproduced": true,
+    "mainMerged": false,
+    "publicRelease": false
+  }
 }

@@ -1,3 +1,12 @@
+Latest lead Home acceptance, 2026-10-24: Home is DONE for the owner's agreed finite stress-test scope.
+Read docs/reviews/2026-10-23-HOME-FINAL-ACCEPTANCE.md and its sanitized evidence JSON. Final product/package
+source ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb on codex/lwtool-full-improvement / draft PR #16.
+Four lead defects were fixed and qualified, including retained exited-session Home Close and pre-ready
+recovery cancellation. Preserve exact ownership, strict authority, bounded direct queues, whole-frame
+pipe writes, no-replay behavior and original-file restoration. Main remains 45e151c8; no merge/release.
+Map is the next owner focus. The forwardable worker assignment is
+docs/work-items/LWTOOL-MAP-COMPARISON-AND-IMPROVEMENT.md; no Map live work/change is included in Home acceptance.
+
 Latest owner Home assignment, 2026-10-23: focus on actual game-connection stability before other tabs.
 Continue codex/lwtool-full-improvement / draft PR #16; read
 docs/work-items/LWTOOL-HOME-CONNECTION-STABILITY.md. Diagnose the intermittent disconnect/reconnect,

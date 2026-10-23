@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "scope": "Home game connection and lifecycle",
+  "status": "ACCEPTED_FOR_OWNER_STRESS_TEST_SCOPE",
+  "acceptedLocalDate": "2026-10-24",
+  "branch": "codex/lwtool-full-improvement",
+  "pullRequest": 16,
+  "productionSourceCommit": "ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb",
+  "longTransportQualificationCommit": "2a621f94aba10416fd7172f1c13e6b50edd04f28",
+  "normalTransportSourcesUnchangedAfterSoak": true,
+  "fourLeadCorrections": [
+    "nonblocking exact-generation pipe retirement",
+    "invalidate contradicted presentation-ready cache",
+    "allow Home cleanup of exited managed owner",
+    "session-bound pre-ready cancellation uses exact Stop exit/restoration gates"
+  ],
+  "offline": {
+    "fullDesktop": "PASS",
+    "fullUI": "PASS",
+    "allLuaSuites": 49,
+    "newLuaTransportTests": 7,
+    "newCancellationTests": 5,
+    "oldCancellationNegativeControl": "expected two failures",
+    "realPipeRecovery": "PASS",
+    "largeSingleFrameWritesBytes": [
+      32768,
+      262144,
+      1048576
+    ]
+  },
+  "soak": {
+    "requestedDurationSeconds": 1800.0,
+    "sampleCount": 1801,
+    "observedGamePidCount": 1,
+    "naturalFailureObserved": false,
+    "firstFailure": null,
+    "heartbeatAgeSeconds": {
+      "count": 1801,
+      "max": 1.0690910816192627,
+      "mean": 0.3897618541844615,
+      "min": 0.0,
+      "p50": 0.3895089626312256,
+      "p95": 0.7431666851043701,
+      "p99": 0.7839484214782715
+    },
+    "freshMonitorRouteFalseSamples": 0,
+    "freshMonitorBridgeOfflineSamples": 0,
+    "freshMonitorGameUnhealthySamples": 0,
+    "directActiveSamples": 1801,
+    "maxInboundMailboxBacklog": 0,
+    "maxOutboundMailboxBacklog": 0,
+    "playerLogMarkerTotals": {
+      "connect_to_server_failed": 0,
+      "e005": 0,
+      "loading_e109": 0,
+      "login_error": 0
+    }
+  },
+  "actualGameRtt": {
+    "sequential": {
+      "calls": 100,
+      "successes": 100,
+      "p50Ms": 110.35,
+      "p95Ms": 128.8,
+      "p99Ms": 143.7,
+      "maxMs": 145.7
+    },
+    "concurrent4": {
+      "calls": 100,
+      "successes": 100,
+      "p50Ms": 112.5,
+      "p95Ms": 133.7,
+      "p99Ms": 154.3,
+      "maxMs": 154.3
+    }
+  },
+  "periodicReadOnly": {
+    "calls": 120,
+    "successes": 120
+  },
+  "transportStress": {
+    "cycles": 20,
+    "sameExactGame": true,
+    "minimumSeconds": 1.303123,
+    "medianSeconds": 1.3766485,
+    "maximumSeconds": 1.472083,
+    "firstObservedLayers": [
+      "managed_adapter"
+    ],
+    "preflightRetries": 0
+  },
+  "finalPackageTransportStress": {
+    "cycles": 5,
+    "sameExactGame": true,
+    "medianSeconds": 1.341709,
+    "maximumSeconds": 1.462375
+  },
+  "finalPackageStartupSeconds": [
+    34.063,
+    96.36,
+    27.844
+  ],
+  "liveBoundaries": {
+    "processPauseSeconds": 12,
+    "lateReadinessSeconds": 20,
+    "sameGameHostCrashReadoption": true,
+    "actualAutoLaunchAfterHostRestart": true,
+    "autoReconnectOffNoSuccessorSeconds": 35,
+    "autoReconnectOnExitRecovery": true,
+    "stopDuringLocalReconnectRestored": true,
+    "finalPreReadyRecoveryCancellation": {
+      "oldExactOwnerExited": true,
+      "replacementCapturedBeforeReady": true,
+      "replacementSuspendedReversibly": true,
+      "productionStopCancelledPendingRecovery": true,
+      "exactReplacementExited": true,
+      "runtimeCleaned": true,
+      "officialScriptsRestored": true,
+      "noSuccessorForSeconds": 15
+    },
+    "finalNormalHomeClose": true,
+    "folderAcceptCurrentAndCancel": true,
+    "cleanupMessage900pxNoHorizontalOverflow": true
+  },
+  "package": {
+    "sourceCommit": "ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb",
+    "sha256": "53bfa7972592614a6a391276232eec9ed3090b550dda3a540df7c22074b6c294",
+    "bytes": 10361578,
+    "zipEntries": 105,
+    "bridgesVerified": 29,
+    "sourceInputSha256": "7acfb71fb57a75ce0c38588ba672faa34291f99d6ca9d1d339bd02d3446c0a15",
+    "sourceInputFileCount": 720
+  },
+  "cleanup": {
+    "officialScriptsRestored": true,
+    "officialScriptSha256": {
+      "LWScripts.data": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+      "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
+      "version.txt": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf"
+    },
+    "desiredRunning": false,
+    "adoptionAbsent": true,
+    "recoveryJournalAbsent": true,
+    "targetAppAndGameProcessesRemaining": 0
+  },
+  "limits": {
+    "originalVisibleSpontaneousCauseReproduced": false,
+    "ownerAcceptedFiniteStressCriterion": true,
+    "fasterThanLwToolProven": false,
+    "allFutureConditionsProven": false,
+    "mainMerged": false,
+    "publicReleasePublished": false
+  },
+  "privateArtifactRoot": "artifacts/home-final-acceptance-20261023",
+  "negativeAttemptPolicy": "Retained initial interrupted13of20 route attempt, genuine failed pre-readyStop, and UI cleanup defect; successful finalreruns are separate.",
+  "soakResourceObservation": {
+    "game": {
+      "cpuP50": 4.296875,
+      "cpuP95": 7.265625,
+      "workingSet": {
+        "first": 1453645824.0,
+        "last": 1774596096.0
+      },
+      "private": {
+        "first": 2096578560.0,
+        "last": 2478391296.0
+      },
+      "handles": {
+        "first": 1575.0,
+        "last": 1625.0
+      },
+      "threads": {
+        "first": 151.0,
+        "last": 155.0
+      }
+    },
+    "host": {
+      "cpuP50": 0.15625,
+      "cpuP95": 0.390625,
+      "workingSet": {
+        "first": 131883008.0,
+        "last": 164356096.0
+      },
+      "private": {
+        "first": 45027328.0,
+        "last": 50802688.0
+      },
+      "handles": {
+        "first": 600.0,
+        "last": 763.0
+      },
+      "threads": {
+        "first": 21.0,
+        "last": 17.0
+      }
+    }
+  }
+}
