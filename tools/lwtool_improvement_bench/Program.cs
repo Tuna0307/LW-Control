@@ -148,6 +148,8 @@ void ResetCache()
     Set("lastValidatedLeaseUpdatedAt", null);
     Set("lastValidatedLeaseInstance", null);
     Set("lastLeaseValidationTimestamp", 0L);
+    Set("lastValidatedLeaseLength", 0L);
+    Set("lastValidatedLeaseWriteTicks", 0L);
 }
 
 void Set(string field, object? value) =>

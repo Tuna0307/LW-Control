@@ -35,6 +35,8 @@ namespace LWBridge.GamePipe
         [ThreadStatic] private static long? lastValidatedLeaseUpdatedAt;
         [ThreadStatic] private static string? lastValidatedLeaseInstance;
         [ThreadStatic] private static long lastLeaseValidationTimestamp;
+        [ThreadStatic] private static long lastValidatedLeaseLength;
+        [ThreadStatic] private static long lastValidatedLeaseWriteTicks;
 
         private static string ReadRuntimeSnapshotCore(string path)
         {
@@ -266,6 +268,8 @@ namespace LWBridge.GamePipe
                 lastValidatedLeaseUpdatedAt = null;
                 lastValidatedLeaseInstance = expectedInstance;
                 lastLeaseValidationTimestamp = 0;
+                lastValidatedLeaseLength = 0;
+                lastValidatedLeaseWriteTicks = 0;
             }
             // The host renews once per second and the existing freshness contract
             // already permits a five-second lease horizon. Re-reading and parsing
@@ -282,11 +286,29 @@ namespace LWBridge.GamePipe
                 long elapsedTicks = Stopwatch.GetTimestamp() - lastLeaseValidationTimestamp;
                 double elapsedMilliseconds = elapsedTicks * 1000.0 / Stopwatch.Frequency;
                 long cachedUpdatedAt = lastValidatedLeaseUpdatedAt.Value;
-                if (elapsedMilliseconds >= 0 &&
+                bool sameSnapshot = false;
+                try
+                {
+                    var current = new FileInfo(path);
+                    current.Refresh();
+                    sameSnapshot = current.Exists &&
+                                   current.Length == lastValidatedLeaseLength &&
+                                   current.LastWriteTimeUtc.Ticks == lastValidatedLeaseWriteTicks;
+                }
+                catch { }
+                if (sameSnapshot &&
+                    elapsedMilliseconds >= 0 &&
                     elapsedMilliseconds < LeaseValidationCacheMilliseconds &&
                     cachedUpdatedAt <= cachedNow + 5 &&
                     cachedNow - cachedUpdatedAt <= 5)
                     return true;
+                if (!sameSnapshot)
+                {
+                    lastValidatedLeaseUpdatedAt = null;
+                    lastLeaseValidationTimestamp = 0;
+                    lastValidatedLeaseLength = 0;
+                    lastValidatedLeaseWriteTicks = 0;
+                }
             }
             // Clone-internal adaptation for the host's exact-identity file guard.
             // Retry only Windows sharing/lock contention, at the existing 10ms
@@ -298,6 +320,11 @@ namespace LWBridge.GamePipe
             {
                 try
                 {
+                    var before = new FileInfo(path);
+                    before.Refresh();
+                    if (!before.Exists) return false;
+                    long beforeLength = before.Length;
+                    long beforeWriteTicks = before.LastWriteTimeUtc.Ticks;
                     string? session = null;
                     long? updatedAt = null;
                     var keys = new HashSet<string>(StringComparer.Ordinal);
@@ -323,6 +350,16 @@ namespace LWBridge.GamePipe
                     {
                         return false;
                     }
+                    var after = new FileInfo(path);
+                    after.Refresh();
+                    if (!after.Exists ||
+                        after.Length != beforeLength ||
+                        after.LastWriteTimeUtc.Ticks != beforeWriteTicks)
+                    {
+                        if (retryWindow.ElapsedMilliseconds >= 5000) return false;
+                        Thread.Sleep(10);
+                        continue;
+                    }
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     bool fresh = updatedAt.Value <= now + 5 &&
                                  now - updatedAt.Value <= 5;
@@ -330,11 +367,15 @@ namespace LWBridge.GamePipe
                     {
                         lastValidatedLeaseUpdatedAt = updatedAt;
                         lastLeaseValidationTimestamp = Stopwatch.GetTimestamp();
+                        lastValidatedLeaseLength = after.Length;
+                        lastValidatedLeaseWriteTicks = after.LastWriteTimeUtc.Ticks;
                     }
                     else
                     {
                         lastValidatedLeaseUpdatedAt = null;
                         lastLeaseValidationTimestamp = 0;
+                        lastValidatedLeaseLength = 0;
+                        lastValidatedLeaseWriteTicks = 0;
                     }
                     return fresh;
                 }

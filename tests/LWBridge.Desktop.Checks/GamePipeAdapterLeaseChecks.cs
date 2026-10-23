@@ -36,6 +36,23 @@ internal static class GamePipeAdapterLeaseChecks
                     "cached lease path attempted contended file I/O");
             }
 
+            // Cache success cannot mask revocation of the same session. The old
+            // implementation reread every loop; preserve that observation boundary
+            // by invalidating the cache when the lease file disappears or is
+            // replaced, even inside the 250 ms parse-cache window.
+            File.Delete(lease);
+            Require(!LeaseIsFresh(), "same-instance lease deletion remained fresh inside cache window");
+            WriteLease(lease, instance, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            Require(LeaseIsFresh(), "rewritten fresh lease was not admitted after deletion");
+            File.WriteAllText(lease,
+                "sessionId=" + instance + "\nchallenge=test-only\nupdatedAt=" +
+                (DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 6L) + "\npadding=changed\n",
+                new UTF8Encoding(false));
+            Require(!LeaseIsFresh(), "same-instance stale lease replacement remained fresh inside cache window");
+
+            WriteLease(lease, instance, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            Require(LeaseIsFresh(), "fresh lease was not restored after stale replacement test");
+
             // An instance change must retire the old cache immediately.
             Set("instanceId", "lease-owner-B");
             Require(!LeaseIsFresh(), "old instance cache crossed into successor identity");
@@ -83,6 +100,8 @@ internal static class GamePipeAdapterLeaseChecks
         Set("lastValidatedLeaseUpdatedAt", null);
         Set("lastValidatedLeaseInstance", null);
         Set("lastLeaseValidationTimestamp", 0L);
+        Set("lastValidatedLeaseLength", 0L);
+        Set("lastValidatedLeaseWriteTicks", 0L);
     }
 
     private static void Set(string field, object? value) =>
