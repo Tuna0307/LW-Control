@@ -110,6 +110,12 @@ internal static class Map014ZombieBossChecks
             throw new InvalidOperationException("MAP017_ZOMBIE_BOSS: positive unrelated kinds concealed an empty Boss source");
         }
         catch (MapScanSourceValidationException) { }
+        // MAP-019: a server with no Zombie Bosses. When the whole map was covered and the Monster list
+        // delivered rows, "none" is a verified result for Boss-only and for all nine kinds.
+        CurrentClientMapBlockSource.RequireZombieBossSourceRows(Request("zombie_boss"), false, monsterSourceVerifiedComplete: true);
+        CurrentClientMapBlockSource.RequireZombieBossSourceRows(
+            Request("city", "resource", "monster", "zombie_boss", "truck", "railway", "dispatch", "ghost", "treasure"),
+            false, monsterSourceVerifiedComplete: true);
         // A point-ready receipt never substitutes for independent processed
         // March evidence. Reject delayed, stale and incomplete source witnesses
         // before their rows can acquire trusted normalized timestamps.

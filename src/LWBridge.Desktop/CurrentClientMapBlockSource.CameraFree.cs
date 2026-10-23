@@ -443,7 +443,8 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Camera-free result included unrequested native marches.");
 
         return new FastCityBatchObservation(indices, cities, resources, dispatch, ghosts, treasures,
-            monsters, trains, completeness, 0, 0, 0, 0, null, null, null);
+            monsters, trains, completeness, 0, 0, 0, 0, null, null, null,
+            IncludesMonsterSource(request) ? monsterMarches.GetArrayLength() : 0);
     }
 
     internal static DateTimeOffset RequireCameraFreeMonsterReceipt(
@@ -483,6 +484,7 @@ internal sealed partial class CurrentClientMapBlockSource
             "x" + observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
         state.FootprintHistogram[shape] = state.FootprintHistogram.GetValueOrDefault(shape) + 1;
         state.NewlyCoveredAois += state.Covered.Count - before;
+        state.MonsterSourceRows += observation.MonsterSourceRows;
         foreach (FirstLivePreparedResource prepared in observation.Prepared)
             MergeLatestCityByOwner(state.CityRecords, prepared);
         foreach (FirstLivePreparedResource prepared in observation.Resources)

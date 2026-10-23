@@ -603,12 +603,11 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
 
-        // Point AOI completion alone cannot establish an empty March source.
-        // Until native source admission proves an empty Boss census, both the
-        // direct lane and its camera fallback must surface this uncertainty.
-        // Otherwise a camera fallback or positive unrelated kinds can turn an
-        // unverified empty Boss source into a misleading successful publication.
-        RequireZombieBossSourceRows(request, monsterRecords.Values.Any(item => item.ProtectionEligible));
+        // An empty Boss result is published only when the whole-map sweep was proven complete and the
+        // game Monster list it rode on delivered rows (MAP-019). An unproven empty source still fails,
+        // so positive unrelated kinds can never turn a broken Boss source into a misleading success.
+        RequireZombieBossSourceRows(request, monsterRecords.Values.Any(item => item.ProtectionEligible),
+            covered.Count == 10000 && state.MonsterSourceRows > 0);
 
         // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
         // WorldScene.MarchDataManager. It explicitly refreshes LWTrainDataManager
@@ -819,9 +818,14 @@ internal sealed partial class CurrentClientMapBlockSource
         return resume.Session;
     }
 
-    internal static void RequireZombieBossSourceRows(MapScanExecutionRequest request, bool hasZombieBossRows)
+    // MAP-019 (2026-10-23): Zombie Bosses arrive in the same game Monster list as ordinary monsters, and
+    // same-session scans on 2175/2180/2198/2203 matched the camera scan. So "no Zombie Boss" is a real,
+    // verified result when the sweep covered all 10,000 map areas AND that Monster list delivered monsters
+    // (proving the source worked). Only an unproven source still fails (and falls back to the camera).
+    internal static void RequireZombieBossSourceRows(MapScanExecutionRequest request, bool hasZombieBossRows,
+        bool monsterSourceVerifiedComplete = false)
     {
-        if (IncludesZombieBoss(request) && !hasZombieBossRows)
+        if (IncludesZombieBoss(request) && !hasZombieBossRows && !monsterSourceVerifiedComplete)
             throw new MapScanSourceValidationException(
                 "Zombie Boss source returned no confirmed rows; empty March-source coverage could not be verified. Retry the scan.");
     }
@@ -2121,7 +2125,9 @@ internal sealed partial class CurrentClientMapBlockSource
             resourceCompleteness,
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount,
             PhaseMilliseconds("targetResponseElapsedSeconds"), PhaseMilliseconds("homeRestorationElapsedSeconds"),
-            PhaseMilliseconds("totalProbeElapsedSeconds"));
+            PhaseMilliseconds("totalProbeElapsedSeconds"),
+            IncludesMonsterSource(request) && root.TryGetProperty("monster_march_records", out JsonElement monsterSource) &&
+                monsterSource.ValueKind == JsonValueKind.Array ? monsterSource.GetArrayLength() : 0);
     }
 
     // The first AOI count is taken before the Resource-specific producer
@@ -3057,6 +3063,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal int RequestedConcurrency { get; }
         internal bool CameraFreeAcquisition { get; set; }
         internal bool RailwaySweepVerified { get; set; }
+        internal long MonsterSourceRows { get; set; }
         internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
@@ -3226,5 +3233,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int MonsterProtectionDetailReadyCount,
         double? TargetResponseMilliseconds,
         double? HomeRestorationMilliseconds,
-        double? TotalProbeMilliseconds);
+        double? TotalProbeMilliseconds,
+        // Raw game Monster rows in this batch (bosses and ordinary monsters) before kind filtering.
+        int MonsterSourceRows = 0);
 }
