@@ -1,3 +1,13 @@
+Latest owner Home assignment, 2026-10-23: focus on actual game-connection stability before other tabs.
+Continue codex/lwtool-full-improvement / draft PR #16; read
+docs/work-items/LWTOOL-HOME-CONNECTION-STABILITY.md. Diagnose the intermittent disconnect/reconnect,
+use recovered LwTool methods to implement improvements, and qualify them with real connected-game tests.
+Owner explicitly authorizes the worker to open, close and restart the target app/game as needed; an absent
+existing session or normal startup creating a window is not a reason to skip live tests or ask again.
+This supersedes prior launch-restriction interpretations for this assignment. Preserve unrelated windows,
+account-action limits, legitimate login/licensing, Chinese game language, exact Stop/script restoration,
+and actual tool denials. No main merge or release. Earlier no-worker-open/release notes below are history.
+
 Latest lead release, 2026-10-23: owner declared the program done for now. Lead merged codex/feature-recovery-018
 (e205f40a: R30 Automation, both audits fixed, MAP-019 scanner review + Zombie Boss/empty-scan fixes, Map clear-all)
 into main and published GitHub release lw-control-v1.0-2026-10-23. No worker task open.
