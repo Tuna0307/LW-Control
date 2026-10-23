@@ -130,7 +130,10 @@ internal sealed partial class CurrentClientMapBlockSource
         if (state.CityRecords.Count + state.ResourceRecords.Count + state.DispatchRecords.Count +
             state.GhostRecords.Count + state.TreasureRecords.Count + state.MonsterRecords.Count +
             state.TrainRecords.Count == 0 &&
-            !request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+            !request.SelectedTypes.Contains("railway", StringComparer.Ordinal) &&
+            // MAP-019: a Zombie-Boss-only scan of a boss-free server is a verified "none" once all 10,000
+            // areas were covered (checked above) and the game Monster list delivered rows.
+            !(IsZombieBossOnly(request) && state.MonsterSourceRows > 0))
             throw new InvalidDataException("Camera-free scan returned zero selected rows.");
 
         state.AcquisitionMilliseconds = (Now() - state.MetricsStartedAt).TotalMilliseconds;
@@ -149,7 +152,8 @@ internal sealed partial class CurrentClientMapBlockSource
             // camera route before ending this scan as a source validation error.
             throw new InvalidDataException("Camera-free detail hydration failed: " + error.Message, error);
         }
-        if (captures.All(capture => capture.Records.Count == 0))
+        if (captures.All(capture => capture.Records.Count == 0) &&
+            !(IsZombieBossOnly(request) && state.MonsterSourceRows > 0)) // MAP-019 verified "no Zombie Boss"
             throw new InvalidDataException("Camera-free scan returned zero rows after final record hydration.");
         return captures;
     }
