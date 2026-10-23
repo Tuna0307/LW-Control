@@ -30,6 +30,11 @@ public interface IMapScanLocalSink
     ValueTask ClearServerAsync(int serverId, CancellationToken cancellationToken = default);
 }
 
+public interface IMapScanAllServersSink : IMapScanLocalSink
+{
+    ValueTask ClearAllServersAsync(CancellationToken cancellationToken = default);
+}
+
 /// <summary>
 /// Opt-in for a profile-local SQLite sink that can commit a run cancellation
 /// synchronously. Map317 Stop can then arbitrate cancel-vs-publish against the
@@ -705,9 +710,20 @@ public sealed class MapScanStateMachine
         }
     }
 
-    public async ValueTask<MapScanState> ClearAsync(
+    public ValueTask<MapScanState> ClearAsync(
         int serverId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        ClearAsync(serverId, false, cancellationToken);
+
+    public ValueTask<MapScanState> ClearAllAsync(
+        int currentServerId,
+        CancellationToken cancellationToken = default) =>
+        ClearAsync(currentServerId, true, cancellationToken);
+
+    private async ValueTask<MapScanState> ClearAsync(
+        int serverId,
+        bool allServers,
+        CancellationToken cancellationToken)
     {
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -722,7 +738,14 @@ public sealed class MapScanStateMachine
                 throw new BridgeCommandException(ServerUnavailableCode, ServerUnavailableMessage);
             }
 
-            await localSink.ClearServerAsync(serverId, cancellationToken).ConfigureAwait(false);
+            if (allServers)
+            {
+                if (localSink is not IMapScanAllServersSink allServersSink)
+                    throw new NotSupportedException("The map store does not support clearing all servers.");
+                await allServersSink.ClearAllServersAsync(cancellationToken).ConfigureAwait(false);
+            }
+            else
+                await localSink.ClearServerAsync(serverId, cancellationToken).ConfigureAwait(false);
             return SetState(CreateDefaultIdleState());
         }
         finally

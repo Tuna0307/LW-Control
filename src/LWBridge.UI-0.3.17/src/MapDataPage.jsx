@@ -843,12 +843,12 @@ export function MapDataPage({
   }
 
   async function clearData() {
-    if (!dataServerId) return;
+    if (!dataAvailable) return;
     setScanError("");
     try {
       // Auto may show a saved remote dataset while the game has already
       // returned home. Backend independently validates its published owner.
-      const next = await mapApi.clear(dataServerId, scanTab === "auto" || (currentServerId > 0 && dataServerId !== currentServerId));
+      const next = await mapApi.clear(dataServerId, scanTab === "auto" || (currentServerId > 0 && dataServerId !== currentServerId), allServers);
       summaryGeneration.current++;
       optionsGeneration.current++;
       searchGeneration.current += 1;
@@ -856,7 +856,12 @@ export function MapDataPage({
       setScanStateAvailable(true);
       setCounts({ ...EMPTY_COUNTS });
       // Clearing a saved remote store does not clear the live server's counts.
-      if (typeof onCounts === "function") onCounts(dataServerId, { ...EMPTY_COUNTS });
+      if (typeof onCounts === "function") {
+        const clearedServers = allServers
+          ? new Set([...savedServers, currentServerId, suppliedSummary?.serverId].filter(serverId => serverId > 0))
+          : [dataServerId];
+        for (const serverId of clearedServers) onCounts(serverId, { ...EMPTY_COUNTS });
+      }
       setSummaryReady(true);
       setOptions(null);
       setAlliance("all");
@@ -1179,7 +1184,7 @@ export function MapDataPage({
               <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning || selectedTypes.length === 0} onClick={startScan}>{t("map.startReading")}</button>
               {selectedTypes.length === 0 ? <small data-map-empty-selection="manual" role="status">{t("map.scanCategoryRequired")}</small> : null}
               <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>{t("common.stop")}</button>
-              <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>{t("map.clearServer")}</button>
+              <button type="button" disabled={!backendAvailable || !dataAvailable || scanState.isReading || autoRunning} onClick={clearData}>{t("map.clearServer")}</button>
             </>
           ) : null}
         </div>
@@ -1234,7 +1239,7 @@ export function MapDataPage({
             <button type="button" className="primary" disabled={!online || autoConfig.selectedTypes.length === 0 || autoRunning || scanState.isReading} onClick={onAutoScanRunNow}>{t("map.runAutoScanNow")}</button>
             {autoConfig.selectedTypes.length === 0 ? <small data-map-empty-selection="auto" role="status">{t("map.scanCategoryRequired")}</small> : null}
             <button type="button" disabled={!autoRunning} onClick={onAutoScanCancel}>{t("common.stop")}</button>
-            <button type="button" disabled={!backendAvailable || !dataServerId || autoRunning || scanState.isReading} onClick={clearData}>{t("map.clearServer")}</button>
+            <button type="button" disabled={!backendAvailable || !dataAvailable || autoRunning || scanState.isReading} onClick={clearData}>{t("map.clearServer")}</button>
           </div>
           <label className="map-auto-return"><input type="checkbox" checked={autoConfig.returnToOriginalServer} onChange={(event) => emitAutoConfig({ returnToOriginalServer: event.target.checked })} />{t("map.returnAfterAutoScan")}</label>
           <small>{t("map.autoScanNavigationNotice")}</small>

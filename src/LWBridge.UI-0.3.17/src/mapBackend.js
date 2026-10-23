@@ -294,8 +294,9 @@ export function createMapApi(bridge) {
       buildStartPayload(selectedTypes, scanMode),
     ).then(normalizeScanState),
     stop: () => invokeScoped(MAP_COMMANDS.scanStop).then(normalizeScanState),
-    clear: (serverId, clearSavedServer = false) => invokeScoped(MAP_COMMANDS.scanClear,
-      clearSavedServer ? { serverId, clearSavedServer: true } : { serverId }).then(normalizeScanState),
+    clear: (serverId, clearSavedServer = false, allServers = false) => invokeScoped(MAP_COMMANDS.scanClear,
+      allServers ? { serverId: 0, allServers: true }
+        : clearSavedServer ? { serverId, clearSavedServer: true } : { serverId }).then(normalizeScanState),
     search: (kind, query) => invokeScoped(
       MAP_COMMANDS.search,
       buildSearchPayload(kind, query),

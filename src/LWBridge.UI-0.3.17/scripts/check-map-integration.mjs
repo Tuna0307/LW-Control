@@ -716,6 +716,12 @@ messageHandler({ data: {
 await assert.rejects(() => failed, (error) => error.code === "INVALID_MAP_QUERY" && error.details?.feature === "sorts");
 nativeBridge.dispose();
 
+await api.clear(0, false, true);
+assert.deepEqual(calls.at(-1), {
+  command: MAP_COMMANDS.scanClear,
+  payload: { serverId: 0, allServers: true, profileId: "profile-test" },
+}, "all-server Clear must send an explicit scope within the selected profile");
+
 console.log("LWB317_MAP_UI_INTEGRATION_CHECKS_OK");
 
 assert.equal(translateActionError(key=>key, new Error("Auto scan interrupted by restart")), "Auto scan interrupted by restart");

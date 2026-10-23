@@ -28,6 +28,7 @@ internal static class Map016DataChecks
         try
         {
             await CheckSavedAggregateAndClearAsync(root);
+            await CheckAllServersClearAsync(root);
             await CheckRemovedRoutesAndUpgradeAsync(root);
         }
         finally
@@ -182,6 +183,103 @@ internal static class Map016DataChecks
             "Clear deleted another kind on another server");
     }
 
+    private static async Task CheckAllServersClearAsync(string root)
+    {
+        string db = Path.Combine(root, "clear-all.db");
+        string otherDb = Path.Combine(root, "clear-all-other-profile.db");
+        using (var store = new M.MapStore(db))
+        {
+            Seed(store);
+            store.WriteSetting("mapAutoScan", "{\"enabled\":false}", 1);
+            store.UpsertTreasureClaimState(2212, "player", "treasure", null, 1, "{}", 1);
+        }
+        using var otherProfile = new M.MapStore(otherDb);
+        Seed(otherProfile);
+        bool connected = true;
+        bool autoBusy = false;
+        var provider = new CurrentClientMap317ScanProvider(new HeldMapSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(true, connected ? 2212 : 0, 2212, [], [], 0, 20, 20, 1, 1)),
+            _ => Task.FromResult(new CurrentClientMapContext(2212, 0, 20, 20, 1, 1, "clear-all-controlled")));
+        using var service = new Map317CommandService(db, provider,
+            M.UnavailableMapActionProvider.Instance, startPlunderWorkers: false);
+        service.BindAutoScanCycleBusy(() => autoBusy);
+        async Task Reject(object payload, string expectedCode)
+        {
+            try
+            {
+                await Invoke(service, "map_scan_clear", payload);
+                throw new InvalidOperationException("Clear unexpectedly succeeded: " + expectedCode);
+            }
+            catch (BridgeCommandException error)
+            {
+                Require(error.Code == expectedCode, "All-server Clear rejected with " + error.Code);
+            }
+            Require((await Search(service, "city", new { serverId = 0 })).GetProperty("total").GetInt32() == 2,
+                "rejected all-server Clear removed saved rows");
+        }
+        object all = new { serverId = 0, allServers = true };
+        await Reject(new { serverId = 0 }, "SERVER_UNAVAILABLE");
+        await Reject(new { serverId = 2212, allServers = true }, "INVALID_REQUEST");
+        autoBusy = true;
+        await Reject(all, "AUTO_SCAN_RUNNING");
+        autoBusy = false;
+        connected = false;
+        await Reject(all, "SERVER_UNAVAILABLE");
+        connected = true;
+        JsonElement started = await Invoke(service, "map_scan_start", new { selectedTypes = new[] { "city" } });
+        Require(started.GetProperty("isReading").GetBoolean(), "manual scan guard was not exercised");
+        await Reject(all, "SCAN_RUNNING");
+        await Invoke(service, "map_scan_stop", new { });
+        string runId = started.GetProperty("scanRunId").GetString()!;
+        // A failed delete must roll back earlier table/server deletions too.
+        using (var connection = Open(db))
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                CREATE TRIGGER reject_all_clear BEFORE DELETE ON map_records
+                WHEN OLD.server_id=2213 BEGIN SELECT RAISE(ABORT, 'controlled clear failure'); END;
+                """;
+            command.ExecuteNonQuery();
+            try
+            {
+                await Invoke(service, "map_scan_clear", all);
+                throw new InvalidOperationException("all-server Clear ignored a database failure");
+            }
+            catch (SqliteException) { }
+            using (var store = new M.MapStore(db))
+                Require(store.Search(new("city", 0)).Total == 2 && store.ReadScanRun(runId) is not null,
+                    "failed all-server transaction partially removed map data/history");
+            command.CommandText = "DROP TRIGGER reject_all_clear";
+            command.ExecuteNonQuery();
+        }
+        JsonElement cleared = await Invoke(service, "map_scan_clear", all);
+        Require(!cleared.GetProperty("isReading").GetBoolean() &&
+            cleared.GetProperty("scanRunId").GetString() == "" &&
+            !cleared.GetProperty("resumeAvailable").GetBoolean(),
+            "all-server Clear retained deleted scan/resume state");
+        Require((await Invoke(service, "map_saved_servers", new { })).GetProperty("servers").GetArrayLength() == 0,
+            "all-server Clear retained saved server choices");
+        using (var store = new M.MapStore(db))
+        {
+            Require(M.MapKinds.All.All(kind => store.Search(new(kind, 0)).Total == 0) &&
+                store.ReadScanRun(runId) is null, "all-server Clear left map records or scan history");
+            Require(store.ReadSetting("mapAutoScan") == "{\"enabled\":false}" &&
+                store.ReadPlayerMark(2213, "same-owner") is not null,
+                "all-server Clear removed settings or player marks");
+        }
+        using (var connection = Open(db))
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT COUNT(*) FROM treasure_claim_states";
+            Require(Convert.ToInt32(command.ExecuteScalar()) == 0, "all-server Clear retained stale treasure states");
+        }
+        Require(otherProfile.Search(new("city", 0)).Total == 2,
+            "all-server Clear crossed into another profile database");
+        // Repeating the command on an empty store is harmless.
+        await Invoke(service, "map_scan_clear", all);
+        Console.WriteLine("MAP_ALL_SERVERS_CLEAR_OK sqlite=true guards=true profileIsolation=true rollback=true");
+    }
+
     private static async Task CheckRemovedRoutesAndUpgradeAsync(string root)
     {
         string db = Path.Combine(root, "legacy.db");
@@ -249,6 +347,16 @@ internal static class Map016DataChecks
         var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = db, Pooling = false }.ToString());
         connection.Open();
         return connection;
+    }
+
+    private sealed class HeldMapSource : IMapScanBlockSource
+    {
+        public async Task<MapScanBlockCapture> CaptureAsync(
+            MapScanExecutionRequest request, MapScanTargetBlock block, CancellationToken cancellationToken)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            throw new InvalidOperationException("Controlled scan must stop before capture completes");
+        }
     }
 
     private sealed class InertActions(Func<int> current, Action<int> server, Action<int, int, int> coordinate) : M.IMapActionProvider

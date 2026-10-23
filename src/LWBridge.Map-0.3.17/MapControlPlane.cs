@@ -199,6 +199,9 @@ public sealed class MapControlPlane : IDisposable
     public ValueTask<MapScanState> ClearScanAsync(int serverId, CancellationToken cancellationToken = default) =>
         scan.ClearAsync(serverId, cancellationToken);
 
+    public ValueTask<MapScanState> ClearAllScansAsync(int currentServerId, CancellationToken cancellationToken = default) =>
+        scan.ClearAllAsync(currentServerId, cancellationToken);
+
     public MapSearchResult Search(MapQuery query, long? nowUnixMilliseconds = null)
     {
         MapScanState state = scan.State;
@@ -257,7 +260,7 @@ public sealed class MapControlPlane : IDisposable
             : null;
 }
 
-internal sealed class MapStoreScanLocalSink : IMapScanImmediateCancelSink
+internal sealed class MapStoreScanLocalSink : IMapScanImmediateCancelSink, IMapScanAllServersSink
 {
     private readonly MapStore store;
     private readonly Func<long> nowMilliseconds;
@@ -284,6 +287,13 @@ internal sealed class MapStoreScanLocalSink : IMapScanImmediateCancelSink
     {
         cancellationToken.ThrowIfCancellationRequested();
         store.ClearServer(serverId);
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask ClearAllServersAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        store.ClearAllScanData();
         return ValueTask.CompletedTask;
     }
 }
