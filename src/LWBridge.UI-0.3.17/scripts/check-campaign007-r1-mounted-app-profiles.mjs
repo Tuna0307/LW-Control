@@ -115,7 +115,7 @@ for(const [language,theme] of [["en","light"],["ja","dark"]]){
   for(let i=0;i<5;i++)await flush();
   assert.ok(/8008/.test(count()),"actual App return lost Map rows");
   rendered.push({language,theme,phase:"Home-Map-retained-return",count:count()});
-  const profileButtons=[...container.querySelectorAll(".profile-compact-item")];
+  const profileButtons=[...container.querySelectorAll(".profile-item")];
   assert.equal(profileButtons.length,2,"actual App must expose both profile controls");
   const prev=container.querySelector(".map-pagination button:first-of-type");
   if(prev) {await flush(()=>prev.dispatchEvent(new MouseEvent("click",{bubbles:true})));for(let i=0;i<5;i++)await flush();}

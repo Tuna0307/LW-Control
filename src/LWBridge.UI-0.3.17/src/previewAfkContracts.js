@@ -62,6 +62,7 @@ export function previewAfkProfileValid(profile) {
   if (profile.targetKey.startsWith("query:") && !profile.targetNameQuery?.trim()) return false;
   if (profile.levelFilterEnabled && (!(profile.minLevel > 0) || (!profile.progressiveLevels && profile.maxLevel < profile.minLevel))) return false;
   if (profile.distanceFilterEnabled && !(profile.maxDistance > 0)) return false;
+  for (const range of Object.values(profile.squadLevels || {})) if (!Number.isInteger(range?.min) || range.min < 1 || !Number.isInteger(range?.max) || range.max < range.min) return false;
   if (!Number.isInteger(profile.monsterType) || profile.monsterType < 0) return false;
   if (profile.kind === "join" && !validJoinRestrictions(normalizeJoinRestrictions(profile.joinRestrictions))) return false;
   return true;
@@ -70,17 +71,4 @@ export function previewAfkProfileValid(profile) {
 
 export function applyAfkTarget(profile, target) {
   return { ...profile, targetKey: target.key, lastListTargetKey: target.key, customTarget: false, targetNameQuery: "", monsterNameKey: target.monsterNameKey, monsterSpecial: target.monsterSpecial, monsterType: target.monsterType, monsterIds: [...target.monsterIds], source: target.source, action: target.action, rally: target.rally, searchable: target.searchable, continuousAttack: target.rally ? false : profile.continuousAttack, minLevel: target.minLevel, maxLevel: target.maxLevel };
-}
-
-// SquadPanel N: refresh only ally snapshots that have a current supplied row.
-export function refreshGarrisonTargets(config, allies) {
-  if (!allies.length) return config;
-  const byUid = new Map(allies.map((ally) => [ally.uid, ally]));
-  return { ...config, targets: config.targets.map((target) => {
-    if (target.kind !== "allyCity") return target;
-    const ally = byUid.get(target.uid);
-    return ally ? { kind: "allyCity", uid: ally.uid, nameSnapshot: ally.name || target.nameSnapshot,
-      serverIdSnapshot: ally.serverId, pointIdSnapshot: ally.pointId,
-      ...(ally.uuid ? { uuidSnapshot: ally.uuid, uuidUpdatedAt: ally.uuidUpdatedAt || 0 } : {}) } : target;
-  }) };
 }

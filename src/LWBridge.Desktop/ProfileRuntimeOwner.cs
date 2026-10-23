@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Map317 = LWBridge.Map317;
 
 namespace LWBridge.Desktop;
@@ -27,8 +28,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         VisualMetricsConfigCommandService visualMetricsConfig,
         EquipmentConfigCommandService equipmentConfig,
         MonsterAfkConfigCommandService monsterAfkConfig,
-        AllianceGarrisonConfigCommandService allianceGarrisonConfig,
-        ResourceAutomationConfigCommandService resourceAutomationConfig,
         AutomationStatusCommandService automationStatus,
         ClaimDelayConfigCommandService claimDelayConfig,
         ProfileWindowFocusService focus,
@@ -48,8 +47,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         VisualMetricsConfig = visualMetricsConfig;
         EquipmentConfig = equipmentConfig;
         MonsterAfkConfig = monsterAfkConfig;
-        AllianceGarrisonConfig = allianceGarrisonConfig;
-        ResourceAutomationConfig = resourceAutomationConfig;
         AutomationStatus = automationStatus;
         ClaimDelayConfig = claimDelayConfig;
         Focus = focus;
@@ -70,8 +67,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
     internal VisualMetricsConfigCommandService VisualMetricsConfig { get; }
     internal EquipmentConfigCommandService EquipmentConfig { get; }
     internal MonsterAfkConfigCommandService MonsterAfkConfig { get; }
-    internal AllianceGarrisonConfigCommandService AllianceGarrisonConfig { get; }
-    internal ResourceAutomationConfigCommandService ResourceAutomationConfig { get; }
     internal AutomationStatusCommandService AutomationStatus { get; }
     internal ClaimDelayConfigCommandService ClaimDelayConfig { get; }
     internal ProfileWindowFocusService Focus { get; }
@@ -116,14 +111,10 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         var visualMetrics = new VisualMetricsConfigCommandService(runtimeConfigStore);
         var equipment = new EquipmentConfigCommandService(runtimeConfigStore);
         var monsterAfk = new MonsterAfkConfigCommandService(runtimeConfigStore);
-        var garrison = new AllianceGarrisonConfigCommandService(runtimeConfigStore);
         string automationStatusPath = Path.Combine(
             fullProfileRoot,
             "runtime",
             "automation-status.json");
-        var resourceAutomation = new ResourceAutomationConfigCommandService(
-            runtimeConfigStore,
-            automationStatusPath);
         var automationStatus = new AutomationStatusCommandService(
             runtimeConfigStore,
             automationStatusPath);
@@ -200,6 +191,11 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                         : Task.FromException<object?>(new BridgeCommandException(
                             "PROFILE_RUNTIME_UNAVAILABLE",
                             "The requested profile has no active local runtime owner.")));
+            var featureCommands = new Feature018GameCommandService(lifecycle, equipment, runtimeConfigStore);
+            automationStatus.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
+                await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
+            automationStatus.SetNativeChatStatusReader(async token => JsonSerializer.SerializeToNode(
+                await featureCommands.InvokeAsync("feature018_chat_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
             INativeAsyncCommandService[] commands =
             [
                 orderedReconcile,
@@ -210,11 +206,12 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 profileRegistryService,
                 settings,
                 hotkeys,
+                featureCommands,
+                new ChatAutomationConfigCommandService(runtimeConfigStore),
+                new AutomationTaskConfigCommandService(runtimeConfigStore),
                 visualMetrics,
                 equipment,
                 monsterAfk,
-                garrison,
-                resourceAutomation,
                 automationStatus,
                 claimDelay,
             ];
@@ -248,8 +245,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 visualMetrics,
                 equipment,
                 monsterAfk,
-                garrison,
-                resourceAutomation,
                 automationStatus,
                 claimDelay,
                 focus,
@@ -277,6 +272,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         try { Map317.Dispose(); } catch { }
         try { CityLayoutDraft.Dispose(); } catch { }
         try { ProfileSettings.Dispose(); } catch { }
+        try { AutomationStatus.Dispose(); } catch { }
         try { OverviewLifecycle.Close(); } catch { }
         if (ownsBridgeHostState)
             try { BridgeHostState.Close(); } catch { }

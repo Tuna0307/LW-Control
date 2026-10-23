@@ -48,6 +48,13 @@ local active = nil
 local verified_lease = nil
 local root_object = nil
 local message_text = nil
+local visual_metrics_object = nil
+local visual_metrics_text = nil
+local visual_metrics_show_fps = false
+local visual_metrics_show_ping = false
+local visual_metrics_session = nil
+local visual_metrics_last_clock = -1000
+local visual_metrics_last_data = nil
 local registration_method = nil
 local timer_handle = nil
 local update_callback = nil
@@ -660,18 +667,60 @@ local function reflected_static_value(component, key)
     return nil
 end
 
+-- CLR member metadata is immutable for a concrete Type. Cache descriptors,
+-- never their live component/value or an observed account/connection state.
+-- FIFO bounds also cover absent members and transient resolution failures.
+local REFLECTION_CACHE_MAX_TYPES = 16
+local REFLECTION_CACHE_MAX_MEMBERS = 64
+local reflection_member_cache, reflection_type_order = {}, {}
+local function reflection_member_entry(reflected_type, key, flags)
+    local cached_type = reflection_member_cache[reflected_type]
+    if cached_type == nil then
+        if #reflection_type_order >= REFLECTION_CACHE_MAX_TYPES then
+            reflection_member_cache[table.remove(reflection_type_order, 1)] = nil
+        end
+        cached_type = {members = {}, order = {}}
+        reflection_member_cache[reflected_type] = cached_type
+        reflection_type_order[#reflection_type_order + 1] = reflected_type
+    end
+    local cache_key = tostring(flags) .. ":" .. key
+    local entry = cached_type.members[cache_key]
+    if entry == nil then
+        if #cached_type.order >= REFLECTION_CACHE_MAX_MEMBERS then
+            cached_type.members[table.remove(cached_type.order, 1)] = nil
+        end
+        entry = {}
+        cached_type.members[cache_key] = entry
+        cached_type.order[#cached_type.order + 1] = cache_key
+    end
+    return entry
+end
+
 local function reflected_value(component, key)
     if component == nil then return nil end
     local ok_type, reflected_type = pcall(function() return component:GetType() end)
     if not ok_type or reflected_type == nil then return nil end
     local flags = reflection_flags()
-    local ok_field, field = pcall(function() return reflected_type:GetField(tostring(key), flags) end)
-    if ok_field and field ~= nil then
+    key = tostring(key)
+    local entry = reflection_member_entry(reflected_type, key, flags)
+    if not entry.fieldResolved then
+        local ok_field, field = pcall(function() return reflected_type:GetField(key, flags) end)
+        -- A resolver exception is transient, not proof that a member is absent.
+        if ok_field then entry.fieldResolved = true; entry.field = field end
+    end
+    local field = entry.field
+    if field ~= nil then
         local ok_value, value = pcall(function() return field:GetValue(component) end)
         if ok_value then return value end
     end
-    local ok_property, property = pcall(function() return reflected_type:GetProperty(tostring(key), flags) end)
-    if ok_property and property ~= nil then
+    -- Preserve the original property fallback even when a cached field getter
+    -- throws. A successful nil field value still returns nil above.
+    if not entry.propertyResolved then
+        local ok_property, property = pcall(function() return reflected_type:GetProperty(key, flags) end)
+        if ok_property then entry.propertyResolved = true; entry.property = property end
+    end
+    local property = entry.property
+    if property ~= nil then
         local ok_value, value = pcall(function() return property:GetValue(component, nil) end)
         if ok_value then return value end
     end
@@ -3200,7 +3249,21 @@ local function destroy_message()
     end
     root_object = nil
     message_text = nil
+    visual_metrics_object = nil
+    visual_metrics_text = nil
+    visual_metrics_last_data = nil
     last_ready_session = nil
+end
+
+local function destroy_visual_metrics()
+    if visual_metrics_object ~= nil then
+        local cs = rawget(_G, "CS")
+        local object = cs and cs.UnityEngine and cs.UnityEngine.Object
+        if object ~= nil then pcall(function() object.Destroy(visual_metrics_object) end) end
+    end
+    visual_metrics_object = nil
+    visual_metrics_text = nil
+    visual_metrics_last_data = nil
 end
 
 local function find_font_donor(container, text_type)
@@ -3293,6 +3356,185 @@ local function ensure_message()
     return message_text ~= nil and safe_get(message_text, "font") ~= nil, nil
 end
 
+local function ensure_visual_metrics()
+    if not visual_metrics_show_fps and not visual_metrics_show_ping then
+        destroy_visual_metrics()
+        return true, nil
+    end
+    if root_object == nil or message_text == nil then
+        return false, "overview_message_unavailable"
+    end
+    if visual_metrics_object ~= nil and visual_metrics_text ~= nil then
+        local ok = pcall(function()
+            visual_metrics_object:SetActive(true)
+            visual_metrics_object.transform:SetAsLastSibling()
+        end)
+        if ok then return true, nil end
+        destroy_visual_metrics()
+    end
+
+    local cs = rawget(_G, "CS")
+    if cs == nil or cs.UnityEngine == nil or cs.TextMeshProUGUIEx == nil then
+        return false, "visual_metrics_unity_types_unavailable"
+    end
+    local game_object = cs.UnityEngine.GameObject
+    local rect_type = typeof(cs.UnityEngine.RectTransform)
+    local text_type = typeof(cs.TextMeshProUGUIEx)
+    local created = nil
+    local ok, err = pcall(function()
+        created = game_object("VisualMetrics", rect_type)
+        created.layer = root_object.layer
+        local rect = created:GetComponent(rect_type)
+        rect:SetParent(root_object.transform, false)
+        rect:Set_anchorMin(0, 1)
+        rect:Set_anchorMax(0, 1)
+        pcall(function() rect:Set_pivot(0, 1) end)
+        rect.sizeDelta = cs.UnityEngine.Vector2(360, 72)
+        rect.anchoredPosition = cs.UnityEngine.Vector2(18, -18)
+
+        local text = created:AddComponent(text_type)
+        text.font = message_text.font
+        local donor_material = safe_get(message_text, "fontSharedMaterial")
+        if donor_material ~= nil then pcall(function() text.fontSharedMaterial = donor_material end) end
+        text.text = ""
+        text.fontSize = 20
+        pcall(function() text.color = cs.UnityEngine.Color(1, 1, 1, 1) end)
+        pcall(function() text.alignment = cs.TMPro.TextAlignmentOptions.TopLeft end)
+        pcall(function() text.raycastTarget = false end)
+        created.transform:SetAsLastSibling()
+        created:SetActive(true)
+        visual_metrics_object = created
+        visual_metrics_text = text
+    end)
+    if not ok then
+        if created ~= nil then pcall(function() cs.UnityEngine.Object.Destroy(created) end) end
+        visual_metrics_object = nil
+        visual_metrics_text = nil
+        return false, "visual_metrics_create_failed:" .. tostring(err)
+    end
+    return visual_metrics_text ~= nil and safe_get(visual_metrics_text, "font") ~= nil, nil
+end
+
+local function sample_visual_fps()
+    local cs = rawget(_G, "CS")
+    local time = cs and cs.UnityEngine and cs.UnityEngine.Time
+    local delta = tonumber(time and safe_get(time, "smoothDeltaTime"))
+    if delta == nil or delta <= 0 then
+        delta = tonumber(time and safe_get(time, "unscaledDeltaTime"))
+    end
+    if delta == nil or delta <= 0 then return nil end
+    local fps = 1 / delta
+    if fps ~= fps or fps == math.huge or fps <= 0 then return nil end
+    return fps
+end
+
+-- Current installed BaseUtils.rdl SHA-256
+-- f1c16e7887a1752decce8a8d37844145228ca7987ece33a6992b7d0f75406adf:
+-- GameKit.Base.NetRawProxy.GetPing() returns its private int32 _ping field.
+-- NetRawProxy.OnPingPong computes _ping as (endTicks-startTicks)/10000, i.e.
+-- milliseconds from .NET 100 ns ticks. Read that native method rather than an
+-- LW-Control request round trip so Show ping reflects the game's own transport.
+local function sample_visual_ping_milliseconds()
+    local cs = rawget(_G, "CS")
+    local entry = cs and safe_get(cs, "GameEntry") or rawget(_G, "GameEntry")
+    local network = entry and safe_get(entry, "Network") or nil
+    if network == nil then return nil, nil end
+    local proxy = reflected_value(network, "m_proxy")
+    if proxy == nil or reflected_type_name(proxy) ~= "GameKit.Base.NetRawProxy" then
+        return nil, nil
+    end
+    local ok_ping, ping = call(proxy, "GetPing")
+    if ok_ping and tonumber(ping) ~= nil then
+        return tonumber(ping), "GameKit.Base.NetRawProxy.GetPing"
+    end
+    return tonumber(reflected_value(proxy, "_ping")), "GameKit.Base.NetRawProxy._ping"
+end
+
+local function pump_visual_metrics(force)
+    if not visual_metrics_show_fps and not visual_metrics_show_ping then
+        destroy_visual_metrics()
+        return true, nil
+    end
+    if active == nil or visual_metrics_session ~= active.sessionId then
+        destroy_visual_metrics()
+        return false, "visual_metrics_owner_session_changed"
+    end
+    local now = runtime_clock()
+    if not force and now - visual_metrics_last_clock < 0.5 then return true, nil end
+    visual_metrics_last_clock = now
+    local ready, err = ensure_visual_metrics()
+    if not ready then return false, err end
+
+    local parts = {}
+    local data = {}
+    if visual_metrics_show_fps then
+        local fps = sample_visual_fps()
+        data.fps = fps
+        data.fpsAvailable = fps ~= nil
+        parts[#parts + 1] = fps ~= nil and string.format("FPS: %.0f", fps) or "FPS: --"
+    end
+    if visual_metrics_show_ping then
+        local ping_ms, source = sample_visual_ping_milliseconds()
+        local ping_available = ping_ms ~= nil and ping_ms >= 0
+        data.pingMilliseconds = ping_available and ping_ms or nil
+        data.pingAvailable = ping_available
+        data.pingSource = source
+        parts[#parts + 1] = ping_available and string.format("Ping: %.0f ms", ping_ms) or "Ping: --"
+    end
+    local text = table.concat(parts, "\n")
+    local ok, update_error = pcall(function() visual_metrics_text.text = text end)
+    if not ok then return false, "visual_metrics_update_failed:" .. tostring(update_error) end
+    visual_metrics_last_data = data
+    return true, nil
+end
+
+function M.ConfigureVisualMetrics(fields)
+    if type(fields) ~= "table" or
+       (fields.showFps ~= "0" and fields.showFps ~= "1") or
+       (fields.showPing ~= "0" and fields.showPing ~= "1") then
+        return {state = "failed", errorCode = "GAME_PRECONDITION_FAILED",
+            error = "Visual metrics requires explicit FPS and ping flags"}
+    end
+    if active == nil or type(active.sessionId) ~= "string" then
+        return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+            error = "Authenticated current game session is unavailable"}
+    end
+    local previous_fps = visual_metrics_show_fps
+    local previous_ping = visual_metrics_show_ping
+    local previous_session = visual_metrics_session
+    if fields.showFps == "1" and sample_visual_fps() == nil then
+        return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+            error = "Current game frame timing is unavailable"}
+    end
+    if fields.showPing == "1" then
+        local initial_ping = sample_visual_ping_milliseconds()
+        if initial_ping == nil or initial_ping < 0 then
+            return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+                error = "Current game network latency source is unavailable"}
+        end
+    end
+    visual_metrics_show_fps = fields.showFps == "1"
+    visual_metrics_show_ping = fields.showPing == "1"
+    visual_metrics_session = active.sessionId
+    visual_metrics_last_clock = -1000
+    local ok, err = pump_visual_metrics(true)
+    if not ok then
+        visual_metrics_show_fps = previous_fps
+        visual_metrics_show_ping = previous_ping
+        visual_metrics_session = previous_session
+        visual_metrics_last_clock = -1000
+        pump_visual_metrics(true)
+        return {state = "unsupported", errorCode = "GAME_METHOD_UNAVAILABLE",
+            error = "Current game visual metrics unavailable: " .. tostring(err)}
+    end
+    local data = visual_metrics_last_data or {}
+    data.showFps = visual_metrics_show_fps
+    data.showPing = visual_metrics_show_ping
+    data.renderPath = (visual_metrics_show_fps or visual_metrics_show_ping)
+        and "GameFramework/UI/UIContainer/LWBridgeOverviewReady/VisualMetrics" or nil
+    return {state = "confirmed", data = data}
+end
+
 local function observe_game_connection()
     local cs = rawget(_G, "CS")
     local entry = rawget(_G, "GameEntry")
@@ -3340,9 +3582,15 @@ local function observe_game_connection()
     end
     local ok_uid, uid = call(player, "GetUid")
     local ok_server, server_id = call(player, "GetCurServerId")
+    -- A server/account switch may interleave these two native getters.
+    -- Never publish a mixed old-UID/new-server heartbeat as an owner.
+    local ok_uid_again, uid_again = call(player, "GetUid")
+    local ok_server_again, server_again = call(player, "GetCurServerId")
     local world_pos = safe_get(player, "PlayerWorldPointId")
     if type(logged_in) ~= "boolean" or type(connected) ~= "boolean" or
-       type(connecting) ~= "boolean" or not ok_uid or not ok_server then
+       type(connecting) ~= "boolean" or not ok_uid or not ok_server or
+       not ok_uid_again or not ok_server_again or
+       uid ~= uid_again or tostring(server_id) ~= tostring(server_again) then
         return { observed = false }
     end
     return {
@@ -3685,7 +3933,7 @@ local function install_recovery_action_hooks()
     end
 end
 
-function M.Pump()
+local function pump_overview()
     local now = tonumber(os.time()) or 0
     local control, control_error = read_control()
     local fresh, lease_error = false, nil
@@ -3738,6 +3986,7 @@ function M.Pump()
     pump_navigation(control)
     local rendered, render_error = ensure_message()
     if rendered then
+        pump_visual_metrics(false)
         if last_ready_session ~= active.sessionId then
             local transport_capabilities = pipe_transport_capabilities()
             write_json(ready_path, {
@@ -3768,12 +4017,128 @@ function M.Pump()
     -- five-second heartbeat; the host expires after 30 seconds of no frames.
     write_pipe_heartbeat(active)
     write_pipe_transport_diagnostic()
+    -- Native UpdateManager may accept AddUpdate without subsequently invoking
+    -- its callback on this client build. The LuaEntry lifecycle *does* drive
+    -- this authenticated heartbeat in real v26. Poll the independent FEATURE018
+    -- mailbox from this proven path. The producer rechecks exact UID/server,
+    -- live lease and session/challenge before dispatching any command.
+    local feature018_producer = rawget(_G, "LWBridgeFeature018GameBridge")
+    if type(feature018_producer) == "table" and
+       type(feature018_producer.Pump) == "function" then
+        pcall(feature018_producer.Pump)
+    end
+    return true
+end
+
+-- Opt-in measurement of OUR Lua handlers only. No game/anti-cheat hooks or
+-- process attachment. Bounded counters are written every five seconds to the
+-- isolated runtime; normal owner builds perform no diagnostic file writes.
+local perf_enabled = os.getenv("LWBRIDGE_R29_PERF_PROOF") == "1"
+local perf = {schemaVersion=1, frames=0, frameSeconds=0, over25ms=0, over50ms=0,
+    overviewCalls=0, overviewSeconds=0, overviewMaxSeconds=0,
+    featureCalls=0, featureSeconds=0, featureMaxSeconds=0}
+local perf_frame, perf_written = nil, -1000
+local function perf_clock()
+    local cs = rawget(_G, "CS")
+    local stopwatch = cs and cs.System and cs.System.Diagnostics and cs.System.Diagnostics.Stopwatch
+    if stopwatch then
+        local ok, value = pcall(function() return tonumber(stopwatch.GetTimestamp()) / tonumber(stopwatch.Frequency) end)
+        if ok and value then return value end
+    end
+    return tonumber(os.clock()) or 0
+end
+if perf_enabled then
+    function M.PerformanceBegin() return perf_clock() end
+    function M.PerformanceEnd(kind, started)
+        local elapsed = math.max(0, perf_clock() - started)
+        local prefix = kind == "feature018" and "feature" or kind == "overview" and "overview" or
+            (type(kind) == "string" and kind:match("^[a-zA-Z_]+$") and #kind <= 48 and kind) or "other"
+        perf[prefix.."Calls"] = (perf[prefix.."Calls"] or 0) + 1
+        perf[prefix.."Seconds"] = (perf[prefix.."Seconds"] or 0) + elapsed
+        perf[prefix.."MaxSeconds"] = math.max(perf[prefix.."MaxSeconds"] or 0, elapsed)
+    end
+end
+local function profile_frame()
+    if not perf_enabled then return end
+    local cs = rawget(_G, "CS")
+    local time = cs and cs.UnityEngine and cs.UnityEngine.Time
+    local frame = time and tonumber(safe_get(time, "frameCount"))
+    if frame ~= nil and frame ~= perf_frame then
+        perf_frame = frame
+        local delta = tonumber(safe_get(time, "unscaledDeltaTime"))
+        if delta and delta > 0 then
+            perf.frames = perf.frames + 1
+            perf.frameSeconds = perf.frameSeconds + delta
+            if delta > 0.025 then perf.over25ms = perf.over25ms + 1 end
+            if delta > 0.05 then perf.over50ms = perf.over50ms + 1 end
+        end
+    end
+end
+function M.Pump()
+    if not perf_enabled then return pump_overview() end
+    profile_frame()
+    local started = perf_clock()
+    local result = pump_overview()
+    M.PerformanceEnd("overview", started)
+    local clock = runtime_clock()
+    if clock - perf_written >= 5 then
+        perf_written = clock
+        perf.observedAt = tonumber(os.time())
+        perf.runtimeSeconds = clock
+        perf.luaKiB = collectgarbage("count")
+        local cs = rawget(_G, "CS")
+        local gc = cs and cs.System and cs.System.GC
+        if gc then
+            local ok_bytes, bytes = pcall(function() return tonumber(gc.GetTotalMemory(false)) end)
+            if ok_bytes then perf.managedBytes = bytes end
+            local ok_collections, collections = pcall(function() return tonumber(gc.CollectionCount(0)) end)
+            if ok_collections then perf.gen0Collections = collections end
+        end
+        write_json(root .. [[\r29-perf.json]], perf)
+    end
+    return result
+end
+
+-- LuaEntry Update/LateUpdate and UpdateManager can all invoke the bridge in
+-- one rendered frame. Bound periodic work across those entry points: the
+-- FEATURE018 command/engine tick stays at 20 Hz (hotkey latency), while the
+-- Overview host tick (control/lease/request-file polling; heartbeat is itself
+-- 0.75 s) runs at 10 Hz. The Map scanner has its own update registration and
+-- is not paced by this tick. Commands keep their exact-owner checks.
+local last_overview_tick, last_feature_tick = -1000, -1000
+local OVERVIEW_INTERVAL, FEATURE_INTERVAL = 0.1, 0.05
+function M.TryPump()
+    profile_frame()
+    local clock = runtime_clock()
+    if clock >= last_overview_tick and clock - last_overview_tick < OVERVIEW_INTERVAL then return false end
+    last_overview_tick = clock
+    return M.Pump()
+end
+function M.ShouldPumpFeature018()
+    local clock = runtime_clock()
+    if clock >= last_feature_tick and clock - last_feature_tick < FEATURE_INTERVAL then return false end
+    last_feature_tick = clock
+    return true
+end
+
+local feature018_periodic_tick = nil
+function M.SetFeature018PeriodicTick(callback)
+    if type(callback) ~= "function" or feature018_periodic_tick ~= nil then return false end
+    feature018_periodic_tick = callback
     return true
 end
 
 function M.Register()
     if registration_method ~= nil then return true end
-    update_callback = function() M.Pump() end
+    -- The normal Overview heartbeat continues during game play after the
+    -- one-shot LuaEntry lifecycle methods stop firing. Poll FEATURE018's
+    -- mailbox and asynchronous City/Sheep jobs on that same owned callback.
+    update_callback = function()
+        M.TryPump()
+        if feature018_periodic_tick ~= nil then
+            pcall(feature018_periodic_tick)
+        end
+    end
     local manager = rawget(_G, "UpdateManager")
     local instance = manager
     if manager ~= nil and type(safe_get(manager, "GetInstance")) == "function" then
@@ -3805,6 +4170,64 @@ function M.Register()
     end
     M.Pump()
     return registration_method ~= nil
+end
+
+-- FEATURE018 producer admission for a separately packaged game module. A
+-- fresh authenticated native UID/server, together with the host lease, forms
+-- the command's account identity. No particular player or server is privileged
+-- by the shipped app. Delayed responses must still match their START identity.
+local function feature018_current_account()
+    local game = observe_game_connection()
+    local uid = game.gameUid and tostring(game.gameUid) or nil
+    local server = tonumber(game.serverId)
+    if game.observed ~= true or game.loggedIn ~= true or
+       game.connected ~= true or game.connecting ~= false or
+       not uid or #uid > 20 or not uid:match("^[1-9]%d*$") or
+       not server or server < 1 or server % 1 ~= 0 then return nil end
+    return {uid=uid, server=server}
+end
+local function feature018_control_current()
+    if active == nil then return false end
+    -- A host control rotation can precede the next regular Overview Pump.
+    local control = read_control()
+    return control ~= nil and control.profileId == active.profileId and
+        control.sessionId == active.sessionId and control.challenge == active.challenge and
+        control.gamePid == active.gamePid
+end
+function M.IsAuthorizedFeature018Request(values, native_server)
+    if active == nil or type(values) ~= "table" then return false end
+    if active.profileId ~= values.profileId or active.sessionId ~= values.launchSessionId or
+       active.challenge ~= values.challenge or active.gamePid ~= tonumber(values.gamePid) then
+        return false
+    end
+    if not feature018_control_current() then return false end
+    if lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then return false end
+    local account = feature018_current_account()
+    return account ~= nil and type(values.authorizedUid) == "string" and
+        values.authorizedUid == account.uid and
+        (native_server == nil or tostring(native_server) == tostring(account.server))
+end
+
+-- Read-only owner-token gate for exact-session cleanup of transient feature
+-- UI wrappers and chest markers; unavailable on a stale or missing host lease.
+function M.Feature018OwnerToken()
+    local account = feature018_current_account()
+    if not feature018_control_current() or
+       lease_is_fresh(active, tonumber(os.time()) or 0) ~= true or
+       account == nil then
+        return nil
+    end
+    return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)
+        .. ':' .. account.uid .. ':' .. tostring(account.server)
+end
+
+-- Registration is deliberately lazy. LuaEntry is loaded before all current-client
+-- Account-independent identity used only to PAUSE a City job. It never admits
+-- a command or native move without the full fresh account token above.
+function M.Feature018SessionToken()
+    if not feature018_control_current() or
+       lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then return nil end
+    return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)
 end
 
 -- Registration is deliberately lazy. LuaEntry is loaded before all current-client

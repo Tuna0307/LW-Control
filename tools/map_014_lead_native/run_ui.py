@@ -33,8 +33,26 @@ EXPECTED_26_CURRENT = {
     **EXPECTED_26,
     "version.txt": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
 }
+# Official update 2026-10-21 (manifest 1101, Lua content 27), applied by the owner-authorized
+# official launcher with original scripts. LWScripts.txt changed; version.txt marker stays 26.
+EXPECTED_27 = {
+    "LWScripts.data": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+    "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
+    "version.txt": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
+}
+# Official launcher has now advanced the numeric marker to 27; package and
+# metadata bytes are unchanged. Preserve the earlier marker-26 admission too.
+EXPECTED_27_CURRENT = {**EXPECTED_27, "version.txt": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf"}
+ENTRY_COUNTS = {24: 18741, 26: 18743, 27: 18744}
 FILE_ROLES = {"data": "LWScripts.data", "metadata": "LWScripts.txt", "version": "version.txt"}
 TRUSTED_SETTLED_PROOF = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451"
+# v27 settlement: the app's own official settle in the first v27 R30 session (owner-authorized).
+TRUSTED_SETTLED_PROOFS = {26: TRUSTED_SETTLED_PROOF,
+                          27: ROOT / "artifacts/map014-takeover/native-ui-20261021-083513"}
+def trusted_settled_proof(hashes):
+    if hashes == EXPECTED_27_CURRENT:
+        return ROOT / "artifacts/map014-takeover/native-ui-20261021-111448"
+    return TRUSTED_SETTLED_PROOFS.get(admitted_original_version(hashes))
 # MAP016 acceptance is permitted to reuse only the EXACT existing, independently
 # proven official settlement. Manual all-nine / Truck / Railway measurements
 # must have this same no-updater gate as Auto acceptance: do not let a normal
@@ -43,6 +61,7 @@ NO_UPDATER_MODES = frozenset((
     "all-nine", "truck", "railway",
     "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
     "boss-first", "boss-after-resource", "picker-empty", "once-two-server",
+    "feature018-tabs",
 ))
 
 
@@ -51,6 +70,8 @@ def admitted_original_version(hashes):
         return 24
     if hashes in (EXPECTED_26, EXPECTED_26_CURRENT):
         return 26
+    if hashes in (EXPECTED_27, EXPECTED_27_CURRENT):
+        return 27
     raise RuntimeError("Original script triplet is not explicitly admitted")
 
 
@@ -63,7 +84,7 @@ def require_client_admission(client, hashes):
         "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
     }
     if (client.get("contentVersion") != version or
-            client.get("entryCount") != (18741 if version == 24 else 18743) or
+            client.get("entryCount") != ENTRY_COUNTS[version] or
             client.get("packageSha256") != hashes["LWScripts.data"] or
             client.get("compatibilityPolicy") != "lwbridge-current-client-critical-anchors-3" or
             any(client.get(key) != value for key, value in anchors.items())):
@@ -210,9 +231,13 @@ def audit_session_restoration(destination, prior_hashes, *, installed_dir, game_
 
 
 def admit():
+    # R18 explicitly permits a separate isolated background app while the owner
+    # uses their idle app. Installation admission below still rejects every
+    # existing game/launcher, recovery journal and fresh foreign bridge lease.
+    names = "@('LastWar.exe','LastWarLauncher.exe')" if os.environ.get("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1" else "@('LastWar.exe','LastWarLauncher.exe','LWBridge.Desktop.exe')"
     check = subprocess.run(
         ["powershell", "-NoProfile", "-Command",
-         "Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('LastWar.exe','LastWarLauncher.exe','LWBridge.Desktop.exe') } | Select-Object -ExpandProperty ProcessId"],
+         "Get-CimInstance Win32_Process | Where-Object { $_.Name -in " + names + " } | Select-Object -ExpandProperty ProcessId"],
         capture_output=True, text=True, check=True,
     )
     if check.stdout.strip():
@@ -235,12 +260,17 @@ def admit():
 
 
 def copy_verified_official_settlement(destination, original_hashes, *,
-                                      prior_proof=TRUSTED_SETTLED_PROOF, game_root=GAME):
+                                      prior_proof=None, game_root=GAME):
     """Copy exact already-settled ORIGINAL bytes; never run/forge an updater.
 
     The native lifecycle separately enforces this same marker against its
     freshly recovered installed-package SHA before any official launcher.
     """
+    version = admitted_original_version(original_hashes)
+    if prior_proof is None:
+        prior_proof = trusted_settled_proof(original_hashes)
+        if prior_proof is None:
+            raise RuntimeError("No proven official settlement for this game version yet; run a browse session first")
     prior_proof = Path(prior_proof)
     source = prior_proof / "overview-evidence/official-settled-client.json"
     prior_exit = prior_proof / "owned-exit.json"
@@ -251,7 +281,7 @@ def copy_verified_official_settlement(destination, original_hashes, *,
     if (marker.get("schemaVersion") != 1 or
             not _same_path(marker.get("gameRoot"), game_root) or
             marker.get("packageSha256") != original_hashes["LWScripts.data"] or
-            admitted_original_version(original_hashes) != 26 or
+            version not in (26, 27) or
             outcome.get("exitCode") != 0 or outcome.get("proof") is not True or
             outcome.get("error") is not None or
             outcome.get("recoveryJournalPresent") is not False or
@@ -278,13 +308,13 @@ def copy_verified_official_settlement(destination, original_hashes, *,
 
 
 def main():
-    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-railway", "remote-reuse", "track", "expiry", "city", "other", "railway", "mixed", "all-nontruck", "truck", "all-nine", "auto-all-nine", "saved-clear-reopen", "auto-interval-20m", "truck-stop", "boss-first", "boss-after-resource", "picker-empty", "once-two-server"):
+    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-railway", "remote-reuse", "track", "expiry", "city", "other", "railway", "mixed", "all-nontruck", "truck", "all-nine", "auto-all-nine", "saved-clear-reopen", "auto-interval-20m", "truck-stop", "boss-first", "boss-after-resource", "picker-empty", "once-two-server", "feature018-tabs"):
         raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-railway|remote-reuse|track|expiry|city|other|railway|mixed|all-nontruck|truck|all-nine|auto-all-nine|saved-clear-reopen|auto-interval-20m|truck-stop")
     mode = sys.argv[1]
     saved_db = None
     if len(sys.argv) == 4:
-        if mode != "browse" or sys.argv[2] != "--saved-db":
-            raise RuntimeError("Explicit saved native data is supported only for browse proof")
+        if mode not in ("browse", "feature018-tabs") or sys.argv[2] != "--saved-db":
+            raise RuntimeError("Explicit saved native data is supported only for browse/tab proof")
         saved_db = Path(sys.argv[3]).resolve()
         if not saved_db.is_relative_to((ROOT / "artifacts").resolve()) or not saved_db.is_file():
             raise RuntimeError("Saved proof DB must be an existing task artifact")
@@ -297,7 +327,14 @@ def main():
         "native-ui-" + datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S"))
     destination.mkdir(parents=True, exist_ok=False)
     (destination / "preflight-originals.json").write_text(json.dumps(prior_hashes, indent=2), encoding="utf-8")
-    if mode in NO_UPDATER_MODES:
+    # Owner authorized the official launcher on 2026-10-21. Only for a version with no proven
+    # settlement yet, and only with this explicit switch, the app performs its own settle once.
+    settled_proof=trusted_settled_proof(prior_hashes)
+    settled_hashes=(json.loads((settled_proof/'owned-exit.json').read_text(encoding='utf-8')).get('restorationAudit',{}).get('capturedOriginalHashes')
+                    if settled_proof else None)
+    first_settle = (os.environ.get("LWBRIDGE_ALLOW_FIRST_OFFICIAL_SETTLE") == "1" and settled_hashes != prior_hashes)
+    no_updater = mode in NO_UPDATER_MODES and not first_settle
+    if no_updater:
         copy_verified_official_settlement(destination, prior_hashes)
     profile = "map014-native-ui"
     source = (ROOT / "artifacts/map014-takeover/native-ui-20261013-123802/profiles/map014-native-ui/map-data"
@@ -309,7 +346,7 @@ def main():
         raise FileNotFoundError("Preserved genuine published Map database is unavailable")
     store = destination / "profiles" / profile / "map-data"
     store.mkdir(parents=True)
-    if mode in ("browse", "remote", "remote-reuse", "track", "expiry", "saved-clear-reopen"):
+    if saved_db is not None or mode in ("browse", "remote", "remote-reuse", "track", "expiry", "saved-clear-reopen"):
         with sqlite3.connect((source / "map-data.db").resolve().as_uri() + "?mode=ro", uri=True) as readonly, \
              sqlite3.connect(store / "map-data.db") as snapshot:
             readonly.backup(snapshot)
@@ -337,7 +374,9 @@ def main():
                        LWBRIDGE_MAP016_SAVED_CLEAR_REOPEN="1" if mode == "saved-clear-reopen" else "0",
                        LWBRIDGE_MAP016_AUTO_INTERVAL="1" if mode == "auto-interval-20m" else "0",
                        LWBRIDGE_MAP017_UI_MODE=mode if mode in ("boss-first", "boss-after-resource", "picker-empty", "once-two-server") else "",
-                       LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF="1" if mode in NO_UPDATER_MODES else "0",
+                       LWBRIDGE_FEATURE018_UI_PROOF="1" if mode == "feature018-tabs" else "0",
+                       LWBRIDGE_FEATURE018_R2_PROOF="1" if mode == "feature018-tabs" else "0",
+                       LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF="1" if no_updater else "0",
                        LWBRIDGE_MAP014_TRACKING_UI="1" if mode == "track" else "0",
                        LWBRIDGE_MAP014_EXPIRY_UI="1" if mode == "expiry" else "0")
     startup = subprocess.STARTUPINFO()
@@ -352,7 +391,8 @@ def main():
         "pid": owned.pid, "publish": str(publish), "source": str(source)
     }, indent=2), encoding="utf-8")
     print(f"MAP014_OWNED_UI_PID={owned.pid} ROOT={destination}", flush=True)
-    deadline = time.monotonic() + (2100 if mode == "auto-interval-20m" else
+    deadline = time.monotonic() + (2800 if mode == "feature018-tabs" and os.environ.get("LWBRIDGE_R29_PERF_PROOF") == "1" else
+                                   2100 if mode == "auto-interval-20m" else
                                    1200 if mode in ("remote", "remote-railway") else 900)
     while owned.poll() is None:
         if time.monotonic() >= deadline:

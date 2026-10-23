@@ -130,7 +130,8 @@ internal sealed partial class CurrentClientMapBlockSource
         if (state.CityRecords.Count + state.ResourceRecords.Count + state.DispatchRecords.Count +
             state.GhostRecords.Count + state.TreasureRecords.Count + state.MonsterRecords.Count +
             state.TrainRecords.Count == 0 &&
-            !request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+            !request.SelectedTypes.Contains("railway", StringComparer.Ordinal) &&
+            !VerifiedEmptySelection(request, state))
             throw new InvalidDataException("Camera-free scan returned zero selected rows.");
 
         state.AcquisitionMilliseconds = (Now() - state.MetricsStartedAt).TotalMilliseconds;
@@ -149,7 +150,8 @@ internal sealed partial class CurrentClientMapBlockSource
             // camera route before ending this scan as a source validation error.
             throw new InvalidDataException("Camera-free detail hydration failed: " + error.Message, error);
         }
-        if (captures.All(capture => capture.Records.Count == 0))
+        if (captures.All(capture => capture.Records.Count == 0) &&
+            !VerifiedEmptySelection(request, state))
             throw new InvalidDataException("Camera-free scan returned zero rows after final record hydration.");
         return captures;
     }
@@ -443,7 +445,10 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Camera-free result included unrequested native marches.");
 
         return new FastCityBatchObservation(indices, cities, resources, dispatch, ghosts, treasures,
-            monsters, trains, completeness, 0, 0, 0, 0, null, null, null);
+            monsters, trains, completeness, 0, 0, 0, 0, null, null, null,
+            IncludesMonsterSource(request) ? monsterMarches.GetArrayLength() : 0,
+            batch.TryGetProperty("matchedCount", out JsonElement matched) && matched.TryGetInt32(out int nativePoints) &&
+                nativePoints > 0 ? nativePoints : 0);
     }
 
     internal static DateTimeOffset RequireCameraFreeMonsterReceipt(
@@ -474,6 +479,21 @@ internal sealed partial class CurrentClientMapBlockSource
         return DateTimeOffset.FromUnixTimeMilliseconds(capturedMs);
     }
 
+    // MAP-019: a selection with zero rows is a real "none" (e.g. Ghost-only outside the event, Zombie Boss on a
+    // boss-free server) only when all 10,000 areas were covered (checked by the caller) AND each selected kind's
+    // source proved it worked: point kinds by the replies carrying native map points, Monster/Zombie Boss by the
+    // game Monster list delivering rows. Anything unproven still falls back to the camera scan.
+    internal static bool VerifiedEmptySelection(IReadOnlyCollection<string> selected, long nativePointRows, long monsterSourceRows) =>
+        selected.Count > 0 && selected.All(kind => kind switch
+        {
+            "city" or "resource" or "dispatch" or "ghost" or "treasure" => nativePointRows > 0,
+            "monster" or "zombie_boss" => monsterSourceRows > 0,
+            _ => false,
+        });
+    private static bool VerifiedEmptySelection(MapScanExecutionRequest request, FastFullWorldResumeState state) =>
+        state.Covered.Count == 10000 &&
+        VerifiedEmptySelection(request.SelectedTypes, state.NativePointRows, state.MonsterSourceRows);
+
     private static void MergeFullWorldObservation(
         FastFullWorldResumeState state, FastCityBatchObservation observation)
     {
@@ -483,6 +503,8 @@ internal sealed partial class CurrentClientMapBlockSource
             "x" + observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
         state.FootprintHistogram[shape] = state.FootprintHistogram.GetValueOrDefault(shape) + 1;
         state.NewlyCoveredAois += state.Covered.Count - before;
+        state.MonsterSourceRows += observation.MonsterSourceRows;
+        state.NativePointRows += observation.NativePointRows;
         foreach (FirstLivePreparedResource prepared in observation.Prepared)
             MergeLatestCityByOwner(state.CityRecords, prepared);
         foreach (FirstLivePreparedResource prepared in observation.Resources)

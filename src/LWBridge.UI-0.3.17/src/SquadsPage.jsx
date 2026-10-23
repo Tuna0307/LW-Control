@@ -1,15 +1,18 @@
 import { Activity, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { RallyJoinSettings } from "./RallyJoinSettings.jsx";
-import { applyAfkTarget, makePreviewAfkProfile, normalizeJoinRestrictions, previewAfkLevelOutOfRange, previewAfkProfileValid, previewAfkTargets, refreshGarrisonTargets, resolvePreviewAfkTarget, validJoinRestrictions } from "./previewAfkContracts.js";
-import { initialAfkToolbarConfig, previewAfkAvailableSquads, previewAfkMasterStopAck, previewAfkProfileRuntime, previewAfkRuntimeNames, previewDrillRuntime, previewGarrisonMemberFixture, previewGarrisonRuntime, previewZombieBusRuntime } from "./previewAfkCloseoutFixtures.js";
+import { applyAfkTarget, makePreviewAfkProfile, normalizeJoinRestrictions, previewAfkLevelOutOfRange, previewAfkProfileValid, previewAfkTargets, resolvePreviewAfkTarget, validJoinRestrictions } from "./previewAfkContracts.js";
+import { initialAfkToolbarConfig, previewAfkAvailableSquads, previewAfkMasterStopAck, previewAfkProfileRuntime, previewAfkRuntimeNames, previewDrillRuntime } from "./previewAfkCloseoutFixtures.js";
 import { PreviewConfigError, usePreviewConfig, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
+import { backendBridge } from "./backendBridge.js";
+import { NativeEquipmentContent } from "./NativeEquipmentContent.jsx";
+import { createMonsterAfkAdapter, emptyMonsterAfkConfig, normalizeAfkCatalog, createStaminaPotionAdapter, emptyStaminaConfig } from "./squadsAfkRuntime.js";
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
 
-export function SquadsPage({ previewState = "", profileId = "", activeTab, onActiveTabChange }) {
+export function SquadsPage({ previewState = "", profileId = "", online = false, activeTab, onActiveTabChange }) {
   const { t } = useI18n();
   const equipmentPreview = previewState.startsWith("squads-equipment");
   const previewEnabled = previewState.startsWith("squads-profile") || equipmentPreview;
@@ -17,7 +20,7 @@ export function SquadsPage({ previewState = "", profileId = "", activeTab, onAct
   const tab = activeTab ?? localTab;
   const [visitedTabs, setVisitedTabs] = useState(() => new Set([tab]));
   const [equipmentRefreshCount, setEquipmentRefreshCount] = useState(0);
-  const equipmentOnline = equipmentPreview && previewState !== "squads-equipment-offline";
+  const equipmentOnline = equipmentPreview ? previewState !== "squads-equipment-offline" : Boolean(profileId && backendBridge.available && online);
   const availableSquads = previewAfkAvailableSquads(previewState);
   const selectTab = (nextTab) => {
     setVisitedTabs((current) => {
@@ -39,35 +42,35 @@ export function SquadsPage({ previewState = "", profileId = "", activeTab, onAct
         <button type="button" role="tab" className={tab === "afk" ? "active" : ""} aria-selected={tab === "afk"} onClick={() => selectTab("afk")}>{t("squad.tabAfk")}</button>
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
-      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} /></Activity> : null}
-      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /></Activity> : null}
+      {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent key={profileId || "no-profile"} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} online={online} active={tab === "afk"} availableSquads={availableSquads} /></Activity> : null}
+      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} active={tab === "equipment"} profileId={profileId} online={online} refreshCount={equipmentRefreshCount} />}</Activity> : null}
     </section>
   );
 }
 
-function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, previewState = "", availableSquads = [1, 2, 3, 4] }) {
+function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, previewState = "", previewFixture = false, availableSquads = [1, 2, 3, 4], targets = null, members = null }) {
   const { t } = useI18n();
   const [targetError, setTargetError] = useState("");
   const targetDiscoveryReady = !["squads-profile-target-loading", "squads-profile-target-failed"].includes(previewState);
-  const sourceTargets = previewState === "squads-profile-target-loading" ? [] : previewState === "squads-profile-target-undiscovered" ? previewAfkTargets.filter((target) => target.key !== profile.targetKey) : previewAfkTargets;
+  const sourceTargets = targets ?? (previewState === "squads-profile-target-loading" ? [] : previewState === "squads-profile-target-undiscovered" ? previewAfkTargets.filter((target) => target.key !== profile.targetKey) : previewAfkTargets);
   const availableTargets = sourceTargets.filter((target) => !target.key.startsWith("name:") && target.group !== "drill" && (profile.kind === "join" ? target.rally : !target.joinOnly));
   const selectedTarget = resolvePreviewAfkTarget(sourceTargets, profile);
-  const targetMissing = targetDiscoveryReady && !profile.customTarget && !selectedTarget;
+  const targetMissing = targetDiscoveryReady && !profile.customTarget && !selectedTarget && !!profile.targetKey;
   const attackRangeWarning = profile.kind === "farm" && profile.searchable && previewAfkLevelOutOfRange(profile, selectedTarget);
   const patch = (changes) => onProfileChange({ ...profile, ...changes });
   useEffect(() => { setTargetError(""); }, [profile.id]);
   return (
-    <div className={`monster-afk-editor ${isNew ? "is-new" : ""}`} data-preview-fixture="afk-profile-editor">
+    <div className={`monster-afk-editor ${isNew ? "is-new" : ""}`} data-preview-fixture={previewFixture ? "afk-profile-editor" : undefined}>
       <div className="monster-afk-editor-heading"><strong>{t(isNew ? "squad.afkNewProfile" : "squad.afkEditProfile")}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></div>
       <section className="monster-afk-config-section">
         <h3>{t("squad.afkBasicSettings")}</h3>
         <div className="monster-afk-basic-grid">
           <label>{t("squad.afkProfileName")}<input value={profile.name} disabled={!enabled} onChange={(event) => patch({ name: event.target.value })} onBlur={() => { if (previewAfkProfileValid(profile)) patch({ name: profile.name.trim() }); }} onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) event.currentTarget.blur(); }} /></label>
-          <label>{t("squad.afkTarget")}<select value={profile.customTarget ? profile.lastListTargetKey : selectedTarget?.key || profile.targetKey} disabled={!enabled} onChange={(event) => { const target = sourceTargets.find((entry) => entry.key === event.target.value); if (!target) return; setTargetError(""); onProfileChange(applyAfkTarget(profile, target)); }}>{targetMissing ? <option value={profile.targetKey}>{profile.targetNameQuery || profile.name} · {t("squad.afkUndiscovered")} · {t(profile.kind === "join" ? "squad.afkJoin" : profile.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}</option> : null}{profile.customTarget && !availableTargets.some((target) => target.key === profile.lastListTargetKey) ? <option value={profile.lastListTargetKey}>{t("squad.afkSelectListTarget")}</option> : null}{["normal", "elite", "running", "leader", "ally", "drill", "invader", "other"].filter((group) => availableTargets.some((target) => target.group === group)).map((group) => <optgroup label={t(`squad.afkGroup.${group}`)} key={group}>{availableTargets.filter((target) => target.group === group).map((target) => <option value={target.key} key={target.key}>{target.name || (target.labelKey ? t(target.labelKey) : target.key)} · {t(target.source === "search" ? "squad.afkSearchable" : "squad.afkLocalTarget")} · {t(profile.kind === "join" ? "squad.afkJoin" : target.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}{target.searchable ? ` · ${target.attackMinLevel != null && target.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: target.attackMinLevel, max: target.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}` : ""}</option>)}</optgroup>)}</select></label>
+          <label className={profile.customTarget ? "monster-afk-target-unused" : undefined}>{t("squad.afkTarget")}<select value={profile.customTarget ? profile.lastListTargetKey : selectedTarget?.key || profile.targetKey} disabled={!enabled || profile.customTarget} onChange={(event) => { const target = sourceTargets.find((entry) => entry.key === event.target.value); if (!target) return; setTargetError(""); onProfileChange(applyAfkTarget(profile, target)); }}>{!profile.customTarget && !profile.targetKey ? <option value="">{t("squad.afkSelectListTarget")}</option> : null}{targetMissing ? <option value={profile.targetKey}>{profile.targetNameQuery || profile.name} · {t("squad.afkUndiscovered")} · {t(profile.kind === "join" ? "squad.afkJoin" : profile.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}</option> : null}{profile.customTarget && !availableTargets.some((target) => target.key === profile.lastListTargetKey) ? <option value={profile.lastListTargetKey}>{t("squad.afkSelectListTarget")}</option> : null}{["normal", "elite", "running", "leader", "ally", "drill", "invader", "other"].filter((group) => availableTargets.some((target) => target.group === group)).map((group) => <optgroup label={t(`squad.afkGroup.${group}`)} key={group}>{availableTargets.filter((target) => target.group === group).map((target) => <option value={target.key} key={target.key}>{target.name || (target.labelKey ? t(target.labelKey) : target.key)} · {t(target.source === "search" ? "squad.afkSearchable" : "squad.afkLocalTarget")} · {t(profile.kind === "join" ? "squad.afkJoin" : target.action === "rally" ? "squad.afkActionRally" : "squad.afkActionAttack")}{target.searchable ? ` · ${target.attackMinLevel != null && target.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: target.attackMinLevel, max: target.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}` : ""}</option>)}</optgroup>)}</select>{profile.customTarget ? <span className="muted monster-afk-target-note">{t("squad.afkTargetUnusedCustom")}</span> : null}</label>
         </div>
-        <div className="monster-afk-custom-target"><label className="monster-afk-check-row"><input type="checkbox" checked={profile.customTarget} disabled={!enabled} onChange={(event) => { if (event.target.checked) { setTargetError(""); patch({ customTarget: true, lastListTargetKey: selectedTarget?.key || profile.targetKey, targetKey: "query:", targetNameQuery: "", monsterType: 0, monsterNameKey: undefined, monsterSpecial: undefined, monsterIds: [], source: "undiscovered", action: profile.kind === "join" ? "rally" : "attack", rally: profile.kind === "join", searchable: false, minLevel: 1, maxLevel: 999 }); return; } const restored = availableTargets.find((target) => target.key === profile.lastListTargetKey); if (!restored) { setTargetError("squad.afkRestoreTargetRequired"); return; } setTargetError(""); onProfileChange(applyAfkTarget(profile, restored)); }} />{t("squad.afkCustomTarget")}</label>{profile.customTarget ? <label className="monster-afk-custom-name">{t("squad.afkCustomName")}<input value={profile.targetNameQuery} aria-invalid={!profile.targetNameQuery.trim()} disabled={!enabled} onChange={(event) => patch({ targetKey: `query:${event.target.value.trim()}`, targetNameQuery: event.target.value })} /><span className="muted">{t("squad.afkCustomTargetHint")}</span>{!profile.targetNameQuery.trim() ? <span role="status" className="status-error">{t("squad.afkCustomTargetRequired")}</span> : null}</label> : null}{targetError ? <span role="status" className="status-error">{t(targetError)}</span> : null}</div>
+        <div className="monster-afk-custom-target"><label className="monster-afk-check-row"><input type="checkbox" checked={profile.customTarget} disabled={!enabled} onChange={(event) => { if (event.target.checked) { setTargetError(""); patch({ customTarget: true, lastListTargetKey: selectedTarget?.key || profile.targetKey, targetKey: "query:", targetNameQuery: "", monsterType: 0, monsterNameKey: undefined, monsterSpecial: undefined, monsterIds: [], source: "undiscovered", action: profile.kind === "join" ? "rally" : "attack", rally: profile.kind === "join", searchable: false, minLevel: 1, maxLevel: 999 }); return; } const restored = availableTargets.find((target) => target.key === profile.lastListTargetKey); setTargetError(""); if (restored) { onProfileChange(applyAfkTarget(profile, restored)); return; } patch({ customTarget: false, targetKey: "", targetNameQuery: "" }); setTargetError("squad.afkSelectListTarget"); }} />{t("squad.afkCustomTarget")}</label>{profile.customTarget ? <label className="monster-afk-custom-name">{t("squad.afkCustomName")}<input value={profile.targetNameQuery} aria-invalid={!profile.targetNameQuery.trim()} disabled={!enabled} onChange={(event) => patch({ targetKey: `query:${event.target.value.trim()}`, targetNameQuery: event.target.value })} /><span className="muted">{t("squad.afkCustomTargetHint")}</span>{!profile.targetNameQuery.trim() ? <span role="status" className="status-error">{t("squad.afkCustomTargetRequired")}</span> : null}</label> : null}{targetError ? <span role="status" className="status-error">{t(targetError)}</span> : null}</div>
       </section>
-      {profile.kind === "join" ? <section className="monster-afk-config-section monster-afk-join-section"><RallyJoinSettings key={profile.id} value={profile.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true)} onChange={(joinRestrictions) => patch({ joinRestrictions })} disabled={!enabled} previewState={previewState} ToggleRow={ToggleRow} /></section> : null}
+      {profile.kind === "join" ? <section className="monster-afk-config-section monster-afk-join-section"><RallyJoinSettings members={members} key={profile.id} value={profile.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true)} onChange={(joinRestrictions) => patch({ joinRestrictions })} disabled={!enabled} previewState={previewState} ToggleRow={ToggleRow} /></section> : null}
       <section className="monster-afk-config-section">
         <h3>{t("squad.afkExecutionSettings")}</h3>
         <div className="monster-afk-basic-grid monster-afk-execution-grid">
@@ -82,6 +85,14 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, pr
         <label className="monster-afk-check-row"><input type="checkbox" checked={profile.levelFilterEnabled} disabled={!enabled} onChange={(event) => patch({ levelFilterEnabled: event.target.checked, progressiveLevels: event.target.checked && profile.progressiveLevels })} />{t("squad.afkLevelFilter")}</label>
         {profile.levelFilterEnabled ? <div className="monster-afk-filter-content"><div className="monster-afk-number-grid"><label>{t("squad.afkMinLevel")}<input type="number" min="1" value={Number.isNaN(profile.minLevel) ? "" : profile.minLevel} disabled={!enabled} onChange={(event) => patch({ minLevel: event.target.valueAsNumber })} /></label>{!profile.progressiveLevels ? <label>{t("squad.afkMaxLevel")}<input type="number" min="1" value={Number.isNaN(profile.maxLevel) ? "" : profile.maxLevel} disabled={!enabled} onChange={(event) => patch({ maxLevel: event.target.valueAsNumber })} /></label> : null}</div>{profile.kind === "farm" && profile.searchable ? <label className="monster-afk-check-row"><input type="checkbox" checked={profile.progressiveLevels} disabled={!enabled} onChange={(event) => patch({ progressiveLevels: event.target.checked })} />{t("squad.afkProgressiveLevels")}</label> : null}</div> : null}
         </div>
+        {profile.squadIndexes.length > 0 ? <div className="monster-afk-filter monster-afk-squad-levels">
+          <span className="monster-afk-squad-levels-title">{t("squad.afkSquadLevels")}</span>
+          {profile.squadIndexes.map((number) => { const key = String(number); const range = profile.squadLevels?.[key]; const setRange = (next) => { const all = { ...(profile.squadLevels || {}) }; if (next) all[key] = next; else delete all[key]; patch({ squadLevels: all }); }; return <div className="monster-afk-squad-level" key={number}>
+            <label className="monster-afk-check-row"><input type="checkbox" checked={!!range} disabled={!enabled} onChange={(event) => setRange(event.target.checked ? { min: profile.levelFilterEnabled && profile.minLevel > 0 ? profile.minLevel : 1, max: profile.levelFilterEnabled && profile.maxLevel > 0 ? profile.maxLevel : 40 } : null)} />{t("squad.number", { number })}</label>
+            {range ? <span className="monster-afk-squad-level-inputs"><input type="number" min="1" aria-label={`${t("squad.number", { number })} ${t("squad.afkMinLevel")}`} value={Number.isNaN(range.min) ? "" : range.min} disabled={!enabled} aria-invalid={!(range.min > 0) || range.max < range.min} onChange={(event) => setRange({ ...range, min: event.target.valueAsNumber })} /><span aria-hidden="true">–</span><input type="number" min="1" aria-label={`${t("squad.number", { number })} ${t("squad.afkMaxLevel")}`} value={Number.isNaN(range.max) ? "" : range.max} disabled={!enabled} aria-invalid={range.max < range.min} onChange={(event) => setRange({ ...range, max: event.target.valueAsNumber })} /></span> : <span className="muted">{t("squad.afkSquadLevelsProfile")}</span>}
+          </div>; })}
+          <span className="muted">{t("squad.afkSquadLevelsHint")}</span>
+        </div> : null}
         {profile.kind === "farm" && profile.searchable ? <div className={`monster-afk-attackable-range ${attackRangeWarning ? "is-invalid" : ""}`}><span>{selectedTarget?.attackMinLevel != null && selectedTarget?.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: selectedTarget.attackMinLevel, max: selectedTarget.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}</span>{attackRangeWarning ? <strong>{t("squad.afkLevelOutOfRange")}</strong> : null}</div> : null}
         <div className="monster-afk-filter">
         <label className="monster-afk-check-row"><input type="checkbox" checked={profile.distanceFilterEnabled} disabled={!enabled} onChange={(event) => patch({ distanceFilterEnabled: event.target.checked })} />{t("squad.afkDistanceFilter")}</label>
@@ -94,12 +105,12 @@ function AfkProfileEditor({ enabled, isNew = false, profile, onProfileChange, pr
   );
 }
 
-function AllianceDrillPreviewSettings({ disabled, value, onChange, onJoinRestrictionsChange = null, previewState = "", availableSquads = [1, 2, 3, 4], runtimeNames = {} }) {
+function AllianceDrillPreviewSettings({ disabled, value, onChange, onJoinRestrictionsChange = null, previewState = "", availableSquads = [1, 2, 3, 4], runtimeNames = {}, members = undefined, runtimeRows = null }) {
   const { t } = useI18n();
   const DragGlyph = () => <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /></svg>;
   const [draggedSquad, setDraggedSquad] = useState(null);
   const [dragOverSquad, setDragOverSquad] = useState(null);
-  const runtime = previewDrillRuntime(previewState);
+  const runtime = runtimeRows ?? previewDrillRuntime(previewState);
   const patch = (changes) => onChange({ ...value, ...changes });
   const orderedSquads = [...value.squadIndexes, ...availableSquads.filter((number) => !value.squadIndexes.includes(number))];
   const reorderSquad = (target) => {
@@ -112,138 +123,7 @@ function AllianceDrillPreviewSettings({ disabled, value, onChange, onJoinRestric
     next.splice(targetIndex, 0, moved);
     patch({ squadIndexes: next });
   };
-  return <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("squad.afkAllianceDrill")}</strong><span>{t("squad.afkAllianceDrillDescription")}</span></div><div className="monster-afk-drill-inline"><span className="muted">{t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })}</span><ToggleRow label={t("squad.afkAllianceDrillActive")} checked={value.activeRally} disabled={disabled} onChange={(activeRally) => patch({ activeRally })} /></div><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })}>{orderedSquads.map((number) => { const selected = value.squadIndexes.includes(number); return <div className={`automation-squad-priority-item${selected ? " selected" : ""}${draggedSquad === number ? " dragging" : ""}${dragOverSquad === number ? " drag-over" : ""}`} draggable={selected && !disabled} onDragStart={(event) => { if (!selected) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedSquad(number); }} onDragOver={(event) => { if (selected && draggedSquad != null && draggedSquad !== number) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; setDragOverSquad(number); } }} onDrop={(event) => { event.preventDefault(); reorderSquad(number); setDraggedSquad(null); setDragOverSquad(null); }} onDragEnd={() => { setDraggedSquad(null); setDragOverSquad(null); }} key={number}><label><input type="checkbox" checked={selected} disabled={disabled} onChange={() => { const squadIndexes = selected ? value.squadIndexes.filter((item) => item !== number) : [...value.squadIndexes, number]; patch({ enabled: value.enabled && squadIndexes.length > 0, squadIndexes }); }} /><span>{t("squad.number", { number })}</span></label>{selected ? <span className="automation-squad-drag-handle" aria-hidden="true"><DragGlyph /></span> : null}</div>; })}</div><RallyJoinSettings value={value.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true)} onChange={(joinRestrictions) => onJoinRestrictionsChange ? onJoinRestrictionsChange(joinRestrictions) : patch({ joinRestrictions })} disabled={disabled} previewState={previewState} ToggleRow={ToggleRow} />{runtime.filter((row) => row.step === "waiting_join_delay").map((row) => <span className="muted" key={row.squadIndex}>{t("squad.number", { number: row.squadIndex })} · {t("squad.join.waitingDetail", { target: runtimeNames[row.joinTargetNameKey || ""] || row.joinTargetName || "", seconds: row.joinWaitSeconds ?? 0 })}</span>)}</section>;
-}
-
-function GarrisonPickerDialog({ label, onClose, children }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    dialog.showModal();
-    return () => {
-      dialog.close();
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, []);
-  return <dialog ref={ref} className="app-dialog garrison-modal-backdrop" role="dialog" aria-modal="true" aria-label={label}
-    onCancel={(event) => { event.preventDefault(); onClose(); }}
-    onKeyDown={(event) => {
-      event.stopPropagation();
-      if (event.key !== "Tab") return;
-      const controls = [...event.currentTarget.querySelectorAll("button, [href], input, select, textarea, [tabindex]")]
-        .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled") && element.getClientRects().length > 0);
-      const first = controls[0];
-      const last = controls[controls.length - 1];
-      if (!first) event.preventDefault();
-      else if (event.shiftKey && (document.activeElement === first || !controls.includes(document.activeElement))) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !controls.includes(document.activeElement))) {
-        event.preventDefault(); first.focus();
-      }
-    }}>{children}</dialog>;
-}
-
-function GarrisonPreviewSettings({ disabled, value, onChange, previewState = "", config = null, actionError = "", availableSquads = [1, 2, 3, 4] }) {
-  const { t } = useI18n();
-  const DragGlyph = () => <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /></svg>;
-  const runtime = previewGarrisonRuntime(previewState);
-  const save = (next) => onChange(refreshGarrisonTargets(next, memberFixture.members));
-  const memberFixture = previewGarrisonMemberFixture(previewState);
-  const members = memberFixture.members.filter((member) => member.uid !== memberFixture.selfUid);
-  const memberMap = new Map(memberFixture.members.map((member) => [member.uid, member]));
-  const buildingMap = new Map(runtime.buildings.map((building) => [building.buildId, building]));
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [pickerSearch, setPickerSearch] = useState("");
-  const [draftAllies, setDraftAllies] = useState(new Set());
-  const [draggedTargetKey, setDraggedTargetKey] = useState("");
-  const [draggedSquad, setDraggedSquad] = useState(null);
-  const filtered = members.filter((member) => !pickerSearch.trim() || member.name.toLowerCase().includes(pickerSearch.trim().toLowerCase()));
-  const [selectionError, setSelectionError] = useState("");
-  const selected = new Set(value.targets.map((target) => target.kind === "allianceBuilding" ? `building:${target.buildId}` : `ally:${target.uid}`));
-  const selectedAllies = value.targets.filter((target) => target.kind === "allyCity");
-  const discoveryReady = runtime.discoveryReady !== false && memberFixture.ready;
-  const availableTargetCount = discoveryReady ? value.targets.filter((target) => target.kind === "allianceBuilding"
-    ? buildingMap.get(target.buildId)?.available === true
-    : memberMap.get(target.uid)?.available === true).length : value.targets.length;
-  const orderedSquads = [...value.squadPriority, ...availableSquads.filter((number) => !value.squadPriority.includes(number))];
-  const targetKey = (target) => target.kind === "allianceBuilding" ? `building:${target.buildId}` : `ally:${target.uid}`;
-  const buildingName = (building) => {
-    const translated = building?.nameKey ? runtime.gameTexts?.[building.nameKey] : "";
-    const name = translated && translated !== building.nameKey ? translated : building?.name || t(building?.role === "center" ? "garrison.center" : "garrison.attachment");
-    return building?.allianceAbbr ? `[${building.allianceAbbr}] ${name}` : name;
-  };
-  const targetName = (target) => target.kind === "allianceBuilding"
-    ? buildingMap.has(target.buildId) ? buildingName(buildingMap.get(target.buildId)) : target.nameSnapshot
-    : memberMap.get(target.uid)?.name || target.nameSnapshot;
-  const reorderTarget = (target) => {
-    if (!draggedTargetKey || draggedTargetKey === targetKey(target)) return;
-    const next = [...value.targets];
-    const sourceIndex = next.findIndex((entry) => targetKey(entry) === draggedTargetKey);
-    const targetIndex = next.findIndex((entry) => targetKey(entry) === targetKey(target));
-    if (sourceIndex < 0 || targetIndex < 0) return;
-    const [moved] = next.splice(sourceIndex, 1);
-    next.splice(targetIndex, 0, moved);
-    save({ ...value, targets: next });
-  };
-  const reorderSquad = (target) => {
-    if (draggedSquad == null || draggedSquad === target) return;
-    const next = [...value.squadPriority];
-    const sourceIndex = next.indexOf(draggedSquad);
-    const targetIndex = next.indexOf(target);
-    if (sourceIndex < 0 || targetIndex < 0) return;
-    const [moved] = next.splice(sourceIndex, 1);
-    next.splice(targetIndex, 0, moved);
-    save({ ...value, squadPriority: next });
-  };
-  const toggleBuilding = (building) => {
-    const key = `building:${building.buildId}`;
-    const targets = selected.has(key)
-      ? value.targets.filter((target) => !(target.kind === "allianceBuilding" && target.buildId === building.buildId))
-      : [...value.targets, { kind: "allianceBuilding", buildId: building.buildId, nameSnapshot: buildingName(building) }];
-    save({ ...value, targets });
-  };
-  useEffect(() => {
-    if (!pickerOpen) return;
-    const closeOnEscape = (event) => { if (event.key === "Escape") setPickerOpen(false); };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [pickerOpen]);
-  return <>
-    <section className="automation-card monster-afk-toolbar-settings garrison-settings">
-      <div className="monster-afk-toolbar-settings-heading"><div><strong>{t("garrison.settings")}</strong><span>{t("garrison.settingsDescription")}</span></div><span className="garrison-count">{t("garrison.selectedTargets", { count: value.targets.length })}</span></div>
-      <div className="garrison-settings-grid">
-        <div className="garrison-target-panel">
-          <div className="garrison-section-heading"><strong>{t("garrison.buildings")}</strong><span>{runtime.buildings.filter((building) => selected.has(`building:${building.buildId}`)).length}/{runtime.buildings.length}</span></div>
-          <div className="garrison-building-grid">{runtime.buildings.map((building) => <label className={`garrison-building ${building.role}${building.available ? "" : " unavailable"}`} key={building.key}><input type="checkbox" checked={selected.has(`building:${building.buildId}`)} disabled={disabled || !building.available} onChange={() => toggleBuilding(building)} /><span>{buildingName(building)}<small>{building.unavailableReason === "season_settled" ? t("garrison.seasonEnded") : building.full ? t("garrison.full") : t(building.role === "center" ? "garrison.center" : "garrison.attachment")}</small></span></label>)}{runtime.buildings.length === 0 ? <p className="muted">{t(disabled ? "garrison.offline" : "garrison.noBuildings")}</p> : null}</div>
-          <div className="garrison-section-heading"><strong>{t("garrison.allies")}</strong><button type="button" disabled={disabled} onClick={() => { setDraftAllies(new Set(selectedAllies.map((target) => target.uid))); setPickerSearch(""); setPickerOpen(true); }}>{t("garrison.chooseAllies")}</button></div>
-          <div className="garrison-selected-allies">{selectedAllies.length ? selectedAllies.map((target) => { const member = memberMap.get(target.uid); return <span className={member?.available === true ? "" : "unavailable"} key={target.uid}>{member?.name || target.nameSnapshot}</span>; }) : <span className="muted">{t("garrison.noSelectedAllies")}</span>}</div>
-          <div className="garrison-section-heading"><strong>{t("garrison.targetPriority")}</strong><span>{t("garrison.dragHint")}</span></div>
-          <div className="garrison-priority-list">{value.targets.map((target, index) => <div className="garrison-priority-item" draggable={!disabled} onDragStart={(event) => { if (disabled) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedTargetKey(targetKey(target)); }} onDragOver={(event) => { if (draggedTargetKey && draggedTargetKey !== targetKey(target)) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; } }} onDrop={(event) => { event.preventDefault(); reorderTarget(target); setDraggedTargetKey(""); }} onDragEnd={() => setDraggedTargetKey("")} key={targetKey(target)}><span>{index + 1}</span><strong>{targetName(target)}</strong><i aria-hidden="true"><DragGlyph /></i></div>)}{value.targets.length === 0 ? <p className="muted">{t("garrison.targetRequired")}</p> : null}</div>
-        </div>
-        <div className="garrison-runtime-panel">
-          <div className="garrison-section-heading"><strong>{t("garrison.squadPriority")}</strong><span>{value.squadPriority.join(" → ") || "-"}</span></div>
-          <div className="automation-compact-choice-group automation-squad-priority">{orderedSquads.map((number) => { const isSelected = value.squadPriority.includes(number); return <div className={`automation-squad-priority-item${isSelected ? " selected" : ""}`} draggable={isSelected && !disabled} onDragStart={(event) => { if (!isSelected || disabled) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedSquad(number); }} onDragOver={(event) => { if (isSelected && draggedSquad != null && draggedSquad !== number) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; } }} onDrop={(event) => { event.preventDefault(); reorderSquad(number); setDraggedSquad(null); }} onDragEnd={() => setDraggedSquad(null)} key={number}><label><input type="checkbox" checked={isSelected} disabled={disabled} onChange={() => { if (isSelected && value.enabled && value.squadPriority.length === 1) { setSelectionError("garrison.squadRequired"); return; } const squadPriority = isSelected ? value.squadPriority.filter((item) => item !== number) : [...value.squadPriority, number]; save({ ...value, squadPriority }); }} /><span>{t("squad.number", { number })}</span></label>{isSelected ? <span className="automation-squad-drag-handle" aria-hidden="true"><DragGlyph /></span> : null}</div>; })}</div>
-          <p className="muted">{t("garrison.squadHint")}</p>
-          <div className="garrison-section-heading"><strong>{t("garrison.current")}</strong><span>{runtime.guardingCount}/{Math.min(value.squadPriority.length, availableTargetCount)}</span></div>
-          <div className="garrison-assignment-list">{runtime.assignments.length ? runtime.assignments.map((assignment) => <div className="garrison-assignment" key={`${assignment.squadIndex}:${assignment.targetKey}`}><b>{assignment.squadIndex}</b><span><strong>{assignment.targetName}</strong><small>{t(`garrison.state.${assignment.state}`)}</small></span><em className={assignment.state}>{t(assignment.owned ? "garrison.automatic" : "garrison.manual")}</em></div>) : <p className="muted">{t("garrison.noAssignments")}</p>}</div>
-        </div>
-      </div>
-      {config ? <PreviewConfigError config={config} t={t} disabled={disabled} /> : null}
-      {selectionError || actionError || runtime.discoveryError ? <p className="inline-error">{t(selectionError || actionError || runtime.discoveryError)}</p> : null}
-      <div className="garrison-actions"><ToggleRow label={t("garrison.recallOnDisable")} checked={value.recallOnDisable !== false} disabled={disabled} onChange={(recallOnDisable) => save({ ...value, recallOnDisable })} /><button type="button" className="primary-action" disabled data-preview-action="presentation-only" title={t("status.gameDisconnectedDisabled")}>{t("garrison.runNow")}</button></div>
-    </section>
-    {pickerOpen ? <GarrisonPickerDialog label={t("garrison.chooseAllies")} onClose={() => setPickerOpen(false)}><section className="garrison-modal"><div className="garrison-modal-heading"><strong>{t("garrison.chooseAllies")}</strong><button type="button" onClick={() => setPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("garrison.searchAlly")} value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder={t("garrison.searchAlly")} autoFocus /><div className="garrison-ally-list">{filtered.map((member) => <label className={member.available ? "" : "unavailable"} key={member.uid}><input type="checkbox" checked={draftAllies.has(member.uid)} disabled={!member.available} onChange={(event) => setDraftAllies((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{t("garrison.allyDetail", { level: member.level, power: Math.round(member.power / 10000) })}</small></span><em>{t(member.available ? member.online ? "garrison.online" : "garrison.offlineMember" : member.unavailableReason === "cross_server" ? "garrison.crossServer" : "garrison.targetLoading")}</em></label>)}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { const retained = value.targets.filter((target) => target.kind !== "allyCity" || draftAllies.has(target.uid)); const retainedAllies = new Set(retained.filter((target) => target.kind === "allyCity").map((target) => target.uid)); const added = members.filter((member) => member.available && draftAllies.has(member.uid) && !retainedAllies.has(member.uid)).map((member) => ({ kind: "allyCity", uid: member.uid, nameSnapshot: member.name })); save({ ...value, targets: [...retained, ...added] }); setPickerOpen(false); }}>{t("common.completed")}</button></div></section></GarrisonPickerDialog> : null}
-  </>;
-}
-
-function ZombieBusPreviewSettings({ previewState = "", open = true, config = null }) {
-  const { t } = useI18n();
-  const runtime = previewZombieBusRuntime(previewState);
-  return [
-    open ? <section className="automation-card monster-afk-toolbar-settings" key="settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("zombieBus.title")}</strong></div><p className="muted">{t("zombieBus.description")}</p>{runtime.assignments.length ? <div className="zombie-bus-assignments"><table><thead><tr>{["squad","ally","bus","status"].map((key) => <th key={key}>{t(`zombieBus.${key}`)}</th>)}</tr></thead><tbody>{runtime.assignments.map((row) => <tr key={row.squadIndex}><td>{row.squadIndex}</td><td>{row.name || row.uid}</td><td>{row.nameKey && runtime.gameTexts?.[row.nameKey] && runtime.gameTexts[row.nameKey] !== row.nameKey ? runtime.gameTexts[row.nameKey] : t(row.gold === true ? "zombieBus.gold" : row.gold === false ? "zombieBus.normal" : "zombieBus.unknown")}</td><td>{t(`zombieBus.state.${row.state}`)}</td></tr>)}</tbody></table></div> : null}</section> : null,
-    config?.error || runtime.lastError ? <div className="monster-afk-toolbar-settings" key="errors">{config ? <PreviewConfigError config={config} t={t} /> : null}{runtime.lastError ? <p className="automation-error" role="alert">{t(runtime.lastError)}</p> : null}</div> : null,
-  ];
+  return <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("squad.afkAllianceDrill")}</strong><span>{t("squad.afkAllianceDrillDescription")}</span></div><div className="monster-afk-drill-inline"><span className="muted">{t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })}</span></div><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })}>{orderedSquads.map((number) => { const selected = value.squadIndexes.includes(number); return <div className={`automation-squad-priority-item${selected ? " selected" : ""}${draggedSquad === number ? " dragging" : ""}${dragOverSquad === number ? " drag-over" : ""}`} draggable={selected && !disabled} onDragStart={(event) => { if (!selected) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedSquad(number); }} onDragOver={(event) => { if (selected && draggedSquad != null && draggedSquad !== number) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; setDragOverSquad(number); } }} onDrop={(event) => { event.preventDefault(); reorderSquad(number); setDraggedSquad(null); setDragOverSquad(null); }} onDragEnd={() => { setDraggedSquad(null); setDragOverSquad(null); }} key={number}><label><input type="checkbox" checked={selected} disabled={disabled} onChange={() => { const squadIndexes = selected ? value.squadIndexes.filter((item) => item !== number) : [...value.squadIndexes, number]; patch({ enabled: value.enabled && squadIndexes.length > 0, squadIndexes, ...(selected ? {} : { squadRoles: { ...(value.squadRoles || {}), [String(number)]: value.squadRoles?.[String(number)] ?? "both" } }) }); }} /><span>{t("squad.number", { number })}</span></label>{selected ? <select className="automation-squad-role" aria-label={`${t("squad.number", { number })} ${t("squad.drillRole.label")}`} value={value.squadRoles?.[String(number)] ?? (value.activeRally ? "both" : "join")} disabled={disabled} onChange={(event) => patch({ squadRoles: { ...(value.squadRoles || {}), [String(number)]: event.target.value } })}><option value="both">{t("squad.drillRole.both")}</option><option value="launch">{t("squad.drillRole.launch")}</option><option value="join">{t("squad.drillRole.join")}</option></select> : null}{selected ? <span className="automation-squad-drag-handle" aria-hidden="true"><DragGlyph /></span> : null}</div>; })}</div><p className="automation-card-note">{t("squad.drillRole.hint")}</p><RallyJoinSettings members={members} value={value.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true)} onChange={(joinRestrictions) => onJoinRestrictionsChange ? onJoinRestrictionsChange(joinRestrictions) : patch({ joinRestrictions })} disabled={disabled} previewState={previewState} ToggleRow={ToggleRow} />{runtime.filter((row) => row.step === "waiting_join_delay").map((row) => <span className="muted" key={row.squadIndex}>{t("squad.number", { number: row.squadIndex })} · {t("squad.join.waitingDetail", { target: runtimeNames[row.joinTargetNameKey || ""] || row.joinTargetName || "", seconds: row.joinWaitSeconds ?? 0 })}</span>)}</section>;
 }
 
 function initialAfkProfiles(previewState) {
@@ -285,18 +165,6 @@ function validPotionConfig(config) {
     && config.minStamina >= 0 && config.minStamina <= 9999 && typeof config.preferFifty === "boolean";
 }
 
-function initialGarrisonConfig(previewState) {
-  return initialAfkToolbarConfig(previewState).garrison;
-}
-
-function validGarrisonConfig(config) {
-  return typeof config.enabled === "boolean" && (!config.enabled || (config.targets.length > 0 && config.squadPriority.length > 0));
-}
-
-function initialZombieConfig(previewState) {
-  return initialAfkToolbarConfig(previewState).zombieBus;
-}
-
 function translatedAfkError(t, value) {
   if (!value) return "";
   const direct = typeof value === "string" ? t(value) : "";
@@ -316,6 +184,13 @@ function translatedAfkError(t, value) {
 }
 
 const AFK_RUNTIME_STEP_KEYS = {
+  waiting_stamina: "squad.runtime.waitingStamina", waiting_squad: "squad.runtime.waitingSquad",
+  account_changed: "squad.runtime.accountPaused", waiting_search: "squad.runtime.waitingSearch",
+  waiting_profiles: "squad.runtime.waitingProfile", confirming_item: "squad.runtime.confirmingItem",
+  no_owned_items: "squad.runtime.noItems", above_limit: "common.waiting", item_confirmed: "common.completed",
+  attacking: "squad.status.fighting", joining: "squad.status.rallying", completed: "common.completed",
+  stopped: "common.stopped", idle: "squad.status.idle",
+
   waiting_join_delay: "squad.join.waiting",
   waiting_nearby_target: "squad.afkStep.waitingNearbyTarget",
   scanning_nearby: "squad.afkStep.scanningNearby",
@@ -329,35 +204,94 @@ const AFK_RUNTIME_STEP_KEYS = {
   returning: "squad.afkStep.returning",
 };
 
-function AfkContent({ previewEnabled, previewState, profileId = "", availableSquads = [1, 2, 3, 4] }) {
+function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = "", online = false, active = true, availableSquads: fixtureSquads = [1, 2, 3, 4] }) {
   const { t } = useI18n();
+  const nativeTransport = !fixtureEnabled && backendBridge.available && Boolean(profileId);
+  const nativeReady = nativeTransport && online && active;
+  const [nativeTargets, setNativeTargets] = useState([]);
+  const [nativeSquads, setNativeSquads] = useState([]);
+  const [nativeMembers, setNativeMembers] = useState(null);
+  const availableSquads = fixtureEnabled ? fixtureSquads : nativeSquads;
+  const [nativeRuntime, setNativeRuntime] = useState(null);
+  const [nativeError, setNativeError] = useState(null);
+  const [nativeConfigReady, setNativeConfigReady] = useState(false);
+  const liveConfig = usePreviewConfigAdapter(emptyMonsterAfkConfig, createMonsterAfkAdapter(backendBridge, profileId, validMonsterAfkConfig, () => online), JSON.stringify([profileId, "native:monsterSweep"]));
+  const livePotionConfig = usePreviewConfigAdapter(emptyStaminaConfig, createStaminaPotionAdapter(backendBridge, profileId, validPotionConfig, () => online), JSON.stringify([profileId, "native:staminaPotion"]));
+  useEffect(() => {
+    setNativeConfigReady(false);
+    setNativeError(null);
+    if (!nativeReady) {
+      if (!fixtureEnabled) {
+        setNativeRuntime(null); setNativeTargets([]); setNativeSquads([]); setNativeMembers(null);
+      }
+      return undefined;
+    }
+    let retired = false, busy = false, hydrated = false, configAttemptAt = -Infinity, catalogAttemptAt = -Infinity;
+    const fail = (source, error) => { if (!retired) setNativeError({ source, error }); };
+    const recover = (source) => { if (!retired) setNativeError((current) => current?.source === source ? null : current); };
+    const hydrate = async () => {
+      const now = Date.now();
+      if (hydrated) return true;
+      if (now - configAttemptAt < 3_000) return false;
+      configAttemptAt = now;
+      try {
+        await Promise.all([liveConfig.store.refresh(true), livePotionConfig.store.refresh(true)]);
+        if (!retired) { hydrated = true; setNativeConfigReady(true); recover("config"); }
+        return true;
+      } catch (error) {
+        fail("config", error);
+        return false;
+      }
+    };
+    const refresh = async () => {
+      if (busy || retired) return; busy = true;
+      try {
+        await hydrate();
+        const runtime = await backendBridge.invokeProfileScoped("feature018_afk_status");
+        if (!retired) { setNativeRuntime(runtime); recover("status"); }
+        if (!retired && Date.now() - catalogAttemptAt > 30_000) {
+          catalogAttemptAt = Date.now();
+          try {
+            const catalog = normalizeAfkCatalog(await backendBridge.invokeProfileScoped("monster_catalog_options"));
+            if (!retired) {
+              setNativeTargets(catalog.options || []); setNativeSquads(catalog.unlockedSquads || []); setNativeMembers(catalog.allianceMembers || null);
+              recover("catalog");
+            }
+          } catch (error) { fail("catalog", error); }
+        }
+      } catch (error) { fail("status", error); }
+      finally { busy = false; }
+    };
+    void refresh(); const timer = window.setInterval(refresh, 1500);
+    return () => { retired = true; window.clearInterval(timer); };
+  }, [nativeReady, profileId, fixtureEnabled, liveConfig.store, livePotionConfig.store]);
+  const controlsReady = fixtureEnabled || (nativeReady && nativeConfigReady);
   const DragGlyph = () => <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /></svg>;
-  const [showEditor, setShowEditor] = useState(previewEnabled);
+  const [showEditor, setShowEditor] = useState(fixtureEnabled);
   const profileScope = profileId || "default";
   const storeScope = (scope) => JSON.stringify([profileScope, `${scope}:${previewState}`]);
-  const afkConfig = usePreviewConfig(() => previewEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", storeScope("task:monsterSweep"));
-  const potionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
-  const garrisonConfig = usePreviewConfig(() => initialGarrisonConfig(previewState), validGarrisonConfig, previewState === "squads-profile-garrison-save-error", storeScope("task:allianceGarrison"));
-  const zombieConfig = usePreviewConfig(() => initialZombieConfig(previewState), (value) => typeof value.enabled === "boolean", previewState === "squads-profile-zombie-save-error", storeScope("task:zombieBus"));
+  const fixtureAfkConfig = usePreviewConfig(() => fixtureEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", storeScope("task:monsterSweep"));
+  const afkConfig = nativeTransport ? liveConfig : fixtureAfkConfig;
+  const fixturePotionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
+  const potionConfig = nativeTransport ? livePotionConfig : fixturePotionConfig;
   const profiles = afkConfig.draft.strategies;
   const setProfiles = (value, delay = 400) => afkConfig.store.edit((draft) => ({ ...draft, strategies: typeof value === "function" ? value(draft.strategies) : value }), delay);
-  const [editingId, setEditingId] = useState(() => previewEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
+  const [editingId, setEditingId] = useState(() => fixtureEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
   const [profileAction, setProfileAction] = useState("");
   const [draggedProfileId, setDraggedProfileId] = useState("");
   const [dragOverProfileId, setDragOverProfileId] = useState("");
   const [addMenuOpen, setAddMenuOpen] = useState(false);
-  const [toolbarPanel, setToolbarPanel] = useState(() => previewState.includes("potion") ? "potion" : previewState.includes("drill") ? "drill" : previewState.includes("garrison") ? "garrison" : previewState.includes("zombie") ? "zombieBus" : null);
+  const [toolbarPanel, setToolbarPanel] = useState(() => previewState.includes("potion") ? "potion" : previewState.includes("drill") ? "drill" : null);
   const [compositionError, setCompositionError] = useState(previewState === "squads-profile-target-failed" ? "common.actionFailed" : "");
-  const [garrisonActionError, setGarrisonActionError] = useState("");
   const newProfileCounter = useRef(1);
   const addControlRef = useRef(null);
   const layoutRef = useRef(null);
   const editingProfile = profiles.find((profile) => profile.id === editingId) || null;
   const updateProfile = (nextProfile) => setProfiles((current) => current.map((profile) => profile.id === nextProfile.id ? nextProfile : profile));
-  const availableTargets = previewState === "squads-profile-target-loading"
+  const availableTargets = !fixtureEnabled ? nativeTargets : previewState === "squads-profile-target-loading"
     ? []
     : previewAfkTargets.filter((entry) => entry.group !== "drill");
-  const profileRuntime = previewAfkProfileRuntime(previewState);
+  const profileRuntime = fixtureEnabled ? previewAfkProfileRuntime(previewState) : (Array.isArray(nativeRuntime?.rows) ? nativeRuntime.rows : []);
   const runtimeNames = previewAfkRuntimeNames(previewState);
   const targetDiscoveryReady = !["squads-profile-target-loading", "squads-profile-target-failed"].includes(previewState);
   useEffect(() => {
@@ -371,7 +305,7 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
     document.addEventListener("pointerdown", closeAddMenu);
     return () => document.removeEventListener("pointerdown", closeAddMenu);
   }, []);
-  const addProfile = (kind) => { const target = availableTargets.find((entry) => !entry.key.startsWith("name:") && (kind === "join" ? entry.rally : !entry.rally)); if (!target || profileAction) return; const id = `preview-new-${newProfileCounter.current++}`; const profile = { ...makePreviewAfkProfile(id, target.name, kind, target.key), squadIndexes: availableSquads.slice(0, 1) }; setProfiles((current) => [...current, profile]); setEditingId(id); setShowEditor(true); setAddMenuOpen(false); setCompositionError(""); window.setTimeout(() => layoutRef.current?.querySelector(".monster-afk-editor")?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 0); };
+  const addProfile = (kind) => { const target = availableTargets.find((entry) => !entry.key.startsWith("name:") && (kind === "join" ? entry.rally : !entry.rally)); if (!target || profileAction) return; const id = fixtureEnabled ? `preview-new-${newProfileCounter.current++}` : `afk-${globalThis.crypto.randomUUID()}`; const profile = { ...applyAfkTarget(makePreviewAfkProfile(id, target.name, kind, target.key), target), squadIndexes: availableSquads.slice(0, 1) }; setProfiles((current) => [...current, profile]); setEditingId(id); setShowEditor(true); setAddMenuOpen(false); setCompositionError(""); window.setTimeout(() => layoutRef.current?.querySelector(".monster-afk-editor")?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 0); };
   const moveProfile = async (sourceId, targetId) => { if (!sourceId || sourceId === targetId || profileAction) return; setProfileAction("reorder"); let changed = false; setProfiles((current) => {
     const sourceIndex = current.findIndex((profile) => profile.id === sourceId);
     const targetIndex = current.findIndex((profile) => profile.id === targetId);
@@ -394,18 +328,6 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
     if (immediate) { potionConfig.store.edit(next, false); potionConfig.store.flush().catch(() => {}); }
     else potionConfig.store.edit(next);
   };
-  const updateGarrison = (mutator, immediate = false) => {
-    const current = garrisonConfig.store.getSnapshot().draft;
-    const next = typeof mutator === "function" ? mutator(current) : mutator;
-    if (immediate) { garrisonConfig.store.edit(next, false); garrisonConfig.store.flush().catch(() => {}); }
-    else garrisonConfig.store.edit(next);
-  };
-  const updateZombie = (mutator, immediate = true) => {
-    const current = zombieConfig.store.getSnapshot().draft;
-    const next = typeof mutator === "function" ? mutator(current) : mutator;
-    if (immediate) { zombieConfig.store.edit(next, false); zombieConfig.store.flush().catch(() => {}); }
-    else zombieConfig.store.edit(next);
-  };
   const toggleMaster = async (enabled) => {
     if (enabled) {
       afkConfig.store.edit((draft) => ({ ...draft, enabled: true }), false);
@@ -416,24 +338,14 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
     try {
       afkConfig.store.edit((draft) => ({ ...draft, enabled: false }), false);
       await afkConfig.store.flush();
-      await previewAfkMasterStopAck(previewState);
+      if (fixtureEnabled) await previewAfkMasterStopAck(previewState);
     } catch {
     } finally {
       setProfileAction("");
     }
   };
-  const garrisonRuntime = previewGarrisonRuntime(previewState);
-  const garrisonMembers = previewGarrisonMemberFixture(previewState);
-  const zombieRuntime = previewZombieBusRuntime(previewState);
-  const profilePanelHidden = ["drill", "garrison", "zombieBus"].includes(toolbarPanel);
-  const garrisonBuildingMap = new Map(garrisonRuntime.buildings.map((building) => [building.buildId, building]));
-  const garrisonMemberMap = new Map(garrisonMembers.members.map((member) => [member.uid, member]));
-  const garrisonDiscoveryReady = garrisonRuntime.discoveryReady !== false && garrisonMembers.ready;
-  const garrisonAvailableTargetCount = garrisonDiscoveryReady ? garrisonConfig.draft.targets.filter((target) => target.kind === "allianceBuilding"
-    ? garrisonBuildingMap.get(target.buildId)?.available === true
-    : garrisonMemberMap.get(target.uid)?.available === true).length : garrisonConfig.draft.targets.length;
-  const zombieRunning = zombieRuntime.assignments.some((assignment) => ["sending", "marching", "guarding", "recalling", "returning"].includes(assignment.state));
-  const drillRuntime = previewDrillRuntime(previewState);
+  const profilePanelHidden = toolbarPanel === "drill";
+  const drillRuntime = fixtureEnabled ? previewDrillRuntime(previewState) : (Array.isArray(nativeRuntime?.allianceDrill?.rows) ? nativeRuntime.allianceDrill.rows : []);
   const drillState = drillRuntime.some((row) => row.activityRole === "leader") ? "squad.afkAllianceDrillLeading" : drillRuntime.length > 0 ? "squad.afkAllianceDrillJoining" : "squad.afkAllianceDrillWaiting";
   const drillOrder = afkConfig.draft.allianceDrill.squadIndexes.join(" → ") || "-";
   const toggleToolbarPanel = (panel) => setToolbarPanel((current) => current === panel ? null : panel);
@@ -455,25 +367,24 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
     }
   };
   return (
-    <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty || garrisonConfig.dirty || zombieConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving || garrisonConfig.saving || zombieConfig.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
-      <PreviewConfigError config={afkConfig} t={t} label={t("squad.afkMaster")} />
-      <PreviewConfigError config={potionConfig} t={t} label={t("automation.autoUsePotion")} />
+    <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving} data-native-config-ready={nativeConfigReady || undefined} data-preview-fixture={fixtureEnabled ? "squads-profile" : undefined}>
+      {!fixtureEnabled ? <div role="status" className={nativeError || nativeRuntime?.lastError ? "automation-error" : "muted"}>{!online && nativeTransport ? t("status.gameDisconnectedDisabled") : nativeError ? translatedAfkError(t, nativeError.error) : translatedAfkError(t, nativeRuntime?.lastError) || (t(AFK_RUNTIME_STEP_KEYS[nativeRuntime?.step] || (nativeRuntime?.state === "completed" ? "common.completed" : nativeRuntime?.running ? "automation.running" : "squad.status.idle")))}{online && (Array.isArray(nativeRuntime?.rows) ? nativeRuntime.rows : []).map((row) => <span key={`${row.profileId}:${row.squadIndex}`}> · {t("squad.number", { number: row.squadIndex })}: {t(AFK_RUNTIME_STEP_KEYS[row.step] || "common.waiting")} {row.currentTarget?.name || ""} {row.currentTarget?.level ? `Lv.${row.currentTarget.level}` : ""} · {nativeRuntime?.processed?.[row.profileId] || 0}</span>)}</div> : null}
+      <PreviewConfigError config={afkConfig} t={t} label={t("squad.afkMaster")} disabled={!controlsReady} />
+      {nativeReady && potionConfig.draft.enabled && nativeRuntime?.staminaPotion ? <div role="status" data-stamina-runtime={nativeRuntime.staminaPotion.state} className={nativeRuntime.staminaPotion.lastError ? "automation-error" : "muted"}>{translatedAfkError(t, nativeRuntime.staminaPotion.lastError) || t(AFK_RUNTIME_STEP_KEYS[nativeRuntime.staminaPotion.step] || "common.waiting")} · {t("automation.currentStamina")}: {nativeRuntime.staminaPotion.stamina ?? "-"} · {t("squad.runtime.usedItems", { count: nativeRuntime.staminaPotion.used || 0 })}</div> : null}
+      <PreviewConfigError config={potionConfig} t={t} label={t("automation.autoUsePotion")} disabled={!controlsReady} />
       <div className="monster-afk-toolbar">
-        <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(afkConfig.draft.enabled ? "common.enabled" : "common.disabled")} enabled={afkConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === null} onSettings={() => setToolbarPanel(null)} onToggle={(enabled) => void toggleMaster(enabled)} />
-        <CompactAfkCard title={t("automation.autoUsePotion")} description={t("automation.potionMonsterOnly")} summary={`${t("automation.minStamina")} ${potionConfig.draft.minStamina}`} enabled={potionConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === "potion"} onSettings={() => toggleToolbarPanel("potion")} onToggle={(enabled) => updatePotion((draft) => ({ ...draft, enabled }), true)} />
-        <CompactAfkCard title={t("squad.afkAllianceDrill")} description={t("squad.afkAllianceDrillDescription")} summary={afkConfig.draft.allianceDrill.enabled && drillRuntime.length > 0 ? `${t(drillState)} · ${drillOrder}` : `${t("squad.afkAllianceDrillOrder", { order: drillOrder })} · ${t(afkConfig.draft.allianceDrill.activeRally ? "squad.afkAllianceDrillActive" : "squad.afkJoin")}`} enabled={afkConfig.draft.allianceDrill.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === "drill"} onSettings={() => toggleToolbarPanel("drill")} onToggle={(enabled) => { if (enabled && afkConfig.draft.allianceDrill.squadIndexes.length === 0) { setToolbarPanel("drill"); setCompositionError("squad.afkAllianceDrillSquadRequired"); return; } updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, enabled } }), true); }} />
-        <CompactAfkCard title={t("garrison.title")} description={t("garrison.description")} summary={garrisonConfig.draft.enabled ? t("garrison.summary", { active: garrisonRuntime.guardingCount, total: Math.min(garrisonConfig.draft.squadPriority.length, garrisonAvailableTargetCount) }) : t("common.disabled")} enabled={garrisonConfig.draft.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "garrison"} onSettings={() => toggleToolbarPanel("garrison")} onToggle={(enabled) => { if (enabled && (!garrisonConfig.draft.targets.length || !garrisonConfig.draft.squadPriority.length)) { setGarrisonActionError(garrisonConfig.draft.targets.length ? "garrison.squadRequired" : "garrison.targetRequired"); return; } setGarrisonActionError(""); updateGarrison((draft) => ({ ...draft, enabled }), true); }} />
-        {toolbarPanel === "garrison" ? <GarrisonPreviewSettings disabled={!previewEnabled} value={garrisonConfig.draft} previewState={previewState} config={garrisonConfig} actionError={garrisonActionError} availableSquads={availableSquads} onChange={(garrison) => updateGarrison(garrison, false)} /> : null}
-        <CompactAfkCard title={t("zombieBus.title")} description={t("zombieBus.description")} summary={previewEnabled ? t(zombieRuntime.lastError ? "common.failed" : zombieRunning ? "automation.running" : zombieConfig.draft.enabled ? "zombieBus.waiting" : "common.disabled") : t("status.disconnected")} enabled={zombieConfig.draft.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "zombieBus"} onSettings={() => toggleToolbarPanel("zombieBus")} onToggle={(enabled) => updateZombie((draft) => ({ ...draft, enabled }), true)} />
-        <ZombieBusPreviewSettings previewState={previewState} open={toolbarPanel === "zombieBus"} config={zombieConfig} />
-        {toolbarPanel === "potion" ? <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("automation.autoUsePotion")}</strong><span>{t("automation.potionMonsterOnly")}</span></div><div className="monster-afk-card-settings"><label><span>{t("automation.minStamina")}</span><input type="number" min="0" max="9999" step="1" value={Number.isNaN(potionConfig.draft.minStamina) ? "" : potionConfig.draft.minStamina} disabled={!previewEnabled || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, minStamina: event.target.valueAsNumber }), false)} /></label><label><input type="checkbox" checked={potionConfig.draft.preferFifty} disabled={!previewEnabled || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, preferFifty: event.target.checked }), false)} /><span>{t("automation.preferFifty")}</span></label></div></section> : null}
-        {toolbarPanel === "drill" ? <AllianceDrillPreviewSettings disabled={!previewEnabled || Boolean(profileAction)} value={afkConfig.draft.allianceDrill} previewState={previewState} availableSquads={availableSquads} runtimeNames={runtimeNames} onChange={(allianceDrill) => updateAfk((draft) => ({ ...draft, allianceDrill }), true)} onJoinRestrictionsChange={(joinRestrictions) => updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, joinRestrictions } }), false)} /> : null}
+        <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(afkConfig.draft.enabled ? "common.enabled" : "common.disabled")} enabled={afkConfig.draft.enabled} disabled={!controlsReady || Boolean(profileAction)} settingsOpen={toolbarPanel === null} onSettings={() => setToolbarPanel(null)} onToggle={(enabled) => void toggleMaster(enabled)} />
+        <CompactAfkCard title={t("automation.autoUsePotion")} description={t("automation.potionMonsterOnly")} summary={`${t("automation.minStamina")} ${potionConfig.draft.minStamina}`} enabled={potionConfig.draft.enabled} disabled={!controlsReady || Boolean(profileAction)} settingsOpen={toolbarPanel === "potion"} onSettings={() => toggleToolbarPanel("potion")} onToggle={(enabled) => updatePotion((draft) => ({ ...draft, enabled }), true)} />
+        <CompactAfkCard title={t("squad.afkAllianceDrill")} description={t("squad.afkAllianceDrillDescription")} summary={afkConfig.draft.allianceDrill.enabled && drillRuntime.length > 0 ? `${t(drillState)} · ${drillOrder}` : t("squad.afkAllianceDrillOrder", { order: drillOrder })} enabled={afkConfig.draft.allianceDrill.enabled} disabled={!controlsReady || Boolean(profileAction)} settingsOpen={toolbarPanel === "drill"} onSettings={() => toggleToolbarPanel("drill")} onToggle={(enabled) => { if (enabled && afkConfig.draft.allianceDrill.squadIndexes.length === 0) { setToolbarPanel("drill"); setCompositionError("squad.afkAllianceDrillSquadRequired"); return; } updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, enabled } }), true); }} />
+        {toolbarPanel === "potion" ? <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("automation.autoUsePotion")}</strong><span>{t("automation.potionMonsterOnly")}</span></div><div className="monster-afk-card-settings"><label><span>{t("automation.minStamina")}</span><input type="number" min="0" max="9999" step="1" value={Number.isNaN(potionConfig.draft.minStamina) ? "" : potionConfig.draft.minStamina} disabled={!controlsReady || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, minStamina: event.target.valueAsNumber }), false)} /></label><label><input type="checkbox" checked={potionConfig.draft.preferFifty} disabled={!controlsReady || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, preferFifty: event.target.checked }), false)} /><span>{t("automation.preferFifty")}</span></label></div></section> : null}
+        {nativeReady && afkConfig.draft.allianceDrill.enabled && nativeRuntime?.allianceDrill ? <div role="status" data-drill-runtime={nativeRuntime.allianceDrill.state} className={nativeRuntime.allianceDrill.lastError ? "automation-error" : "muted"}>{translatedAfkError(t, nativeRuntime.allianceDrill.lastError) || t(nativeRuntime.allianceDrill.step === "account_changed" ? "squad.runtime.accountPaused" : drillState)}</div> : null}
+        {toolbarPanel === "drill" ? <AllianceDrillPreviewSettings disabled={!controlsReady || Boolean(profileAction)} value={afkConfig.draft.allianceDrill} previewState={previewState} availableSquads={availableSquads} runtimeNames={runtimeNames} members={nativeReady ? nativeMembers : undefined} runtimeRows={drillRuntime} onChange={(allianceDrill) => updateAfk((draft) => ({ ...draft, allianceDrill }), true)} onJoinRestrictionsChange={(joinRestrictions) => updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, joinRestrictions } }), false)} /> : null}
       </div>
       {!profilePanelHidden ? <>
       <section className="monster-afk-profiles">
         <div className="monster-section-title">
           <strong>{t("squad.afkProfiles")}</strong>
-          <div ref={addControlRef} className="monster-afk-add-control" onKeyDown={(event) => { if (event.key === "Escape") setAddMenuOpen(false); }}><button type="button" aria-haspopup="menu" aria-expanded={addMenuOpen} disabled={!previewEnabled || availableTargets.length === 0 || Boolean(profileAction)} onClick={() => setAddMenuOpen((open) => !open)}>{t("common.add")}</button>{addMenuOpen ? <div className="monster-afk-add-menu" role="menu"><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && !target.rally)} onClick={() => addProfile("farm")}><strong>{t("squad.afkActiveAttack")}</strong><span>{t("squad.afkActionAttack")}</span></button><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && target.rally)} onClick={() => addProfile("join")}><strong>{t("squad.afkJoin")}</strong><span>{t("squad.autoJoinRally")}</span></button></div> : null}</div>
+          <div ref={addControlRef} className="monster-afk-add-control" onKeyDown={(event) => { if (event.key === "Escape") setAddMenuOpen(false); }}><button type="button" aria-haspopup="menu" aria-expanded={addMenuOpen} disabled={!controlsReady || availableTargets.length === 0 || Boolean(profileAction)} onClick={() => setAddMenuOpen((open) => !open)}>{t("common.add")}</button>{addMenuOpen ? <div className="monster-afk-add-menu" role="menu"><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && !target.rally)} onClick={() => addProfile("farm")}><strong>{t("squad.afkActiveAttack")}</strong><span>{t("squad.afkActionAttack")}</span></button><button type="button" role="menuitem" disabled={!availableTargets.some((target) => !target.key.startsWith("name:") && target.rally)} onClick={() => addProfile("join")}><strong>{t("squad.afkJoin")}</strong><span>{t("squad.autoJoinRally")}</span></button></div> : null}</div>
         </div>
         <div className="monster-afk-profile-list">
           {profiles.length ? profiles.map((profile) => {
@@ -484,7 +395,7 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
             const rangeWarning = profile.kind === "farm" && profile.searchable && previewAfkLevelOutOfRange(profile, target);
             const runtimeRows = profile.squadIndexes.map((squadIndex) => profileRuntime.find((row) => row.squadIndex === squadIndex)).filter(Boolean);
             return <div
-              className={`monster-afk-profile-card ${editingId === profile.id ? "active" : ""} ${profile.enabled ? "" : "disabled"} ${dragOverProfileId === profile.id ? "drag-over" : ""}`}
+              className={`monster-afk-profile-card ${editingId === profile.id && showEditor ? "active" : ""} ${profile.enabled ? "" : "disabled"} ${dragOverProfileId === profile.id ? "drag-over" : ""}`}
               key={profile.id}
               onDragEnd={() => { setDraggedProfileId(""); setDragOverProfileId(""); }}
               onDragOver={(event) => { if (!draggedProfileId || profileAction) return; event.preventDefault(); setDragOverProfileId(profile.id); }}
@@ -492,11 +403,11 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
               onDrop={(event) => { event.preventDefault(); const sourceId = draggedProfileId; setDraggedProfileId(""); setDragOverProfileId(""); void moveProfile(sourceId, profile.id); }}
             >
               <label className={`monster-afk-enabled ${profile.enabled ? "is-enabled" : ""} ${profileAction || profile.squadIndexes.length === 0 ? "is-disabled" : ""}`}>
-                <input type="checkbox" checked={profile.enabled} disabled={!previewEnabled || Boolean(profileAction) || profile.squadIndexes.length === 0} onChange={(event) => { setProfiles((current) => current.map((entry) => entry.id === profile.id ? { ...entry, enabled: event.target.checked } : entry), false); afkConfig.store.flush().then(() => setCompositionError("")).catch(() => {}); }} />
+                <input type="checkbox" checked={profile.enabled} disabled={!controlsReady || Boolean(profileAction) || profile.squadIndexes.length === 0} onChange={(event) => { setProfiles((current) => current.map((entry) => entry.id === profile.id ? { ...entry, enabled: event.target.checked } : entry), false); afkConfig.store.flush().then(() => setCompositionError("")).catch(() => {}); }} />
                 <span className="monster-afk-enabled-track" aria-hidden="true" />
                 <span>{t(profile.enabled ? "common.enabled" : "common.disabled")}</span>
               </label>
-              <button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id} onClick={() => { setEditingId(profile.id); setShowEditor(true); setCompositionError(""); }}>
+              <button type="button" className="monster-afk-profile-select" aria-pressed={editingId === profile.id && showEditor} aria-expanded={editingId === profile.id && showEditor} onClick={() => { const open = editingId === profile.id && showEditor; setEditingId(profile.id); setShowEditor(!open); setCompositionError(""); }}>
                 <span className="monster-afk-profile-heading"><strong>{profile.name}</strong><span className={`monster-afk-mode-badge ${profile.kind}`}>{t(profile.kind === "farm" ? "squad.afkActiveAttack" : "squad.afkJoin")}</span></span>
                 <span>{profile.levelFilterEnabled ? `${profile.minLevel}-${profile.maxLevel}` : t("squad.afkAnyLevel")} · {profile.distanceFilterEnabled ? profile.maxDistance : t("squad.afkAnyDistance")}</span>
                 {profile.kind === "farm" && profile.searchable ? <span className={rangeWarning ? "monster-afk-level-warning" : ""}>{target?.attackMinLevel != null && target?.attackMaxLevel != null ? t("squad.afkAttackableRange", { min: target.attackMinLevel, max: target.attackMaxLevel }) : t("squad.afkAttackableRangeUnavailable")}{rangeWarning ? ` · ${t("squad.afkLevelOutOfRange")}` : ""}</span> : null}
@@ -504,7 +415,7 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
                 {runtimeRows.map((row) => {
                   const ownsRuntime = row.profileId === profile.id;
                   const completed = row.completedStrategyIds?.includes(profile.id);
-                  const stateText = ownsRuntime && row.step ? t(AFK_RUNTIME_STEP_KEYS[row.step] || row.step) : t(completed ? "common.completed" : "squad.status.idle");
+                  const stateText = ownsRuntime && row.step ? t(AFK_RUNTIME_STEP_KEYS[row.step] || "common.waiting") : t(completed ? "common.completed" : "squad.status.idle");
                   const waitingDetail = ownsRuntime && row.step === "waiting_join_delay" ? ` · ${t("squad.join.waitingDetail", { target: runtimeNames[row.joinTargetNameKey || ""] || row.joinTargetName || "", seconds: row.joinWaitSeconds ?? 0 })}` : "";
                   const execution = profile.executionLimit > 0 ? ` · ${row.strategyProcessed?.[profile.id] || 0}/${profile.executionLimit}` : "";
                   const runtimeError = ownsRuntime && row.lastError ? ` · ${translatedAfkError(t, row.lastError)}` : "";
@@ -517,7 +428,7 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
           }) : <span className="muted">{t("squad.afkNoProfiles")}</span>}
         </div>
       </section>
-      {showEditor && editingProfile ? <AfkProfileEditor enabled={previewEnabled} isNew={!afkConfig.confirmed.strategies.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} previewState={previewState} availableSquads={availableSquads} /> : null}
+      {showEditor && editingProfile ? <AfkProfileEditor members={nativeMembers} targets={fixtureEnabled ? null : nativeTargets} enabled={controlsReady} isNew={!afkConfig.confirmed.strategies.some((profile) => profile.id === editingProfile.id)} profile={editingProfile} onProfileChange={updateProfile} previewState={previewState} previewFixture={fixtureEnabled} availableSquads={availableSquads} /> : null}
       </> : null}
       {compositionError ? <div className="automation-error monster-afk-error">{t(compositionError)}</div> : null}
     </div>

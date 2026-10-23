@@ -1,0 +1,21 @@
+import assert from "node:assert/strict";
+import { visibleCityCells, cityBuildingScrollCenter } from "../src/cityViewport.js";
+
+const region = { id: "main", bounds: { minX: 0, minY: 0, maxX: 99, maxY: 99 } };
+const cells = Array.from({ length: 10000 }, (_, i) => ({ pointId: i + 1, regionId: "main", x: i % 100, y: Math.floor(i / 100) }));
+const map = new Map(cells.map(cell => [cell.pointId, cell]));
+const buildings = [{ pointId: 5051 }, { pointId: 5556 }];
+const center = cityBuildingScrollCenter(buildings, map, region.bounds, 24, 500, 400);
+assert.ok(center.left > 0 && center.top > 0, "large native city opens near buildings rather than empty upper-left land");
+const view = { ...center, width: 500, height: 400 };
+const visible = visibleCityCells(cells, region, view, 24);
+assert.ok(visible.length < 1000 && visible.length > 300, "bounded overscan must avoid rendering ten thousand cells");
+for (const building of buildings) assert.ok(visible.some(cell => cell.pointId === building.pointId));
+const edge = visibleCityCells(cells, region, { left: 0, top: 0, width: 100, height: 100 }, 24);
+assert.ok(edge.some(cell => cell.x === 0 && cell.y === 99), "viewport row orientation matches native max-Y origin");
+assert.equal(visibleCityCells(cells, region, { width: 0, height: 0 }, 24).length, 10000, "unmeasured/inert layouts preserve a complete rendering");
+assert.equal(map.size, 10000, "rendering must not truncate movement/validation lookup data");
+assert.equal(cityBuildingScrollCenter([], map, region.bounds, 24, 500, 400), null);
+const shifted = cityBuildingScrollCenter([{ uuid: "moved", pointId: 1 }], map, region.bounds, 24, 200, 200, new Map([["moved", 5051]]));
+assert.ok(shifted.left > 1000 && shifted.top > 1000, "saved drafts center on displayed placements, not the original native anchor");
+console.log("R29_CITY_VIEWPORT_PASS: native geometry/selection map retained; bounded cells; building center; edge/resize fallback");

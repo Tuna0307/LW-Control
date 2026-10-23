@@ -6,17 +6,24 @@ namespace LWBridge.Desktop;
 
 internal sealed record HotkeyConfig(
     bool Attack = true,
-    bool AttackMarchSpeedupItem = false,
-    bool AttackMarchSpeedupDiamond = false,
     bool Recall = true,
-    bool ShieldOverlay = true,
     bool ShieldUse = true,
     bool Equipment = true,
     bool RandomRelocate = false,
     bool AllianceRelocate = false,
-    bool FrontlineReinforce = true)
+    bool FrontlineReinforce = true,
+    bool TreasureChestHint = false,
+    int FrontlineReinforceCount = 5)
 {
+    internal const int MinFrontlineReinforceCount = 1;
+    internal const int MaxFrontlineReinforceCount = 50;
     internal static HotkeyConfig Default { get; } = new();
+
+    // OWN_DESIGN (owner request 2026-10-17): soldiers added per G press; the
+    // original 0.3.17 used a fixed 5. Out-of-range stored values fall back to 5.
+    internal HotkeyConfig Normalized() =>
+        FrontlineReinforceCount is >= MinFrontlineReinforceCount and <= MaxFrontlineReinforceCount
+            ? this : this with { FrontlineReinforceCount = 5 };
 }
 
 internal sealed record VisualMetricsConfig(
@@ -43,9 +50,45 @@ internal sealed class ProfileRuntimeConfigStore
         storageGate = StorageGates.GetOrAdd(this.path, static _ => new object());
     }
 
+    // Audit 2026-10-23 W06: the in-process gate alone let two app processes read the same old file and
+    // each replace it, losing one save. A named mutex per settings file extends the whole
+    // read/modify/write across processes; the in-process gate stays for same-process callers.
+    private ExclusiveScope Exclusive()
+    {
+        Monitor.Enter(storageGate);
+        Mutex? mutex = null;
+        try
+        {
+            string name = @"Local\LWBridgeRuntimeConfig-" + Convert.ToHexString(
+                System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(path.ToUpperInvariant())));
+            mutex = new Mutex(false, name);
+            bool owned;
+            try { owned = mutex.WaitOne(TimeSpan.FromSeconds(10)); }
+            catch (AbandonedMutexException) { owned = true; /* the previous owner exited; we hold it now */ }
+            if (!owned) throw StateUnavailable();
+            return new ExclusiveScope(storageGate, mutex);
+        }
+        catch
+        {
+            mutex?.Dispose();
+            Monitor.Exit(storageGate);
+            throw;
+        }
+    }
+
+    private readonly struct ExclusiveScope(object gate, Mutex mutex) : IDisposable
+    {
+        public void Dispose()
+        {
+            try { mutex.ReleaseMutex(); } catch (ApplicationException) { }
+            mutex.Dispose();
+            Monitor.Exit(gate);
+        }
+    }
+
     internal HotkeyConfig ReadHotkeys()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -64,7 +107,7 @@ internal sealed class ProfileRuntimeConfigStore
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -81,7 +124,7 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal VisualMetricsConfig ReadVisualMetrics()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -104,7 +147,7 @@ internal sealed class ProfileRuntimeConfigStore
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -122,7 +165,7 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal JsonObject ReadEquipmentConfig()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -138,7 +181,7 @@ internal sealed class ProfileRuntimeConfigStore
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -172,7 +215,7 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal JsonObject ReadTasksSnapshot()
     {
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -187,7 +230,7 @@ internal sealed class ProfileRuntimeConfigStore
                 if (tasksNode is not JsonObject tasks)
                     throw StateUnavailable();
 
-                return (JsonObject)tasks.DeepClone();
+                return WithoutRetiredTasks((JsonObject)tasks.DeepClone());
             }
             catch (BridgeCommandException) { throw; }
             catch (Exception) { throw StateUnavailable(); }
@@ -196,9 +239,6 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal JsonObject SaveMonsterSweepConfig(JsonObject config) =>
         SaveTaskConfig("monsterSweep", config);
-
-    internal JsonObject SaveAllianceGarrisonConfig(JsonObject config) =>
-        SaveTaskConfig("allianceGarrison", config);
 
     internal JsonObject SaveResourceAutomationConfig(
         string taskName,
@@ -220,7 +260,7 @@ internal sealed class ProfileRuntimeConfigStore
                 "Scheduler key is required.",
                 nameof(schedulerKey));
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -275,7 +315,7 @@ internal sealed class ProfileRuntimeConfigStore
             throw new ArgumentException("Task name is required.", nameof(taskName));
         ArgumentNullException.ThrowIfNull(config);
 
-        lock (storageGate)
+        using (Exclusive())
         {
             try
             {
@@ -341,10 +381,12 @@ internal sealed class ProfileRuntimeConfigStore
         string temporary = path + ".tmp-" + Guid.NewGuid().ToString("N");
         try
         {
-            File.WriteAllText(
-                temporary,
-                root.ToJsonString(JsonOptions.Indented));
-            File.Move(temporary, path, overwrite: true);
+            RetryFileAccess(() =>
+            {
+                File.WriteAllText(temporary, root.ToJsonString(JsonOptions.Indented));
+                File.Move(temporary, path, overwrite: true);
+                return true;
+            });
         }
         finally
         {
@@ -357,16 +399,46 @@ internal sealed class ProfileRuntimeConfigStore
         }
     }
 
+    private static T RetryFileAccess<T>(Func<T> operation)
+    {
+        // A reader/indexer can briefly deny replacement (or the initial read).
+        // Retry local file access only; this never retries a game command.
+        for (int attempt = 0; ; attempt++)
+        {
+            try { return operation(); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == 5)
+                    throw new BridgeCommandException("CONFIG_FILE_BUSY",
+                        "Could not save the plan file. Your edits are still here. Close any program using the file and try Save again.");
+                Thread.Sleep(50 * (attempt + 1));
+            }
+        }
+    }
+
     private JsonObject? ReadRoot(bool allowMissing)
     {
         if (!File.Exists(path))
             return allowMissing ? null : throw StateUnavailable();
 
-        string json = File.ReadAllText(path);
+        string json = RetryFileAccess(() => File.ReadAllText(path));
         JsonNode? node = JsonNode.Parse(json);
         if (node is not JsonObject root)
             throw StateUnavailable();
+        if (root["tasks"] is JsonObject tasks) WithoutRetiredTasks(tasks);
         return root;
+    }
+
+    internal static JsonObject WithoutRetiredTasks(JsonObject tasks)
+    {
+        // OWNER_DIRECTION R18: legacy task settings remain loadable but never run.
+        tasks.Remove("allianceGarrison");
+        tasks.Remove("zombieBus");
+        // Owner R30: retired Automation cards cannot reappear from an old profile.
+        foreach (string name in new[] { "construction", "soldierTraining", "stamina", "railway",
+                     "allianceTrainRide", "buildingResources", "armedTruckReward", "weekendShield", "attackShield" })
+            tasks.Remove(name);
+        return tasks;
     }
 
     private static HotkeyConfig DecodeHotkeys(JsonNode node)
@@ -374,7 +446,7 @@ internal sealed class ProfileRuntimeConfigStore
         try
         {
             HotkeyConfig? config = node.Deserialize<HotkeyConfig>(JsonOptions.Default);
-            return config ?? throw StateUnavailable();
+            return config?.Normalized() ?? throw StateUnavailable();
         }
         catch (JsonException)
         {
@@ -405,10 +477,7 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
     private static readonly string[] BooleanFields =
     [
         "attack",
-        "attackMarchSpeedupItem",
-        "attackMarchSpeedupDiamond",
         "recall",
-        "shieldOverlay",
         "shieldUse",
         "equipment",
         "randomRelocate",
@@ -462,15 +531,36 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
 
         return new HotkeyConfig(
             payload.GetProperty("attack").GetBoolean(),
-            payload.GetProperty("attackMarchSpeedupItem").GetBoolean(),
-            payload.GetProperty("attackMarchSpeedupDiamond").GetBoolean(),
             payload.GetProperty("recall").GetBoolean(),
-            payload.GetProperty("shieldOverlay").GetBoolean(),
             payload.GetProperty("shieldUse").GetBoolean(),
             payload.GetProperty("equipment").GetBoolean(),
             payload.GetProperty("randomRelocate").GetBoolean(),
             payload.GetProperty("allianceRelocate").GetBoolean(),
-            payload.GetProperty("frontlineReinforce").GetBoolean());
+            payload.GetProperty("frontlineReinforce").GetBoolean(),
+            ReadTreasureChestHint(payload),
+            ReadFrontlineReinforceCount(payload));
+    }
+
+    private static int ReadFrontlineReinforceCount(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("frontlineReinforceCount", out JsonElement value))
+            return 5;
+        if (!value.TryGetInt32(out int count) ||
+            count < HotkeyConfig.MinFrontlineReinforceCount ||
+            count > HotkeyConfig.MaxFrontlineReinforceCount)
+            throw InvalidHotkeyConfig();
+        return count;
+    }
+
+    // Added by the observed 0.3.17 Mini Games panel; older profile configs
+    // written by 0.3.1 contained the original ten fields only.
+    private static bool ReadTreasureChestHint(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("treasureChestHint", out JsonElement value))
+            return false;
+        if (value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw InvalidHotkeyConfig();
+        return value.GetBoolean();
     }
 
     private static BridgeCommandException InvalidHotkeyConfig() =>

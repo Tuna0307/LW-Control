@@ -21,7 +21,7 @@ import {
   normalizeSummary,
   updateSelectedTypes,
 } from "../src/mapBackend.js";
-import { translateActionError } from "../src/mapInteractions.js";
+import { plainErrorDetail, translateActionError } from "../src/mapInteractions.js";
 import { mapScanPresentation, scanDuration } from "../src/mapScanPresentation.js";
 import { mapOwnerLabel } from "../src/mapTablePresentation.js";
 
@@ -716,8 +716,17 @@ messageHandler({ data: {
 await assert.rejects(() => failed, (error) => error.code === "INVALID_MAP_QUERY" && error.details?.feature === "sorts");
 nativeBridge.dispose();
 
+await api.clear(0, false, true);
+assert.deepEqual(calls.at(-1), {
+  command: MAP_COMMANDS.scanClear,
+  payload: { serverId: 0, allServers: true, profileId: "profile-test" },
+}, "all-server Clear must send an explicit scope within the selected profile");
+
 console.log("LWB317_MAP_UI_INTEGRATION_CHECKS_OK");
 
 assert.equal(translateActionError(key=>key, new Error("Auto scan interrupted by restart")), "Auto scan interrupted by restart");
 assert.match(translateActionError(key=>key === "map.autoScanNotPublished" ? "Automatic scan ended without saving results." : key, "MAP_AUTO_SCAN_NOT_PUBLISHED: native reply timed out"), /Automatic scan ended without saving results.*native reply timed out/);
+assert.doesNotMatch(translateActionError(key=>key === "map.autoScanNotPublished" ? "Automatic scan ended without saving results." : key, "MAP_AUTO_SCAN_NOT_PUBLISHED: native reply timed out"), /MAP_AUTO_SCAN_NOT_PUBLISHED/);
 assert.equal(translateActionError(key=>key === "error.KNOWN_CODE" ? "Known translated reason" : key, {code:"KNOWN_CODE",message:"raw"}), "Known translated reason");
+assert.equal(plainErrorDetail({ code: "MAP_QUERY_FAILED", message: "MAP_QUERY_FAILED: database unavailable" }), "database unavailable");
+assert.equal(translateActionError(key=>key === "common.actionFailed" ? "Action failed" : key, { code: "MAP_QUERY_FAILED", message: "MAP_QUERY_FAILED" }), "Action failed");

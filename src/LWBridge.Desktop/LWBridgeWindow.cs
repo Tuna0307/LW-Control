@@ -20,6 +20,7 @@ internal sealed partial class LWBridgeWindow : Form
         "bridge://dispatch-plunder-changed",
         "bridge://truck-plunder-changed",
         "bridge://local-map-auto-scan-changed",
+        "bridge://hotkey-outcome",
     ];
     private static readonly HashSet<string> ProfileScopedEvents = new(StringComparer.Ordinal)
     {
@@ -32,6 +33,7 @@ internal sealed partial class LWBridgeWindow : Form
         "bridge://dispatch-plunder-changed",
         "bridge://truck-plunder-changed",
         "bridge://local-map-auto-scan-changed",
+        "bridge://hotkey-outcome",
     };
 
     private readonly string? capturePath;
@@ -51,6 +53,7 @@ internal sealed partial class LWBridgeWindow : Form
     private readonly string? language;
     private readonly string? theme;
     private readonly string uiRootPath;
+    private readonly bool liveUiReloadAllowed;
     private LWBridgeBackend backend = null!;
     private readonly MapDataStore? mapData;
     private readonly HostProbeCommandService? hostProbeService;
@@ -66,8 +69,6 @@ internal sealed partial class LWBridgeWindow : Form
     private VisualMetricsConfigCommandService? visualMetricsConfigService;
     private EquipmentConfigCommandService? equipmentConfigService;
     private MonsterAfkConfigCommandService? monsterAfkConfigService;
-    private AllianceGarrisonConfigCommandService? allianceGarrisonConfigService;
-    private ResourceAutomationConfigCommandService? resourceAutomationConfigService;
     private AutomationStatusCommandService? automationStatusService;
     private ClaimDelayConfigCommandService? claimDelayConfigService;
     private ProfileRuntimeConfigStore? profileRuntimeConfigStore;
@@ -85,7 +86,6 @@ internal sealed partial class LWBridgeWindow : Form
     private LocalConfigStore activeProfileConfig;
     private long profileRuntimeGeneration = 1;
     private Action<OverviewRecoveryStatus>? overviewRecoveryHandler;
-    private Action<object>? resourceAutomationStatusHandler;
     private Action<object>? manualMapScanStatusHandler;
     private Action? mapPlayerMarkHandler;
     private Action? dispatchPlunderHandler;
@@ -189,6 +189,9 @@ internal sealed partial class LWBridgeWindow : Form
             allowProofOverride: mapUiIntegrationProofPath is not null);
         this.uiRootPath = uiSelection.RootPath;
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || homeMapCampaignProofPath is not null;
+        // Live screen reload only for the normal owner app (never proofs, captures or probes).
+        liveUiReloadAllowed = !isolated && uiSelection.Mode == "canonical-production" &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") != "1";
         if (isolated && isolatedRootPath is not null)
             throw new ArgumentException("--isolated-root is restricted to normal production composition.");
         productionPaths = isolated
@@ -331,16 +334,6 @@ internal sealed partial class LWBridgeWindow : Form
         monsterAfkConfigService = profileRuntimeConfigStore is null
             ? null
             : new MonsterAfkConfigCommandService(profileRuntimeConfigStore);
-        allianceGarrisonConfigService = profileRuntimeConfigStore is null
-            ? null
-            : new AllianceGarrisonConfigCommandService(profileRuntimeConfigStore);
-        resourceAutomationConfigService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
-            ? null
-            : new ResourceAutomationConfigCommandService(
-                profileRuntimeConfigStore,
-                Path.Combine(
-                    Path.GetDirectoryName(profileRuntimeConfigPath)!,
-                    "automation-status.json"));
         automationStatusService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
             ? null
             : new AutomationStatusCommandService(
@@ -360,7 +353,16 @@ internal sealed partial class LWBridgeWindow : Form
             // That fallback is useful for legacy diagnostics, but it must never choose
             // which installation receives the lifecycle/control-pipe ownership.
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetLaunchAdmissionStatus();
-            bridgeHostState = new LWBridgeControlPipeHostState();
+            // R18 isolated background proof must not contend for the owner's
+            // normal app listener. Keep the same SID ACL/handshake and installation
+            // ownership gates on a private, source-valid 16-hex pipe identity.
+            string? isolatedProofPipe = productionPaths?.ExplicitIsolation == true &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1"
+                ? LWBridgeControlPipeContract.FullPathPrefix + Convert.ToHexString(
+                    System.Security.Cryptography.SHA256.HashData(
+                        System.Text.Encoding.UTF8.GetBytes(productionPaths.Root))).ToLowerInvariant()[..16]
+                : null;
+            bridgeHostState = new LWBridgeControlPipeHostState(isolatedProofPipe);
             if (liveGameRoot.Valid)
             {
                 string expectedClientPath =
@@ -450,8 +452,6 @@ internal sealed partial class LWBridgeWindow : Form
             visualMetricsConfigService = owner.VisualMetricsConfig;
             equipmentConfigService = owner.EquipmentConfig;
             monsterAfkConfigService = owner.MonsterAfkConfig;
-            allianceGarrisonConfigService = owner.AllianceGarrisonConfig;
-            resourceAutomationConfigService = owner.ResourceAutomationConfig;
             automationStatusService = owner.AutomationStatus;
             claimDelayConfigService = owner.ClaimDelayConfig;
             owner.TransferOwnership();
@@ -478,11 +478,22 @@ internal sealed partial class LWBridgeWindow : Form
             if (profileRegistryService is not null) services.Add(profileRegistryService);
             if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
+            if (overviewLifecycleService is not null)
+            {
+                var featureCommands = equipmentConfigService is null
+                    ? new Feature018GameCommandService(overviewLifecycleService)
+                    : new Feature018GameCommandService(overviewLifecycleService, equipmentConfigService, profileRuntimeConfigStore);
+                services.Add(featureCommands);
+                automationStatusService?.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
+                    await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
+                automationStatusService?.SetNativeChatStatusReader(async token => JsonSerializer.SerializeToNode(
+                    await featureCommands.InvokeAsync("feature018_chat_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
+            }
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
-            if (allianceGarrisonConfigService is not null) services.Add(allianceGarrisonConfigService);
-            if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
+            if (profileRuntimeConfigStore is not null) services.Add(new ChatAutomationConfigCommandService(profileRuntimeConfigStore));
+            if (profileRuntimeConfigStore is not null) services.Add(new AutomationTaskConfigCommandService(profileRuntimeConfigStore));
             if (automationStatusService is not null) services.Add(automationStatusService);
             if (claimDelayConfigService is not null) services.Add(claimDelayConfigService);
             productionCommands = services.Count switch
@@ -539,6 +550,7 @@ internal sealed partial class LWBridgeWindow : Form
         ownerEvidence?.Record("session-start", new { processId = Environment.ProcessId, profileId = config.Snapshot.ProfileId, initialView });
         Shown += OnShown;
         FormClosed += OnFormClosed;
+        StartFeature018HotkeyMonitoring();
         InitializeHome004IsolatedRouteFault(isolatedRootPath);
     }
 
@@ -632,8 +644,11 @@ internal sealed partial class LWBridgeWindow : Form
             lock (retainedProfileRuntimes)
                 retainedProfileRuntimes.Remove(profileId, out removed);
             if (removed is not null)
+            {
+                removed.AutomationStatus?.Dispose();
                 DisposeRetiredProfileRuntime(removed.Auto, removed.Map,
                     removed.Drafts, removed.Settings, removed.Lifecycle, bridgeHost: null);
+            }
         }
         finally { profileSwapGate.Release(); }
     }
@@ -724,7 +739,6 @@ internal sealed partial class LWBridgeWindow : Form
             owner.Map317, owner.MapAutoScan, owner.CityLayoutDraft, owner.ProfileSettings,
             owner.RuntimeConfigStore, owner.RuntimeConfigPath, owner.HotkeyConfig,
             owner.VisualMetricsConfig, owner.EquipmentConfig, owner.MonsterAfkConfig,
-            owner.AllianceGarrisonConfig, owner.ResourceAutomationConfig,
             owner.AutomationStatus, owner.ClaimDelayConfig);
         lock (retainedProfileRuntimes)
             retainedProfileRuntimes.Add(profileId, runtime);
@@ -818,8 +832,6 @@ internal sealed partial class LWBridgeWindow : Form
         VisualMetricsConfigCommandService? VisualMetrics,
         EquipmentConfigCommandService? Equipment,
         MonsterAfkConfigCommandService? MonsterAfk,
-        AllianceGarrisonConfigCommandService? Garrison,
-        ResourceAutomationConfigCommandService? ResourceAutomation,
         AutomationStatusCommandService? AutomationStatus,
         ClaimDelayConfigCommandService? ClaimDelay);
 
@@ -828,8 +840,8 @@ internal sealed partial class LWBridgeWindow : Form
         map317CommandService, mapAutoScanService, cityLayoutDraftService,
         profileSettingsService, profileRuntimeConfigStore, profileRuntimeConfigPath,
         hotkeyConfigService, visualMetricsConfigService, equipmentConfigService,
-        monsterAfkConfigService, allianceGarrisonConfigService,
-        resourceAutomationConfigService, automationStatusService, claimDelayConfigService);
+        monsterAfkConfigService,
+        automationStatusService, claimDelayConfigService);
 
     private void ActivateProfileRuntime(RetainedProfileRuntime runtime)
     {
@@ -847,8 +859,6 @@ internal sealed partial class LWBridgeWindow : Form
         visualMetricsConfigService = runtime.VisualMetrics;
         equipmentConfigService = runtime.Equipment;
         monsterAfkConfigService = runtime.MonsterAfk;
-        allianceGarrisonConfigService = runtime.Garrison;
-        resourceAutomationConfigService = runtime.ResourceAutomation;
         automationStatusService = runtime.AutomationStatus;
         claimDelayConfigService = runtime.ClaimDelay;
         if (homeMapCampaignProofPath is not null)
@@ -1064,12 +1074,6 @@ internal sealed partial class LWBridgeWindow : Form
                 OnOverviewRecoveryStatusChanged(generation, status);
             overviewLifecycleService.RecoveryStatusChanged += overviewRecoveryHandler;
         }
-        if (resourceAutomationConfigService is not null)
-        {
-            resourceAutomationStatusHandler = status =>
-                OnResourceAutomationStatusChanged(generation, status);
-            resourceAutomationConfigService.StatusChanged += resourceAutomationStatusHandler;
-        }
         if (map317CommandService is not null)
         {
             manualMapScanStatusHandler = status =>
@@ -1093,8 +1097,6 @@ internal sealed partial class LWBridgeWindow : Form
     {
         if (overviewLifecycleService is not null && overviewRecoveryHandler is not null)
             overviewLifecycleService.RecoveryStatusChanged -= overviewRecoveryHandler;
-        if (resourceAutomationConfigService is not null && resourceAutomationStatusHandler is not null)
-            resourceAutomationConfigService.StatusChanged -= resourceAutomationStatusHandler;
         if (map317CommandService is not null)
         {
             if (manualMapScanStatusHandler is not null)
@@ -1109,7 +1111,6 @@ internal sealed partial class LWBridgeWindow : Form
         if (mapAutoScanService is not null && mapAutoScanHandler is not null)
             mapAutoScanService.StateChanged -= mapAutoScanHandler;
         overviewRecoveryHandler = null;
-        resourceAutomationStatusHandler = null;
         manualMapScanStatusHandler = null;
         mapPlayerMarkHandler = null;
         dispatchPlunderHandler = null;
@@ -1233,6 +1234,7 @@ internal sealed partial class LWBridgeWindow : Form
                     """);
             }
             core.SetVirtualHostNameToFolderMapping("lwbridge.local", uiRootPath, CoreWebView2HostResourceAccessKind.DenyCors);
+            StartLiveUiReload(core);
             core.NavigationStarting += OnNavigationStarting;
             core.NewWindowRequested += (_, args) => args.Handled = true;
             core.WebMessageReceived += OnWebMessageReceived;
@@ -1561,6 +1563,17 @@ internal sealed partial class LWBridgeWindow : Form
         }
         if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
 
+        // R29 runs its genuine disconnected production matrix before this proof
+        // owns any game process. The harness then clicks the production Home
+        // Start control; the ordinary lifecycle loop below must still observe
+        // and authenticate that exact instance before connected work is admitted.
+        if (ownerFixNativeProof && !ownerFixRemoteProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_R29_SWEEP_PROOF") == "1")
+        {
+            using var disconnectedSweepCts = new CancellationTokenSource(TimeSpan.FromMinutes(4));
+            await RunFeature018R29DisconnectedSweepAsync(core, directory, disconnectedSweepCts.Token);
+        }
+
         // MAP-016 always chooses the fastest qualified scanner. The speed radio
         // group is gone, so verify the real owner UI reflects its removal.
         if (await core.ExecuteScriptAsync("document.querySelector('[name=map-scan-speed]') === null") != "true")
@@ -1568,8 +1581,14 @@ internal sealed partial class LWBridgeWindow : Form
 
         bool intervalAcceptance = ownerFixNativeProof && !ownerFixRemoteProof &&
             Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_INTERVAL") == "1";
+        // The staged FEATURE018 queue intentionally permits 13 minutes after
+        // authentication; its outer lifecycle timeout must not cancel it at 8.
+        bool feature018StagedProof = ownerFixNativeProof && !ownerFixRemoteProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1" &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") == "1";
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(
-            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : 8));
+            Environment.GetEnvironmentVariable("LWBRIDGE_R29_PERF_PROOF") == "1" ? 45 :
+            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : feature018StagedProof ? 16 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
@@ -1633,6 +1652,13 @@ internal sealed partial class LWBridgeWindow : Form
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
 
+            if (ownerFixNativeProof && !ownerFixRemoteProof &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1")
+            {
+                await RunFeature018PackagedUiProofAsync(core, fullOutputPath, directory,
+                    ownedMapSession, operationCts.Token);
+                return;
+            }
             if (ownerFixNativeProof && !ownerFixRemoteProof &&
                 !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("LWBRIDGE_MAP017_UI_MODE")))
             {
@@ -6113,31 +6139,6 @@ internal sealed partial class LWBridgeWindow : Form
                 new OverviewRecoveryStatus("idle", null, false, false, 0, null, 0, null, null, 0, false));
     }
 
-    private void OnResourceAutomationStatusChanged(long generation, object status)
-    {
-        if (sessionClosed || IsDisposed || !IsCurrentProfileRuntimeGeneration(generation)) return;
-        void Publish()
-        {
-            if (!IsCurrentProfileRuntimeGeneration(generation)) return;
-            DocumentSession session = documentSession;
-            if (IsCurrentDocument(session) &&
-                session.Subscriptions.Contains("bridge://resource-automation-status"))
-            {
-                SendEvent(
-                    session,
-                    "bridge://resource-automation-status",
-                    status);
-            }
-        }
-
-        try
-        {
-            if (InvokeRequired) BeginInvoke(Publish);
-            else Publish();
-        }
-        catch (InvalidOperationException) { }
-    }
-
     private void OnManualMapScanStatusChanged(long generation, object status)
     {
         if (sessionClosed || IsDisposed || !IsCurrentProfileRuntimeGeneration(generation)) return;
@@ -6310,6 +6311,9 @@ internal sealed partial class LWBridgeWindow : Form
 
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
+        StopLiveUiReload();
+        StopFeature018HotkeyMonitoring();
+        automationStatusService?.Dispose();
         home004RouteFaultTimer?.Stop();
         home004RouteFaultTimer?.Dispose();
         Interlocked.Exchange(ref profileRuntimeClosed, 1);
@@ -6327,6 +6331,7 @@ internal sealed partial class LWBridgeWindow : Form
             // selection history must not determine which ones survive shutdown.
             foreach (RetainedProfileRuntime runtime in retainedProfileRuntimes.Values)
             {
+                runtime.AutomationStatus?.Dispose();
                 if (ReferenceEquals(runtime.Lifecycle, overviewLifecycleService))
                     continue;
                 DisposeRetiredProfileRuntime(
@@ -6460,7 +6465,6 @@ internal sealed partial class LWBridgeWindow : Form
             activeRequests = documentSession.Requests.ActiveCount,
             activeSubscriptions = documentSession.Subscriptions.Count,
             profileRuntimeEventsDetached = overviewRecoveryHandler is null &&
-                resourceAutomationStatusHandler is null &&
                 manualMapScanStatusHandler is null &&
                 mapPlayerMarkHandler is null &&
                 dispatchPlunderHandler is null &&

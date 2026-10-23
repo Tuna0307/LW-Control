@@ -240,6 +240,12 @@ internal sealed class LWBridgeBackend
                 "monster_catalog_options",
                 StringComparison.Ordinal))
         {
+            if (asyncCommands?.CanHandle(command) == true)
+            {
+                ValidateCommandScope(command, payload);
+                return await asyncCommands.InvokeAsync(command, payload, cancellationToken)
+                    .ConfigureAwait(false);
+            }
             return await MonsterCatalogOptionsAsync(
                     payload,
                     cancellationToken)
@@ -365,16 +371,6 @@ internal sealed class LWBridgeBackend
             case "automation_status":
                 RequireOptionalProfile(payload);
                 return new { tasks = new Dictionary<string, object>() };
-            case "resource_automation_status":
-                RequireOptionalProfile(payload);
-                return new
-                {
-                    tasks = new Dictionary<string, object>
-                    {
-                        ["buildingResources"] = new { enabled = false, intervalMinutes = 60 },
-                        ["armedTruckReward"] = new { enabled = false, intervalMinutes = 60 },
-                    },
-                };
             case "map_scan_status":
                 return CreateCurrentMapScanStatus();
             case "map_scan_start":

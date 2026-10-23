@@ -824,7 +824,8 @@ class OfficialSettleNoUpdaterAdmissionTests(unittest.TestCase):
         self.assertEqual(self.runner.NO_UPDATER_MODES,
                          {"all-nine", "truck", "railway",
                           "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
-                          "boss-first", "boss-after-resource", "picker-empty", "once-two-server"})
+                          "boss-first", "boss-after-resource", "picker-empty", "once-two-server",
+                          "feature018-tabs"})
 
     def test_mismatch_and_untrusted_marker_fail_before_app_launch(self):
         for name, action in [

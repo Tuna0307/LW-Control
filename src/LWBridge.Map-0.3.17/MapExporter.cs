@@ -28,18 +28,12 @@ public sealed class MapExporter
         if (string.IsNullOrWhiteSpace(path))
             return new CityExportResult(true, 0, null);
 
-        var rows = new List<System.Text.Json.JsonElement>();
-        for (int page = 1; page <= 1000; page++)
-        {
-            MapSearchResult result = store.Search(query with { Page = page, PageSize = 200 }, cityExportRows: true);
-            if (result.Total > MapStore.MaxCityExportRows)
-                throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export exceeded the row limit");
-            if (result.Rows.Count == 0) break;
-            rows.AddRange(result.Rows);
-            if (rows.Count >= result.Total) break;
-            if (page == 1000)
-                throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export exceeded the row limit");
-        }
+        // Audit 2026-10-23 W09: one Search = one read transaction, so the workbook is a single
+        // database snapshot even while a scan publishes new rows (paging mixed versions).
+        MapSearchResult result = store.Search(query with { Page = 1, PageSize = MapStore.MaxCityExportRows }, cityExportRows: true);
+        if (result.Total > MapStore.MaxCityExportRows)
+            throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export exceeded the row limit");
+        var rows = new List<System.Text.Json.JsonElement>(result.Rows);
 
         if (rows.Count > MapStore.MaxCityExportRows)
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export exceeded the row limit");

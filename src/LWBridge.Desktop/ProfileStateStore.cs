@@ -99,12 +99,14 @@ internal sealed class ProfileStateStore : IDisposable
                 }
                 else
                 {
+                    // A cleared marker may be recreated from revision 0 (a new draft), and the new draft
+                    // still gets a fresh, higher revision than any editor saw before the clear.
                     using SqliteCommand update = connection.CreateCommand();
                     update.Transaction = transaction;
                     update.CommandText = """
                         UPDATE profile_state
                         SET value_json = $value, revision = revision + 1
-                        WHERE key = $key AND revision = $revision
+                        WHERE key = $key AND (revision = $revision OR ($revision = 0 AND value_json = 'null'))
                         """;
                     update.Parameters.AddWithValue("$value", valueJson);
                     update.Parameters.AddWithValue("$key", key);
@@ -135,9 +137,12 @@ internal sealed class ProfileStateStore : IDisposable
             ThrowIfDisposed();
             try
             {
+                // Audit 2026-10-23 W04: keep a cleared marker with the next revision instead of deleting
+                // the row, so a recreated draft never reuses an old revision and a stale editor conflicts.
                 using SqliteCommand command = connection.CreateCommand();
                 command.CommandText = """
-                    DELETE FROM profile_state
+                    UPDATE profile_state
+                    SET value_json = 'null', revision = revision + 1
                     WHERE key = $key AND revision = $revision
                     """;
                 command.Parameters.AddWithValue("$key", key);
@@ -145,7 +150,7 @@ internal sealed class ProfileStateStore : IDisposable
                 if (command.ExecuteNonQuery() != 1)
                     throw RevisionConflict();
 
-                return Empty(profileId, key);
+                return ReadLocked(profileId, key);
             }
             catch (BridgeCommandException) { throw; }
             catch (Exception error) { throw Unavailable(error); }
@@ -170,7 +175,9 @@ internal sealed class ProfileStateStore : IDisposable
         try
         {
             using JsonDocument document = JsonDocument.Parse(valueJson);
-            return new ProfileStateRecord(profileId, key, revision, document.RootElement.Clone());
+            // A cleared marker reads as "no value" but keeps its revision.
+            return new ProfileStateRecord(profileId, key, revision,
+                document.RootElement.ValueKind == JsonValueKind.Null ? null : document.RootElement.Clone());
         }
         catch (JsonException error)
         {

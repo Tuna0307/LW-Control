@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createConfigDraft } from "../src/previewConfig.js";
 import { normalizeJoinRestrictions, validJoinRestrictions, makePreviewAfkProfile, previewAfkProfileValid, applyAfkTarget, previewAfkTargets } from "../src/previewAfkContracts.js";
-import { initialAutomationDraft, automationDraftError, activateTraining } from "../src/previewAutomationContracts.js";
+import { initialAutomationDraft, automationDraftError } from "../src/previewAutomationContracts.js";
 
 // Exercise the actual recovered store with deferred replies, rather than marker
 // strings or immediate-success mocks that miss edits made during a save.
@@ -68,21 +68,8 @@ assert.equal(changedTarget.squadIndexes[0], 1);
 assert.equal(previewAfkProfileValid(profileA), true);
 for (const patch of [{ name: " " }, { squadIndexes: [] }, { executionLimit: NaN }, { executionLimit: 0.1 }, { levelFilterEnabled: true, minLevel: 5, maxLevel: 2 }, { distanceFilterEnabled: true, maxDistance: 0 }, { customTarget: true, targetKey: "query:", targetNameQuery: " " }]) assert.equal(previewAfkProfileValid({ ...profileA, ...patch }), false);
 
-assert.deepEqual(initialAutomationDraft("Automatic Construction"), {});
-assert.equal(initialAutomationDraft("Auto Training").trainingTotalCount, 0);
-assert.deepEqual(initialAutomationDraft("Automatic Construction", "automation-config").constructionBuildingTypeIds, [1101, 1201]);
-assert.equal(initialAutomationDraft("Auto Training", "automation-config").trainingTotalCount, 1000);
-assert.equal(automationDraftError("Automatic Construction", { maxBuilders: 21 }), "automation.builderLimitError");
-assert.equal(automationDraftError("Automatic Construction", { maxBuilders: 2 }), "");
-assert.equal(automationDraftError("Auto Training", { trainingTotalCount: 1000001 }), "automation.soldierTraining.quantityError");
-const activeTraining = activateTraining({ trainingTotalCount: 1000 }, true, { orderId: "previous", total: 1000, completed: 400, reason: "working" }, () => "new-id");
-assert.equal(activeTraining.orderId, "previous");
-assert.equal(activeTraining.activationId, "new-id");
-assert.equal(activeTraining.collectEnabled, true);
-assert.equal(activateTraining({ trainingTotalCount: 1000 }, true, { orderId: "previous", total: 1000, completed: 400, reason: "unconfirmed" }, () => "new-id").orderId, "new-id");
-assert.equal(activateTraining({ trainingTotalCount: 0 }, true, null).enabled, undefined);
 assert.equal(automationDraftError("Treasure", { claimMin: 5, claimMax: 1 }), "automation.treasureDelayError");
-assert.equal(automationDraftError("Red Packet", { replyEnabled: true, replies: " " }), "automation.replyRequired");
+assert.equal(automationDraftError("Red Packet", { replyEnabled: true, replies: " " }), "", "Auto Reply without phrases still saves (owner 2026-10-21)");
 assert.equal(automationDraftError("Treasure", { treasureDispatchEnabled: true, dispatchSquads: [] }), "automation.treasureDispatchSquadRequired");
 assert.equal(automationDraftError("Dispatch Assist", { autoHelp: true, qualities: [], delaySeconds: [0, 0], intervalSeconds: 30 }), "automation.dispatchAssistConfigError");
 assert.equal(automationDraftError("Dispatch Assist", { autoHelp: false, qualities: ["ssr"], delaySeconds: [7, 3], intervalSeconds: 30 }), "automation.dispatchAssistConfigError");

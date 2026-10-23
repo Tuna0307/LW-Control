@@ -1,10 +1,16 @@
 import { useI18n } from "./i18n.jsx";
 import { PreviewConfigError, usePreviewConfig } from "./previewConfigHook.jsx";
-import { activateTraining, automationDraftError, initialAutomationDraft, previewTrainingOrder } from "./previewAutomationContracts.js";
+import { automationDraftError, initialAutomationDraft } from "./previewAutomationContracts.js";
 import { AutomationMeta, previewFutureTime } from "./AutomationMeta.jsx";
 import { DispatchAssistManual } from "./DispatchAssistManual.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
-import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationAvailableSquads, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, railwayWeeklyQualities, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
+import { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx";
+import { NativeAutomationCard } from "./NativeAutomationCard.jsx";
+import { NativeGatherCard } from "./NativeGatherCard.jsx";
+import { AutomationCardBoundary } from "./AutomationCardBoundary.jsx";
+import { NativeTradeCard } from "./NativeTradeCard.jsx";
+import { AUTOMATION_TASKS } from "./automationRuntime.js";
+import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationAvailableSquads, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
 import { Activity, useEffect, useId, useState } from "react";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
 import { Switch, ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
@@ -13,54 +19,36 @@ const automationCategories = [
   ["daily", "Daily Tasks"],
   ["alliance", "Alliance"],
   ["resourceGather", "Resource gathering"],
-  ["resources", "Resource Claims"],
   ["chat", "Chat"],
   ["trade", "Trade Station"],
-  ["system", "Protection & System"],
 ];
 
 const automationCategoryKeys = {
   daily: "automation.category.daily",
   alliance: "automation.category.alliance",
   resourceGather: "automation.category.resourceGather",
-  resources: "automation.category.resources",
   chat: "automation.category.chat",
   trade: "automation.category.trade",
-  system: "automation.category.system",
 };
 
 const automationCards = {
   daily: [
-    ["Auto Training", "Train and promote in large batches, then finish the remaining troops."],
-    ["Automatic Construction", "Upgrade the lowest-level building when the queue is idle."],
-    ["Free Stamina", "Claim daily free Stamina when available."],
     ["Automatic Treatment", "Treat wounded soldiers, request Alliance help, and collect completed treatment every 2 seconds without using Gold."],
-    ["Trucks", "Claim arrived Truck rewards, refresh to the target quality, and continue dispatching available Trucks."],
     ["Secret Task", "Claim completed rewards, then continue refreshing and dispatching eligible Secret Tasks."],
-    ["Ghost Ops", "Start and share your Ghost Ops, join eligible alliance missions, and claim rewards on time."],
   ],
   alliance: [
     ["Alliance Tech Donations", "Automatically donate standard resources to Alliance Tech."],
     ["Automatic Official Application", "Automatically apply for one selected official position."],
-    ["Automatic Alliance Train Boarding", "Select and rank target rewards, or let reward quantity override the ranking."],
-    ["Alliance Help", "Help Alliance members automatically, with a check every minute."],
+    ["Alliance Help", "Help Alliance members automatically, with a check every 3 seconds."],
     ["Alliance Gifts", "Claim normal and advanced Alliance Gifts at the configured interval."],
     ["Excavation Stronghold Resources", "Claim resources from occupied excavation strongholds at the configured interval."],
     ["Alliance Center Resources", "Claim production resources from Alliance Center buildings at the configured interval."],
     ["Alliance Gathering Dispatch", "Automatically send selected idle squads to Alliance Gathering Points."],
   ],
-  resources: [
-    ["Building Resource Collection", "Collect resources produced by city buildings on a schedule."],
-    ["Armed Truck", "Claim Armed Truck idle rewards on a schedule."],
-  ],
   chat: [
     ["Red Packet", "Listen for chat messages and automatically claim Red Packet."],
     ["Fireworks / Egg", "Listen for chat messages and automatically claim Fireworks / Egg."],
     ["Treasure", "Listen for chat messages and automatically claim Treasure."],
-  ],
-  system: [
-    ["Weekend Shield", "Maintain a Shield throughout Saturday server time."],
-    ["Attack Shield", "Try 8, 12, and 24-hour Shields in order when attacked."],
   ],
 };
 
@@ -71,20 +59,13 @@ const nonCollapsibleAutomationSettings = new Set([
   "Alliance Gifts",
   "Excavation Stronghold Resources",
   "Alliance Center Resources",
-  "Building Resource Collection",
-  "Armed Truck",
 ]);
 
 const automationCardsWithoutSettings = new Set([
-  "Free Stamina",
   "Alliance Help",
-  "Weekend Shield",
-  "Attack Shield",
 ]);
 
 const automationActionLabels = {
-  "Automatic Construction": "automation.claimAllBuildingRewards",
-  Trucks: "automation.departAll",
   "Secret Task": "automation.dispatchAll",
   "Alliance Help": "common.runNow",
   "Alliance Gifts": "common.runNow",
@@ -93,8 +74,6 @@ const automationActionLabels = {
   "Red Packet": "common.runNow",
   "Fireworks / Egg": "common.runNow",
   Treasure: "common.runNow",
-  "Building Resource Collection": "common.runNow",
-  "Armed Truck": "common.runNow",
   "Alliance Gathering Dispatch": "common.runNow",
 };
 
@@ -104,35 +83,15 @@ function WeeklyQualityPreview({ enabled, values, onChange, running = false }) {
   return <div className="automation-weekly-quality">{days.map((day, index) => <label key={day}><span>{day}</span><select value={values[index]} disabled={!enabled || running} onChange={(event) => { const next = [...values]; next[index] = event.target.value; onChange(next); }}><option value="none">{t("automation.noQualityRefresh")}</option><option value="ssr">{t("automation.ssrOrAbove")}</option><option value="ur">UR</option></select></label>)}</div>;
 }
 
-const previewConstructionBuildingTypes = [
-  { itemId: 1101, category: "economy", name: "Fixture Steelworks" },
-  { itemId: 1102, category: "economy", name: "Fixture Farm" },
-  { itemId: 1201, category: "military", name: "Fixture Barracks" },
-  { itemId: 1301, category: "decoration", name: "Fixture Monument" },
-  { itemId: 1401, category: "season", name: "Fixture Season Hall" },
-  { itemId: 1501, category: "other", name: "Fixture Headquarters" },
-];
-
-const previewSoldierCamps = [
-  { uuid: "fixture-camp-1", level: 30, availableLevels: [1, 2, 3, 4, 5, 6, 7], reason: "train", productionCount: 0 },
-  { uuid: "fixture-camp-2", level: 28, availableLevels: [1, 2, 3, 4, 5, 6], reason: "training", productionCount: 240, productionLevel: 6, completionTime: 1_799_000_900_000 },
-];
-
-const previewTrainRewards = [
-  { key: "fixture-medal", name: "Fixture Medal", count: 8 },
-  { key: "fixture-parts", name: "Fixture Parts", count: 5 },
-  { key: "fixture-chest", name: "Fixture Chest", count: 2 },
-];
-
-function AutomationConfigPreview({ title, enabled, previewState = "", config, assistConfig, availableSquads, onLocalError }) {
+export function AutomationConfigPreview({ title, enabled, previewState = "", config, assistConfig, availableSquads, onLocalError }) {
   return <AutomationFields title={title} enabled={enabled} previewState={previewState} config={config} assistConfig={assistConfig} availableSquads={availableSquads} onLocalError={onLocalError} />;
 }
 
 function sourceVisibleDraftError(title, draft, maximumBuilders) {
   const error = automationDraftError(title, draft, maximumBuilders);
   if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return error;
-  if (["Automatic Construction", "Automatic Treatment", "Automatic Official Application", "Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources", "Building Resource Collection", "Armed Truck"].includes(title)) return error;
-  if (["Trucks", "Secret Task"].includes(title) && error === "automation.dailyDelayError") return error;
+  if (["Automatic Treatment", "Automatic Official Application", "Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources"].includes(title)) return error;
+  if (["Secret Task"].includes(title) && error === "automation.dailyDelayError") return error;
   return "";
 }
 
@@ -153,24 +112,14 @@ function automationRuntimePresentation(title, runtime, enabled, configDraft, t, 
   const yesNo = (value) => t(value ? "common.yes" : "common.no");
   const rows = (...entries) => entries;
   switch (title) {
-    case "Automatic Construction":
-      return { summary: rows(["automation.automaticBuilders", `${text(runtime.automaticBuilders)} / ${text(runtime.maxBuilders)}`], ["automation.buildersTotal", `${text(runtime.occupiedBuilders)} / ${text(runtime.totalBuilders)}`]), status: rows(["automation.currentBuilding", text(runtime.candidateName)], ["automation.currentLevel", text(runtime.candidateLevel)], ["automation.automaticBuilders", `${text(runtime.automaticBuilders)} / ${text(runtime.maxBuilders)}`], ["automation.buildersTotal", `${text(runtime.occupiedBuilders)} / ${text(runtime.totalBuilders)}`], ["automation.processed", text(runtime.processed ?? 0)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
-    case "Free Stamina":
-      return { status: rows(["automation.claimedToday", `${text(runtime.todayCount)} / ${text(runtime.dailyLimit)}`], ["automation.processed", text(runtime.processed ?? 0)], ["automation.nextClaim", previewTime(runtime.nextClaimAt, language)]) };
     case "Automatic Treatment":
       return { summary: rows(["automation.wounded", text(runtime.wounded)], ["automation.treating", text(runtime.treating)]), status: rows(["automation.wounded", text(runtime.wounded)], ["automation.treating", text(runtime.treating)], ["automation.treatmentBatches", text(runtime.batchesStarted)], ["automation.soldiersQueued", text(runtime.soldiersQueued)], ["automation.helpsRequested", text(runtime.helpsRequested)], ["automation.collected", text(runtime.collected)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
-    case "Trucks":
-      return { summary: rows(["automation.departed", runtime.departed], ["automation.pendingClaims", runtime.pendingClaims]), status: rows(["automation.nextRun", enabled ? previewFutureTime(runtime.nextScheduledAt, language) : "-"], ["automation.qualifiedTotal", `${text(runtime.qualified ?? 0)} / ${text(runtime.total ?? 0)}`], ["automation.refreshed", text(runtime.refreshed ?? 0)], ["automation.departed", text(runtime.departed ?? 0)], ["automation.claimed", text(runtime.claimed ?? 0)], ["automation.pendingClaims", text(runtime.pendingClaims ?? 0)], ["automation.nextClaim", previewFutureTime(runtime.nextContinuationAt, language)], ["automation.batchDeparture", t(runtime.capabilities?.batchDeparture === true ? "common.available" : runtime.capabilities?.batchDeparture === false ? "common.degraded" : "common.notChecked")]) };
     case "Secret Task":
       return { summary: rows(["automation.dispatched", runtime.dispatched], ["automation.pendingClaims", runtime.pendingClaims]), status: rows(["automation.nextRun", (enabled || configDraft.collectRewards) ? previewFutureTime(runtime.nextScheduledAt, language) : "-"], ["automation.qualifiedTotal", `${text(runtime.qualified ?? runtime.details?.qualified ?? 0)} / ${text(runtime.available ?? runtime.details?.available ?? 0)}`], ["automation.dispatched", text(runtime.dispatched ?? 0)], ["automation.refreshed", text(runtime.refreshed ?? 0)], ["automation.claimed", text(runtime.claimed ?? 0)], ["automation.pendingClaims", text(runtime.pendingClaims ?? 0)], ["automation.nextClaim", previewFutureTime(runtime.nextContinuationAt, language)], ["automation.superRefresh", t(runtime.capabilities?.superRefresh === true ? "common.available" : runtime.capabilities?.superRefresh === false ? "automation.normalRefresh" : "common.notChecked")]) };
-    case "Ghost Ops":
-      return { status: rows(["automation.nextClaim", configDraft.ghostClaimRewards ? previewFutureTime(runtime.nextClaimAt, language) : "-"]) };
     case "Alliance Tech Donations":
       return { summary: rows(["automation.remaining", text(runtime.remaining)], ["automation.donated", text(runtime.donated)]), status: rows(["automation.currentTech", text(runtime.scienceId)], ["automation.remaining", text(runtime.remaining)], ["automation.donated", text(runtime.donated)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
     case "Automatic Official Application":
       return { status: rows(["automation.targetPosition", text(runtime.positionId || configDraft.positionId)], ["automation.currentPosition", text(runtime.currentPositionId)], ["automation.applicationQueue", text(runtime.applyQueueLength)], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
-    case "Automatic Alliance Train Boarding":
-      return { summary: rows(["automation.currentCarriage", text(runtime.currentCarriage)], ["automation.queueCapacity", `${text(runtime.queueLength)} / ${text(runtime.maxPassenger)}`]), status: rows(["automation.currentCarriage", text(runtime.currentCarriage)], ["automation.queueCapacity", `${text(runtime.queueLength)} / ${text(runtime.maxPassenger)}`], ["automation.currentReward", text(runtime.currentReward)], ["automation.trainVipStatus", yesNo(runtime.isVip)], ["automation.trainVipCarriages", runtime.vipCarriages?.join(", ") || "—"], ["automation.nextCheck", previewTime(runtime.nextRunAt, language)]) };
     case "Alliance Help":
       return { status: rows(["automation.available", text(runtime.available ?? 0)], ["automation.processed", text(runtime.processed ?? 0)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewFutureTime(runtime.nextRunAt, language) : "-"]) };
     case "Alliance Gifts":
@@ -180,25 +129,18 @@ function automationRuntimePresentation(title, runtime, enabled, configDraft, t, 
       return { status: rows(["automation.available", text(runtime.available ?? 0)], ["automation.claimed", text(runtime.claimed ?? 0)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewFutureTime(runtime.nextRunAt, language) : "-"]) };
     case "Alliance Gathering Dispatch":
       return { status: rows(["automation.allianceGatherAvailable", text(runtime.available ?? 0)], ["automation.dispatched", text(runtime.dispatched ?? 0)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)]) };
-    case "Building Resource Collection":
-    case "Armed Truck":
-      return { status: rows(["automation.lastRun", previewTime(runtime.lastRunAt, language)], ["automation.nextRun", enabled ? previewFutureTime(runtime.nextRunAt, language) : "-"]) };
     case "Red Packet":
     case "Fireworks / Egg":
       return { summary: rows(["automation.pendingClaims", text(runtime.pendingCount)], ["automation.latestResult", t(runtime.lastResult === "success" ? "common.success" : runtime.lastResult === "failed" ? "common.failed" : "common.waiting")]) };
     case "Treasure":
       return { summary: rows(["automation.pendingClaims", text(runtime.pendingCount)], ["automation.treasureDispatchPending", text(runtime.dispatchPendingCount)]) };
-    case "Weekend Shield":
-      return { status: rows(["automation.currentShield", t(runtime.shielded ? "common.on" : "common.off")], ["automation.shieldEnds", previewTime(runtime.shieldEndAt, language)], ["automation.weekendWindow", yesNo(runtime.inWeekendWindow)], ["automation.weekendWindowLocal", runtime.weekendStartAt && runtime.weekendEndAt ? `${previewTime(runtime.weekendStartAt, language)} – ${previewTime(runtime.weekendEndAt, language)}` : "-"]) };
-    case "Attack Shield":
-      return { status: rows(["automation.currentShield", t(runtime.shielded ? "common.on" : "common.off")], ["automation.pendingReason", runtime.pendingReason || "-"]) };
     default:
       return {};
   }
 }
 
 // Recovered index-BVfnK1wp.js Vr: source glyphs used by Automation ordering controls.
-function AutomationIcon({ name }) {
+export function AutomationIcon({ name }) {
   return <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
     {name === "arrow-up" ? <path d="M8 13.5v-11M3.5 7 8 2.5 12.5 7" /> : null}
     {name === "arrow-down" ? <path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" /> : null}
@@ -213,29 +155,25 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
     config.store.flush().catch(() => {});
   };
   const fieldState = (key, initial, immediate = false) => [config.draft[key] ?? initial, (value) => immediate ? setNow(key, value) : config.store.edit((draft) => ({ ...draft, [key]: typeof value === "function" ? value(draft[key] ?? initial) : value }))];
-  const field = (key, initial) => ({ value: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.value })) });
+  // Owner 2026-10-21: a Min/Max pair keeps itself valid when you leave a box (Min 10 with Max 0 becomes 10-10).
+  const delayPairs = { claimMin: ["claimMax", true], claimMax: ["claimMin", false], replyMin: ["replyMax", true], replyMax: ["replyMin", false], dispatchMin: ["dispatchMax", true], dispatchMax: ["dispatchMin", false] };
+  const settlePair = (key) => {
+    const pair = delayPairs[key];
+    if (!pair) return;
+    config.store.edit((draft) => {
+      const [other, isMin] = pair;
+      const mine = Number(draft[key]), theirs = Number(draft[other]);
+      if (String(draft[key] ?? "").trim() === "" || String(draft[other] ?? "").trim() === "" || !Number.isFinite(mine) || !Number.isFinite(theirs)) return draft;
+      if (isMin ? theirs < mine : theirs > mine) return { ...draft, [other]: draft[key] };
+      return draft;
+    });
+  };
+  const field = (key, initial) => ({ value: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.value })), onBlur: () => settlePair(key) });
   const check = (key, initial = false) => ({ checked: config.draft[key] ?? initial, onChange: (event) => config.store.edit((draft) => ({ ...draft, [key]: event.target.checked })) });
   const checkNow = (key, initial = false) => ({ checked: config.draft[key] ?? initial, onChange: (event) => setNow(key, event.target.checked) });
-  const [constructionTargetEnabled, setConstructionTargetEnabled] = fieldState("constructionTargetEnabled", false, true);
-  const [constructionCategory, setConstructionCategory] = useState("all");
-  const [constructionBuildingTypeIds, setConstructionBuildingTypeIds] = fieldState("constructionBuildingTypeIds", [], true);
-  const [trainingTotalCount, setTrainingTotalCount] = fieldState("trainingTotalCount", 0);
-  const [trainingTargetLevel, setTrainingTargetLevel] = fieldState("trainingTargetLevel", 0);
-  const [trainingOpenFailed, setTrainingOpenFailed] = useState(previewState === "automation-training-open-failed");
   const [replyEnabled] = fieldState("replyEnabled", false);
   const [treasureDispatchEnabled] = fieldState("treasureDispatchEnabled", false);
   const dispatchAssistEnabled = assistConfig.draft.autoHelp ?? false;
-  const [ghostJoinEnabled, setGhostJoinEnabled] = fieldState("ghostJoinEnabled", false, true);
-  const [trainMode, setTrainMode] = fieldState("trainMode", (config.draft.normalFixedCarriageIds ?? []).filter((carriage) => carriage >= 1 && carriage <= 4).length === 1 ? "fixed" : "reward", true);
-  const [vipTrainMode, setVipTrainMode] = fieldState("vipTrainMode", (config.draft.vipFixedCarriageIds ?? []).filter((carriage) => carriage >= 1 && carriage <= 4).length === 2 ? "fixed" : "reward", true);
-  const [normalFixedCarriageIds, setNormalFixedCarriageIds] = fieldState("normalFixedCarriageIds", [], true);
-  const [vipFixedCarriageIds, setVipFixedCarriageIds] = fieldState("vipFixedCarriageIds", [], true);
-  const validVipFixedCarriageIds = vipFixedCarriageIds.filter((carriage) => carriage >= 1 && carriage <= 4);
-  const [preferredRewardKeys, setPreferredRewardKeys] = fieldState("preferredRewardKeys", ["fixture-medal"], true);
-  const [preferRewardQuantity, setPreferRewardQuantity] = fieldState("preferRewardQuantity", false, true);
-  const [thanksMode, setThanksMode] = fieldState("thanksMode", "like", true);
-  const [draggedReward, setDraggedReward] = useState(null);
-  const [dragOverReward, setDragOverReward] = useState(null);
   const [draggedTreasureSquad, setDraggedTreasureSquad] = useState(null);
   const [treasureDragOverSquad, setTreasureDragOverSquad] = useState(null);
   const [draggedGatherSquad, setDraggedGatherSquad] = useState(null);
@@ -268,45 +206,6 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
     if (error) assistConfig.store.pause();
     else assistConfig.store.edit(next);
   };
-  if (title === "Auto Training") {
-    const camps = previewState === "automation-training-no-camps" ? [] : previewSoldierCamps;
-    const availableLevels = [...new Set([...camps.flatMap((camp) => camp.availableLevels), ...(trainingTargetLevel > 0 ? [trainingTargetLevel] : [])])].sort((a, b) => a - b);
-    const validQuantity = Number.isInteger(trainingTotalCount) && trainingTotalCount > 0 && trainingTotalCount <= 1000000;
-    const order = previewTrainingOrder(previewState);
-    return <>
-      {previewState === "automation-training-error" ? <p role="alert">{t("automation.soldierTraining.stateError")}</p> : null}
-      <div className="soldier-training-fields">
-        <label>{t("automation.soldierTraining.totalCount")}<input type="number" min="1" max="1000000" step="1" value={trainingTotalCount || ""} aria-invalid={trainingTotalCount !== 0 && !validQuantity} disabled={!enabled || (config.draft.enabled && config.draft.trainEnabled)} onChange={(event) => config.store.edit((draft) => ({ ...draft, trainingTotalCount: Number(event.target.value), trainEnabled: false }))} /></label>
-        <label>{t("automation.soldierTraining.target")}<select value={trainingTargetLevel} disabled={!enabled} onChange={(event) => setTrainingTargetLevel(Number(event.target.value))}><option value="0">{t("automation.soldierTraining.highest")}</option>{availableLevels.map((level) => { const available = camps.some((camp) => camp.availableLevels.includes(level)); return <option key={level} value={level} disabled={!available}>{t("automation.soldierTraining.level", { level })}</option>; })}</select></label>
-      </div>
-      <p className="muted">{t("automation.soldierTraining.quantityHint")}</p>
-      {trainingTotalCount !== 0 && !validQuantity ? <p role="alert" className="automation-error">{t("automation.soldierTraining.quantityError")}</p> : null}
-      {order ? <div role="status"><p>{t("automation.soldierTraining.progress", order)}</p><p className="muted">{t(`automation.soldierTraining.order.${order.reason}`)}</p></div> : null}
-      <p className="muted">{t("automation.soldierTraining.summary", { trained: 420, promoted: 180, collected: 360 })}</p>
-      {camps.length === 0 ? <p className="muted">{t("automation.soldierTraining.noCamps")}</p> : null}
-      {previewState === "automation-training-data-unavailable" ? <p role="status">{t("automation.soldierTraining.reason.data_unavailable")}</p> : null}
-      {trainingOpenFailed ? <p role="alert">{t("automation.soldierTraining.openFailed")}</p> : null}
-      <div className="soldier-training-camps">{camps.map((camp, index) => <div className="soldier-training-camp" key={camp.uuid}><button type="button" title={t("automation.soldierTraining.openCamp")} disabled={!enabled} onClick={() => setTrainingOpenFailed(true)}>{t("automation.soldierTraining.building")} {index + 1}</button><span className="muted">{t("automation.soldierTraining.level", { level: camp.level })}</span><span className="soldier-training-camp-detail">{camp.productionCount > 0 ? t("automation.soldierTraining.production", { level: camp.productionLevel, count: camp.productionCount, time: new Date(camp.completionTime).toLocaleString(language, { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) }) : t(`automation.soldierTraining.reason.${camp.reason}`)}</span></div>)}</div>
-    </>;
-  }
-  if (title === "Automatic Construction") {
-    const builderLimit = config.draft.maxBuilders ?? (previewState === "automation-validation-error" ? "21" : "1");
-    const maximumBuilders = Math.max(1, runtime.totalBuilders ?? 20);
-    const invalidBuilderLimit = !Number.isInteger(Number(builderLimit)) || !(Number(builderLimit) >= 1 && Number(builderLimit) <= maximumBuilders);
-    const categories = ["all", "economy", "military", "decoration", "season", "other"].filter((category) => category === "all" || previewConstructionBuildingTypes.some((building) => building.category === category));
-    const activeCategory = categories.includes(constructionCategory) ? constructionCategory : "all";
-    const visibleBuildings = previewConstructionBuildingTypes.filter((building) => activeCategory === "all" || building.category === activeCategory);
-    const selectedSummary = constructionBuildingTypeIds.length ? previewConstructionBuildingTypes.filter((building) => constructionBuildingTypeIds.includes(building.itemId)).map((building) => building.name).join("、") : t("automation.construction.selectTypes");
-    const moveConstructionTab = (event, category) => {
-      const index = categories.indexOf(category);
-      const nextIndex = event.key === "ArrowRight" ? (index + 1) % categories.length : event.key === "ArrowLeft" ? (index + categories.length - 1) % categories.length : event.key === "Home" ? 0 : event.key === "End" ? categories.length - 1 : -1;
-      if (nextIndex < 0) return;
-      event.preventDefault();
-      setConstructionCategory(categories[nextIndex]);
-      event.currentTarget.parentElement?.querySelectorAll('[role="tab"]')[nextIndex]?.focus();
-    };
-    return <><label className="automation-checkbox-row"><input type="checkbox" checked={constructionTargetEnabled} disabled={!enabled} onChange={(event) => setConstructionTargetEnabled(event.target.checked)} /><span>{t("automation.construction.targetEnabled")}</span></label>{constructionTargetEnabled ? <><div className="automation-actions"><label>{t("automation.construction.targetLevel")}<input type="number" min="1" max="100" step="1" {...field("constructionTargetLevel", "30")} disabled={!enabled} /></label></div><details className="construction-type-select"><summary><span>{t("automation.construction.buildingTypes")}</span><strong>{selectedSummary}</strong><span className="construction-select-arrow" aria-hidden="true">⌄</span></summary><div className="construction-category-tabs" role="tablist" aria-label={t("automation.construction.buildingTypes")}>{categories.map((category) => <button type="button" role="tab" id={`preview-construction-${category}`} aria-controls="preview-construction-types" aria-selected={activeCategory === category} tabIndex={activeCategory === category ? 0 : -1} key={category} onClick={() => setConstructionCategory(category)} onKeyDown={(event) => moveConstructionTab(event, category)}>{t(`automation.construction.category.${category}`)}</button>)}</div><fieldset className="construction-target-types" role="tabpanel" id="preview-construction-types" aria-labelledby={`preview-construction-${activeCategory}`} disabled={!enabled}>{visibleBuildings.map((building) => <label className="automation-checkbox-row" key={building.itemId}><input type="checkbox" checked={constructionBuildingTypeIds.includes(building.itemId)} onChange={(event) => setConstructionBuildingTypeIds((current) => event.target.checked ? [...current, building.itemId] : current.filter((itemId) => itemId !== building.itemId))} /><span>{building.name}</span></label>)}</fieldset></details><p className="muted">{t(constructionBuildingTypeIds.length ? "automation.construction.targetHint" : "automation.construction.selectTypes")}</p></> : null}<label className="automation-checkbox-row"><input type="checkbox" {...checkNow("autoClaimCompleted", true)} disabled={!enabled} /><span>{t("automation.autoCollectRewards")}</span></label><div className="automation-actions"><label>{t("automation.maxBuilders")}<input type="number" min="1" max={maximumBuilders} step="1" {...field("maxBuilders", previewState === "automation-validation-error" ? "21" : "1")} disabled={!enabled} aria-invalid={invalidBuilderLimit || undefined} /></label></div></>;
-  }
   if (title === "Automatic Treatment") {
     return <div className="automation-actions"><label>{t("automation.treatmentAmountPerArmy")}<input type="number" min="1" max="1000000" step="1" {...field("amountPerArmy", "1")} disabled={!enabled} /></label></div>;
   }
@@ -321,11 +220,9 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
       config.store.edit((draft) => ({ ...draft, dispatchSquads: next }), false);
       config.store.flush().catch(() => {});
     };
-    return <><section className="automation-settings-section"><h3>{t("automation.section.claim")}</h3>{treasure ? <p className="hint">{t("automation.treasureTargetDelayHint")}</p> : null}<div className="automation-form-grid"><label>{t("automation.minDelaySeconds")}<input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMin", "0")} disabled={!enabled} /></label><label>{t("automation.maxDelaySeconds")}<input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMax", "0")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><ToggleRow label={t("automation.autoReply")} checked={replyEnabled} disabled={!enabled} onChange={(value) => setNow("replyEnabled", value)} />{replyEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label>{t("automation.replyDelayMin")}<input type="number" min="0.1" max="600" step="0.1" {...field("replyMin", "2")} /></label><label>{t("automation.replyDelayMax")}<input type="number" min="0.1" max="600" step="0.1" {...field("replyMax", "5")} /></label></div><label className="automation-replies">{t("automation.replyPhrases")}<textarea rows="4" {...field("replies", "")} /></label></div> : null}</section>{treasure ? <section className="automation-settings-section"><ToggleRow label={t("automation.treasureAutoSearch")} checked={config.draft.treasureSearchEnabled ?? false} disabled={!enabled} onChange={(value) => setNow("treasureSearchEnabled", value)} /><p className="muted">{t("automation.treasureAutoSearchHint")}</p><ToggleRow label={t("automation.treasureAutoDispatch")} checked={treasureDispatchEnabled} disabled={!enabled} onChange={(value) => setNow("treasureDispatchEnabled", value)} />{treasureDispatchEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label>{t("automation.dispatchDelayMin")}<input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMin", "2")} /></label><label>{t("automation.dispatchDelayMax")}<input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMax", "5")} /></label></div><label>{t("automation.treasureDispatchRetrySeconds")}<input type="number" min="1" max="300" step="1" {...field("dispatchRetry", "30")} /></label><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.treasureDispatchPriorityHint")}>{dispatchSquads.map((index) => { const selected = selectedDispatchSquads.includes(index); return <div className={`automation-squad-priority-item${selected ? " selected" : ""}${draggedTreasureSquad === index ? " dragging" : ""}${treasureDragOverSquad === index ? " drag-over" : ""}`} draggable={selected} key={index} onDragStart={(event) => { if (!selected) return; event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(index)); setDraggedTreasureSquad(index); }} onDragOver={(event) => { if (!selected || draggedTreasureSquad === null || draggedTreasureSquad === index) return; event.preventDefault(); event.dataTransfer.dropEffect = "move"; setTreasureDragOverSquad(index); }} onDrop={(event) => { event.preventDefault(); const source = selectedDispatchSquads.indexOf(draggedTreasureSquad), target = selectedDispatchSquads.indexOf(index); setDraggedTreasureSquad(null); setTreasureDragOverSquad(null); if (source < 0 || target < 0 || source === target) return; const next = [...selectedDispatchSquads]; next.splice(target, 0, next.splice(source, 1)[0]); updateDispatchSquads(next); }} onDragEnd={() => { setDraggedTreasureSquad(null); setTreasureDragOverSquad(null); }}><label><input type="checkbox" checked={selected} onChange={(event) => updateDispatchSquads(event.target.checked ? [...selectedDispatchSquads, index] : selectedDispatchSquads.filter((entry) => entry !== index))} /><span>{t("automation.squad", { index })}</span></label>{selected ? <span className="automation-squad-drag-handle" aria-hidden="true"><AutomationIcon name="drag" /></span> : null}</div>; })}</div><p className="muted">{t("automation.treasureDispatchPriorityHint")}</p></div> : null}</section> : null}</>;
-  }
-  if (title === "Trucks") {
-    const weekly = config.draft.weeklyQualities ?? railwayWeeklyQualities;
-    return <><section className="automation-settings-section"><h3>{t("automation.section.schedule")}</h3><div className="automation-actions"><label>{t("automation.delayAfterResetMinutes")}<input type="number" min="0" max="1440" step="1" {...field("delayMinutes", "2")} disabled={!enabled} /></label></div></section><section className="automation-settings-section"><h3>{t("automation.section.quality")}</h3><WeeklyQualityPreview enabled={enabled} values={weekly} running={runtime.running === true} onChange={async (values) => { config.store.edit((draft) => ({ ...draft, weeklyQualities: values }), false); await config.store.flush().catch(() => {}); }} /></section><section className="automation-settings-section"><h3>{t("automation.section.departure")}</h3><label className="automation-checkbox-row"><input type="checkbox" {...checkNow("departWhenTicketsInsufficient")} disabled={!enabled || runtime.running === true} /><span>{t("automation.railwayDepartWhenTicketsInsufficient")}</span></label></section></>;
+    const hoursOn = config.draft.activeHoursEnabled === true;
+    const hours = <section className="automation-settings-section"><ToggleRow label={t("automation.activeHours")} checked={hoursOn} disabled={!enabled} onChange={(value) => setNow("activeHoursEnabled", value)} />{hoursOn ? <div className="automation-subsettings"><div className="automation-form-grid"><label>{t("automation.activeHoursStart")}<input type="time" {...field("activeStart", "08:00")} disabled={!enabled} /></label><label>{t("automation.activeHoursEnd")}<input type="time" {...field("activeEnd", "02:00")} disabled={!enabled} /></label></div><p className="muted">{t("automation.activeHoursHint")}</p></div> : null}</section>;
+    return <>{hours}<section className="automation-settings-section"><h3>{t("automation.section.claim")}</h3>{treasure && Array.isArray(config.draft.claimSchedule) ? <TreasureClaimSchedule rows={config.draft.claimSchedule} disabled={!enabled} onChange={(claimSchedule) => config.store.edit((draft) => ({ ...draft, claimSchedule }))} /> : <>{treasure ? <p className="hint">{t("automation.treasureTargetDelayHint")}</p> : null}<div className="automation-form-grid"><label>{t("automation.minDelaySeconds")}<input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMin", "0")} disabled={!enabled} /></label><label>{t("automation.maxDelaySeconds")}<input type="number" min="0" max={treasure ? "600" : "60"} step="0.01" {...field("claimMax", "0")} disabled={!enabled} /></label></div></>}</section><section className="automation-settings-section"><ToggleRow label={t("automation.autoReply")} checked={replyEnabled} disabled={!enabled} onChange={(value) => setNow("replyEnabled", value)} />{replyEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label>{t("automation.replyDelayMin")}<input type="number" min="0.1" max="600" step="0.1" {...field("replyMin", "2")} /></label><label>{t("automation.replyDelayMax")}<input type="number" min="0.1" max="600" step="0.1" {...field("replyMax", "5")} /></label></div><label className="automation-replies">{t("automation.replyPhrases")}<textarea rows="4" {...field("replies", "")} /></label></div> : null}</section>{treasure ? <section className="automation-settings-section"><p className="muted">{t("automation.treasureShareHint")}</p><ToggleRow label={t("automation.treasureAutoDispatch")} checked={treasureDispatchEnabled} disabled={!enabled} onChange={(value) => setNow("treasureDispatchEnabled", value)} />{treasureDispatchEnabled ? <div className="automation-subsettings"><div className="automation-form-grid"><label>{t("automation.dispatchDelayMin")}<input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMin", "2")} /></label><label>{t("automation.dispatchDelayMax")}<input type="number" min="0.1" max="600" step="0.1" {...field("dispatchMax", "5")} /></label></div><label>{t("automation.treasureDispatchRetrySeconds")}<input type="number" min="1" max="300" step="1" {...field("dispatchRetry", "30")} /></label><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("automation.treasureDispatchPriorityHint")}>{dispatchSquads.map((index) => { const selected = selectedDispatchSquads.includes(index); return <div className={`automation-squad-priority-item${selected ? " selected" : ""}${draggedTreasureSquad === index ? " dragging" : ""}${treasureDragOverSquad === index ? " drag-over" : ""}`} draggable={selected} key={index} onDragStart={(event) => { if (!selected) return; event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(index)); setDraggedTreasureSquad(index); }} onDragOver={(event) => { if (!selected || draggedTreasureSquad === null || draggedTreasureSquad === index) return; event.preventDefault(); event.dataTransfer.dropEffect = "move"; setTreasureDragOverSquad(index); }} onDrop={(event) => { event.preventDefault(); const source = selectedDispatchSquads.indexOf(draggedTreasureSquad), target = selectedDispatchSquads.indexOf(index); setDraggedTreasureSquad(null); setTreasureDragOverSquad(null); if (source < 0 || target < 0 || source === target) return; const next = [...selectedDispatchSquads]; next.splice(target, 0, next.splice(source, 1)[0]); updateDispatchSquads(next); }} onDragEnd={() => { setDraggedTreasureSquad(null); setTreasureDragOverSquad(null); }}><label><input type="checkbox" checked={selected} onChange={(event) => updateDispatchSquads(event.target.checked ? [...selectedDispatchSquads, index] : selectedDispatchSquads.filter((entry) => entry !== index))} /><span>{t("automation.squad", { index })}</span></label>{selected ? <span className="automation-squad-drag-handle" aria-hidden="true"><AutomationIcon name="drag" /></span> : null}</div>; })}</div><p className="muted">{t("automation.treasureDispatchPriorityHint")}</p></div> : null}</section> : null}</>;
   }
   if (title === "Secret Task") {
     const weekly = config.draft.weeklyQualities ?? dispatchWeeklyQualities;
@@ -368,19 +265,10 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
       </section>
     </>;
   }
-  if (title === "Ghost Ops") {
-    return <><ToggleRow label={t("automation.ghost.autoJoinAlliance")} checked={ghostJoinEnabled} disabled={!enabled} onChange={setGhostJoinEnabled} />{ghostJoinEnabled ? <div className="automation-section"><strong>{t("automation.ghost.allianceFilter")}</strong><div className="automation-compact-choice-group">{["sr","ur","special"].map((filter) => <label className="automation-compact-choice" key={filter}><input type="radio" name="preview-ghost-filter" value={filter} checked={(config.draft.ghostFilter ?? "special") === filter} onChange={() => setNow("ghostFilter", filter)} disabled={!enabled} /><span>{t(`automation.ghost.filter.${filter}`)}</span></label>)}</div></div> : null}<label className="automation-checkbox-row"><input type="checkbox" {...checkNow("ghostClaimRewards")} disabled={!enabled} /><span>{t("automation.ghost.autoClaimRewards")}</span></label><div className="automation-inline-status"><span>{t("automation.ghost.ownPending")}: {runtime.ownPending ?? 0}</span><span>{t("automation.ghost.allianceCandidates")}: {runtime.allianceCandidates ?? 0}</span><span>{t("automation.claimed")}: {runtime.claimed ?? 0}</span></div></>;
-  }
-  if (title === "Automatic Alliance Train Boarding") {
-    const rewardSelectionVisible = trainMode === "reward" || vipTrainMode === "reward";
-    const orderedRewards = [...preferredRewardKeys.map((key) => previewTrainRewards.find((reward) => reward.key === key)).filter(Boolean), ...previewTrainRewards.filter((reward) => !preferredRewardKeys.includes(reward.key))];
-    const moveReward = (key, direction) => setPreferredRewardKeys((current) => { const index = current.indexOf(key); const target = index + direction; if (index < 0 || target < 0 || target >= current.length) return current; const next = [...current]; const [moved] = next.splice(index, 1); next.splice(target, 0, moved); return next; });
-    return <><div className="automation-settings-section"><strong>{t("automation.normalCarriageSelection")}</strong><span className="muted">{t("automation.normalCarriageHint")}</span><fieldset className="automation-compact-choice-group automation-selection-mode-choices">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-train-mode" checked={trainMode === mode} disabled={!enabled} onChange={() => setTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</fieldset>{trainMode === "fixed" ? <fieldset className="automation-compact-choice-group automation-carriage-choices"><label className="automation-compact-choice"><input type="checkbox" disabled /><span>{t("automation.driver")}</span></label>{[1,2,3,4].map((carriage) => <label className="automation-compact-choice" key={carriage}><input type="checkbox" checked={normalFixedCarriageIds.includes(carriage)} disabled={!enabled} onChange={(event) => setNormalFixedCarriageIds(event.target.checked ? [carriage] : [])} /><span>{t(`automation.carriage${carriage}`)}</span></label>)}</fieldset> : null}</div>{rewardSelectionVisible ? <div className="automation-train-rewards automation-settings-section"><h3>{t("automation.section.rewardPreferences")}</h3><div className="automation-preference-list">{preferredRewardKeys.length === 0 ? <span className="muted">{t("automation.noPreferredRewards")}</span> : null}{orderedRewards.map((reward) => { const order = preferredRewardKeys.indexOf(reward.key); const selected = order >= 0; return <div className={`automation-preference-item${selected ? " selected" : ""}${draggedReward === reward.key ? " dragging" : ""}${dragOverReward === reward.key ? " drag-over" : ""}`} key={reward.key} draggable={selected} onDragStart={(event) => { if (selected) { event.dataTransfer.effectAllowed = "move"; setDraggedReward(reward.key); } }} onDragOver={(event) => { if (selected && draggedReward && draggedReward !== reward.key) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; setDragOverReward(reward.key); } }} onDrop={(event) => { event.preventDefault(); const sourceKey = draggedReward; setDraggedReward(null); setDragOverReward(null); if (selected && sourceKey) setPreferredRewardKeys((current) => { const source = current.indexOf(sourceKey), target = current.indexOf(reward.key); if (source < 0 || target < 0 || source === target) return current; const next = [...current]; next.splice(target, 0, next.splice(source, 1)[0]); return next; }); }} onDragEnd={() => { setDraggedReward(null); setDragOverReward(null); }}><label className="automation-reward-choice"><input type="checkbox" checked={selected} disabled={!enabled} onChange={(event) => setPreferredRewardKeys((current) => event.target.checked ? [...current, reward.key] : current.filter((key) => key !== reward.key))} /><GameAssetImage assetPath={reward.iconPath} alt={reward.name || reward.key} className="automation-reward-icon" /><span>{reward.name || reward.key}</span></label><strong className="automation-reward-count">×{reward.count}</strong>{selected ? <span className="automation-reward-order"><button type="button" title={t("automation.moveUp")} aria-label={t("automation.moveUp")} disabled={!enabled || order === 0} onClick={() => moveReward(reward.key, -1)}><AutomationIcon name="arrow-up" /></button><button type="button" title={t("automation.moveDown")} aria-label={t("automation.moveDown")} disabled={!enabled || order === preferredRewardKeys.length - 1} onClick={() => moveReward(reward.key, 1)}><AutomationIcon name="arrow-down" /></button><span className="automation-reward-drag-handle" aria-hidden="true"><AutomationIcon name="drag" /></span></span> : null}</div>; })}</div></div> : null}<div className="automation-settings-section"><strong>{t("automation.vipCarriageSelection")}</strong><label className="automation-checkbox-row"><input type="checkbox" {...checkNow("autoAcceptVip")} disabled={!enabled} /><span>{t("automation.autoAcceptTrainVip")}</span></label><span className="muted">{t("automation.vipCarriageHint")}</span><fieldset className="automation-compact-choice-group automation-selection-mode-choices">{["reward","fixed"].map((mode) => <label className="automation-compact-choice" key={mode}><input type="radio" name="preview-vip-train-mode" checked={vipTrainMode === mode} disabled={!enabled} onChange={() => setVipTrainMode(mode)} /><span>{t(mode === "reward" ? "automation.rewardSelectionMode" : "automation.fixedSelectionMode")}</span></label>)}</fieldset>{vipTrainMode === "fixed" ? <fieldset className="automation-compact-choice-group automation-carriage-choices"><label className="automation-compact-choice"><input type="checkbox" disabled /><span>{t("automation.driver")}</span></label>{[1,2,3,4].map((carriage) => { const selected = validVipFixedCarriageIds.includes(carriage); return <label className="automation-compact-choice" key={carriage}><input type="checkbox" checked={selected} disabled={!enabled || (!selected && validVipFixedCarriageIds.length >= 2)} onChange={(event) => setVipFixedCarriageIds(event.target.checked ? [...validVipFixedCarriageIds, carriage] : validVipFixedCarriageIds.filter((item) => item !== carriage))} /><span>{t(`automation.carriage${carriage}`)}</span></label>; })}</fieldset> : null}</div><section className="automation-settings-section"><h3>{t("automation.section.additional")}</h3>{rewardSelectionVisible ? <label className="automation-checkbox-row"><input type="checkbox" checked={preferRewardQuantity} disabled={!enabled} onChange={(event) => setPreferRewardQuantity(event.target.checked)} /><span>{t("automation.preferRewardQuantity")}</span></label> : null}<div className="automation-actions"><label>{t("automation.thanksMode")}<select value={thanksMode} disabled={!enabled} onChange={(event) => setThanksMode(event.target.value)}><option value="like">{t("automation.thanksLike")}</option><option value="tickets">{t("automation.thanksTickets")}</option></select></label>{thanksMode === "tickets" ? <label>{t("automation.ticketCount")}<select value={config.draft.ticketCount ?? "1"} disabled={!enabled} onChange={(event) => setNow("ticketCount", event.target.value)}><option>1</option><option>2</option><option>3</option></select></label> : null}</div><p className="muted">{t("automation.ticketFallbackLike")}</p></section></>;
-  }
   if (title === "Alliance Tech Donations") {
     return <div className="automation-actions"><label>{t("automation.donateThreshold")}<input type="number" min="1" max="30" step="1" {...field("threshold", "15")} disabled={!enabled} /></label></div>;
   }
-  if (["Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources", "Building Resource Collection", "Armed Truck"].includes(title)) {
+  if (["Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources"].includes(title)) {
     const defaultInterval = title === "Alliance Gifts" ? 120 : 60;
     return <div className="automation-actions"><label>{t("automation.intervalMinutes")}<input type="number" min="1" max="1440" step="1" {...field("intervalMinutes", defaultInterval)} disabled={!enabled} /></label></div>;
   }
@@ -392,28 +280,45 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
   return null;
 }
 
-function AutomationCard({ title, description, previewEnabled, previewState = "", profileId = "", onConfigStatus, availableSquads }) {
+// Owner 2026-10-22: Treasure claim delay by time of day (this computer's clock), random between Min and Max.
+function TreasureClaimSchedule({ rows, disabled, onChange }) {
+  const { t } = useI18n();
+  const update = (index, patch) => onChange(rows.map((row, i) => i === index ? { ...row, ...patch } : row));
+  return <div className="treasure-schedule">
+    <p className="muted">{t("automation.treasureScheduleHint")}</p>
+    <div className="treasure-schedule-head" aria-hidden="true"><span>{t("automation.scheduleFrom")}</span><span>{t("automation.scheduleTo")}</span><span>{t("automation.minDelaySeconds")}</span><span>{t("automation.maxDelaySeconds")}</span><span /></div>
+    {rows.map((row, index) => <div className="treasure-schedule-row" key={index}>
+      <input type="time" aria-label={t("automation.scheduleFrom")} value={row.start} disabled={disabled} onChange={(event) => update(index, { start: event.target.value })} />
+      <input type="time" aria-label={t("automation.scheduleTo")} value={row.end} disabled={disabled} onChange={(event) => update(index, { end: event.target.value })} />
+      <input type="number" min="0" max="600" step="0.01" aria-label={t("automation.minDelaySeconds")} value={row.min} disabled={disabled} onChange={(event) => update(index, { min: event.target.value })} />
+      <input type="number" min="0" max="600" step="0.01" aria-label={t("automation.maxDelaySeconds")} value={row.max} disabled={disabled} onChange={(event) => update(index, { max: event.target.value })} />
+      <button type="button" className="treasure-schedule-remove" disabled={disabled || rows.length <= 1} aria-label={t("automation.scheduleRemove")} onClick={() => onChange(rows.filter((_, i) => i !== index))}>×</button>
+    </div>)}
+    {rows.length < 12 ? <button type="button" className="treasure-schedule-add" disabled={disabled} onClick={() => onChange([...rows, { start: "00:00", end: "08:00", min: 1, max: 2 }])}>{t("automation.scheduleAdd")}</button> : null}
+  </div>;
+}
+
+function AutomationCard({ title, description, online = false, previewEnabled, previewState = "", profileId = "", onConfigStatus, availableSquads }) {
   const { english, language, t } = useI18n();
-  const failFirstSave = previewState === "automation-save-error" || (previewState === "automation-weekly-save-error" && title === "Trucks") || (previewState === "automation-secret-weekly-save-error" && title === "Secret Task");
+  const failFirstSave = previewState === "automation-save-error" || (previewState === "automation-secret-weekly-save-error" && title === "Secret Task");
   const failFirstAssistSave = title === "Secret Task" && previewState === "automation-assist-save-error";
   const runtime = previewAutomationRuntime(title, previewState);
   const maximumBuilders = Math.max(1, runtime.totalBuilders ?? 20);
   const profileScope = profileId || "default";
   const config = usePreviewConfig(() => initialAutomationDraft(title, previewState), (draft) => !automationDraftError(title, draft, maximumBuilders), failFirstSave, `automation:${profileScope}:${previewState}:${title}`);
   const assistConfig = usePreviewConfig(() => initialAutomationDraft("Dispatch Assist", previewState), (draft) => !automationDraftError("Dispatch Assist", draft), failFirstAssistSave, `automation:${profileScope}:${previewState}:${title}:dispatchAssist`);
-  const visibleDraftError = title === "Auto Training" ? "" : sourceVisibleDraftError(title, config.draft, maximumBuilders);
+  const visibleDraftError = sourceVisibleDraftError(title, config.draft, maximumBuilders);
   const enabled = config.draft.enabled === true;
-  const active = title === "Secret Task" ? enabled || config.draft.collectRewards === true : title === "Ghost Ops" ? enabled || config.draft.ghostJoinEnabled === true || config.draft.ghostClaimRewards === true : enabled;
-  const runtimeState = title === "Auto Training" ? previewState === "automation-training-error" ? "error" : previewState === "automation-training-checking" ? "checking" : "waiting" : runtime.state;
+  const active = title === "Secret Task" ? enabled || config.draft.collectRewards === true : enabled;
+  const runtimeState = runtime.state;
   const presentation = automationRuntimePresentation(title, runtime, active, config.draft, t, language);
   const [fieldError, setFieldError] = useState("");
   const setEnabled = (next) => {
     const value = typeof next === "function" ? next(enabled) : next;
-    if (title === "Auto Training" && value && !(Number.isInteger(config.draft.trainingTotalCount) && config.draft.trainingTotalCount > 0 && config.draft.trainingTotalCount <= 1000000)) return;
     if (title === "Alliance Gathering Dispatch" && value && !(config.draft.allianceGatherSquads ?? [1, 2]).length) { setFieldError("automation.allianceGatherSquadRequired"); return; }
     setFieldError("");
-    const nextDraft = (draft) => title === "Auto Training" ? activateTraining(draft, value, previewTrainingOrder(previewState)) : { ...draft, enabled: value };
-    if (["Red Packet", "Fireworks / Egg", "Treasure", "Trucks", "Secret Task", "Ghost Ops", "Building Resource Collection", "Armed Truck"].includes(title)) {
+    const nextDraft = (draft) => ({ ...draft, enabled: value });
+    if (["Red Packet", "Fireworks / Egg", "Treasure", "Secret Task"].includes(title)) {
       config.store.edit(nextDraft, false);
       config.store.flush().catch(() => {});
     } else config.store.edit(nextDraft);
@@ -424,10 +329,10 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
   }, [title, assistConfig.error, assistConfig.saving, assistConfig.store, onConfigStatus]);
   const settingsCollapsible = !nonCollapsibleAutomationSettings.has(title);
   const hasSettings = !automationCardsWithoutSettings.has(title);
-  const [expanded, setExpanded] = useState(previewEnabled && title === "Automatic Construction");
-  const actionBusy = previewState === "automation-action-busy" && title === "Building Resource Collection";
-  const actionLabel = (title === "Trucks" || title === "Secret Task") && runtime.running ? "common.stop" : automationActionLabels[title];
-  const toggleLabel = title === "Ghost Ops" ? "automation.ghost.autoStartOwn" : "automation.autoExecute";
+  const [expanded, setExpanded] = useState(false);
+  const actionBusy = false;
+  const actionLabel = (title === "Secret Task") && runtime.running ? "common.stop" : automationActionLabels[title];
+  const toggleLabel = "automation.autoExecute";
   return (
     <article className={`automation-card${enabled ? " is-enabled" : ""}`} data-preview-fixture={previewEnabled ? "automation-config" : "runtime-config-unobserved"}>
       <div className="automation-card-header">
@@ -439,7 +344,7 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
           <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled || actionBusy || (title === "Automatic Official Application" && Number(config.draft.positionId ?? 0) === 0)} aria-label={`${t(toggleLabel)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
         </div>
       </div>
-      <AutomationMeta online={previewEnabled} active={active} state={sourceAutomationState(runtimeState, active)} actionBusy={actionBusy} presentation={presentation} />
+      <AutomationMeta online={previewEnabled || online} active={active} state={sourceAutomationState(runtimeState, active)} actionBusy={actionBusy} presentation={presentation} />
       {fieldError ? <div role="alert" className="automation-error">{t(fieldError)}</div> : visibleDraftError ? <div role="alert" className="automation-error">{t(visibleDraftError)}</div> : null}
       {(hasSettings || actionLabel) ? <div className="automation-config">
         {(settingsCollapsible || actionLabel) ? <div className="automation-config-actions">
@@ -621,7 +526,7 @@ function TradeStationCard({ previewEnabled, previewState = "", profileId = "" })
   );
 }
 
-export function AutomationPage({ previewState = "", profileId = "", activeCategory, onActiveCategoryChange }) {
+export function AutomationPage({ previewState = "", profileId = "", online = false, activeCategory, onActiveCategoryChange }) {
   const { english, t } = useI18n();
   const [localCategory, setLocalCategory] = useState("daily");
   const category = activeCategory ?? localCategory;
@@ -645,7 +550,11 @@ export function AutomationPage({ previewState = "", profileId = "", activeCatego
   useEffect(() => {
     if (previewEnabled && discoveredSquads.length > 0) setAvailableSquads(discoveredSquads);
   }, [previewEnabled, previewState, discoveredSquads.join(",")]);
-  const renderCards = (cards) => cards.map(([title, description]) => <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} onConfigStatus={onConfigStatus} availableSquads={availableSquads} />);
+  const renderCards = (cards) => cards.map(([title, description]) => !previewEnabled && ["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)
+    ? <AutomationCardBoundary key={`${profileId}:${title}`} name={title} title={english(title)} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeChatAutomationCard title={title} description={description} online={online} profileId={profileId} availableSquads={[1, 2, 3, 4]} /></AutomationCardBoundary>
+    : !previewEnabled && AUTOMATION_TASKS[title] ? <AutomationCardBoundary key={`${profileId}:${title}`} name={AUTOMATION_TASKS[title]} title={english(title)} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeAutomationCard title={title} description={description} profileId={profileId} online={online} /></AutomationCardBoundary>
+    : !previewEnabled ? <article key={title} className="automation-card"><h3>{english(title)}</h3><p>{english(description)}</p><p role="status">{t("common.notChecked")}</p></article>
+    : <AutomationCard key={title} title={title} description={description} online={online} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} onConfigStatus={onConfigStatus} availableSquads={availableSquads} />);
   const pageStatus = aggregateState === "error" ? "automation.configSave.error" : aggregateState === "saving" ? "automation.configSave.saving" : previewState === "automation-saving"
     ? "automation.configSave.saving"
     : previewState === "automation-save-error"
@@ -656,13 +565,14 @@ export function AutomationPage({ previewState = "", profileId = "", activeCatego
   return (
     <section className="panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
       {Object.entries(configStates).map(([title, entry]) => entry.state === "error" && entry.store ? <PreviewConfigError key={title} config={{ error: true, saving: false, store: entry.store }} t={t} label={title === "__resourceGather" ? t("automation.category.resourceGather") : title === "Dispatch Assist" ? t("automation.dispatchAssist") : english(title)} /> : null)}
-      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled ? (pageStatus ? t(pageStatus) : t("status.gameConnected")) : t("status.gameDisconnectedDisabled")} subtitleClassName={pageStatus === "automation.configSave.error" ? "error-text" : "muted"} />
+      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled || online ? (pageStatus ? t(pageStatus) : t("status.gameConnected")) : t("status.gameDisconnectedDisabled")} subtitleClassName={pageStatus === "automation.configSave.error" ? "error-text" : "muted"} />
       <div className="automation-categories" role="tablist" aria-label={t("nav.automation")}>
         {automationCategories.map(([key, label]) => (
           <button
             key={key}
             type="button"
             role="tab"
+            data-automation-category={key}
             className={category === key ? "active" : ""}
             aria-selected={category === key}
             onClick={() => selectCategory(key)}
@@ -672,14 +582,11 @@ export function AutomationPage({ previewState = "", profileId = "", activeCatego
         ))}
       </div>
       <div className="automation-grid">
-        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}><ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /></Activity> : null}
-        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}><TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /></Activity> : null}
-        {visitedCategories.has("system") ? <Activity mode={category === "system" ? "visible" : "hidden"}>{renderCards(automationCards.system)}</Activity> : null}
+        {visitedCategories.has("resourceGather") ? <Activity mode={category === "resourceGather" ? "visible" : "hidden"}>{previewEnabled ? <ResourceGatherCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} onConfigStatus={onConfigStatus} /> : <AutomationCardBoundary key={`${profileId}:gather`} name="resourceGather" title={t("automation.category.resourceGather")} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeGatherCard profileId={profileId} online={online} /></AutomationCardBoundary>}</Activity> : null}
+        {visitedCategories.has("trade") ? <Activity mode={category === "trade" ? "visible" : "hidden"}>{previewEnabled ? <TradeStationCard previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <AutomationCardBoundary key={`${profileId}:trade`} name="tradeStation" title={t("automation.tradeStation.title")} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeTradeCard profileId={profileId} online={online} /></AutomationCardBoundary>}</Activity> : null}
         {visitedCategories.has("chat") ? <Activity mode={category === "chat" ? "visible" : "hidden"}>{renderCards(automationCards.chat)}</Activity> : null}
-        {visitedCategories.has("resources") ? <Activity mode={category === "resources" ? "visible" : "hidden"}>{renderCards(automationCards.resources)}</Activity> : null}
-        {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily.slice(0, 4))}</Activity> : null}
+        {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily)}</Activity> : null}
         {visitedCategories.has("alliance") ? <Activity mode={category === "alliance" ? "visible" : "hidden"}>{renderCards(automationCards.alliance)}</Activity> : null}
-        {visitedCategories.has("daily") ? <Activity mode={category === "daily" ? "visible" : "hidden"}>{renderCards(automationCards.daily.slice(4))}</Activity> : null}
       </div>
     </section>
   );

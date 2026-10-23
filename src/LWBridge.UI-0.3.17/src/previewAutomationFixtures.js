@@ -1,7 +1,6 @@
 // Deterministic browser-only fixture values. Structure and render predicates are
 // recovered from AutomationPanel-BJ0gIqFh.js; these IDs/names/counts are not game facts.
 
-export const railwayWeeklyQualities = ["ssr", "ur", "ssr", "ssr", "ssr", "ur", "ssr"];
 export const dispatchWeeklyQualities = ["none", "ur", "none", "none", "none", "ur", "none"];
 
 // Recovered AutomationPanel Ae discovers live squad indexes once and feeds the
@@ -304,27 +303,18 @@ export function previewAutomationRuntime(title, previewState = "") {
   const state = failed ? "error" : running ? "running" : "waiting";
   const common = { state, lastRunAt: fixtureTime(17, 40), nextRunAt: fixtureTime(19, 20) };
   const byTitle = {
-    "Automatic Construction": { ...common, candidateName: "Fixture Steelworks", candidateLevel: 29, automaticBuilders: 1, maxBuilders: 2, occupiedBuilders: 2, totalBuilders: 4, processed: 3, nextRunAt: fixtureTime(19, 5) },
-    "Free Stamina": { ...common, todayCount: 1, dailyLimit: 2, processed: 1, nextClaimAt: fixtureTime(20, 0) },
     "Automatic Treatment": { ...common, wounded: 148, treating: 96, batchesStarted: 2, soldiersQueued: 96, helpsRequested: 2, collected: 52 },
-    "Trucks": { ...common, qualified: 3, total: 4, refreshed: 2, departed: 2, claimed: 1, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 15), nextContinuationAt: fixtureTime(19, 45), capabilities: { batchDeparture: true }, running },
     "Secret Task": { ...common, qualified: 4, available: 6, refreshed: 2, dispatched: 3, claimed: 2, pendingClaims: 1, nextScheduledAt: fixtureTime(20, 25), nextContinuationAt: fixtureTime(19, 55), capabilities: { superRefresh: false }, running },
-    "Ghost Ops": { ...common, nextClaimAt: fixtureTime(19, 35), ownPending: 1, allianceCandidates: 2, claimed: 4 },
     "Alliance Tech Donations": { ...common, scienceId: 71001, remaining: 6, donated: 24 },
     "Automatic Official Application": { ...common, positionId: 10005, currentPositionId: 0, applyQueueLength: 3 },
-    "Automatic Alliance Train Boarding": { ...common, currentCarriage: 2, queueLength: 3, maxPassenger: 5, currentReward: "Fixture Reward", isVip: true, vipCarriages: [1, 3] },
     "Alliance Help": { ...common, available: 7, processed: 5 },
     "Alliance Gifts": { ...common, normalClaimed: 8, advancedClaimed: 2 },
     "Excavation Stronghold Resources": { ...common, available: 3, claimed: 2 },
     "Alliance Center Resources": { ...common, available: 4, claimed: 3 },
     "Alliance Gathering Dispatch": { ...common, available: 2, dispatched: 1 },
-    "Building Resource Collection": { ...common },
-    "Armed Truck": { ...common },
     "Red Packet": { ...common, pendingCount: 2, lastResult: failed ? "failed" : "success" },
     "Fireworks / Egg": { ...common, pendingCount: 1, lastResult: failed ? "failed" : "success" },
     Treasure: { ...common, pendingCount: 2, dispatchPendingCount: 1, lastResult: failed ? "failed" : "success" },
-    "Weekend Shield": { ...common, shielded: true, shieldEndAt: fixtureTime(23, 59), inWeekendWindow: true, weekendStartAt: fixtureTime(0, 0), weekendEndAt: fixtureTime(23, 59) },
-    "Attack Shield": { ...common, shielded: previewState !== "automation-shield-unshielded", pendingReason: previewState === "automation-shield-pending" ? "fixture_attack_detected" : "-" },
   };
   return byTitle[title] || common;
 }

@@ -1,3 +1,48 @@
+Latest lead release, 2026-10-23: owner declared the program done for now. Lead merged codex/feature-recovery-018
+(e205f40a: R30 Automation, both audits fixed, MAP-019 scanner review + Zombie Boss/empty-scan fixes, Map clear-all)
+into main and published GitHub release lw-control-v1.0-2026-10-23. No worker task open.
+
+Latest lead assignment, 2026-10-23: worker (Codex) does LWB317-MAP-SCAN-METHOD-REVIEW-019 — measure whether the
+current Map scanner is really the best method (speed, accuracy, alternatives), phase 1 report only, no production
+change. Read docs/work-items/LWB317-MAP-SCAN-METHOD-REVIEW-019.md. New branch codex/map-scan-method-019 from
+codex/feature-recovery-018, draft PR. Background only; Map scanning is read-only, no game actions.
+
+Latest lead update, 2026-10-21: R29 (all tabs except Automation) finished and published as a pre-release; merge
+waits for owner test. Worker does FEATURE-RECOVERY-018 R30 = Automation tab (removals, Chat collapse, real
+engines for the kept cards) — see the R30 section of docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+Owner is using the PC: background only, no mouse/keyboard input.
+
+Latest lead update, 2026-10-18 (later): test sub-account is now UID 4799432499002212 on server 2212 — lock on
+UID (owner MAIN is also on 2212 and stays read-only). Player attacks only on guildless players. Worker does
+FEATURE-RECOVERY-018 R15 (repeat Q bug, guildless player-city attack, ZIP) — see the R15 section of
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
+Latest lead update, 2026-10-18: sub-account is now UID 1183884595002296 / server 2296 (actions only there;
+2212 read-only; never attack own-alliance targets; NEVER test Unlock Land Cell). Worker does FEATURE-RECOVERY-018
+R14 (Q/W/E/R, recall, speed-ups, F9/F10, City Layout) — see the R14 section of
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md and the 2026-10-18 authority-doc section.
+
+Latest lead update, 2026-10-17 night: sub-account moved to server 2288 (actions only there; 2212
+main read-only). Worker does FEATURE-RECOVERY-018 R12 = G-key troops first, then hands back —
+see the R12 section of docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
+Latest lead correction, 2026-10-17: the SUB-ACCOUNT is server 2289, UID 3133546747002289
+(actions allowed). Server 2212 is the owner's MAIN account: read-only only. Worker does
+FEATURE-RECOVERY-018 R3 live proof on 2289 — see the R2/R3 sections of
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
+Latest lead audit, 2026-10-17: FEATURE-RECOVERY-018 8d99f358 NOT ACCEPTED (no live proof).
+Lead restored owner-session game scripts and archived the stale recovery journal; live work is
+unblocked. Worker does R2 on the same branch/PR #14 — see
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
+Latest lead assignment, 2026-10-17: Map tab COMPLETE for owner scope (MAP-017 merged,
+c43c689f, PR #13). Worker now completes docs/work-items/LWB317-FEATURE-RECOVERY-018.md
+(City Layout, Hotkeys, Mini Games) on codex/feature-recovery-018 / new draft PR.
+Owner granted in-game action authority on the sub-account: read
+docs/OWNER_DIRECTION_SUB_ACCOUNT_ACTIONS_2026-10-17.md; it supersedes older no-claims/
+plunder/sharing/attack/march/spending/relocation limits for that account only.
+
 Latest lead audit, 2026-10-17: MAP-017 d788b797 (draft PR #13) ACCEPTED pending owner
 test; on owner pass, merge and mark Map tab complete for owner scope. See
 docs/reviews/2026-10-17-MAP-017-LEAD-AUDIT.md. No worker task open.

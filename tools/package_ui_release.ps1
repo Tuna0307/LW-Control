@@ -469,6 +469,63 @@ use Map actions such as claim, attack, march or plunder unintentionally.
 Review source: docs/MAP_015_WORKER_REPORT.md
 "@
 }
+if ($ReleaseLabel -eq 'FEATURE-RECOVERY-018') {
+    $readme = @"
+LW-Control FEATURE-RECOVERY-018 — PARTIAL review candidate
+Source commit: $sourceCommit
+Reference UI: LWBridge 0.3.17 post-auth
+
+Windows x64: extract the ENTIRE ZIP to a writable folder and run
+LW-Control-UI/Launch LWBridge.cmd. Requires Microsoft .NET 10 Desktop Runtime,
+Microsoft Edge WebView2 Runtime and Python for optional current game integration.
+
+VERIFIED FEATURE SCOPE
+City Layout original panel editing and placement presentation are available in
+isolated UI fixtures. The live UI requests original native City Layout snapshot,
+drafts, validation and apply/status/cancel operations. Revisioned per-profile
+draft persistence is tested. A source-verified native game candidate now reads
+BuildManager and CityZone/LandLock/road data, validates placements and submits
+original FreeBuildingReplaceNew messages in a bounded one-step-at-a-time plan.
+Subsequent game state confirmation, cancellation and exact grid rules require
+live testing and cannot be claimed WORKING yet.
+
+Hotkeys and Mini Games preferences load/save native per-profile settings,
+including the Black Market grand-prize hint. Original shortcut recognition and
+game-only foreground PID/path/start-time polling, authenticated input-focus
+checks and read-only shield timing are now implemented and offline tested.
+Source-backed action routes are guarded. Several hotkeys still lack proven
+target/formation/item and server confirmation semantics. Their native key
+recognition must not be mistaken for a completed game action.
+
+Mini Games now has a source-backed next Land Cell request and confirmation
+check, real Black Market prize-chest position/effect hooks and a bounded Season4
+Food House current-level 3-match solver candidate that uses native UI clicks and
+requires a server acknowledgement after each move. Start/Stop are wired and
+status reports real native observations; the solver does not spend paid props or
+advance into a new level. Frontline G +5 still has no safe proven game sender.
+No City, Hotkey or Mini Games live-game success has been proved in this run.
+
+PACKAGED LIVE PROOF NOT COMPLETED
+The exact-sub-account lifecycle preflight encountered an older FOREIGN
+overview-bridge recovery journal at active_ready_deferred_restore. It still
+owns an injected candidate package; its original backups are preserved.
+Reconciliation requires the original owner/independently authorized recovery
+mechanism and a same-owner restoration receipt. Journal, backups and installed
+scripts were NOT changed by this task; no game was launched. Code builds,
+offline native Lua bytecode tests and a full temporary LENC package roundtrip
+passed, but there are NO new FEATURE-RECOVERY-018 in-game action receipts.
+Do not infer fully recovered gameplay from controls or native dispatches.
+
+Other Map and Home work remains under its own existing acceptance and risk
+conditions. This is an unmerged source-pinned review ZIP, not a published
+production release. Private account state, credentials and runtime proof files
+are NOT bundled.
+
+Repository: https://github.com/Tuna0307/LW-Control
+Draft review: https://github.com/Tuna0307/LW-Control/pull/14
+Detailed verdicts: docs/FEATURE_RECOVERY_018_WORKER_REPORT.md
+"@
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

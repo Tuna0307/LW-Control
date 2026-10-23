@@ -33,6 +33,39 @@ LUA_ENTRY = lr.LUA_ENTRY
 ORIGINAL_LUA_ENTRY = lr.ORIGINAL_LUA_ENTRY
 RESOURCE_PROBE_ENTRY = "DataCenter/Global/LWBridgeLiveResourceProbe.luac"
 RESOURCE_PROBE_MODULE = "DataCenter.Global.LWBridgeLiveResourceProbe"
+FEATURE018_GAME_ENTRY = "DataCenter/Global/LWBridgeFeature018GameBridge.luac"
+FEATURE018_GAME_MODULE = "DataCenter.Global.LWBridgeFeature018GameBridge"
+FEATURE018_MINI_ENTRY = "DataCenter/Global/LWBridgeFeature018MiniGame.luac"
+FEATURE018_MINI_MODULE = "DataCenter.Global.LWBridgeFeature018MiniGame"
+FEATURE018_HOTKEY_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyGame.luac"
+FEATURE018_HOTKEY_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyGame"
+FEATURE018_HOTKEY_ACTION_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyActions.luac"
+FEATURE018_HOTKEY_ACTION_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyActions"
+FEATURE018_ATTACK_ENTRY = "DataCenter/Global/LWBridgeFeature018AttackActions.luac"
+FEATURE018_ATTACK_MODULE = "DataCenter.Global.LWBridgeFeature018AttackActions"
+FEATURE018_RELOCATION_ENTRY = "DataCenter/Global/LWBridgeFeature018RelocationActions.luac"
+FEATURE018_RELOCATION_MODULE = "DataCenter.Global.LWBridgeFeature018RelocationActions"
+FEATURE018_EQUIPMENT_ENTRY = "DataCenter/Global/LWBridgeFeature018EquipmentActions.luac"
+FEATURE018_EQUIPMENT_MODULE = "DataCenter.Global.LWBridgeFeature018EquipmentActions"
+FEATURE018_CITY_ENTRY = "DataCenter/Global/LWBridgeFeature018CityGame.luac"
+FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
+FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
+FEATURE018_SHEEP_MODULE = "DataCenter.Global.LWBridgeFeature018SheepSolver"
+FEATURE018_AFK_ENTRIES = {
+    "DataCenter/Global/LWBridgeFeature018DrillEngine.luac": "feature018_drill_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018StaminaEngine.luac": "feature018_stamina_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AfkEngine.luac": "feature018_afk_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AfkNative.luac": "feature018_afk_native.lua",
+    "DataCenter/Global/LWBridgeFeature018ChatEngine.luac": "feature018_chat_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AutomationEngine.luac": "feature018_automation_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AutomationNative.luac": "feature018_automation_native.lua",
+    "DataCenter/Global/LWBridgeFeature018TreatmentNative.luac": "feature018_treatment_native.lua",
+    "DataCenter/Global/LWBridgeFeature018MissionsNative.luac": "feature018_missions_native.lua",
+    "DataCenter/Global/LWBridgeFeature018GatherNative.luac": "feature018_gather_native.lua",
+    "DataCenter/Global/LWBridgeFeature018AllianceResourcesNative.luac": "feature018_alliance_resources_native.lua",
+    "DataCenter/Global/LWBridgeFeature018TradeNative.luac": "feature018_trade_native.lua",
+    "DataCenter/Global/LWBridgeFeature018AllianceGatherNative.luac": "feature018_alliance_gather_native.lua",
+}
 MESSAGE = "LWbridge is running"
 
 # HOME 009 R2 D. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
@@ -65,10 +98,17 @@ class LauncherSpawnError(OverviewBridgeError):
 
 def spawn_selected_launcher(p: dict[str, Path], environment: dict[str, str]):
     try:
+        options = {}
+        if environment.get("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1":
+            startup = lr.subprocess.STARTUPINFO()
+            startup.dwFlags |= lr.subprocess.STARTF_USESHOWWINDOW
+            startup.wShowWindow = 4  # SW_SHOWNOACTIVATE; never focus/move an existing window.
+            options["startupinfo"] = startup
         return lr.subprocess.Popen(
             [str(p["launcher"])],
             cwd=str(p["launcher"].parent),
             env=environment,
+            **options,
         )
     except OSError as error:
         raise LauncherSpawnError(
@@ -117,6 +157,69 @@ def resource_probe_source() -> bytes:
     return (HERE / "current_live_resource_probe.lua").read_bytes()
 
 
+def feature018_game_source() -> bytes:
+    data = (HERE / "feature018_game_bridge.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 module must not contain BOM")
+    return data
+
+
+def feature018_mini_source() -> bytes:
+    data = (HERE / "feature018_mini_game.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Mini module must not contain BOM")
+    return data
+
+
+def feature018_hotkey_source() -> bytes:
+    data = (HERE / "feature018_hotkey_game.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Hotkeys module must not contain BOM")
+    return data
+
+
+def feature018_hotkey_actions_source() -> bytes:
+    data = (HERE / "feature018_hotkey_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Hotkeys actions module must not contain BOM")
+    return data
+
+
+def feature018_attack_source() -> bytes:
+    data = (HERE / "feature018_attack_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Attack module must not contain BOM")
+    return data
+
+
+def feature018_relocation_source() -> bytes:
+    data = (HERE / "feature018_relocation_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Relocation module must not contain BOM")
+    return data
+
+
+def feature018_equipment_source() -> bytes:
+    data = (HERE / "feature018_equipment_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Equipment module must not contain BOM")
+    return data
+
+
+def feature018_city_source() -> bytes:
+    data = (HERE / "feature018_city_game.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 City module must not contain BOM")
+    return data
+
+
+def feature018_sheep_source() -> bytes:
+    data = (HERE / "feature018_sheep_solver.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Sheep solver module must not contain BOM")
+    return data
+
+
 def packaged_resource_probe_source() -> bytes:
     # v21 xLua rejects functions created by runtime load()/loadstring() with
     # E8472 provenance enforcement. Package the probe as a normal LENC module
@@ -137,7 +240,7 @@ def packaged_resource_probe_source() -> bytes:
 
 def wrapper_source() -> bytes:
     prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
-    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") or nil\n    if root == nil or root == "" then\n        local local_app_data = os.getenv and os.getenv("LOCALAPPDATA") or nil\n        if local_app_data ~= nil then root = local_app_data .. [[\\LWBridgeRebuild]] end\n    end\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
+    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal ok_feature, feature = pcall(require, "DataCenter.Global.LWBridgeFeature018GameBridge")\nif not ok_feature then error(feature) end\nif type(feature) ~= "table" then error("FEATURE018 game bridge did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") or nil\n    if root == nil or root == "" then\n        local local_app_data = os.getenv and os.getenv("LOCALAPPDATA") or nil\n        if local_app_data ~= nil then root = local_app_data .. [[\\LWBridgeRebuild]] end\n    end\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\n    if type(feature.Pump) == "function" then pcall(feature.Pump) end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\nrawset(_G, "LWBridgeFeature018GameBridge", feature)\npump_runtime()\nreturn original\n'''
     # LuaEntry can load before UpdateManager / the game timer exists. Overview
     # retries Register on later original lifecycle calls, but the Map probe
     # formerly tried only once at module load and then stopped pumping as soon
@@ -168,6 +271,184 @@ def wrapper_source() -> bytes:
         if between.count(marker) != 1:
             raise OverviewBridgeError("MAP-013 wrapper runtime dispatch seam not unique")
         between = between.replace(marker, extra + b"\n" + marker, 1)
+    mini_load = b'''local ok_mini, mini = pcall(require, "DataCenter.Global.LWBridgeFeature018MiniGame")
+if not ok_mini then error(mini) end
+if type(mini) ~= "table" then error("FEATURE018 Mini module did not return a table") end
+'''
+    mini_marker = b'local function record_probe_pump_error(value)'
+    if between.count(mini_marker) != 1:
+        raise OverviewBridgeError("FEATURE018 Mini module load seam is not unique")
+    between = between.replace(mini_marker, mini_load + mini_marker, 1)
+    hotkey_load = b'''local ok_hotkey, hotkey = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyGame")
+if not ok_hotkey then error(hotkey) end
+if type(hotkey) ~= "table" then error("FEATURE018 Hotkeys module did not return a table") end
+'''
+    between = between.replace(mini_marker, hotkey_load + mini_marker, 1)
+    hotkey_actions_load = b'''local ok_attack_actions, attack_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018AttackActions")
+if not ok_attack_actions or type(attack_actions) ~= "table" or type(attack_actions.Handle) ~= "function" then
+    error("FEATURE018 source-backed attack module unavailable")
+end
+rawset(_G, "LWBridgeFeature018AttackActions", attack_actions)
+local ok_relocation_actions, relocation_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018RelocationActions")
+if not ok_relocation_actions or type(relocation_actions) ~= "table" or
+   type(relocation_actions.RandomRelocate) ~= "function" or
+   type(relocation_actions.AllianceRelocate) ~= "function" then
+    error("FEATURE018 native relocation source module unavailable")
+end
+rawset(_G, "LWBridgeFeature018RelocationActions", relocation_actions)
+local ok_equipment_actions, equipment_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018EquipmentActions")
+if not ok_equipment_actions or type(equipment_actions) ~= "table" or
+   type(equipment_actions.Preflight) ~= "function" then
+    error("FEATURE018 native equipment source module unavailable")
+end
+rawset(_G, "LWBridgeFeature018EquipmentActions", equipment_actions)
+local ok_hotkey_actions, hotkey_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyActions")
+if not ok_hotkey_actions then error(hotkey_actions) end
+if type(hotkey_actions) ~= "table" or type(hotkey_actions.Wrap) ~= "function" then
+    error("FEATURE018 Hotkeys actions module did not return the original handler adapter")
+end
+hotkey.Handle = hotkey_actions.Wrap(hotkey)
+'''
+    between = between.replace(mini_marker, hotkey_actions_load + mini_marker, 1)
+    city_load = b'''local ok_city, city = pcall(require, "DataCenter.Global.LWBridgeFeature018CityGame")
+if not ok_city then error(city) end
+if type(city) ~= "table" then error("FEATURE018 City module did not return a table") end
+'''
+    between = between.replace(mini_marker, city_load + mini_marker, 1)
+    sheep_load = b'''local ok_sheep, sheep = pcall(require, "DataCenter.Global.LWBridgeFeature018SheepSolver")
+if not ok_sheep then error(sheep) end
+if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a table") end
+'''
+    between = between.replace(mini_marker, sheep_load + mini_marker, 1)
+    afk_load = b'''local ok_afk, afk = pcall(require, "DataCenter.Global.LWBridgeFeature018AfkNative")
+if not ok_afk then error(afk) end
+if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a table") end
+'''
+    between = between.replace(mini_marker, afk_load + mini_marker, 1)
+    chat_load = b'''local ok_chat, chat = pcall(require, "DataCenter.Global.LWBridgeFeature018ChatEngine")
+if not ok_chat then error(chat) end
+if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a table") end
+'''
+    between = between.replace(mini_marker, chat_load + mini_marker, 1)
+    automation_load = b'''local automation = require("DataCenter.Global.LWBridgeFeature018AutomationEngine")
+local automation_native = require("DataCenter.Global.LWBridgeFeature018AutomationNative")
+'''
+    between = between.replace(mini_marker, automation_load + mini_marker, 1)
+    register_marker = b'rawset(_G, "LWBridgeFeature018GameBridge", feature)\n'
+    if between.count(register_marker) != 1:
+        raise OverviewBridgeError("FEATURE018 game module registration seam is not unique")
+    between = between.replace(register_marker, register_marker +
+        b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
+        b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
+        b'if type(bridge.ConfigureVisualMetrics) == "function" then feature.RegisterHandler("feature018_visual_metrics_configure", function(fields) return bridge.ConfigureVisualMetrics(fields) end) end\n' +
+        b'if type(hotkey_actions.RegisterAttack) == "function" then hotkey_actions.RegisterAttack(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterShieldInventory) == "function" then hotkey_actions.RegisterShieldInventory(feature) end\n' +
+        b'if type(hotkey_actions.RegisterEquipment) == "function" then hotkey_actions.RegisterEquipment(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterRelocation) == "function" then hotkey_actions.RegisterRelocation(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterFrontline) == "function" then hotkey_actions.RegisterFrontline(feature, hotkey) end\n' +
+        b'if type(city.Register) == "function" then city.Register(feature) end\n' +
+        b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
+        b'if type(afk.Register) == "function" then afk.Register(feature, bridge) end\n' +
+        b'if type(chat.Register) == "function" then chat.Register(feature, bridge) end\n' +
+        b'automation.Register(feature, bridge, automation_native)\n' +
+        b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
+    # A Mini Game view wrapper or marker belongs to exactly one authenticated
+    # Overview session. The native bridge controls whether that owner is still
+    # lease-fresh. On loss/replacement restore only our in-memory UI wrappers
+    # and effects; this never touches installed Lua package bytes or journals.
+    setup = b'local function pump_runtime()'
+    if between.count(setup) != 1:
+        raise OverviewBridgeError("FEATURE018 owner cleanup declaration seam missing")
+    original_pump = b'    if type(feature.Pump) == "function" then pcall(feature.Pump) end\n'
+    if between.count(original_pump) != 1:
+        raise OverviewBridgeError("FEATURE018 session-bound game pump seam not unique")
+    bound_pump = b'''    local perf_part = type(bridge.PerformanceBegin) == "function" and bridge.PerformanceBegin() or nil
+    local current_feature_owner = type(bridge.Feature018OwnerToken) == "function" and bridge.Feature018OwnerToken() or nil
+    if perf_part ~= nil then bridge.PerformanceEnd("owner", perf_part) end
+    if current_feature_owner ~= nil then
+        -- An explicitly different owner always retires the prior work before
+        -- this owner's handlers execute. Every later command and async pump
+        -- also verifies the current exact sub-account in the native bridge.
+        if feature018_previous_owner ~= nil and feature018_previous_owner ~= current_feature_owner then
+            if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
+            if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+            if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
+            if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
+            if type(automation.CleanupAfterLeaseLoss) == "function" then pcall(automation.CleanupAfterLeaseLoss) end
+            if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
+            if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
+        end
+        feature018_previous_owner = current_feature_owner
+        feature018_owner_missing_since = nil
+    elseif feature018_previous_owner ~= nil then
+        -- The game's native account inspectors may temporarily report an
+        -- unknown identity during a scene transition or network frame.
+        -- DISPATCH IS HALTED immediately while authorization is absent.
+        -- Do not erase a separately ACK-fenced City job on a single missing
+        -- observation. A sustained 3s absence retires the session; City
+        -- separately preserves any previously sent uncertain move tombstone.
+        local observed_second = tonumber(os.time()) or 0
+        if feature018_owner_missing_since == nil then
+            feature018_owner_missing_since = observed_second
+        elseif observed_second - feature018_owner_missing_since >= 3 then
+            if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
+            if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+            if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
+            if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
+            if type(automation.CleanupAfterLeaseLoss) == "function" then pcall(automation.CleanupAfterLeaseLoss) end
+            if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
+            local session_token = type(bridge.Feature018SessionToken) == "function" and bridge.Feature018SessionToken() or nil
+            if session_token == nil then
+                if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
+                feature018_previous_owner = nil
+            end
+            feature018_owner_missing_since = nil
+        end
+    end
+    if current_feature_owner ~= nil then
+        local function timed(kind, module)
+            if type(module.Pump) ~= "function" then return end
+            local started = type(bridge.PerformanceBegin) == "function" and bridge.PerformanceBegin() or nil
+            pcall(module.Pump)
+            if started ~= nil then bridge.PerformanceEnd(kind, started) end
+        end
+        timed("city", city)
+        timed("afk", afk)
+        timed("chat", chat)
+        local automation_active, automation_on = pcall(automation.IsActive)
+        if automation_active and automation_on then timed("automation", automation) end
+        timed("sheep", sheep)
+        timed("mailbox", feature)
+    end
+'''
+    # One original LuaEntry lifecycle call is not sufficient to service later
+    # feature commands. The Overview bridge has a proven update/timer callback
+    # that continues to refresh the authenticated game heartbeat. Register the
+    # same owner-scoped command pump there. This also advances async City moves
+    # and Sheep completion without requiring the app to poll a tab.
+    periodic = (
+        b'local feature018_previous_owner = nil\n'
+        b'local feature018_owner_missing_since = nil\n'
+        b'local function feature018_periodic()\n'
+        b'    if type(bridge.ShouldPumpFeature018) == "function" and not bridge.ShouldPumpFeature018() then return end\n'
+        b'    local perf_started = type(bridge.PerformanceBegin) == "function" and bridge.PerformanceBegin() or nil\n' + bound_pump +
+        b'    if perf_started ~= nil then bridge.PerformanceEnd("feature018", perf_started) end\n'
+        b'end\n'
+        b'if type(bridge.SetFeature018PeriodicTick) ~= "function" or\n'
+        b'   bridge.SetFeature018PeriodicTick(feature018_periodic) ~= true then\n'
+        b'    error("FEATURE018 authenticated periodic pump registration failed")\n'
+        b'end\n'
+    )
+    # Replace the ORIGINAL pump_runtime statement first. If the periodic
+    # callback is inserted before this replacement, original_pump also occurs
+    # inside bound_pump and the first-match replacement makes
+    # feature018_periodic call ITSELF recursively, silently losing City ACK
+    # progression and leaving the independent game mailbox unserviced.
+    between = between.replace(original_pump,
+        b'    pcall(feature018_periodic)\n', 1)
+    between = between.replace(setup, periodic + setup, 1)
+    between = between.replace(b'if type(bridge.Pump) == "function" then pcall(bridge.Pump) end',
+        b'if type(bridge.TryPump) == "function" then pcall(bridge.TryPump) end', 1)
     return prefix + bridge_source() + between
 
 
@@ -181,6 +462,27 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package already contains the preserved LuaEntry marker")
     if RESOURCE_PROBE_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the live-resource probe module")
+    if FEATURE018_GAME_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 game bridge module")
+    if FEATURE018_MINI_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Mini module")
+    if FEATURE018_HOTKEY_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys module")
+    if FEATURE018_HOTKEY_ACTION_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys actions module")
+    if FEATURE018_ATTACK_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Attack module")
+    if FEATURE018_RELOCATION_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Relocation module")
+    if FEATURE018_EQUIPMENT_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Equipment module")
+    if FEATURE018_CITY_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 City module")
+    if FEATURE018_SHEEP_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Sheep solver module")
+    for entry in FEATURE018_AFK_ENTRIES:
+        if entry in mapped:
+            raise OverviewBridgeError("current package already contains an AFK runtime module")
     wrapper_plain = wrapper_source()
     wrapper = lr.encode_lenc(wrapper_plain)
     if lr.decode_lenc(wrapper) != wrapper_plain:
@@ -192,10 +494,63 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     if len(probe_entry) > 0xFFFF:
         raise OverviewBridgeError(
             f"live-resource probe exceeds the require-able 64KiB entry limit: {len(probe_entry)}")
+    feature_plain = feature018_game_source()
+    feature_entry = lr.encode_lenc(feature_plain)
+    if len(feature_entry) > 0xFFFF or lr.decode_lenc(feature_entry) != feature_plain:
+        raise OverviewBridgeError("FEATURE018 module exceeds 64KiB or failed LENC round-trip")
+    mini_plain = feature018_mini_source()
+    mini_entry = lr.encode_lenc(mini_plain)
+    if len(mini_entry) > 0xFFFF or lr.decode_lenc(mini_entry) != mini_plain:
+        raise OverviewBridgeError("FEATURE018 Mini module exceeds 64KiB or failed LENC round-trip")
+    hotkey_plain = feature018_hotkey_source()
+    hotkey_entry = lr.encode_lenc(hotkey_plain)
+    if len(hotkey_entry) > 0xFFFF or lr.decode_lenc(hotkey_entry) != hotkey_plain:
+        raise OverviewBridgeError("FEATURE018 Hotkeys module exceeds 64KiB or failed LENC round-trip")
+    hotkey_actions_plain = feature018_hotkey_actions_source()
+    hotkey_actions_entry = lr.encode_lenc(hotkey_actions_plain)
+    if len(hotkey_actions_entry) > 0xFFFF or lr.decode_lenc(hotkey_actions_entry) != hotkey_actions_plain:
+        raise OverviewBridgeError("FEATURE018 Hotkeys actions module exceeds 64KiB or failed LENC round-trip")
+    attack_plain = feature018_attack_source()
+    attack_entry = lr.encode_lenc(attack_plain)
+    if len(attack_entry) > 0xFFFF or lr.decode_lenc(attack_entry) != attack_plain:
+        raise OverviewBridgeError("FEATURE018 Attack module exceeds 64KiB or failed LENC round-trip")
+    relocation_plain = feature018_relocation_source()
+    relocation_entry = lr.encode_lenc(relocation_plain)
+    if len(relocation_entry) > 0xFFFF or lr.decode_lenc(relocation_entry) != relocation_plain:
+        raise OverviewBridgeError("FEATURE018 Relocation module exceeds 64KiB or failed LENC round-trip")
+    equipment_plain = feature018_equipment_source()
+    equipment_entry = lr.encode_lenc(equipment_plain)
+    if len(equipment_entry) > 0xFFFF or lr.decode_lenc(equipment_entry) != equipment_plain:
+        raise OverviewBridgeError("FEATURE018 Equipment module exceeds 64KiB or failed LENC round-trip")
+    city_plain = feature018_city_source()
+    city_entry = lr.encode_lenc(city_plain)
+    if len(city_entry) > 0xFFFF or lr.decode_lenc(city_entry) != city_plain:
+        raise OverviewBridgeError("FEATURE018 City module exceeds 64KiB or failed LENC round-trip")
+    sheep_plain = feature018_sheep_source()
+    sheep_entry = lr.encode_lenc(sheep_plain)
+    if len(sheep_entry) > 0xFFFF or lr.decode_lenc(sheep_entry) != sheep_plain:
+        raise OverviewBridgeError("FEATURE018 Sheep solver exceeds 64KiB or failed LENC round-trip")
     mapped[LUA_ENTRY] = wrapper
     output = [(name, mapped[name]) for name, _ in entries]
     output.append((ORIGINAL_LUA_ENTRY, official))
     output.append((RESOURCE_PROBE_ENTRY, probe_entry))
+    output.append((FEATURE018_GAME_ENTRY, feature_entry))
+    output.append((FEATURE018_MINI_ENTRY, mini_entry))
+    output.append((FEATURE018_HOTKEY_ENTRY, hotkey_entry))
+    output.append((FEATURE018_HOTKEY_ACTION_ENTRY, hotkey_actions_entry))
+    output.append((FEATURE018_ATTACK_ENTRY, attack_entry))
+    output.append((FEATURE018_RELOCATION_ENTRY, relocation_entry))
+    output.append((FEATURE018_EQUIPMENT_ENTRY, equipment_entry))
+    output.append((FEATURE018_CITY_ENTRY, city_entry))
+    output.append((FEATURE018_SHEEP_ENTRY, sheep_entry))
+    for entry, filename in FEATURE018_AFK_ENTRIES.items():
+        plain = (HERE / filename).read_bytes()
+        if plain.startswith(b"\xef\xbb\xbf"):
+            raise OverviewBridgeError("AFK module must not contain a BOM: " + filename)
+        encoded = lr.encode_lenc(plain)
+        if len(encoded) > 0xFFFF or lr.decode_lenc(encoded) != plain:
+            raise OverviewBridgeError("AFK module LENC round-trip/size failed: " + filename)
+        output.append((entry, encoded))
     data = directory / "LWScripts.data"
     metadata = directory / "LWScripts.txt"
     version = directory / "version.txt"
@@ -208,6 +563,27 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate LuaEntry preservation/serialization verification failed")
     if lr.decode_lenc(verify_map[RESOURCE_PROBE_ENTRY]) != probe_plain:
         raise OverviewBridgeError("Overview candidate probe serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_GAME_ENTRY]) != feature_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_MINI_ENTRY]) != mini_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Mini serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_HOTKEY_ENTRY]) != hotkey_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_HOTKEY_ACTION_ENTRY]) != hotkey_actions_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys actions serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_ATTACK_ENTRY]) != attack_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Attack serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_RELOCATION_ENTRY]) != relocation_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Relocation serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_EQUIPMENT_ENTRY]) != equipment_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Equipment serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_CITY_ENTRY]) != city_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 City serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_SHEEP_ENTRY]) != sheep_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Sheep serialization verification failed")
+    for entry, filename in FEATURE018_AFK_ENTRIES.items():
+        if lr.decode_lenc(verify_map[entry]) != (HERE / filename).read_bytes():
+            raise OverviewBridgeError("AFK candidate source differs: " + filename)
     package_crc = lr.crc32_file(data)
     metadata.write_text(f"{data.stat().st_size}|{package_crc}", encoding="utf-8")
     version.write_text(str(content_version), encoding="utf-8")
@@ -218,6 +594,15 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         "bridgeSourceSha256": hashlib.sha256(bridge_source()).hexdigest(),
         "resourceProbeSourceSha256": hashlib.sha256(resource_probe_source()).hexdigest(),
         "resourceProbePackagedSha256": hashlib.sha256(probe_plain).hexdigest(),
+        "feature018GameSourceSha256": hashlib.sha256(feature_plain).hexdigest(),
+        "feature018MiniSourceSha256": hashlib.sha256(mini_plain).hexdigest(),
+        "feature018HotkeySourceSha256": hashlib.sha256(hotkey_plain).hexdigest(),
+        "feature018HotkeyActionsSourceSha256": hashlib.sha256(hotkey_actions_plain).hexdigest(),
+        "feature018AttackSourceSha256": hashlib.sha256(attack_plain).hexdigest(),
+        "feature018RelocationSourceSha256": hashlib.sha256(relocation_plain).hexdigest(),
+        "feature018EquipmentSourceSha256": hashlib.sha256(equipment_plain).hexdigest(),
+        "feature018CitySourceSha256": hashlib.sha256(city_plain).hexdigest(),
+        "feature018SheepSourceSha256": hashlib.sha256(sheep_plain).hexdigest(),
         "resourceProbeLencSize": len(probe_entry),
         "resourceProbePlainSize": len(probe_plain),
         "wrapperPlaintextSha256": hashlib.sha256(wrapper_plain).hexdigest(),

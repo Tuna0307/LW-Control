@@ -384,6 +384,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         RequiredInt(payload, "serverId"),
                         payload.TryGetProperty("clearSavedServer", out var savedClear) &&
                         savedClear.ValueKind == JsonValueKind.True,
+                        payload.TryGetProperty("allServers", out var allClear) &&
+                        allClear.ValueKind == JsonValueKind.True,
                         cancellationToken).ConfigureAwait(false);
                 case "map_summary":
                     {
@@ -848,8 +850,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private async Task<Map317.MapScanState> ClearScanAsync(
         int requestedServerId,
         bool clearSavedServer,
+        bool allServers,
         CancellationToken cancellationToken)
     {
+        // Zero alone never broadens a single-server deletion into an all-server clear.
+        if (allServers && requestedServerId != 0)
+            throw new BridgeCommandException("INVALID_REQUEST", "All servers clear requires serverId 0.");
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -881,6 +887,14 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 throw new BridgeCommandException(
                     MapScanClearOwnership.ServerUnavailableErrorCode,
                     MapScanClearOwnership.ServerUnavailableErrorMessage);
+            }
+
+            if (allServers)
+            {
+                MapScanClearOwnership.Validate(
+                    fresh.ServerId, fresh.IsReading, fresh.ServerId, fresh.ServerIdSource);
+                return await control.ClearAllScansAsync(fresh.ServerId, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             // Auto's saved dataset may remain selected after its remote scan

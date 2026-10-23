@@ -1,3 +1,8 @@
+**Map tab — COMPLETE for owner scope (2026-10-17).** Scanning (all categories, fast camera-free), browsing,
+filters, Jump, Clear, All servers, Auto schedule and one-off multi-server scans; owner-tested and merged (PR #13,
+c43c689f). Plunder/schedule/share features removed by owner direction. See
+docs/reviews/2026-10-17-MAP-017-LEAD-AUDIT.md.
+
 # Feature delivery — faithful functional replacement
 
 **Current delivery, 2026-10-13:** owner requests the current verified scanner on

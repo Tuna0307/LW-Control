@@ -44,6 +44,9 @@ internal static class HomeStaleAdoptionChecks
             Require(!Allowed(corrupted, exe, new("absent")), "invalid DPAPI token retained");
             ExclusiveTransaction(root, exe, valid);
             await Lifecycle(root, "dead-record", "absent", false);
+            // FEATURE-RECOVERY-018 R2: a normal FormClosed-driven lifecycle
+            // Close must invoke exact-owner Stop and restore the game package.
+            await Lifecycle(root, "form-close-restores", "absent", false, closeAfterRunning: true);
             await Lifecycle(root, "live-record", "live", true);
             await Lifecycle(root, "denied-record", "denied", true);
             await Lifecycle(root, "malformed-record", "absent", true, malformed: true);
@@ -95,7 +98,7 @@ internal static class HomeStaleAdoptionChecks
     }
 
     private static async Task Lifecycle(string parent, string name, string processMode, bool expectRollback,
-        bool malformed = false, bool conflictingNonce = false)
+        bool malformed = false, bool conflictingNonce = false, bool closeAfterRunning = false)
     {
         string root = Path.Combine(parent, name);
         string exe = Path.Combine(root, "Game", "LastWar.exe");
@@ -184,7 +187,10 @@ internal static class HomeStaleAdoptionChecks
             Require(failure is null && starts == 1 && stops == 0 && alive && service.IsReady &&
                     OverviewAdoptionRecord.TryDeserialize(File.ReadAllBytes(adoption), out var stored) && stored is not null &&
                     stored.InstanceId == session && stored.InstanceId != OldSession, "dead record allows genuinely ready producer to persist successor");
-            await service.InvokeAsync("profile_instance_stop", JsonSerializer.SerializeToElement(new { }), CancellationToken.None);
+            if (closeAfterRunning)
+                service.Close();
+            else
+                await service.InvokeAsync("profile_instance_stop", JsonSerializer.SerializeToElement(new { }), CancellationToken.None);
             Require(stops == 1 && !alive && !File.Exists(adoption), "normal exact Stop removes only new adoption record");
         }
         api.AssertQueryOnly();

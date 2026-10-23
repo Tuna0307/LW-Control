@@ -2,7 +2,7 @@ import { Activity, Fragment, Suspense, useCallback, useEffect, useLayoutEffect, 
 import { flushSync } from "react-dom";
 import { toggleShellTheme } from "./shellTheme.js";
 import { TopVersion, ShellConfigSaveErrors } from "./ShellPresentation.jsx";
-import { initialShellUpdateStatus, initialShellProfiles, previewShellFlagStores, initialProfileFocus, saveProfileFocus } from "./shellState.js";
+import { initialShellUpdateStatus, initialShellProfiles, previewShellFlagStores, initialProfileFocus, saveProfileFocus, initialProfileSidebarHidden, saveProfileSidebarHidden } from "./shellState.js";
 import { ProfileSidebar } from "./ProfileSidebar.jsx";
 import { AppExitDialog, AppExitPrompt } from "./AppExitDialog.jsx";
 import { ProfileSwitchState } from "./ProfileSwitchState.jsx";
@@ -10,6 +10,7 @@ import { GameAssetImageProvider, createProfileGameAssetReader } from "./GameAsse
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
+import { HotkeyFeedback } from "./HotkeyFeedback.jsx";
 import { LANGUAGES, useI18n } from "./i18n.jsx";
 import { DEFAULT_SCAN_STATE, connectionState, createMapApi, unwrapProfileEvent } from "./mapBackend.js";
 import {
@@ -139,6 +140,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const showProfiles = shellProfiles.maxProfiles > 1 || shellProfiles.profiles.length > 1;
   const [focusGameOnProfileSelect, setFocusGameOnProfileSelect] = useState(() => initialProfileFocus(localStorage));
   const updateProfileFocus = (value) => { saveProfileFocus(localStorage, value); setFocusGameOnProfileSelect(value); };
+  const [profileSidebarHidden, setProfileSidebarHidden] = useState(() => initialProfileSidebarHidden(localStorage));
+  const updateProfileSidebarHidden = (value) => { saveProfileSidebarHidden(localStorage, value); setProfileSidebarHidden(value); };
   const previewProfileCache = useRef(new Set(profilePreview && shellProfiles.selectedProfileId ? [shellProfiles.selectedProfileId] : []));
   const previewProfileLoadGeneration = useRef(0);
   const [previewProfileLoading, setPreviewProfileLoading] = useState(false);
@@ -190,7 +193,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   // Images are native profile commands. Reader identity also separates caches
   // across profiles and installations, so an old queued image cannot use B.
   const imageGameRoot = selectedNativeGameTextRoot(gameRootStatus);
-  const nativeAssetReader = useMemo(() => createProfileGameAssetReader(backendBridge), [selectedProfileId, imageGameRoot]);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(initialAutoLaunchGame);
   const [homeBusy, setHomeBusy] = useState("");
@@ -203,7 +205,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [mapSummary, setMapSummary] = useState(null);
   const [serverTarget, setServerTarget] = useState("");
   const [serverJumpBusy, setServerJumpBusy] = useState(0);
-  const [serverJumpError, setServerJumpError] = useState("");
+  const [serverJumpErrorKey, setServerJumpErrorKey] = useState("");
   const [serverHistory, setServerHistory] = useState([]);
   const [connectionError, setConnectionError] = useState("");
   const [statusPairReady, setStatusPairReady] = useState(backendBridge.mode === "preview");
@@ -993,7 +995,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     let closed = false;
     serverHistoryRef.current = [];
     setServerHistory([]);
-    setServerJumpError("");
+    setServerJumpErrorKey("");
     mapApi.importServerJumpHistory(legacyServerHistory()).then((history) => {
       if (!closed) {
         serverHistoryRef.current = history;
@@ -1001,7 +1003,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
       try { localStorage.removeItem(LEGACY_SERVER_HISTORY_KEY); } catch {}
     }).catch(() => {
-      if (!closed) setServerJumpError(t("common.actionFailed"));
+      if (!closed) setServerJumpErrorKey("common.actionFailed");
     });
     return () => { closed = true; };
   }, [selectedProfileId]);
@@ -1023,6 +1025,31 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     connectionError,
   );
   const online = bridgeState === "connected";
+
+  useEffect(() => {
+    if (!online || !backendBridge.available || !selectedProfileId || backendBridge.mode === "preview") return;
+    // Reapply the current profile's saved Automation settings after reconnect.
+    // Runtime scheduling then stays in the game when its tab is not mounted.
+    void Promise.resolve().then(() => backendBridge.invokeProfileScoped("feature018_automation_status")).catch(() => {});
+  }, [online, selectedProfileId]);
+
+  useEffect(() => {
+    if (!online || !backendBridge.available || !selectedProfileId) return undefined;
+    let closed = false;
+    backendBridge.invokeProfileScoped("visual_metrics_config_get", {}).then((stored) => {
+      if (closed) return undefined;
+      return backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
+        showFps: stored?.showFps === true,
+        showPing: stored?.showPing === true,
+      });
+    }).catch(() => {
+      // Settings surfaces explicit save failures. Reconnect synchronization is
+      // best-effort and will retry on the next owned connection transition.
+    });
+    return () => { closed = true; };
+  }, [online, selectedProfileId]);
+
+  const nativeAssetReader = useMemo(() => createProfileGameAssetReader(backendBridge), [selectedProfileId, imageGameRoot, online]);
 
   useEffect(() => {
     if (!online || !backendBridge.available) return undefined;
@@ -1274,19 +1301,19 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
 
   const jumpServer = useCallback(async (serverId) => {
     if (!Number.isInteger(serverId) || serverId < 1 || serverId > 99999) {
-      setServerJumpError(t("server.invalidId"));
+      setServerJumpErrorKey("server.invalidId");
       return;
     }
     if (!online) {
-      setServerJumpError(t("status.gameDisconnected"));
+      setServerJumpErrorKey("status.gameDisconnected");
       return;
     }
     if (mapRuntime.isReading) {
-      setServerJumpError(t("server.stopScanFirst"));
+      setServerJumpErrorKey("server.stopScanFirst");
       return;
     }
     setServerJumpBusy(serverId);
-    setServerJumpError("");
+    setServerJumpErrorKey("");
     try {
       const result = await requestServerJump(serverId);
       if (result.changed) {
@@ -1298,11 +1325,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       setServerTarget("");
       setServerJumpOpen(false);
     } catch {
-      setServerJumpError(t("common.actionFailed"));
+      setServerJumpErrorKey("common.actionFailed");
     } finally {
       setServerJumpBusy(0);
     }
-  }, [mapRuntime.isReading, online, requestServerJump, t]);
+  }, [mapRuntime.isReading, online, requestServerJump]);
 
   const serverJumpBlockedText = online
     ? mapRuntime.isReading ? t("server.stopScanFirst") : ""
@@ -1328,7 +1355,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     disconnected: t("status.disconnected"),
     stopped: t("setup.gameStopped"),
     preview: "Preview",
-    unavailable: "Unavailable",
+    unavailable: t("status.componentUnavailable"),
     checking: t("status.checking"),
   }[bridgeState] || t("status.checking");
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
@@ -1387,6 +1414,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       profileId: selectedProfileId,
       ...(showProfiles ? { activeTab: squadTab, onActiveTabChange: setSquadTab } : {}),
     },
+    settings: { nativeUpdateStatus: shellUpdateStatus },
   };
 
   return (
@@ -1417,6 +1445,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </section>
 
         <div className="top-actions">
+          {showProfiles && profileSidebarHidden ? <button
+            className="theme-toggle profile-sidebar-restore"
+            type="button"
+            title={t("profile.expand")}
+            aria-label={t("profile.expand")}
+            onClick={() => updateProfileSidebarHidden(false)}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </button> : null}
           <button
             className="theme-toggle"
             type="button"
@@ -1452,7 +1491,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
             <button
               className="top-action secondary"
               type="button"
-              onClick={() => setServerJumpOpen((value) => !value)}
+              onClick={() => { setServerJumpErrorKey(""); setServerJumpOpen((value) => !value); }}
             >
               {currentServerId > 0 ? t("server.switchLabelWithId", { server: currentServerId }) : t("server.switchLabel")}
             </button>
@@ -1470,7 +1509,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
                     placeholder={t("server.targetPlaceholder")}
                     type="number"
                     value={serverTarget}
-                    onChange={(event) => setServerTarget(event.target.value)}
+                    onChange={(event) => { setServerTarget(event.target.value); setServerJumpErrorKey(""); }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" && !serverJumpBusyActive && !serverJumpBlockedText) jumpServer(Number(serverTarget));
                     }}
@@ -1483,7 +1522,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
                   <div className="server-jump-home"><span>{t("server.home", { server: mapRuntime.homeServerId })}</span><button type="button" disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(mapRuntime.homeServerId)}>{t("server.returnHome")}</button></div>
                 ) : null}
                 {serverJumpBlockedText ? <p className="server-jump-error">{serverJumpBlockedText}</p> : null}
-                {serverJumpError ? <p className="server-jump-error">{serverJumpError}</p> : null}
+                {serverJumpErrorKey ? <p className="server-jump-error">{t(serverJumpErrorKey)}</p> : null}
                 {mapRuntime.seasonServerIds?.length ? <div className="server-jump-history"><span>{t("server.seasonServers")}</span><div>{mapRuntime.seasonServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
                 {mapRuntime.truckMatchServerIds?.length ? <div className="server-jump-history"><span>{t("server.plunderableServers")}</span><div>{mapRuntime.truckMatchServerIds.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText || serverId === currentServerId} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
                 {serverHistory.length ? <div className="server-jump-history"><span>{t("server.recent")}</span><div>{serverHistory.map((serverId) => <button type="button" key={serverId} disabled={serverJumpBusyActive || !!serverJumpBlockedText} onClick={() => jumpServer(serverId)}>{serverId}</button>)}</div></div> : null}
@@ -1502,12 +1541,14 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </div>
       </header>
 
-      <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
-        {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
+      <HotkeyFeedback profileId={backendBridge.profileId} activeRoute={activeRoute} />
+      <div className={`app-layout${showProfiles && !profileSidebarHidden ? "" : " single-profile"}`}>
+        {showProfiles && !profileSidebarHidden ? <aside className="profile-sidebar"><ProfileSidebar
           state={shellProfiles}
           busy={nativeProfileBusy || nativeProfileMutationBusy}
           error={nativeProfileError}
           focusGameOnProfileSelect={focusGameOnProfileSelect}
+          onHide={() => updateProfileSidebarHidden(true)}
           {...profileCallbacks}
         /></aside> : null}
         <nav className="side-nav" aria-label="Navigation">

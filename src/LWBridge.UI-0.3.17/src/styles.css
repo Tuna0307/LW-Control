@@ -34,8 +34,8 @@
 .map-searchbar{min-width:0;flex-wrap:wrap;gap:8px}
 .map-searchbar>input{min-width:120px;flex:1 1 160px}
 .map-auto-scan-grid{grid-template-columns:minmax(0,2fr) minmax(120px,1fr)}
-.map-table-scroll{max-width:100%;overflow:visible}
-.map-table{width:100%;min-width:0!important;table-layout:fixed}
+.map-table-scroll{max-width:100%;overflow:auto}
+.map-table{width:100%;min-width:900px!important;table-layout:fixed}
 .map-table th,.map-table td{padding:8px 5px;white-space:normal;overflow-wrap:anywhere;word-break:normal}
 .map-table .map-column-coordinate{width:100px}
 .map-table .map-column-mark{width:32px}
@@ -58,3 +58,215 @@
 .map-tabs button{justify-content:center;min-width:0}
 @media (max-width:1100px){.map-table th,.map-table td{font-size:12px}.map-table .map-column-coordinate{width:105px}}
 @media (max-width:600px){.map-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.map-auto-scan-grid{grid-template-columns:1fr}}
+
+/* FEATURE-RECOVERY-018 R19 responsive layout qualification. */
+/* R21: compact level numbers fit a 24px cell at 100% canvas zoom. The full
+   localized name and level remain in every building's tooltip/accessible name. */
+.city-layout-building-level{font-size:12px;font-weight:700;line-height:16px;min-width:16px;padding:0 3px;color:var(--text);background:var(--surface);text-shadow:none;border-radius:2px;top:1px;right:1px}
+.city-layout-building-name{font-size:12px;line-height:1.2;padding:2px}
+.city-layout-selected small,.city-layout-building-list small{font-size:12px;line-height:1.4;color:var(--muted-strong)}
+
+.monster-afk-toolbar{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
+.monster-afk-compact-card .automation-card-header h3,
+.monster-afk-compact-card .automation-card-header p,
+.monster-afk-profile-heading strong,
+.equipment-preset-list>button span,
+.equipment-position-hero strong,
+.preset-equipment-slot span,
+.automation-card-header h3,
+.automation-card-header p{
+  max-width:100%;
+  text-overflow:clip;
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:anywhere;
+}
+
+.equipment-preset-positions{
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  overflow-x:visible;
+}
+
+.automation-categories{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
+  overflow:visible;
+}
+.automation-categories button{
+  flex:none;
+  min-width:0;
+  min-height:34px;
+  padding:5px 12px;
+  white-space:nowrap;
+  line-height:1.25;
+}
+.automation-grid{
+  display:block;
+  columns:310px;
+  column-gap:10px;
+}
+.automation-grid>.automation-card,
+.automation-grid>.trade-station-panel{
+  width:100%;
+  margin:0 0 10px;
+  break-inside:avoid;
+}
+
+.hotkey-panel[data-hotkey-category="miniGames"] .hotkey-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));
+  align-items:stretch;
+}
+.hotkey-panel[data-hotkey-category="miniGames"] .hotkey-card{height:100%}
+
+.map-table--truck,.map-table--railway{min-width:1620px!important}
+.map-table--dispatch,.map-table--ghost{min-width:1480px!important}
+.map-table--scheduled-plunder{min-width:1480px!important}
+.map-table--scheduled-secret{min-width:1410px!important}
+.map-table--scheduled-truck{min-width:1240px!important}
+.map-table .map-column-coordinate{width:120px;min-width:120px}
+.map-table .map-column-mark{width:78px;min-width:78px}
+.map-table-scroll{scrollbar-gutter:stable}
+
+@media (min-width:1100px){
+  .top-bar{flex-flow:row nowrap;align-items:center}
+  .brand-lockup{flex:0 auto}
+  .top-bar .status-strip{flex:0 auto;order:initial;width:auto;justify-content:flex-start}
+  .top-actions{flex:0 auto;display:flex;flex-wrap:nowrap;justify-content:flex-end}
+  .language-select{grid-column:auto}
+}
+
+@media (max-width:1099px){
+  .top-bar{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 12px}
+  .brand-lockup{grid-column:1;grid-row:1;min-width:0}
+  .top-bar .status-strip{grid-column:2;grid-row:1;order:initial;width:auto;justify-content:flex-end;min-width:0}
+  .top-actions{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;justify-content:flex-end}
+  .language-select{grid-column:auto}
+}
+
+@media (max-width:1200px){
+  .monster-afk-layout{grid-template-columns:1fr}
+  .monster-afk-profiles,.monster-afk-editor{min-width:0}
+  .equipment-preset-positions{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
+  .equipment-position-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .city-layout-workbench{grid-template-columns:minmax(0,1fr) minmax(250px,280px)}
+}
+
+@media (max-width:999px){
+  .equipment-preset-layout{grid-template-columns:1fr}
+  .equipment-preset-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));max-height:none}
+  .city-layout-workbench{grid-template-columns:1fr}
+  .city-layout-center{order:1}
+  .city-layout-sidebar{order:2}
+  .city-layout-inspector{order:3}
+  .hotkey-panel[data-hotkey-category="miniGames"] .hotkey-grid>.hotkey-card:last-child:nth-child(odd){grid-column:1/-1}
+}
+.equipment-preset-squad.drop-target,
+.equipment-position-card.drop-target,
+.preset-equipment-slot.drop-target {
+  outline: 3px solid var(--blue-text);
+  outline-offset: 2px;
+  background: var(--info-soft);
+}
+.equipment-plan-banner {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  color: var(--warning-text);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-line);
+  border-radius: 10px;
+}
+.preset-equipment-slot.equipment-slot-changed {
+  border: 2px solid var(--warning-text);
+  background: var(--warning-soft);
+}
+.equipment-plan-slot-name { color: var(--text); font-weight: 600; }
+.equipment-live-inventory { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
+.equipment-live select { width: 100%; min-width: 0; }
+.equipment-live .preset-equipment-slot { overflow-wrap: anywhere; }
+.equipment-live-presets { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.equipment-live-presets .equipment-preset-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.equipment-live-presets input { max-width: 100%; }
+.equipment-live-presets p { color: var(--muted); margin: 6px 0; }
+@media (max-width: 1000px) { .equipment-live-presets .equipment-preset-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* R29: account sidebar leaves a narrow content column at 900px. Keep
+   complete result-kind labels together instead of splitting final letters. */
+.map-tabs{grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))}
+.map-tabs button{white-space:nowrap}
+
+/* R30 Auto Reply game emoji picker */
+.game-emoji-picker { margin-top: 8px; }
+.game-emoji-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; max-height: 220px; overflow-y: auto; }
+.game-emoji-list > p { flex-basis: 100%; margin: 0; }
+.game-emoji-list > button { padding: 4px 8px; border-radius: 6px; font-size: 12px; }
+
+/* Live (native) Automation cards share the recovered card rhythm: no stray paragraph margins,
+   a quiet note line, and inline retry links inside error lines. */
+.automation-card p { margin: 0; }
+.automation-card-note {
+  color: var(--muted);
+  font-size: var(--font-footnote);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.automation-error-retry {
+  margin-left: 8px;
+  padding: 0;
+  min-height: 0;
+  color: var(--blue-text);
+  font: inherit;
+  font-weight: 600;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.automation-error-retry:hover { text-decoration: underline; }
+
+/* Cards with a table of rows (Resource gathering) use the full page width. */
+.automation-grid>.automation-card-wide{ column-span:all; }
+/* A checkbox with its label on one line (live card settings). */
+.automation-inline-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+  font-size: var(--font-footnote);
+  cursor: pointer;
+}
+.automation-inline-checkbox input { margin: 0; }
+.trade-station-panel { display: grid; gap: 10px; }
+.trade-station-panel .trade-station-warning { margin: 0; }
+.automation-form-grid label.automation-inline-checkbox,
+.automation-config-body > label.automation-inline-checkbox { display: flex; grid-column: 1 / -1; color: var(--text); }
+/* Alliance Drill: per-squad role picker inside the squad priority chip. */
+.automation-squad-priority-item .automation-squad-role {
+  min-width: 0;
+  height: 26px;
+  padding: 2px 6px;
+  font-size: var(--font-footnote);
+}
+.automation-squad-priority-item:has(.automation-squad-role) { grid-template-columns: minmax(0,1fr) auto auto; }
+/* AFK profile: the list target is inactive while a custom name keyword is used. */
+.monster-afk-target-unused select { opacity: .55; }
+/* AFK profile: optional level range per assigned squad. */
+.monster-afk-squad-levels { display: grid; gap: 6px; }
+.monster-afk-squad-levels-title { font-size: var(--font-footnote); font-weight: 600; color: var(--text); }
+.monster-afk-squad-level { display: flex; align-items: center; gap: 10px; min-height: 30px; }
+.monster-afk-squad-level .monster-afk-check-row { min-width: 92px; }
+.monster-afk-squad-level-inputs { display: inline-flex; align-items: center; gap: 6px; }
+.monster-afk-squad-level-inputs input { width: 72px; min-height: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Treasure: claim delay by time of day. */
+.treasure-schedule { display: grid; gap: 6px; }
+.treasure-schedule-head, .treasure-schedule-row { display: grid; grid-template-columns: minmax(84px,1fr) minmax(84px,1fr) minmax(64px,1fr) minmax(64px,1fr) 28px; gap: 6px; align-items: center; }
+.treasure-schedule-head span { color: var(--muted); font-size: var(--font-caption); }
+.treasure-schedule-row input { min-width: 0; min-height: 28px; font-variant-numeric: tabular-nums; }
+.treasure-schedule-remove { min-height: 28px; padding: 0; border-radius: 6px; }
+.treasure-schedule-add { justify-self: start; min-height: 28px; padding: 3px 10px; font-size: var(--font-footnote); }
+
+/* Official Application: target time with its Clear button */
+.automation-inline-field { display: flex; align-items: center; gap: 8px; }
+.automation-inline-field input { flex: 1; min-width: 0; }

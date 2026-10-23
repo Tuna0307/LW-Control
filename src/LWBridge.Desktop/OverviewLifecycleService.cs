@@ -551,6 +551,37 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public void Close()
     {
+        // LEAD018-01: FormClosed previously called Close(), which merely
+        // retired the lease/monitor. The game therefore survived the app and
+        // its installed candidate remained at active_ready_deferred_restore.
+        // Complete the *exact owned* Stop/restore before retiring that lease.
+        // StopAsync validates the captured PID, executable, start time,
+        // session and server restoration receipt; it cannot close an unmanaged
+        // or replacement game. A failure keeps the durable journal retryable.
+        OwnedSnapshot? exitOwner = GetOwnedSnapshot();
+        if (exitOwner is { Phase: "running" } && !closed)
+        {
+            try
+            {
+                using var bound = new CancellationTokenSource(TimeSpan.FromSeconds(120));
+                JsonElement request = JsonSerializer.SerializeToElement(
+                    new { instanceId = exitOwner.InstanceId });
+                StopAsync(request, bound.Token).GetAwaiter().GetResult();
+            }
+            catch (Exception error)
+            {
+                // The recovery journal is the authority after a failed Stop;
+                // log the failure without changing or discarding its ownership.
+                try
+                {
+                    Directory.CreateDirectory(evidenceRoot);
+                    File.WriteAllText(Path.Combine(evidenceRoot, "host-exit-restore-error.txt"),
+                        DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture) +
+                        " " + error.GetType().Name + ": " + error.Message);
+                }
+                catch { }
+            }
+        }
         string? cancellingSession = null;
         string? cancellingChallenge = null;
         string? cleanupSession = null;
@@ -1590,7 +1621,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (invocation.ControlPipeLaunchBinding is not null)
             {
                 start.ArgumentList.Add("--control-pipe-path");
-                start.ArgumentList.Add(LWBridgeControlPipeContract.GetCurrentUserFullPath());
+                start.ArgumentList.Add(bridgeHostState?.PipePath ?? LWBridgeControlPipeContract.GetCurrentUserFullPath());
             }
         }
         else

@@ -113,9 +113,12 @@ try {
       await page.locator("[role=alert]").first().waitFor({ state: "visible" });
     }
     if (state === "map-error") {
-      // Original rr handles rejected search with empty rows; it adds no visible error banner.
       await page.locator(".map-table[aria-busy=false] .map-empty").waitFor({ state: "visible" });
-      if (await page.locator(".map-scan-error[role=alert]").count()) throw new Error("Search rejection added an unsupported Map error banner");
+      const alert = page.locator(".map-scan-error[role=alert]").first();
+      await alert.waitFor({ state: "visible" });
+      const message = await alert.innerText();
+      if (!message.includes("Deterministic browser-only Map query failure")) throw new Error("Map search rejection lost its plain failure detail");
+      if (message.includes("MAP_FIXTURE_QUERY_FAILED")) throw new Error("Map search rejection exposed an internal error code");
     }
     if (state === "map-auto-running") {
       const stop = page.locator(".map-auto-scan-options button").nth(1);

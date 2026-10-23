@@ -39,7 +39,8 @@ public sealed partial class MapStore
         if (query.ServerId == 0 && !string.IsNullOrWhiteSpace(query.ScanRunId))
             throw new BridgeCommandException("INVALID_REQUEST", "All servers reads published data only");
         long pageNumber = Math.Max(query.Page, 1L);
-        int pageSize = Math.Clamp(query.PageSize <= 0 ? 50 : query.PageSize, 1, 200);
+        // City export reads every row in this one call (one read transaction, audit 2026-10-23 W09).
+        int pageSize = Math.Clamp(query.PageSize <= 0 ? 50 : query.PageSize, 1, cityExportRows ? MaxCityExportRows : 200);
         IReadOnlyList<MapSort> sorts = NormalizeSorts(query);
         long now = nowUnixMilliseconds ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         // Original 0.3.17 0x3E5883-0x3E58B8 subtracts one and multiplies

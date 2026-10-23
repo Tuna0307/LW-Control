@@ -1,0 +1,934 @@
+-- FEATURE-RECOVERY-018: exact-owner native equipment snapshot and sequential apply.
+--
+-- Inspected archived ORIGINAL current v26 LWLF 3/26, LuaEntry SHA256
+-- 50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137.
+-- UI/UILWHero/UIHeroEquipListPanel/View/UIHeroEquipListPanelView.luac
+--   SHA256 071f83832ed6ec19a675055d7c02974b3a651e9a8aed04f2c8c4494e93c82793
+--   root/1 29-34 sends MsgDefines.HeroEquipInstall(hero.uuid,
+--     {[slotType] = equip.uuid}); root/2 37-41 sends HeroEquipUninstall.
+-- Net/Msgs/HeroEquipInstallMessage.luac
+--   SHA256 ba38a144c063867b81cd8c6490df3ee276c60f6a451e51da44d98ae74784abd8
+--   OnCreate 13-29 serializes PutLong("heroUid"), followed by
+--   PutSFSArray("slot2Uid") of PutInt("slot")/PutLong("uid") pairs.
+--   HandleMessage 31-38 only broadcasts heroUid on errorCode=nil; no
+--   request UUID, per-slot acknowledgement or equipment poststate.
+-- Net/Msgs/PushHeroEquipChangeMessage.luac
+--   SHA256 1c274d50719c30eceaacd0aef5974e7d45b939db669f8c74ecc280d4c046333d
+--   HandleMessage 17-24 calls EquipDataManager:UpdateManyEquip(list) when
+--   errorCode=nil, independently of the install request.
+-- DataCenter/EquipData/EquipDataManager.luac
+--   SHA256 20da01b79bc503eb467fdcec6d0e83fef08672157ff92446f7902ef8e0058cf9
+--   GetEquipByUuid root/12 365-367, GetAllEquipList root/14 382-384,
+--   GetAllUnusedEquipList root/19 465-477 (heroUuid nil/<=0 free).
+-- DataCenter/ArmyFormationData/ArmyFormationInfo.luac
+--   GetLocalHeroAtSlotIndex 237-239 from localIndexToHeroDic.
+-- DataCenter/HeroData/HeroDataManager.luac GetHeroByUuid 292-297.
+-- UI/UILWHero/UIHeroEquipListPanel/Controller/UIHeroEquipListPanelCtrl.luac
+--   GetAllEquipDataList 17-78 uses GetAllEquipListBySlotTypeAndHeroType.
+-- EquipDataManager.GetAllEquipListBySlotTypeAndHeroType 419-438 admits only
+-- equip.config.heroType == hero.heroType or HeroType.All, using the same
+-- native slot. GetHeroBetterEquip 522-547 respects IsUnlockEquipFunction.
+--
+-- Unlike the game's PVPFormationPreset (a formation UUID), the persisted
+-- LWBridge 0.3.17 equipmentPresets[N] are {id,name,squads:[{
+-- squadIndex,positions:[{position,equips:[{slot,equipUuid,...}]}]}]}.
+-- See src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js 8-27.
+--
+-- Public API:
+--   M.Preflight(fields, confirmedPresets, gameInputClear)
+--       Returns state=confirmed + readOnly=true preflight observation ONLY.
+--       confirmedPresets MUST originate from the owner profile's *confirmed*
+--       native persisted equipment_config_get, never frontend draft/client
+--       provided JSON. No mutation method is reachable from this function.
+--   M.Handle(fields, confirmedPresets, gameInputClear)
+--       Same authenticated UID/server sequential original RPC plan; queryOnly resumes its
+--       authorized next step after native state confirms the prior step.
+-- Nothing is registered, sent, mutated or executed when this file loads.
+--
+-- C# bridge must pass action="equipment", slot=1..4 (ordinal of confirmed
+-- equipmentPresets), authorizedUid=game-session UID, presetId=selected.id,
+-- and authenticated profileId/launchSessionId/challenge/gamePid. The existing
+-- game native command only forwards action+slot and currently has no
+-- confirmed-preset provenance; the prime must provide an owner-bound
+-- retrieval/marshalling seam before even read-only integration.
+
+local M = { VERSION = "feature018-equipment-actions-2" }
+
+local function member(object, key)
+    if object == nil then return nil end
+    local ok, value = pcall(function() return object[key] end)
+    if ok then return value end
+    return nil
+end
+
+local function invoke(object, name, ...)
+    local fn = member(object, name)
+    if type(fn) ~= "function" then return false, nil end
+    return pcall(fn, object, ...)
+end
+
+local function blocked(message)
+    return {state="failed",errorCode="GAME_PRECONDITION_FAILED",error=message}
+end
+
+local function unavailable(message)
+    return {state="unsupported",errorCode="GAME_METHOD_UNAVAILABLE",error=message}
+end
+
+local function exact_id(value)
+    if type(value) == "boolean" or value == nil then return nil end
+    if type(value) == "number" then
+        if value ~= value or value == math.huge or value == -math.huge or
+           value < 1 or value % 1 ~= 0 or
+           (math.type and math.type(value) == "float" and
+            value > 9007199254740991) then return nil end
+    elseif type(value) ~= "string" then
+        return nil
+    end
+    local result = tostring(value)
+    if #result < 1 or #result > 20 or result:sub(1,1) == "0" or
+       result:find("[^0-9]") then return nil end
+    return result
+end
+
+local function native_session(fields)
+    if type(fields) ~= "table" then return nil end
+    for _, key in ipairs({"profileId","launchSessionId","challenge","gamePid"}) do
+        local value = fields[key]
+        if type(value) ~= "string" or #value == 0 or #value > 128 or
+           value:find("[^%w_-]") then return nil end
+    end
+    local player = member(rawget(_G, "LuaEntry"), "Player")
+    local native_uid = exact_id(member(player,"uid"))
+    if native_uid == nil or type(fields.authorizedUid) ~= "string" or
+       fields.authorizedUid ~= native_uid then return nil end
+    -- The public read-only Preflight also runs with native Lua authority:
+    -- it cannot depend solely on the C# owner check preceding a mailbox
+    -- request. Every original native server getter must agree on one server.
+    local server_id
+    for _,getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+        local ok,server=invoke(player,getter)
+        local id=exact_id(server)
+        if not ok or not id or (server_id and id~=server_id) then return nil end
+        server_id=id
+    end
+    return native_uid,server_id
+end
+local function exact_session(fields)
+    return native_session(fields) ~= nil
+end
+
+local function number_in_range(value, low, high)
+    if type(value) ~= "number" or value % 1 ~= 0 then return nil end
+    if value < low or value > high then return nil end
+    return value
+end
+
+local function selected_preset(fields, confirmed)
+    if type(fields) ~= "table" or fields.action ~= "equipment" or
+       type(fields.slot) ~= "string" or not fields.slot:match("^[1-4]$") then
+        return nil, blocked("Equipment shortcut requires an exact Alt+1 through Alt+4 ordinal")
+    end
+    if type(confirmed) ~= "table" or #confirmed > 4 or #confirmed == 0 then
+        return nil, unavailable("Confirmed per-profile equipment presets were not supplied")
+    end
+    for i = 1, #confirmed do
+        if type(confirmed[i]) ~= "table" or
+           type(confirmed[i].id) ~= "string" or
+           confirmed[i].id == "" or type(confirmed[i].name) ~= "string" then
+            return nil, blocked("Malformed native persisted preset selection")
+        end
+        for j = 1, i - 1 do
+            if confirmed[j].id == confirmed[i].id then
+                return nil, blocked("Duplicate persisted preset identity")
+            end
+        end
+    end
+    local preset = confirmed[tonumber(fields.slot)]
+    if preset == nil then return nil, unavailable("Requested equipment preset slot is not saved") end
+    if type(fields.presetId) ~= "string" or fields.presetId ~= preset.id then
+        return nil, blocked("Preset UUID/id differs from the confirmed owner profile selection")
+    end
+    if type(preset.squads) ~= "table" then
+        return nil, blocked("Confirmed equipment preset has no valid squad loadouts")
+    end
+    return preset
+end
+
+local function read_hero(squad_index, position)
+    local center = rawget(_G,"DataCenter")
+    local manager = member(center,"ArmyFormationDataManager")
+    local heroes = member(center,"HeroDataManager")
+    local ok_form, formation = invoke(manager,"GetOneArmyInfoByIndex",squad_index)
+    if not ok_form or formation == nil then
+        return nil, "Exact live squad formation slot is unavailable"
+    end
+    local ok_slot, hero_uuid = invoke(formation,"GetLocalHeroAtSlotIndex",position)
+    local id = exact_id(hero_uuid)
+    if not ok_slot or id == nil then
+        return nil, "Saved equipment position has no verified current hero"
+    end
+    local ok_hero, hero = invoke(heroes,"GetHeroByUuid",tonumber(id))
+    if not ok_hero or hero == nil or exact_id(member(hero,"uuid")) ~= id then
+        return nil, "Hero slot UUID does not match fresh native hero manager"
+    end
+    if type(member(hero,"GetEquipBySlotType")) ~= "function" then
+        return nil, "Native hero equipment-slot reader unavailable"
+    end
+    local ok_unlock, unlocked = invoke(hero,"IsUnlockEquipFunction")
+    if not ok_unlock or type(unlocked) ~= "boolean" or not unlocked then
+        return nil, "Native hero equipment slots are not verified unlocked"
+    end
+    if member(hero,"heroType") == nil then
+        return nil, "Native hero equipment-category identity is unavailable"
+    end
+    return {uuid=id,object=hero}
+end
+
+local function validate_slot(equips)
+    if type(equips) ~= "table" or #equips > 4 then
+        return nil, "Saved equipment slot list is malformed"
+    end
+    local mapping = {}
+    for i = 1, #equips do
+        local entry = equips[i]
+        local slot = type(entry) == "table" and number_in_range(entry.slot,1,4)
+        local uuid = type(entry) == "table" and exact_id(entry.equipUuid)
+        if slot == nil or uuid == nil or mapping[slot] ~= nil then
+            return nil, "Saved equipment slot/UUID is invalid or repeated"
+        end
+        mapping[slot] = uuid
+    end
+    return mapping
+end
+
+local function validate_selected_loadout(preset)
+    if #preset.squads > 4 then
+        return nil, "Saved preset has too many squads"
+    end
+    local wanted = {}
+    local position_count, item_count = 0, 0
+    local claimed_equip,expected_heroes = {},{}
+    for _, saved_squad in ipairs(preset.squads) do
+        local index = type(saved_squad) == "table" and
+                      number_in_range(saved_squad.squadIndex,1,4)
+        if index == nil or wanted[index] ~= nil or
+           type(saved_squad.positions) ~= "table" or
+           #saved_squad.positions > 5 then
+            return nil, "Saved preset squad identity/positions are malformed"
+        end
+        wanted[index] = {}
+        expected_heroes[index] = {}
+        for _, entry in ipairs(saved_squad.positions) do
+            local position = type(entry) == "table" and
+                             number_in_range(entry.position,1,5)
+            if position == nil or wanted[index][position] ~= nil then
+                return nil, "Saved preset hero position is repeated or invalid"
+            end
+            local mapping, reason = validate_slot(entry.equips)
+            if not mapping then return nil, reason end
+            -- Native v26 M.Snapshot persists the actual hero UUID alongside
+            -- each squad/position. Older UI-created presets are position-only;
+            -- honor those, but NEVER ignore a saved native hero identity
+            -- when it is supplied by the authenticated owner profile.
+            if entry.heroUuid ~= nil then
+                local saved_hero=exact_id(entry.heroUuid)
+                if not saved_hero then
+                    return nil,"Saved equipment hero UUID is malformed"
+                end
+                expected_heroes[index][position]=saved_hero
+            end
+            wanted[index][position] = mapping
+            position_count = position_count + 1
+            for _, uuid in pairs(mapping) do
+                if claimed_equip[uuid] then
+                    return nil, "One equipment UUID is assigned to multiple saved heroes"
+                end
+                claimed_equip[uuid] = true
+                item_count = item_count + 1
+            end
+        end
+    end
+    if position_count == 0 then return nil, "Saved equipment preset has no hero positions" end
+    return wanted, position_count, item_count, expected_heroes
+end
+
+local function inventory_for_target(manager, uuid, hero, slot)
+    local ok, item = invoke(manager,"GetEquipByUuid",tonumber(uuid))
+    if not ok or item == nil or exact_id(member(item,"uuid")) ~= uuid then
+        return nil, "Saved equipment UUID is not present in native inventory"
+    end
+    if number_in_range(member(item,"slot"),1,4) ~= slot then
+        return nil, "Saved equipment UUID belongs to a different native slot type"
+    end
+    local config = member(item,"config")
+    local item_type = member(config,"heroType")
+    local hero_type = member(hero.object,"heroType")
+    local unrestricted_type = member(rawget(_G,"HeroType"),"All")
+    if item_type == nil or hero_type == nil or unrestricted_type == nil then
+        return nil, "Native equipment/hero compatibility type unavailable"
+    end
+    if item_type ~= hero_type and item_type ~= unrestricted_type then
+        return nil, "Native equipment hero-type eligibility rejects saved item"
+    end
+    local wearer = member(item,"heroUuid")
+    local wearer_id = exact_id(wearer)
+    if wearer ~= nil and not (type(wearer)=="number" and wearer<=0 and wearer%1==0) and wearer_id == nil then
+        return nil, "Native equipment wearer identity cannot be verified"
+    end
+    return {item=item,wearer=wearer_id,alreadyWorn=wearer_id == hero.uuid}
+end
+
+-- The client updates HeroInfo.equipUids and EquipInfo.heroUuid from separate
+-- native pushes. Immediately after moving gear, GetEquipBySlotType can still
+-- expose the old slot while EquipDataManager already exposes the new wearer
+-- (or vice versa). Treat that first disagreement as stale read evidence only:
+-- re-read the exact formation hero, slot and inventory once. A disagreement
+-- that survives the fresh read is a real precondition failure.
+local function current_slot_with_fresh_inventory(manager, squad_index, position, slot, first_hero)
+    local hero=first_hero
+    for attempt=1,2 do
+        local ok_current,current_item=invoke(hero.object,"GetEquipBySlotType",slot)
+        if not ok_current then
+            return nil,nil,nil,"Native current hero equipment-slot state unavailable"
+        end
+        local current_id=current_item and exact_id(member(current_item,"uuid"))
+        if current_item~=nil and current_id==nil then
+            return nil,nil,nil,"Current hero slot equipment has invalid native UUID"
+        end
+        if current_id==nil then return hero,nil,nil,nil end
+        local stock,reason=inventory_for_target(manager,current_id,hero,slot)
+        if stock and stock.alreadyWorn then return hero,current_id,stock,nil end
+        -- Slot/type/inventory identity errors are structural, not cache lag.
+        if not stock then return nil,nil,nil,reason end
+        if attempt==1 then
+            local fresh,fresh_reason=read_hero(squad_index,position)
+            if not fresh then return nil,nil,nil,fresh_reason end
+            hero=fresh
+        else
+            return nil,nil,nil,"wearer mismatch"
+        end
+    end
+end
+
+function M.Preflight(fields, confirmed_presets, game_input_clear)
+    local preset, error_receipt = selected_preset(fields,confirmed_presets)
+    if preset == nil then return error_receipt end
+    local start_uid,start_server=native_session(fields)
+    if not start_uid then
+        return blocked("Game UID is not the authenticated owner of this profile session")
+    end
+    local focus_ok,focus_clear=false,false
+    if type(game_input_clear)=="function" then
+        focus_ok,focus_clear=pcall(game_input_clear)
+    end
+    if not focus_ok or focus_clear~=true then
+        return blocked("Game text-input focus is selected or unverifiable")
+    end
+    local wanted, first, second, expected_heroes = validate_selected_loadout(preset)
+    if wanted == nil then return blocked(first) end
+    local center = rawget(_G,"DataCenter")
+    local equips = member(center,"EquipDataManager")
+    if type(member(equips,"GetEquipByUuid")) ~= "function" then
+        return unavailable("Original native equipment inventory reader is unavailable")
+    end
+    local observations, changed, worn_other, removals = {}, 0, 0, 0
+    for squad_index = 1, 4 do
+        local group = wanted[squad_index]
+        if group ~= nil then
+            for position = 1, 5 do
+                local requested = group[position]
+                if requested ~= nil then
+                    local hero, reason = read_hero(squad_index,position)
+                    if hero == nil then return unavailable(
+                        "Squad " .. squad_index .. " position " .. position .. ": " .. reason)
+                    end
+                    local saved_hero=expected_heroes[squad_index][position]
+                    if saved_hero and hero.uuid~=saved_hero then
+                        return blocked("Saved equipment hero UUID no longer matches its native formation position")
+                    end
+                    for slot = 1, 4 do
+                        local target = requested[slot]
+                        local fresh_hero,current_id,current_stock,current_reason =
+                            current_slot_with_fresh_inventory(
+                                equips,squad_index,position,slot,hero)
+                        if not fresh_hero then
+                            local result=blocked("Current equipped item disagrees with native inventory: " ..
+                                (current_reason or "wearer mismatch"))
+                            if current_reason=="wearer mismatch" then result.errorCode="EQUIPMENT_STATE_PENDING" end
+                            return result
+                        end
+                        hero=fresh_hero
+                        if saved_hero and hero.uuid~=saved_hero then
+                            return blocked("Saved equipment hero UUID no longer matches its native formation position")
+                        end
+                        local status = "alreadyEmpty"
+                        if target ~= nil then
+                            local desired, target_reason = inventory_for_target(
+                                equips,target,hero,slot)
+                            if not desired then return blocked(target_reason) end
+                            if current_id == target and desired.alreadyWorn then
+                                status = "alreadyEquipped"
+                            elseif desired.wearer ~= nil and not desired.alreadyWorn then
+                                status = "wornByOtherHero"
+                                worn_other = worn_other + 1
+                            elseif desired.alreadyWorn then
+                                return blocked("Saved item has current wearer but is absent from that hero slot")
+                            else
+                                status = current_id and "replaceRequired" or "installRequired"
+                            end
+                        elseif current_id ~= nil then
+                            status = "uninstallRequired"
+                            removals = removals + 1
+                        end
+                        if status ~= "alreadyEquipped" and status ~= "alreadyEmpty" then
+                            changed = changed + 1
+                        end
+                        observations[#observations+1] = {
+                            squadIndex=squad_index, position=position, heroUuid=hero.uuid,
+                            slot=slot, currentEquipUuid=current_id or "",
+                            targetEquipUuid=target or "", state=status
+                        }
+                    end
+                end
+            end
+        end
+    end
+    local final_uid,final_server=native_session(fields)
+    if final_uid~=start_uid or final_server~=start_server then
+        return blocked("Native equipment owner/server changed during preflight")
+    end
+    return {state="confirmed",data={
+        observation="native_HeroEquip_slot_inventory_preflight",
+        readOnly=true, action="equipment", slot=tonumber(fields.slot),
+        presetId=preset.id, readyToApply=false, requestDispatched=false,
+        sourceVersion=26, plannedPositions=first, plannedItems=second,
+        changedSlots=changed, wornByOtherHero=worn_other,
+        uninstallSlots=removals, slots=observations,
+    }}
+end
+
+-- A single frozen preset transaction. Network return is never proof of a slot
+-- change. HeroEquipInstall/Uninstall replies carry no slot payload, so a preset
+-- dispatches its already-validated uninstall/install RPCs once, back-to-back,
+-- then only fresh native slot + inventory state may confirm the whole preset.
+local transaction = nil
+local function action_owner(fields)
+    return exact_session(fields)
+end
+local function owner_key(fields)
+    return table.concat({fields.profileId,fields.launchSessionId,fields.challenge,
+        fields.gamePid,fields.authorizedUid,fields.slot,fields.presetId},"/")
+end
+local function fingerprint(slots)
+    local parts = {}
+    for _, slot in ipairs(slots) do
+        parts[#parts+1] = table.concat({slot.squadIndex,slot.position,slot.heroUuid,
+            slot.slot,slot.targetEquipUuid},":")
+    end
+    return table.concat(parts,"/")
+end
+local function receipt(tx, confirmed)
+    return {state=confirmed and "confirmed" or "accepted",data={
+        observation=confirmed and "native_HeroEquip_preset_slots_applied" or
+            "native_HeroEquip_preset_pending",
+        action="equipment",slot=tonumber(tx.slot),presetId=tx.presetId,
+        -- This describes the historical native send, not whether a reply
+        -- remains pending. A fully verified 4-step apply/restore still sent
+        -- four original HeroEquip RPCs; never rewrite it as "no send".
+        requestDispatched=tx.sent>0,
+        awaitingGameConfirmation=not confirmed,equipmentApplied=confirmed,
+        nativeSlotPoststateVerified=confirmed,
+        perSlotReplyCorrelated=false,clientStepNonceAvailable=false,
+        perSlotServerAckAttributable=false,
+        readOnly=false,sourceVersion=26,completedSteps=tx.completed,
+        dispatchedSteps=tx.sent,plannedSteps=#tx.steps,
+        beforeSlots=tx.before,slots=tx.latest,
+    }}
+end
+local function observe_step(step)
+    local hero, why = read_hero(step.squadIndex,step.position)
+    if not hero or hero.uuid ~= step.heroUuid then return false,why or "Native hero identity changed" end
+    local manager=member(rawget(_G,"DataCenter"),"EquipDataManager")
+    local fresh,current_id,_,fresh_reason=current_slot_with_fresh_inventory(
+        manager,step.squadIndex,step.position,step.slot,hero)
+    if not fresh or fresh.uuid~=step.heroUuid then
+        return false,fresh_reason or "Native equipment wearer still disagrees after fresh read"
+    end
+    hero=fresh
+    local current=current_id or ""
+    if current ~= step.after then
+        if current ~= step.before then
+            -- The native push/slot has changed to a THIRD item, not this
+            -- original HeroEquipInstall/Uninstall step's expected result.
+            -- A different player's or manual update is not a pending ACK.
+            return false,"Native gear slot changed to an unexpected equipment UUID"
+        end
+        return nil
+    end
+    if step.after ~= "" then
+        -- current_slot_with_fresh_inventory already verified this exact
+        -- equipped UUID and wearer against a fresh native read.
+    elseif step.before ~= "" then
+        local ok_item, old = invoke(member(rawget(_G,"DataCenter"),"EquipDataManager"),
+            "GetEquipByUuid",tonumber(step.before))
+        if not ok_item or not old then return false,"Removed equipment inventory missing" end
+        local wearer=member(old,"heroUuid")
+        local wearer_id=exact_id(wearer)
+        if wearer_id == step.heroUuid then return nil end
+        -- The original Uninstall step must free this inventory UUID. Another
+        -- hero acquiring it concurrently is not proof that our uninstall
+        -- completed; do not advance the preset to the next native RPC.
+        if wearer_id~=nil then
+            return false,"Removed equipment was reassigned to another hero"
+        end
+        if wearer~=nil and not (type(wearer)=="number" and
+           wearer<=0 and wearer%1==0) then
+            return false,"Removed equipment wearer state is unverified"
+        end
+    end
+    return true
+end
+local function uncertain_receipt(tx)
+    local step=tx.steps[tx.uncertainStep or tx.sent]
+    local verified,reason=nil,nil
+    if step then verified,reason=observe_step(step) end
+    local result=receipt(tx,false)
+    result.state="failed"
+    result.errorCode="GAME_ACTION_UNCONFIRMED"
+    result.error=tx.uncertainError or
+        "Equipment send outcome unknown; automatic preset continuation disabled"
+    result.data.uncertainSendOutcome=true
+    result.data.uncertainStepPoststateVerified=verified==true
+    result.data.uncertainStepObservationError=verified==false and reason or nil
+    result.data.nextStepNotDispatched=true
+    result.data.awaitingOwnerReview=true
+    return result
+end
+local function observe_final_burst(tx,slots)
+    local fresh={}
+    for _,slot in ipairs(slots) do
+        local key=table.concat({slot.squadIndex,slot.position,slot.heroUuid,slot.slot},":")
+        fresh[key]=slot.currentEquipUuid
+    end
+    local pending=false
+    for _,before in ipairs(tx.before) do
+        local key=table.concat({before.squadIndex,before.position,before.heroUuid,before.slot},":")
+        local current=fresh[key]
+        if current==nil then return false,"Native preset slot disappeared during final verification" end
+        if current~=before.targetEquipUuid then
+            if current~=before.currentEquipUuid and current~="" then
+                return false,"Native gear slot changed to an unexpected equipment UUID"
+            end
+            pending=true
+        end
+    end
+    if pending then return nil end
+    local manager=member(rawget(_G,"DataCenter"),"EquipDataManager")
+    for equip_uuid,expected in pairs(tx.expectedWearers) do
+        local ok,item=invoke(manager,"GetEquipByUuid",tonumber(equip_uuid))
+        if not ok or not item or exact_id(member(item,"uuid"))~=equip_uuid then
+            return false,"Affected equipment inventory missing during final verification"
+        end
+        local raw_wearer=member(item,"heroUuid")
+        local wearer=exact_id(raw_wearer)
+        if expected==false then
+            if wearer~=nil or (raw_wearer~=nil and not
+               (type(raw_wearer)=="number" and raw_wearer<=0 and raw_wearer%1==0)) then
+                return false,"Removed equipment final wearer is unexpected"
+            end
+        elseif wearer~=expected then
+            return false,"Target equipment final wearer does not match saved hero"
+        end
+    end
+    return true
+end
+-- Source read-only owner snapshot for saving ordinary app equipment presets.
+-- Returned gear identifiers are native UUID strings, never template IDs.
+-- Native pictures follow UIHeroCellSmall (HeroUtils.GetHeroIconPath with
+-- hero.modelId / HeroIconType.small_icon / hero:GetSkinId()) and
+-- BaseUIEquipItem.Show (string.format(LoadPath.ItemPath, equip.config.icon)).
+-- These are optional read-only metadata; an unavailable picture never changes
+-- the admitted equipment plan, UUID, or native slot transaction.
+local function hero_icon_path(hero)
+    local fn=member(rawget(_G,"HeroUtils"),"GetHeroIconPath")
+    local kind=member(rawget(_G,"HeroIconType"),"small_icon")
+    local model=member(hero,"modelId")
+    if type(fn)~="function" or model==nil or kind==nil then return nil end
+    local ok_skin,skin=invoke(hero,"GetSkinId")
+    if not ok_skin then return nil end
+    local ok,path=pcall(fn,model,kind,skin)
+    if ok and type(path)=="string" and path:match("%S") then return path end
+    return nil
+end
+local function equipment_icon_path(item)
+    local pattern=member(rawget(_G,"LoadPath"),"ItemPath")
+    local icon=member(member(item,"config"),"icon")
+    if type(pattern)~="string" or type(icon)~="string" or not icon:match("%S") then return nil end
+    local ok,path=pcall(string.format,pattern,icon)
+    if ok and type(path)=="string" and path:match("%S") then return path end
+    return nil
+end
+function M.Snapshot(fields)
+    local start_uid,start_server=native_session(fields)
+    if not start_uid then return blocked("Equipment snapshot requires an authenticated native account") end
+    local squads, candidates={},{}
+    local center=rawget(_G,"DataCenter")
+    local manager=member(center,"ArmyFormationDataManager")
+    for index=1,4 do
+        local ok,formation=invoke(manager,"GetOneArmyInfoByIndex",index)
+        if not ok then return unavailable("Native squad lookup unavailable") end
+        if formation then
+            local group={squadIndex=index,positions={}}
+            for position=1,5 do
+                local ok_slot,hero_uuid=invoke(formation,"GetLocalHeroAtSlotIndex",position)
+                if not ok_slot then return unavailable("Native formation hero lookup unavailable") end
+                if exact_id(hero_uuid) then
+                    local hero,reason=read_hero(index,position)
+                    if not hero then return unavailable(reason) end
+                    local entry={position=position,heroUuid=hero.uuid,equips={},
+                        heroNameKey=tostring(member(hero.object,"firstName") or ""),
+                        iconPath=hero_icon_path(hero.object),
+                        level=member(hero.object,"level")}
+                    for slot=1,4 do
+                        local fresh,id,_,reason=current_slot_with_fresh_inventory(
+                            member(center,"EquipDataManager"),index,position,slot,hero)
+                        if not fresh then
+                            return blocked("Current equipped item disagrees with native inventory after fresh snapshot read: " ..
+                                (reason or "wearer mismatch"))
+                        end
+                        hero=fresh
+                        if hero.uuid~=entry.heroUuid then
+                            return blocked("Native hero changed during fresh equipment snapshot read")
+                        end
+                        if id then entry.equips[#entry.equips+1]={slot=slot,equipUuid=id} end
+                    end
+                    group.positions[#group.positions+1]=entry
+                end
+            end
+            if #group.positions>0 then squads[#squads+1]=group end
+        end
+    end
+    local ok,inventory=invoke(member(center,"EquipDataManager"),"GetAllEquipList")
+    if not ok or type(inventory)~="table" then return unavailable("Native equipment inventory unavailable") end
+    for _,item in pairs(inventory)do
+        local id=exact_id(member(item,"uuid"))
+        local slot=number_in_range(member(item,"slot"),1,4)
+        if id and slot then
+            candidates[#candidates+1]={equipUuid=id,slot=slot,
+                itemId=tostring(member(item,"configId") or ""),
+                nameKey=tostring(member(member(item,"config"),"name") or ""),
+                iconPath=equipment_icon_path(item),
+                level=member(item,"level"),quality=member(member(item,"config"),"quality"),
+                heroType=member(member(item,"config"),"heroType"),
+                heroUuid=exact_id(member(item,"heroUuid")) or "",
+                unused=exact_id(member(item,"heroUuid"))==nil}
+        end
+    end
+    table.sort(candidates,function(a,b)return a.equipUuid<b.equipUuid end)
+    local player=member(rawget(_G,"LuaEntry"),"Player")
+    local ok_server,server=invoke(player,"GetCurServerId")
+    local final_uid,final_server=native_session(fields)
+    if not ok_server or final_uid~=start_uid or final_server~=start_server or
+       exact_id(server)~=start_server then
+        return blocked("Native account changed during equipment snapshot")
+    end
+    return {state="confirmed",data={observation="native_HeroEquip_owner_snapshot",
+        readOnly=true,requestDispatched=false,ownerUid=fields.authorizedUid,
+        serverId=tonumber(server),squads=squads,items=candidates}}
+end
+
+function M.Handle(fields, confirmed_presets, game_input_clear)
+    local initial_uid,initial_server=native_session(fields)
+    if not initial_uid then return blocked("Equipment action account differs from admitted native game") end
+    -- Stable UID alone is insufficient: the same account may switch worlds
+    -- while a saved multi-step equipment transaction is awaiting game pushes.
+    if transaction and transaction.serverId~=initial_server then
+        return blocked("Previous equipment transaction belongs to another native server")
+    end
+    if fields.queryOnly ~= nil and fields.queryOnly ~= "1" then return blocked("Unknown equipment query mode") end
+    local audit = M.Preflight(fields,confirmed_presets,
+        fields.queryOnly == "1" and function() return true end or game_input_clear)
+    if audit.state ~= "confirmed" then
+        if transaction and transaction.key==owner_key(fields) and transaction.uncertainSend then
+            return uncertain_receipt(transaction)
+        end
+        if audit.errorCode=="EQUIPMENT_STATE_PENDING" and transaction and
+            transaction.key==owner_key(fields) then
+            -- Separate native pushes can disagree across game frames. Keep
+            -- the existing transaction and send NOTHING until both agree.
+            local pending=receipt(transaction,false)
+            pending.data.awaitingNativeEquipmentSync=true
+            pending.data.nextStepNotDispatched=true
+            return pending
+        end
+        return audit
+    end
+    local fresh_uid,fresh_server=native_session(fields)
+    if fresh_uid~=initial_uid or fresh_server~=initial_server then
+        return blocked("Native equipment owner/server changed during action preflight")
+    end
+    local slots = audit.data.slots
+    local key, revision = owner_key(fields),fingerprint(slots)
+    if transaction and transaction.key ~= key then
+        return blocked("Previous equipment transaction is unresolved; owner or preset changed")
+    end
+    if transaction and transaction.fingerprint ~= revision then
+        return blocked("Confirmed preset or native hero assignment changed during equipment transaction")
+    end
+    if fields.queryOnly == "1" and not transaction then return blocked("No pending equipment transaction") end
+    if not transaction then
+        local steps, heroes = {},{}
+        local hero_positions={}
+        for _, slot in ipairs(slots) do
+            local position_key=tostring(slot.squadIndex)..":"..tostring(slot.position)
+            if hero_positions[slot.heroUuid] and hero_positions[slot.heroUuid]~=position_key then
+                return blocked("One native hero is present in multiple saved formation positions")
+            end
+            hero_positions[slot.heroUuid]=position_key
+            heroes[slot.heroUuid]=true
+        end
+        -- Remove changed equipped slots before installing. This resolves cycles
+        -- without silently taking gear from heroes outside this saved preset.
+        if audit.data.wornByOtherHero > 0 then
+            local manager = member(rawget(_G,"DataCenter"),"EquipDataManager")
+            for _, slot in ipairs(slots) do
+                if slot.targetEquipUuid ~= "" then
+                    local _, gear = invoke(manager,"GetEquipByUuid",tonumber(slot.targetEquipUuid))
+                    local wearer = exact_id(member(gear,"heroUuid"))
+                    if wearer and not heroes[wearer] then
+                        return blocked("Saved equipment is worn by a hero outside this preset")
+                    end
+                end
+            end
+        end
+        for _, slot in ipairs(slots) do
+            if slot.currentEquipUuid ~= slot.targetEquipUuid and slot.currentEquipUuid ~= "" then
+                steps[#steps+1]={squadIndex=slot.squadIndex,position=slot.position,
+                    heroUuid=slot.heroUuid,slot=slot.slot,before=slot.currentEquipUuid,after=""}
+            end
+        end
+        for _, slot in ipairs(slots) do
+            if slot.currentEquipUuid ~= slot.targetEquipUuid and slot.targetEquipUuid ~= "" then
+                steps[#steps+1]={squadIndex=slot.squadIndex,position=slot.position,
+                    heroUuid=slot.heroUuid,slot=slot.slot,before="",after=slot.targetEquipUuid}
+            end
+        end
+        local expected_wearers={}
+        for _,slot in ipairs(slots) do
+            if slot.currentEquipUuid~="" then expected_wearers[slot.currentEquipUuid]=false end
+        end
+        for _,slot in ipairs(slots) do
+            if slot.targetEquipUuid~="" then
+                local prior=expected_wearers[slot.targetEquipUuid]
+                if prior and prior~=slot.heroUuid then
+                    return blocked("One saved equipment UUID is assigned to multiple heroes")
+                end
+                expected_wearers[slot.targetEquipUuid]=slot.heroUuid
+            end
+        end
+        transaction={key=key,serverId=initial_server,fingerprint=revision,steps=steps,index=1,completed=0,
+            sent=0,before=slots,latest=slots,slot=fields.slot,presetId=fields.presetId,
+            expectedWearers=expected_wearers}
+    end
+    local tx=transaction
+    tx.latest=slots
+    if tx.uncertainSend then
+        return uncertain_receipt(tx)
+    end
+    if #tx.steps==0 then
+        local result=receipt(tx,true);transaction=nil;return result
+    end
+    if tx.burstComplete then
+        local observed,reason=observe_final_burst(tx,slots)
+        if observed==false then return blocked(reason) end
+        if observed==nil then return receipt(tx,false) end
+        if audit.data.changedSlots~=0 then return blocked("Final equipment slots disagree with saved preset") end
+        tx.completed=#tx.steps
+        local result=receipt(tx,true);transaction=nil;return result
+    end
+    -- Once any native RPC is dispatched, queryOnly is strictly observational.
+    -- An unsent transaction can only exist if a prior initial request was
+    -- rejected before dispatch; never let a poll turn into a send.
+    if fields.queryOnly=="1" then
+        local pending=receipt(tx,false)
+        pending.data.nextStepNotDispatched=true
+        return pending
+    end
+
+    -- The earlier preflight focus sample is not a lock. Sample again at the
+    -- last reversible point, then re-read the complete frozen plan so a focus
+    -- callback that changes game state cannot create a validation/send TOCTOU.
+    local focus_ok,focus_clear=false,false
+    if type(game_input_clear)=="function" then
+        focus_ok,focus_clear=pcall(game_input_clear)
+    end
+    if not focus_ok or focus_clear~=true then
+        transaction=nil
+        return blocked("Game text-input focus changed before equipment dispatch")
+    end
+    local dispatch_uid,dispatch_server=native_session(fields)
+    if dispatch_uid~=initial_uid or dispatch_server~=tx.serverId then
+        transaction=nil
+        return blocked("Native equipment owner/server changed before preset dispatch")
+    end
+
+    -- Revalidate the frozen complete preset immediately after the final focus
+    -- sample. This covers every hero/slot/target together so none of the
+    -- following back-to-back sends depends on an observation from a prior send.
+    local fresh_preset,preset_error=selected_preset(fields,confirmed_presets)
+    if not fresh_preset then transaction=nil;return preset_error end
+    local refreshed,count,_,saved_heroes=validate_selected_loadout(fresh_preset)
+    if not refreshed or count~=#tx.before/4 then
+        transaction=nil;return blocked("Confirmed equipment preset shape changed before dispatch")
+    end
+    local manager=member(rawget(_G,"DataCenter"),"EquipDataManager")
+    local dispatch_heroes,dispatch_items,releases={},{},{}
+    for _,step in ipairs(tx.steps) do
+        if step.after=="" and step.before~="" then releases[step.before]=step.heroUuid end
+    end
+    for _,wanted_slot in ipairs(tx.before) do
+        local group=refreshed[wanted_slot.squadIndex]
+        local target=group and group[wanted_slot.position]
+        local desired=target and (target[wanted_slot.slot] or "") or nil
+        if desired~=wanted_slot.targetEquipUuid then
+            transaction=nil;return blocked("Confirmed equipment preset targets changed before dispatch")
+        end
+        local native_hero=saved_heroes[wanted_slot.squadIndex][wanted_slot.position]
+        if native_hero and native_hero~=wanted_slot.heroUuid then
+            transaction=nil;return blocked("Confirmed equipment saved hero changed before dispatch")
+        end
+        local hero,reason=read_hero(wanted_slot.squadIndex,wanted_slot.position)
+        if not hero or hero.uuid~=wanted_slot.heroUuid then
+            transaction=nil;return blocked(reason or "Native equipment hero changed immediately before dispatch")
+        end
+        dispatch_heroes[hero.uuid]=hero
+        local ok_current,current=invoke(hero.object,"GetEquipBySlotType",wanted_slot.slot)
+        local current_uuid=current and exact_id(member(current,"uuid")) or ""
+        if not ok_current or current_uuid~=wanted_slot.currentEquipUuid then
+            transaction=nil;return blocked("Native equipment slot changed immediately before dispatch")
+        end
+        if wanted_slot.targetEquipUuid~="" and wanted_slot.currentEquipUuid~=wanted_slot.targetEquipUuid then
+            local checked,why=inventory_for_target(manager,wanted_slot.targetEquipUuid,hero,wanted_slot.slot)
+            if not checked then transaction=nil;return blocked(
+                "Native equipment target changed immediately before dispatch: " .. (why or "unavailable")) end
+            if checked.wearer and checked.wearer~=hero.uuid and
+               releases[wanted_slot.targetEquipUuid]~=checked.wearer then
+                transaction=nil;return blocked("Saved equipment wearer has no earlier preset uninstall") end
+            dispatch_items[wanted_slot.targetEquipUuid]=checked.item
+        end
+    end
+
+    local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
+    if type(send)~="function" then transaction=nil;return unavailable("Original HeroEquip sender unavailable") end
+    for index,step in ipairs(tx.steps) do
+        local hero=dispatch_heroes[step.heroUuid]
+        local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
+        if not hero or message==nil then
+            transaction=nil;return unavailable("Original HeroEquip message unavailable")
+        end
+        -- Tombstone this exact send before the call; an exception can occur
+        -- after native emission. The remainder of the burst is never attempted
+        -- after any ambiguous result.
+        tx.index=index;tx.uncertainStep=index;tx.sent=tx.sent+1
+        local ok,returned
+        if step.after=="" then
+            ok,returned=pcall(send,message,member(hero.object,"uuid"),{step.slot})
+        else
+            local next_item=dispatch_items[step.after]
+            if not next_item then transaction=nil;return blocked("Validated target equipment disappeared before burst") end
+            ok,returned=pcall(send,message,member(hero.object,"uuid"),
+                {[step.slot]=member(next_item,"uuid")})
+        end
+        local after_uid,after_server=native_session(fields)
+        if after_uid~=initial_uid or after_server~=tx.serverId then
+            tx.uncertainSend=true
+            tx.uncertainError="Equipment native account/server changed during send; never retransmit or continue preset"
+            return uncertain_receipt(tx)
+        end
+        if not ok or returned==false then
+            tx.uncertainSend=true
+            tx.uncertainError="Equipment send outcome unknown; never retransmit or continue preset"
+            return uncertain_receipt(tx)
+        end
+    end
+    tx.uncertainStep=nil
+    tx.burstComplete=true
+    return receipt(tx,false)
+end
+
+-- Owner-directed live editing. Build the one requested change from fresh native
+-- gear, not from a saved preset or caller-provided formation. Reuse the proven
+-- install/uninstall sequencer and its exact owner, focus and uncertain-send gates.
+local live_edit, completed_edits, completed_order = nil, {}, {}
+function M.Edit(fields, game_input_clear)
+    local function rejected(message)
+        local result=blocked(message);result.errorCode="EQUIPMENT_EDIT_REJECTED";return result
+    end
+    local uid,server=native_session(fields)
+    if not uid then return rejected("Live equipment owner/server changed") end
+    local id=fields.operationId
+    if type(id)~="string" or #id~=32 or id:find("[^0-9a-fA-F]") then return rejected("Invalid equipment operation identity") end
+    local owner=table.concat({tostring(fields.profileId),tostring(fields.launchSessionId),tostring(fields.challenge),tostring(fields.gamePid),uid,server},"|")
+    local key=owner.."|"..id
+    if completed_edits[key] then return completed_edits[key] end
+    if live_edit and live_edit.key~=key then return blocked("Previous live equipment change is still pending") end
+    if not live_edit then
+        if fields.queryOnly then return rejected("No matching live equipment change is pending") end
+        local slot=tonumber(fields.equipSlot)
+        if not number_in_range(slot,1,4) or not exact_id(fields.heroUuid) or
+           (fields.equipUuid~="" and not exact_id(fields.equipUuid)) then return rejected("Invalid live equipment selection") end
+        local read=M.Snapshot(fields)
+        if read.state~="confirmed" then return rejected(read.error or "Native equipment snapshot unavailable") end
+        local data=read.data
+        local target,all_positions,gear=nil,{},nil
+        for _,squad in ipairs(data.squads)do
+            for _,position in ipairs(squad.positions)do
+                all_positions[#all_positions+1]=position
+                if position.heroUuid==fields.heroUuid then target=position end
+            end
+        end
+        if not target then return rejected("Selected hero is no longer in the live squads") end
+        local worn=""
+        for _,item in ipairs(target.equips)do if item.slot==slot then worn=item.equipUuid end end
+        if worn~=fields.expectedEquipUuid then return rejected("Equipment changed in the game; refresh before editing") end
+        if fields.equipUuid~="" then
+            for _,item in ipairs(data.items)do if item.equipUuid==fields.equipUuid then gear=item end end
+            if not gear or gear.slot~=slot then return rejected("Equipment belongs to a different slot or is no longer owned") end
+            if gear.heroUuid~=fields.expectedWearerUuid then return rejected("Equipment wearer changed in the game; refresh before editing") end
+            if gear.heroUuid~="" then
+                local found=false
+                for _,position in ipairs(all_positions)do if position.heroUuid==gear.heroUuid then found=true end end
+                if not found then return rejected("Equipment is worn by a hero outside the current squads") end
+            end
+        end
+        for _,position in ipairs(all_positions)do
+            local equips={}
+            for _,item in ipairs(position.equips)do
+                if not (position==target and item.slot==slot) and item.equipUuid~=fields.equipUuid then equips[#equips+1]=item end
+            end
+            if position==target and fields.equipUuid~="" then equips[#equips+1]={slot=slot,equipUuid=fields.equipUuid} end
+            position.equips=equips
+        end
+        local native={}
+        for k,v in pairs(fields)do native[k]=v end
+        native.action="equipment";native.slot="1";native.presetId="live-"..id
+        live_edit={key=key,fields=native,presets={{id=native.presetId,name="Live equipment",squads=data.squads}}}
+    end
+    -- Never reconstruct the target from a newer snapshot while confirming.
+    local native={}
+    for k,v in pairs(live_edit.fields)do native[k]=v end
+    native.queryOnly=fields.queryOnly
+    local result=M.Handle(native,live_edit.presets,game_input_clear)
+    if result.state=="confirmed" and result.data and result.data.equipmentApplied then
+        completed_edits[key]=result;completed_order[#completed_order+1]=key
+        if #completed_order>64 then completed_edits[table.remove(completed_order,1)]=nil end
+        live_edit=nil
+    elseif result.state=="failed" and not transaction then
+        live_edit=nil
+        result.errorCode="EQUIPMENT_EDIT_REJECTED"
+    end
+    return result
+end
+
+return M

@@ -14,9 +14,12 @@ internal sealed record OverviewMapScanSession(
 internal sealed partial class OverviewLifecycleService
 {
     internal OverviewMapScanSession? GetReadyMapScanSession()
+        => GetOwnedMapScanSession(requireReady: true);
+
+    internal OverviewMapScanSession? GetOwnedMapScanSession(bool requireReady = false)
     {
         OwnedSnapshot? snapshot = GetOwnedSnapshot();
-        if (snapshot is null || snapshot.Phase != "running" || !IsSnapshotReady(snapshot))
+        if (snapshot is null || snapshot.Phase != "running" || (requireReady && !IsSnapshotReady(snapshot)))
             return null;
 
         return new OverviewMapScanSession(

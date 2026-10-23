@@ -7,6 +7,8 @@ import { withGhostRewardTexts, GHOST_REWARD_MESSAGES } from "../src/locales/map0
 import { withZombieBossTexts, ZOMBIE_BOSS_MESSAGES } from "../src/locales/map014-zombie-boss.js";
 import { withHomeLaunchFeedback } from "../src/locales/home-launch-feedback.js";
 import { withMapScanControlTexts } from "../src/locales/map017-scan-controls.js";
+import { withFrontlineCountTexts } from "../src/locales/feature018-g-count.js";
+import { withAfkRuntimeTexts } from "../src/locales/feature018-afk-runtime.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -14,7 +16,7 @@ const pageModules = ["Pages.jsx", "sharedPageUI.jsx", "HomePage.jsx", "Automatio
 const sourceFiles = ["src/App.jsx", ...pageModules.map((file) => `src/${file}`), "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
-const withMapExtras = (code, messages) => withMapScanControlTexts(code, withHomeLaunchFeedback(code, withZombieBossTexts(code, withGhostRewardTexts(code, withMapOtherTexts(code, withMapNameFeedback(code, messages))))));
+const withMapExtras = (code, messages) => withAfkRuntimeTexts(code,withFrontlineCountTexts(code, withMapScanControlTexts(code, withHomeLaunchFeedback(code, withZombieBossTexts(code, withGhostRewardTexts(code, withMapOtherTexts(code, withMapNameFeedback(code, messages))))))));
 // Ghost reward filter labels: every one of the nine clone languages must carry the
 // complete key set with the same {placeholders} as English (no silent English fallback).
 for (const code of localeCodes) {
@@ -87,7 +89,7 @@ const equipmentPreview = fs.readFileSync(path.join(root, "src", "previewEquipmen
 const previewCoverageSource = [app, pages, mapPage, mapPreview, equipmentPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
-  "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
+  "automation-config", "automation-saving", "automation-saved", "automation-save-error",
   "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure",
   "map-auto-scheduled", "map-loading", "map-error",
   "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
@@ -103,3 +105,15 @@ for (const marker of [
 }
 
 console.log(`LWB317_UI_COMPLETE_CHECKS_OK ${literalKeys.size} referenced keys ${JSON.stringify(localeCounts)}`);
+
+// R18 owner removal must survive locale regeneration and leave the retained cards.
+const squadsR18 = fs.readFileSync(path.join(root, "src/SquadsPage.jsx"), "utf8");
+if (/Garrison|zombieBus|allianceGarrison/.test(squadsR18)) throw new Error("R18 retired card remains");
+for (const key of ["squad.afkMaster", "squad.afkAllianceDrill", "automation.autoUsePotion"]) {
+  if (!squadsR18.includes(key)) throw new Error(`R18 retained card lost: ${key}`);
+}
+for (const code of localeCodes) {
+  const messages = (await import(pathToFileURL(path.join(root, "src/locales", `${code}.js`)))).default;
+  if (Object.keys(messages).some(key => /^(garrison|zombieBus)\./.test(key))) throw new Error(`R18 retired locale: ${code}`);
+}
+console.log("FEATURE018_R18_RETIRED_CARDS_OK");

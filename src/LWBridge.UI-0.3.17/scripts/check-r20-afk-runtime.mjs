@@ -1,0 +1,46 @@
+import assert from "node:assert/strict";
+import { createMonsterAfkAdapter, emptyMonsterAfkConfig, createStaminaPotionAdapter, emptyStaminaConfig } from "../src/squadsAfkRuntime.js";
+
+const calls = [];
+let saved = emptyMonsterAfkConfig(), stamina = emptyStaminaConfig();
+const bridge = { profileId: "A", async invokeProfileScoped(command, payload) {
+  calls.push({ command, payload: structuredClone(payload) });
+  if (command === "get_status") return { config: { tasks: { monsterSweep: structuredClone(saved), staminaPotion: structuredClone(stamina) } } };
+  if (command === "monster_afk_config_save") { saved = structuredClone(payload); return saved; }
+  if (command === "stamina_potion_config_save") { stamina = structuredClone(payload); return stamina; }
+  return { running: command === "automation_start" };
+} };
+const adapter = createMonsterAfkAdapter(bridge, "A", () => true);
+assert.deepEqual(await adapter.read(), saved);
+await adapter.write({ ...saved, enabled: true });
+assert.deepEqual(calls.slice(-2).map((c) => c.command), ["monster_afk_config_save", "feature018_afk_configure"]);
+assert.deepEqual(calls.at(-1).payload, {}, "Browser must not supply native targets/config/UID");
+await adapter.write({ ...saved, enabled: false });
+assert.deepEqual(calls.slice(-3).map((c) => c.command), ["automation_stop", "automation_stop", "monster_afk_config_save"], "Stop must precede persistence");
+await adapter.write({ ...saved, enabled: false, allianceDrill: { ...saved.allianceDrill, enabled: true, squadIndexes: [2, 1] } });
+assert.deepEqual(calls.slice(-2).map((c) => c.command), ["monster_afk_config_save", "automation_start"]);
+assert.deepEqual(calls.at(-1).payload, { taskName: "allianceDrill" }, "Drill starts independently of the Monster master switch");
+await adapter.write({ ...saved, allianceDrill: { ...saved.allianceDrill, enabled: false } });
+assert.deepEqual(calls.slice(-2).map((c) => c.command), ["automation_stop", "monster_afk_config_save"]);
+assert.equal(calls.at(-2).payload.taskName, "allianceDrill");
+const potion = createStaminaPotionAdapter(bridge, "A", () => true);
+assert.deepEqual(await potion.read(), emptyStaminaConfig());
+await potion.write({ enabled: true, minStamina: 50, preferFifty: true });
+assert.deepEqual(calls.slice(-2).map((c) => c.command), ["stamina_potion_config_save", "automation_start"]);
+assert.deepEqual(calls.at(-1).payload, { taskName: "staminaPotion" });
+await potion.write({ enabled: false, minStamina: 50, preferFifty: true });
+assert.deepEqual(calls.slice(-2).map((c) => c.command), ["automation_stop", "stamina_potion_config_save"]);
+let online = false;
+const offline = createMonsterAfkAdapter(bridge, "A", () => true, () => online);
+const beforeOffline = calls.length;
+await assert.rejects(offline.read, (error) => error.code === "GAME_CONNECTION_UNAVAILABLE");
+await assert.rejects(() => offline.write(saved), (error) => error.code === "GAME_CONNECTION_UNAVAILABLE");
+assert.equal(calls.length, beforeOffline, "Offline AFK adapter must reject before any native command is sent");
+online = true;
+assert.deepEqual(await offline.read(), saved);
+bridge.profileId = "B";
+const before = calls.length;
+await assert.rejects(adapter.read, (error) => error.code === "PROFILE_SCOPE_MISMATCH");
+await assert.rejects(() => adapter.write(saved), (error) => error.code === "PROFILE_SCOPE_MISMATCH");
+assert.equal(calls.length, before, "Retired profile must not send to its successor");
+console.log("FEATURE018_R20_AFK_UI_RUNTIME_OK: persisted config, start/stop ordering, no browser targets, profile fence");

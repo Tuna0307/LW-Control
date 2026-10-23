@@ -1,5 +1,6 @@
 """No-game release manifest validation; never creates a package."""
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from package_review_candidate import (
@@ -7,8 +8,44 @@ from package_review_candidate import (
     TOP_FILES, TOOLS_FILES, UI_FILES, SOURCE, map016_support_files, review_support_files,
 )
 
+# This shared ignored publish fixture was reused after MAP-017 and contains
+# these nine later FEATURE-018 scripts. Their bytes are historical, so this
+# file-name gate must not present it as a source-current R30 package proof.
+# Keep this exact fixture exception TEST-ONLY: the historical MAP packager's
+# permitted() remains unchanged and still refuses every one of these files.
+LATER_FIXTURE_CONTENT = frozenset('OverviewBridge/' + name for name in (
+    'feature018_attack_actions.lua', 'feature018_city_game.lua',
+    'feature018_equipment_actions.lua', 'feature018_game_bridge.lua',
+    'feature018_hotkey_actions.lua', 'feature018_hotkey_game.lua',
+    'feature018_mini_game.lua', 'feature018_relocation_actions.lua',
+    'feature018_sheep_solver.lua',
+))
+
+
+def fixture_content_is_declared(relative):
+    return relative.as_posix() in LATER_FIXTURE_CONTENT
+
 
 class ReleaseManifestChecks(unittest.TestCase):
+    def test_later_fixture_content_is_exact_declared_project_content_only(self):
+        project = SOURCE.parents[2] / 'src/LWBridge.Desktop/LWBridge.Desktop.csproj'
+        declared = set()
+        for content in ET.parse(project).iter('Content'):
+            if (content.attrib.get('Link') == 'OverviewBridge\\%(Filename)%(Extension)' and
+                    content.attrib.get('CopyToPublishDirectory') == 'PreserveNewest'):
+                declared.update('OverviewBridge/' + name.replace('\\', '/').rsplit('/', 1)[-1]
+                                for name in content.attrib.get('Include', '').split(';'))
+        self.assertTrue(LATER_FIXTURE_CONTENT <= declared)
+        for name in LATER_FIXTURE_CONTENT:
+            self.assertTrue(fixture_content_is_declared(Path(name)), name)
+            self.assertFalse(permitted(Path(name)), name)
+        for name in ('OverviewBridge/feature018_credentials.lua',
+                     'OverviewBridge/private/feature018_attack_actions.lua',
+                     'LiveResourceProbe/feature018_attack_actions.lua',
+                     'OverviewBridge/credentials.json'):
+            self.assertFalse(fixture_content_is_declared(Path(name)), name)
+            self.assertFalse(permitted(Path(name)), name)
+
     def test_map017_source_identity_and_report(self):
         files = review_support_files('MAP017', '2' * 40)
         self.assertEqual(files['LW-Control-UI/SOURCE-COMMIT.txt'],
@@ -71,7 +108,7 @@ class ReleaseManifestChecks(unittest.TestCase):
             self.assertTrue(permitted(Path(name)))
             self.assertFalse(excluded_non_target_runtime(Path(name)))
 
-    def test_existing_publish_is_entirely_allowlisted(self):
+    def test_existing_shared_publish_fixture_has_only_explicit_known_content(self):
         if not SOURCE.is_dir():
             self.skipTest('No local published Windows tree exists')
         names = []
@@ -81,7 +118,8 @@ class ReleaseManifestChecks(unittest.TestCase):
             relative = file.relative_to(SOURCE)
             if relative.suffix.lower() in ('.pdb', '.pyc') or '__pycache__' in relative.parts:
                 continue
-            self.assertTrue(permitted(relative) or excluded_non_target_runtime(relative), str(relative))
+            self.assertTrue(permitted(relative) or excluded_non_target_runtime(relative) or
+                            fixture_content_is_declared(relative), str(relative))
             if permitted(relative):
                 names.append(relative.as_posix())
         self.assertIn('LWBridge.Desktop.exe', names)

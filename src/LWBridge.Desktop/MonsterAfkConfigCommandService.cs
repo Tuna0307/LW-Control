@@ -14,7 +14,7 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
         this.store = store ?? throw new ArgumentNullException(nameof(store));
 
     public bool CanHandle(string command) =>
-        command is "monster_afk_config_save";
+        command is "monster_afk_config_save" or "stamina_potion_config_save";
 
     public Task<object?> InvokeAsync(
         string command,
@@ -22,6 +22,20 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        if (command == "stamina_potion_config_save")
+        {
+            if (payload.ValueKind != JsonValueKind.Object ||
+                !TryReadBoolean(payload, "enabled", out _) ||
+                !TryReadBoolean(payload, "preferFifty", out _) ||
+                !payload.TryGetProperty("minStamina", out JsonElement minimum) ||
+                minimum.ValueKind != JsonValueKind.Number ||
+                !minimum.TryGetInt32(out int limit) || limit is < 0 or > 9999 ||
+                payload.EnumerateObject().Any(p => p.Name is not ("enabled" or "preferFifty" or "minStamina" or "profileId")))
+                throw Invalid("invalid stamina potion config");
+            var stamina = JsonNode.Parse(payload.GetRawText())!.AsObject();
+            stamina.Remove("profileId");
+            return Task.FromResult<object?>(store.SaveResourceAutomationConfig("staminaPotion", stamina));
+        }
 
         if (command != "monster_afk_config_save")
         {
@@ -59,6 +73,18 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
             "duplicate alliance drill squad");
         if (drillEnabled && drillSquadCount == 0)
             throw Invalid("alliance drill squad required");
+        // Owner 2026-10-22: optional per-squad role, "launch" only, "join" only or "both".
+        if (allianceDrill.TryGetProperty("squadRoles", out JsonElement squadRoles))
+        {
+            if (squadRoles.ValueKind != JsonValueKind.Object)
+                throw Invalid("invalid alliance drill squad roles");
+            foreach (JsonProperty role in squadRoles.EnumerateObject())
+            {
+                if (role.Name is not ("1" or "2" or "3" or "4") || role.Value.ValueKind != JsonValueKind.String ||
+                    role.Value.GetString() is not ("launch" or "join" or "both"))
+                    throw Invalid("invalid alliance drill squad roles");
+            }
+        }
 
         var strategyIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (JsonElement strategy in strategies.EnumerateArray())
@@ -132,6 +158,22 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
 
             if (minLevel <= 0 || (!progressive && maxLevel < minLevel))
                 throw Invalid("invalid monster AFK level range");
+        }
+
+        // Owner 2026-10-22: optional per-squad level range {"1":{"min":1,"max":80}}.
+        if (strategy.TryGetProperty("squadLevels", out JsonElement squadLevels))
+        {
+            if (squadLevels.ValueKind != JsonValueKind.Object)
+                throw Invalid("invalid monster AFK squad level ranges");
+            foreach (JsonProperty range in squadLevels.EnumerateObject())
+            {
+                if (range.Name is not ("1" or "2" or "3" or "4") || range.Value.ValueKind != JsonValueKind.Object)
+                    throw Invalid("invalid monster AFK squad level ranges");
+                long min = ReadPositiveIntegerOrZero(range.Value, "min");
+                long max = ReadPositiveIntegerOrZero(range.Value, "max");
+                if (min <= 0 || max < min)
+                    throw Invalid("invalid monster AFK squad level ranges");
+            }
         }
 
         if (!TryReadBoolean(strategy, "enabled", out bool enabled))
