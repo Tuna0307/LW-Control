@@ -78,6 +78,21 @@ sizes are not wire bytes). No game action was sent in any run.
 - Optional, untested: two requests in flight with each reply captured as it arrives. Earlier evidence says the
   server answers one at a time, so the expected gain is small; only worth a bounded experiment.
 
+## 4b. D1/D2 fixed (lead, 2026-10-23, commits 5742f9df and 762a7404)
+
+"No Zombie Boss" is now accepted when all 10,000 areas were covered and the game Monster list delivered rows;
+an unproven empty source still fails. Live results with the fix (owner-test-762a7404 source):
+
+| Scan | Before | After |
+|---|---|---|
+| Zombie Boss only, 2212 (no bosses) | error after 224–225 s | 20.4 / 20.5 s, 0 bosses (camera also 0) |
+| All nine, 2212 | failed after 306–315 s, nothing saved | 83.9 / 84.1 s, all kinds saved, 0 bosses |
+| Zombie Boss only, 2203 (bosses) | 33.5–36.9 s, 121–127 | 34.3 s, 124 (unchanged) |
+
+Receipts: `map019/fix-queue.log`, `map019/fix-native-benchmark-review-20261023-*-audit.json`. Remaining, not changed:
+a single-kind scan whose kind is genuinely empty (e.g. Ghost-only at 11:00, camera also 0) still falls back to the
+camera scan (~195 s) before returning 0.
+
 ## 5. Evidence (private, under `artifacts/`, ignored)
 
 | Run | Receipt |
