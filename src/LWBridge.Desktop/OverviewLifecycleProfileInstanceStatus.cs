@@ -37,6 +37,8 @@ internal sealed partial class OverviewLifecycleService
                     leaseRequired = false,
                     connectionState = "recovering",
                     bridgeConnected = false,
+                    commandReady = false,
+                    presentationReady = false,
                     lastHeartbeatAt = (long?)null,
                     leaseActive = false,
                 };
@@ -59,11 +61,12 @@ internal sealed partial class OverviewLifecycleService
         long? lastHeartbeatAt = TryReadProfileInstanceHeartbeatAt(
             currentInstanceId,
             currentChallenge,
-            currentPid);
-        bool heartbeatFresh =
-            lastHeartbeatAt is long heartbeat &&
-            heartbeat > 0 &&
-            RecoveryNow().ToUnixTimeMilliseconds() - heartbeat < 15_001;
+            currentPid) ?? TryGetRememberedPresentationHeartbeatAt(
+                currentInstanceId,
+                currentChallenge,
+                currentPid);
+        bool commandReady = IsReady;
+        bool presentationReady = commandReady || IsPresentationReady;
 
         // Native leaseRequired/leaseActive are multi-entitlement lease state.
         // Retained single-profile mode does not manufacture excluded lease state.
@@ -98,7 +101,7 @@ internal sealed partial class OverviewLifecycleService
         else
         {
             nativeConnectionState =
-                bridgeConnected && heartbeatFresh && identityConfirmed
+                commandReady
                     ? "connected"
                     : "reconnecting";
         }
@@ -115,6 +118,8 @@ internal sealed partial class OverviewLifecycleService
             leaseRequired,
             connectionState = nativeConnectionState,
             bridgeConnected,
+            commandReady,
+            presentationReady,
             lastHeartbeatAt,
             leaseActive,
         };
@@ -134,12 +139,14 @@ internal sealed partial class OverviewLifecycleService
                 Path.Combine(runtimeRoot, "heartbeat.json"));
             using JsonDocument heartbeat = JsonDocument.Parse(bytes);
             JsonElement root = heartbeat.RootElement;
-            if (!MatchesInt(root, "schemaVersion", 1) ||
-                !MatchesString(root, "bridgeVersion", BridgeVersion) ||
-                !MatchesString(root, "profileId", profileId) ||
-                !MatchesString(root, "sessionId", currentInstanceId) ||
-                !MatchesString(root, "challenge", currentChallenge) ||
-                !MatchesInt(root, "gamePid", currentPid.Value) ||
+            if (!HeartbeatMatches(
+                    root,
+                    profileId,
+                    currentInstanceId,
+                    currentChallenge,
+                    currentPid.Value,
+                    RecoveryNow().ToUnixTimeSeconds(),
+                    requireFreshness: false) ||
                 !root.TryGetProperty("updatedAt", out JsonElement updated) ||
                 !updated.TryGetInt64(out long timestamp) ||
                 timestamp <= 0)
@@ -147,7 +154,10 @@ internal sealed partial class OverviewLifecycleService
                 return null;
             }
 
-            return checked(timestamp * 1_000);
+            long timestampMilliseconds = checked(timestamp * 1_000);
+            RememberPresentationHeartbeat(
+                currentInstanceId, currentChallenge, currentPid.Value, timestampMilliseconds);
+            return timestampMilliseconds;
         }
         catch
         {

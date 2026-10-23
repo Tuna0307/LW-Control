@@ -1034,6 +1034,12 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     connectionError,
   );
   const online = bridgeState === "connected";
+  const presentationOnline = online || (
+    statusPairReady
+    && !connectionError
+    && proxyStatus?.gameRunning === true
+    && runtimeStatus?.presentationOnline === true
+  );
 
   useEffect(() => {
     if (!online || !backendBridge.available || !selectedProfileId || backendBridge.mode === "preview") return;
@@ -1400,6 +1406,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       gameRootStatus,
       proxyStatus,
       online,
+      presentationOnline,
       gameRecoveryStatus,
       autoLaunchGame,
       autoReconnect: autoReconnectSnapshot.draft,

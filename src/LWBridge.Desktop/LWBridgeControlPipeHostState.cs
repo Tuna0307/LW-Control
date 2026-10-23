@@ -75,6 +75,28 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         return true;
     }
 
+    // HOME connection-stability task-only fault: close the exact current pipe
+    // while retaining its already-claimed registration. Ordinary transport EOF
+    // does exactly this: RunAuthenticatedSessionAsync removes only the connected
+    // generation, so the same authenticated game/session can re-present the same
+    // token. This lets an isolated live test exercise the production reconnect
+    // path without minting a replacement identity or forcing a new Start.
+    internal bool DisconnectExactAuthenticatedRouteRetainingRegistrationForIsolatedTest(
+        string instanceId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
+        LWBridgeControlPipeAcceptedSession? session;
+        lock (gate)
+        {
+            if (registry.Resolve(instanceId)?.Route is not
+                LWBridgeControlPipeAcceptedSession accepted)
+                return false;
+            session = accepted;
+        }
+        session.Dispose();
+        return true;
+    }
+
     internal long? GetPendingExpiration(string instanceId) =>
         registry.GetPendingExpiration(instanceId);
 

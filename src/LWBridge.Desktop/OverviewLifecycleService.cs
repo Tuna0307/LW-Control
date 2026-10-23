@@ -64,6 +64,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     internal const string ReadyMessage = "LWbridge is running";
     private const string StartCancellationFileName = "cancel-start.txt";
     private static readonly TimeSpan HeartbeatFreshness = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan PresentationHeartbeatGrace = TimeSpan.FromSeconds(15);
     // HOME 009 R2 D (see run_overview_bridge.py READY_WINDOW_MILLISECONDS, original 0x1DD119 add rax,0x15F90).
     internal const long BridgeReadyWindowMilliseconds = 90_000;
     private const long StartCleanupMarginMilliseconds = 15_000;
@@ -104,6 +105,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     // Lease-timer ownership is (session, challenge): a timer started for one
     // owner is only ever stopped/renewed for that exact owner (LEAD009R3-01).
     private readonly object leaseTimerGate = new();
+    // UI-only corroborated heartbeat memory. Command/gameplay authority continues
+    // to use IsReady's exact <=5s heartbeat read. This cache only prevents a
+    // transient unreadable/stalled heartbeat file from visually disconnecting a
+    // still-exact process whose authenticated route remains live.
+    private readonly object presentationHeartbeatGate = new();
+    private PresentationHeartbeatObservation? lastPresentationHeartbeat;
     private System.Threading.Timer? leaseTimer;
     private string? leaseTimerSession;
     private string? leaseTimerChallenge;
@@ -188,6 +195,80 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             OwnedSnapshot? snapshot = GetOwnedSnapshot();
             return snapshot is not null && snapshot.Phase == "running" && IsSnapshotReady(snapshot);
         }
+    }
+
+    public bool IsPresentationReady
+    {
+        get
+        {
+            OwnedSnapshot? snapshot = GetOwnedSnapshot();
+            if (snapshot is null || snapshot.Phase != "running") return false;
+
+            // Presentation grace never authorizes commands. Corroborate the exact
+            // process and authenticated route on every read so process/transport
+            // loss is reflected immediately instead of being hidden by history.
+            if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc))
+                return false;
+            if (bridgeControlPipeLaunchBindingEnabled &&
+                !(testHooks?.AuthenticatedRouteConnected?.Invoke(snapshot.InstanceId) ??
+                  bridgeHostState?.IsRouteConnected(snapshot.InstanceId) == true))
+                return false;
+
+            long now = RecoveryNow().ToUnixTimeMilliseconds();
+            try
+            {
+                using JsonDocument heartbeat = JsonDocument.Parse(
+                    (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(
+                        Path.Combine(runtimeRoot, "heartbeat.json")));
+                JsonElement root = heartbeat.RootElement;
+                // A readable heartbeat that contradicts this exact owner or says
+                // it is not ready is authoritative negative evidence. Grace is
+                // only for publication/read loss or an otherwise exact heartbeat
+                // whose timestamp aged past the strict five-second command gate.
+                if (!HeartbeatMatches(
+                        root,
+                        profileId,
+                        snapshot.InstanceId,
+                        snapshot.Challenge,
+                        snapshot.GamePid,
+                        RecoveryNow().ToUnixTimeSeconds(),
+                        requireFreshness: false) ||
+                    !root.TryGetProperty("updatedAt", out JsonElement updated) ||
+                    !updated.TryGetInt64(out long updatedAtUnix))
+                    return false;
+
+                long updatedAtUnixMilliseconds = checked(updatedAtUnix * 1_000);
+                RememberPresentationHeartbeat(
+                    snapshot.InstanceId,
+                    snapshot.Challenge,
+                    snapshot.GamePid,
+                    updatedAtUnixMilliseconds);
+                return PresentationHeartbeatIsFresh(updatedAtUnixMilliseconds, now);
+            }
+            catch
+            {
+                // The live evidence reproduces this path by denying heartbeat
+                // publication/read access while the exact process and authenticated
+                // route stay healthy. Only a previously validated exact heartbeat
+                // may bridge that bounded presentation-only gap.
+                long? remembered = TryGetRememberedPresentationHeartbeatAt(
+                    snapshot.InstanceId,
+                    snapshot.Challenge,
+                    snapshot.GamePid);
+                return remembered is long updatedAtUnixMilliseconds &&
+                    PresentationHeartbeatIsFresh(updatedAtUnixMilliseconds, now);
+            }
+        }
+    }
+
+    private static bool PresentationHeartbeatIsFresh(
+        long updatedAtUnixMilliseconds,
+        long nowUnixMilliseconds)
+    {
+        long futureTolerance = (long)HeartbeatFreshness.TotalMilliseconds;
+        long grace = (long)PresentationHeartbeatGrace.TotalMilliseconds;
+        return updatedAtUnixMilliseconds <= nowUnixMilliseconds + futureTolerance &&
+            nowUnixMilliseconds - updatedAtUnixMilliseconds <= grace;
     }
 
     public string CurrentConnectionState
@@ -1869,19 +1950,61 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             byte[] bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(heartbeatPath);
             using JsonDocument heartbeat = JsonDocument.Parse(bytes);
-            return HeartbeatMatches(
+            bool matches = HeartbeatMatches(
                 heartbeat.RootElement,
                 profileId,
                 snapshot.InstanceId,
                 snapshot.Challenge,
                 snapshot.GamePid,
                 RecoveryNow().ToUnixTimeSeconds());
+            if (matches && heartbeat.RootElement.TryGetProperty("updatedAt", out JsonElement updated) &&
+                updated.TryGetInt64(out long updatedAtUnix))
+                RememberPresentationHeartbeat(
+                    snapshot.InstanceId, snapshot.Challenge, snapshot.GamePid,
+                    checked(updatedAtUnix * 1_000));
+            return matches;
         }
         catch
         {
             return false;
         }
     }
+
+    private void RememberPresentationHeartbeat(
+        string currentInstanceId,
+        string currentChallenge,
+        int currentPid,
+        long updatedAtUnixMilliseconds)
+    {
+        lock (presentationHeartbeatGate)
+        {
+            lastPresentationHeartbeat = new(
+                currentInstanceId, currentChallenge, currentPid, updatedAtUnixMilliseconds);
+        }
+    }
+
+    private long? TryGetRememberedPresentationHeartbeatAt(
+        string currentInstanceId,
+        string? currentChallenge,
+        int? currentPid)
+    {
+        if (currentChallenge is null || currentPid is null) return null;
+        lock (presentationHeartbeatGate)
+        {
+            return lastPresentationHeartbeat is { } observed &&
+                observed.InstanceId == currentInstanceId &&
+                observed.Challenge == currentChallenge &&
+                observed.GamePid == currentPid.Value
+                ? observed.UpdatedAtUnixMilliseconds
+                : null;
+        }
+    }
+
+    private sealed record PresentationHeartbeatObservation(
+        string InstanceId,
+        string Challenge,
+        int GamePid,
+        long UpdatedAtUnixMilliseconds);
 
     private bool ProcessMatches(int pid, string expectedPath, string? expectedStartedAtUtc)
     {

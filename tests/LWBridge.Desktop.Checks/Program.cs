@@ -6,6 +6,15 @@ if (args.Length == 1 && args[0] == "--adapter-lease")
     return;
 }
 
+if (args.Length == 1 && args[0] == "--home-connection-stability")
+{
+    await HomeStaleAdoptionChecks.RunAsync();
+    GamePipeAdapterLeaseChecks.Run();
+    HomeR4TransportChecks.Run();
+    Console.WriteLine("HOME_CONNECTION_STABILITY_CHANGED_PATH_CHECKS_OK");
+    return;
+}
+
 if (args.Length == 3 && args[0] == "--map008-installed-names")
 {
     Map008InstalledNameChecks.CheckInstalled(args[1], args[2]);

@@ -10,6 +10,7 @@ function previewHomeState(name) {
     gameRootStatus: { valid: true, root: "C:\\Games\\Last War-Survival Game" },
     proxyStatus: { gameRunning: false, repairRequired: false },
     online: false,
+    presentationOnline: false,
     gameRecoveryStatus: { state: "idle" },
     autoLaunchGame: false,
     autoReconnect: false,
@@ -31,7 +32,7 @@ function previewHomeState(name) {
     case "home-root-busy-missing": return { ...base, busy: "gameRoot", gameRootStatus: { valid: false, root: "" } };
     case "home-root-busy-valid": return { ...base, busy: "gameRoot" };
     case "home-running-disconnected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false } };
-    case "home-connected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, online: true, autoLaunchGame: true, autoReconnect: true };
+    case "home-connected": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, online: true, presentationOnline: true, autoLaunchGame: true, autoReconnect: true };
     case "home-repair": return { ...base, proxyStatus: { gameRunning: true, repairRequired: true } };
     case "home-recovery-waiting": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "waiting" } };
     case "home-recovery-updating": return { ...base, proxyStatus: { gameRunning: true, repairRequired: false }, gameRecoveryStatus: { state: "updating" } };
@@ -106,7 +107,11 @@ export function HomePage({
     else if (proxyBusy) status = t("common.processing");
     else if (recovering) status = t(`recovery.state.${recoveryState}`);
     else if (repairRequired) status = t("setup.repairRequired");
-    else if (gameRunning) status = t(state.online ? "status.gameRunning" : "setup.bridgeDisconnected");
+    else if (gameRunning) status = t(
+      state.online ? "status.gameRunning"
+        : state.presentationOnline ? "status.checking"
+          : "setup.bridgeDisconnected",
+    );
     else status = t("setup.gameStopped");
   }
 

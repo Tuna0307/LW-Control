@@ -24,6 +24,9 @@ Read in this order:
 6. FULL_IMPROVEMENT_LEDGER.md — durable programme state, implementation commits and completion boundary.
 7. IMPROVEMENT_EVIDENCE.json — sanitized machine-readable implementation/measurement/check index.
 8. FINAL_QUALIFICATION.md — final full regression, transport recovery and source-pinned packaging boundary receipt.
+9. HOME_CONNECTION_STABILITY_REPORT.md — owner-priority live Home diagnosis, implementation and measured before/after result.
+10. HOME_CONNECTION_STABILITY_LEDGER.md — chronological live/fault/restoration ledger and remaining boundary.
+11. HOME_CONNECTION_STABILITY_EVIDENCE.json — sanitized machine-readable Home stability evidence and final package identity.
 
 ## Local evidence that is intentionally not in Git
 
@@ -59,7 +62,10 @@ Older fallback implementations that remain in recovered-core.py are not
 treated as active merely because their code still exists.
 
 The later full-product programme extends the comparison across every current
-LW-Control tab and shared infrastructure. No game was launched and no
-gameplay/account-changing operation was performed during either the connection
-research or the implementation/qualification programme. Cross-product live
-performance therefore remains explicitly unresolved rather than inferred.
+LW-Control tab and shared infrastructure. That completed programme did not
+launch the game. The subsequent owner-priority Home connection-stability work
+*does* perform explicitly authorized live LW-Control/Last War launch, idle and
+bounded fault/recovery tests while keeping the main account read-only and
+restoring the official scripts exactly. A live LwTool idle run is still omitted
+when its AFK-disable prerequisite cannot be satisfied through supported settings;
+cross-product performance is not inferred from unequal workloads.

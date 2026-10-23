@@ -154,10 +154,12 @@ function deliver(fixture, message) {
 {
   const connectedStatus = { xluaOnline: true };
   const disconnectedStatus = { xluaOnline: false };
+  const publicationGraceStatus = { xluaOnline: false, presentationOnline: true };
   const runningProxy = { gameRunning: true };
   assert.equal(connectionState(connectedStatus, runningProxy, "native", true), "connected");
   assert.equal(connectionState(connectedStatus, runningProxy, "native", false), "checking", "read start/deferred pair must invalidate stale connected availability");
   assert.equal(connectionState(connectedStatus, runningProxy, "native", false, "STATUS_READ_FAILED"), "unavailable", "rejected paired read must remain unavailable even with stale connected values");
+  assert.equal(connectionState(publicationGraceStatus, runningProxy, "native", true), "disconnected", "presentation grace must not alter the shared strict connection/command state");
   assert.equal(connectionState(disconnectedStatus, runningProxy, "native", true), "disconnected");
   assert.equal(connectionState(connectedStatus, runningProxy, "native", true), "connected", "fresh paired status must restore connected availability");
 }
@@ -714,6 +716,12 @@ assert.doesNotMatch(statusReadBody, /writeAutoLaunchGamePreference|setAutoLaunch
 assert.match(statusReadBody, /autoLaunchNativeCommittedByOwnerRef\.current\.set\([\s\S]*profileOwnerKey\(owner\)/,
   "native Auto Launch acknowledgement must remain cached under the exact profile generation owner");
 assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatus,[\s\S]*backendBridge\.mode,[\s\S]*statusPairReady,[\s\S]*connectionError,[\s\S]*\)/, "connected availability must consume paired-status freshness and rejection state");
+assert.match(appSource, /const online = bridgeState === "connected";/,
+  "presentation-only checking state must keep live/mutating UI commands disabled");
+assert.match(appSource, /const presentationOnline = online \|\| \([\s\S]*statusPairReady[\s\S]*runtimeStatus\?\.presentationOnline === true[\s\S]*\);/,
+  "App must derive presentation-only Home state separately from strict online command admission");
+assert.match(appSource, /homeState:\s*\{[\s\S]*?online,\s*presentationOnline,/,
+  "Home must receive the separate corroborated presentation signal");
 
 {
   const deferred = () => {
@@ -836,6 +844,11 @@ assert.match(appSource, /<Activity key=\{route\.key\} mode=\{route\.key === acti
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
 assert.doesNotMatch(pagesSource, /launchAdmitted|gameLaunchStatus/, "clone-only launch diagnostic must not gate original Home Start");
 assert.match(pagesSource, /const canStart = lifecycleProviderAvailable && rootResolved && rootValid/, "Home Start follows original root and busy state gates");
+assert.match(
+  pagesSource,
+  /state\.online \? "status\.gameRunning"[\s\S]*state\.presentationOnline \? "status\.checking"[\s\S]*"setup\.bridgeDisconnected"/,
+  "Home must show checking during corroborated presentation grace instead of a false bridge-disconnected message",
+);
 assert.doesNotMatch(appSource, /invoke\("local_game_launch_status"/, "original Home root status must not depend on clone-only launch diagnostics");
 assert.match(appSource, /const HOME_LIFECYCLE_TIMEOUT_MS = null/, "original Home lifecycle requests must not impose an extra frontend deadline");
 assert.match(

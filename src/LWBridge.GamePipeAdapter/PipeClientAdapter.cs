@@ -16,8 +16,20 @@ namespace LWBridge.GamePipe
         // Read-only, nonblocking Lua publication seam. Classify the actual .NET
         // exception before xLua converts exceptions to unstructured error text.
         public static readonly Func<string, string> ReadRuntimeSnapshot = ReadRuntimeSnapshotCore;
+        // xLua already proves direct System Func<string,string> invocation for
+        // ReadRuntimeSnapshot. Keep every direct transport seam on that same
+        // shape so the managed worker never invokes Lua off-thread.
+        public static readonly Func<string, string> EnableDirectTransport = EnableDirectTransportCore;
+        public static readonly Func<string, string> ReadTransportState = ReadTransportStateCore;
+        public static readonly Func<string, string> TryDequeueInbound = TryDequeueInboundCore;
+        public static readonly Func<string, string> PublishOutbound = PublishOutboundCore;
+        public static readonly Func<string, string> Retire = RetireCore;
 
         private const int MaxFrameBytes = 0x800000;
+        private const int FramePrefixBytes = 4;
+        private const int DirectQueueItemCapacity = 0x1000;
+        private const long DirectInboundByteBudget = 0x04000000;
+        private const long DirectOutboundByteBudget = 0x02000000;
         private const int LeaseValidationCacheMilliseconds = 250;
         private const uint GenericRead = 0x80000000;
         private const uint GenericWrite = 0x40000000;
@@ -28,6 +40,15 @@ namespace LWBridge.GamePipe
         // Every Connect supersedes the prior worker. A retired worker must not
         // close/relabel the replacement stream or make its worker stop.
         private static volatile int connectionGeneration;
+        private static volatile string transportState = "idle";
+        private static string directTransportRequestedInstance = string.Empty;
+        private static bool directTransportEnabled;
+        private static int failedGeneration;
+        private static readonly Queue<TransportFrame> inboundFrames = new Queue<TransportFrame>();
+        private static readonly Queue<TransportFrame> outboundFrames = new Queue<TransportFrame>();
+        private static long inboundQueuedBytes;
+        private static long outboundQueuedBytes;
+        private static readonly AutoResetEvent outboundSignal = new AutoResetEvent(false);
         private static string runtimeDirectory = string.Empty;
         private static string instanceId = string.Empty;
         private static int inboundSequence;
@@ -37,6 +58,212 @@ namespace LWBridge.GamePipe
         [ThreadStatic] private static long lastLeaseValidationTimestamp;
         [ThreadStatic] private static long lastValidatedLeaseLength;
         [ThreadStatic] private static long lastValidatedLeaseWriteTicks;
+
+        private sealed class TransportFrame
+        {
+            internal TransportFrame(int generation, string json, int frameBytes)
+            {
+                Generation = generation;
+                Json = json;
+                FrameBytes = frameBytes;
+            }
+
+            internal int Generation { get; }
+            internal string Json { get; }
+            internal int FrameBytes { get; }
+        }
+
+        private static string EnableDirectTransportCore(string expectedInstance)
+        {
+            string environmentInstance =
+                Environment.GetEnvironmentVariable("LWBRIDGE_INSTANCE_ID") ??
+                string.Empty;
+            if (string.IsNullOrWhiteSpace(expectedInstance) ||
+                !string.Equals(expectedInstance, environmentInstance, StringComparison.Ordinal))
+                return "stale";
+            lock (Gate)
+            {
+                directTransportRequestedInstance = expectedInstance;
+                return "ok";
+            }
+        }
+
+        private static string ReadTransportStateCore(string expectedInstance)
+        {
+            lock (Gate)
+            {
+                if (!DirectOwnerMatchesLocked(expectedInstance)) return "unavailable";
+                return "ok\n" + connectionGeneration.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                       "\n" + transportState;
+            }
+        }
+
+        private static string TryDequeueInboundCore(string expectedInstance)
+        {
+            lock (Gate)
+            {
+                if (!DirectOwnerMatchesLocked(expectedInstance)) return "unavailable";
+                int generation = connectionGeneration;
+                if (inboundFrames.Count == 0)
+                    return "empty\n" + generation.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+                TransportFrame frame = inboundFrames.Dequeue();
+                inboundQueuedBytes -= frame.FrameBytes;
+                if (frame.Generation != generation)
+                    return "stale";
+                return "frame\n" + generation.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                       "\n" + frame.Json;
+            }
+        }
+
+        private static string PublishOutboundCore(string value)
+        {
+            if (!TryParseGenerationPayload(value, requireJson: true,
+                    out int generation, out string expectedInstance, out string json))
+                return "invalid";
+
+            int payloadBytes;
+            try { payloadBytes = Encoding.UTF8.GetByteCount(json); }
+            catch { return "invalid"; }
+            if (payloadBytes <= 0 || payloadBytes > MaxFrameBytes)
+            {
+                lock (Gate)
+                {
+                    if (!DirectOwnerMatchesLocked(expectedInstance) ||
+                        generation != connectionGeneration || !running)
+                        return "stale";
+                    FailCurrentGenerationLocked(generation, "error:frame_length_invalid");
+                    return "frame_length_invalid";
+                }
+            }
+            int frameBytes = checked(FramePrefixBytes + payloadBytes);
+
+            lock (Gate)
+            {
+                if (!DirectOwnerMatchesLocked(expectedInstance) ||
+                    generation != connectionGeneration || !running)
+                    return "stale";
+                if (outboundFrames.Count >= DirectQueueItemCapacity ||
+                    outboundQueuedBytes > DirectOutboundByteBudget - frameBytes)
+                {
+                    FailCurrentGenerationLocked(generation, "error:direct_outbound_overflow");
+                    return "overflow";
+                }
+
+                outboundFrames.Enqueue(new TransportFrame(generation, json, frameBytes));
+                outboundQueuedBytes += frameBytes;
+                outboundSignal.Set();
+                return "ok";
+            }
+        }
+
+        private static string RetireCore(string value)
+        {
+            if (!TryParseGenerationPayload(value, requireJson: false,
+                    out int generation, out string expectedInstance, out _))
+                return "invalid";
+            lock (Gate)
+            {
+                if (!string.Equals(instanceId, expectedInstance, StringComparison.Ordinal) ||
+                    generation != connectionGeneration)
+                    return "stale";
+
+                running = false;
+                directTransportEnabled = false;
+                ClearDirectQueuesLocked();
+                try { stream?.Dispose(); } catch { }
+                stream = null;
+                WriteState("closed");
+                outboundSignal.Set();
+                return "ok";
+            }
+        }
+
+        private static bool TryParseGenerationPayload(
+            string value,
+            bool requireJson,
+            out int generation,
+            out string expectedInstance,
+            out string json)
+        {
+            generation = 0;
+            expectedInstance = string.Empty;
+            json = string.Empty;
+            if (string.IsNullOrEmpty(value)) return false;
+            int first = value.IndexOf('\n');
+            if (first <= 0) return false;
+            if (!int.TryParse(value.Substring(0, first),
+                    System.Globalization.NumberStyles.None,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out generation) || generation <= 0)
+                return false;
+            if (requireJson)
+            {
+                int second = value.IndexOf('\n', first + 1);
+                if (second <= first + 1 || second == value.Length - 1) return false;
+                expectedInstance = value.Substring(first + 1, second - first - 1);
+                json = value.Substring(second + 1);
+            }
+            else
+            {
+                if (first == value.Length - 1 || value.IndexOf('\n', first + 1) >= 0) return false;
+                expectedInstance = value.Substring(first + 1);
+            }
+            return !string.IsNullOrWhiteSpace(expectedInstance);
+        }
+
+        private static bool DirectOwnerMatchesLocked(string expectedInstance) =>
+            directTransportEnabled &&
+            !string.IsNullOrWhiteSpace(expectedInstance) &&
+            string.Equals(instanceId, expectedInstance, StringComparison.Ordinal);
+
+        private static void ClearDirectQueuesLocked()
+        {
+            inboundFrames.Clear();
+            outboundFrames.Clear();
+            inboundQueuedBytes = 0;
+            outboundQueuedBytes = 0;
+        }
+
+        private static void FailCurrentGenerationLocked(int generation, string state)
+        {
+            if (generation != connectionGeneration) return;
+            failedGeneration = generation;
+            running = false;
+            ClearDirectQueuesLocked();
+            WriteState(state);
+            try { stream?.Dispose(); } catch { }
+            stream = null;
+            outboundSignal.Set();
+        }
+
+        private static bool EnqueueInboundFrameLocked(int generation, string json)
+        {
+            int payloadBytes = Encoding.UTF8.GetByteCount(json);
+            if (payloadBytes <= 0 || payloadBytes > MaxFrameBytes)
+            {
+                FailCurrentGenerationLocked(generation, "error:frame_length_invalid");
+                return false;
+            }
+            int frameBytes = checked(FramePrefixBytes + payloadBytes);
+            if (inboundFrames.Count >= DirectQueueItemCapacity ||
+                inboundQueuedBytes > DirectInboundByteBudget - frameBytes)
+            {
+                FailCurrentGenerationLocked(generation, "error:direct_inbound_overflow");
+                return false;
+            }
+            inboundFrames.Enqueue(new TransportFrame(generation, json, frameBytes));
+            inboundQueuedBytes += frameBytes;
+            return true;
+        }
+
+        private static string? DequeueOutboundFrameLocked(int generation)
+        {
+            if (outboundFrames.Count == 0) return null;
+            TransportFrame frame = outboundFrames.Dequeue();
+            outboundQueuedBytes -= frame.FrameBytes;
+            return frame.Generation == generation ? frame.Json : null;
+        }
 
         private static string ReadRuntimeSnapshotCore(string path)
         {
@@ -90,6 +317,8 @@ namespace LWBridge.GamePipe
             {
                 CloseLocked();
                 int workerGeneration = ++connectionGeneration;
+                failedGeneration = 0;
+                ClearDirectQueuesLocked();
                 runtimeDirectory = runtimeDir ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(pipePath) ||
                     string.IsNullOrEmpty(helloJson) ||
@@ -108,6 +337,11 @@ namespace LWBridge.GamePipe
                     WriteState("error:instance_id_missing");
                     return;
                 }
+                directTransportEnabled = string.Equals(
+                    directTransportRequestedInstance,
+                    instanceId,
+                    StringComparison.Ordinal);
+                directTransportRequestedInstance = string.Empty;
                 CleanupMailboxes();
                 inboundSequence = 0;
                 outboundSequence = 0;
@@ -203,13 +437,20 @@ namespace LWBridge.GamePipe
                     {
                         if (!CurrentWorker(generation) || !ReferenceEquals(stream, own))
                             return;
-                        int next = outboundSequence + 1;
-                        string outboundPath = OutboundPath(next);
-                        if (File.Exists(outboundPath))
+                        if (directTransportEnabled)
                         {
-                            json = File.ReadAllText(outboundPath, Encoding.UTF8);
-                            outboundSequence = next;
-                            try { File.Delete(outboundPath); } catch { }
+                            json = DequeueOutboundFrameLocked(generation);
+                        }
+                        else
+                        {
+                            int next = outboundSequence + 1;
+                            string outboundPath = OutboundPath(next);
+                            if (File.Exists(outboundPath))
+                            {
+                                json = File.ReadAllText(outboundPath, Encoding.UTF8);
+                                outboundSequence = next;
+                                try { File.Delete(outboundPath); } catch { }
+                            }
                         }
                     }
                     if (json != null)
@@ -228,12 +469,25 @@ namespace LWBridge.GamePipe
                         {
                             if (!CurrentWorker(generation) || !ReferenceEquals(stream, own))
                                 return;
-                            WriteInboundFrame(frame);
+                            if (directTransportEnabled)
+                            {
+                                if (!EnqueueInboundFrameLocked(generation, frame))
+                                {
+                                    hadError = true;
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                WriteInboundFrame(frame);
+                            }
                         }
                         continue;
                     }
 
-                    Thread.Sleep(10);
+                    // Preserve the current 10 ms PeekNamedPipe inbound cadence,
+                    // but let Lua publication wake outbound delivery immediately.
+                    outboundSignal.WaitOne(10);
                 }
             }
             catch (Exception error)
@@ -251,7 +505,7 @@ namespace LWBridge.GamePipe
                         running = false;
                         try { stream?.Dispose(); } catch { }
                         stream = null;
-                        if (!hadError) WriteState("closed");
+                        if (!hadError && failedGeneration != generation) WriteState("closed");
                     }
                 }
                 try { opened?.Dispose(); } catch { }
@@ -399,8 +653,11 @@ namespace LWBridge.GamePipe
         private static void CloseLocked()
         {
             running = false;
+            directTransportEnabled = false;
+            ClearDirectQueuesLocked();
             try { stream?.Dispose(); } catch { }
             stream = null;
+            outboundSignal.Set();
         }
 
         private static string InboundPath(int sequence) =>
@@ -444,6 +701,7 @@ namespace LWBridge.GamePipe
 
         private static void WriteState(string value)
         {
+            transportState = value ?? string.Empty;
             if (string.IsNullOrWhiteSpace(runtimeDirectory))
                 return;
             try
