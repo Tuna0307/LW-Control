@@ -16,6 +16,7 @@ Read:
 
 1. CONNECTION_METHOD_REPORT.md — owner-facing comparison and revised verdict.
 2. evidence.json — sanitized hashes, source anchors, native RVAs/VAs, observed behavior and remaining gaps.
+3. LEAD_REVIEW.md — independent acceptance, precision corrections and next measurement boundary.
 
 ## Local evidence that is intentionally not in Git
 

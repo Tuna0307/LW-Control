@@ -56,8 +56,11 @@ The clearest current advantages are:
 Efficiency cannot be declared from architecture alone. Shared memory does not
 automatically make LwTool faster, and a named pipe does not automatically make
 LW-Control slower. LwTool polls its result mapping as quickly as every 3-5 ms
-and deliberately paces ordinary calls to roughly an 80 ms minimum; it also
-reserves about 15 MiB of shared mapping address space per GameClient. LW-Control
+and adds a per-invocation delay to successful ordinary calls (roughly 80 ms
+including response wait, with at least 30 ms after success). That delay is
+outside the client lock, so it is not a global throughput limit across threads.
+The three main mappings have about 15 MiB of capacity per distinct instance
+channel set; normal single clients reuse the global mappings. LW-Control
 currently has a 10 ms managed-adapter loop, a 10 Hz Lua Overview pump and
 periodic file publication. Equivalent connected-state CPU, memory, startup and
 command round-trip measurements have not been collected.
@@ -342,7 +345,9 @@ increasing callbackId:
 
 - recovered-core.py:2169-2185
 
-The response is accepted only when callbackId matches the pending command:
+When a response contains callbackId, it must match the pending command. A
+missing callbackId defaults to the pending ID and is also accepted. Correlation
+is therefore not a strict requirement that every reply carry an identity:
 
 - recovered-core.py:2190-2204
 
@@ -360,8 +365,11 @@ After a successful ordinary call, the source deliberately sleeps:
 
 - recovered-core.py:2213-2215
 
-The formula makes the ordinary call cadence roughly at least 80 ms total, with
-at least a 30 ms post-result delay.
+The formula adds a per-invocation return delay of roughly at least 80 ms
+including response wait, with at least a 30 ms post-result delay. Lock-wait time
+precedes the measured response interval. The sleep is outside the client lock:
+another thread can send while the first caller sleeps. This is not a global
+80 ms command interval or a measured command-processing latency.
 
 The mmap write/read helpers use a length-prefixed UTF-8 JSON frame:
 
@@ -785,7 +793,9 @@ Source:
 
 - recovered-core.py:2169-2215
 
-Normal successful commands are intentionally paced to about an 80 ms minimum.
+Successful normal invocations deliberately delay their return to roughly an
+80 ms minimum including response wait. Concurrent callers can overlap that
+delay because it occurs outside the client lock.
 
 This means the shared-memory design is not automatically "near-zero latency."
 
@@ -834,14 +844,16 @@ The source does not establish which whole product uses less CPU.
 
 ### LwTool
 
-Each GameClient reserves:
+Each distinct instance channel set has these mapping capacities:
 
 - CMD 5 MiB;
 - RESULT 5 MiB;
 - OUT 5 MiB;
 - ERR 16 KiB.
 
-That is about 15.016 MiB of shared mapping capacity per client.
+That is about 15.016 MiB of shared mapping capacity per instance channel set.
+Normal single GameClient objects reuse the existing global mappings; creating
+another object does not necessarily create another 15 MiB allocation.
 
 This is not equivalent to 15 MiB resident RAM or 15 MiB private committed RAM.
 Shared mappings, touched pages and Windows accounting must be measured.
@@ -896,7 +908,7 @@ No winner.
 4. Re-evaluate the normal 80 ms command pacing.
 
    Measure why the post-success delay exists, retain it only for operations
-   that need it, and avoid applying a global floor to read-only/status calls if
+   that need it, and avoid applying a per-call floor to read-only/status calls if
    no game-side safety requirement depends on it.
 
 5. Measure whether 5 MiB x 3 mappings are necessary.

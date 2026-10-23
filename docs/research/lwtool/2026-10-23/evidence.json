@@ -154,9 +154,9 @@
     "facts": [
       "Each GameClient uses CMD, RESULT and OUT shared-memory mappings of 5 MiB each plus a 16 KiB ERR mapping.",
       "Single production uses the unsuffixed mappings; isolated instances use an instance suffix.",
-      "send() serializes calls with a per-client lock and correlates results with callbackId.",
+      "send() serializes pending exchanges with a per-client lock. Present callbackId values must match; an absent callbackId defaults to the pending ID and is accepted.",
       "Result polling is 3 ms in fast mode; normal calls use 5 ms polling for the first 100 ms then 20 ms.",
-      "A normal successful send deliberately sleeps so its total/post-success pacing is at least about 80/30 ms.",
+      "A normal successful send sleeps after releasing the client lock: roughly 80 ms including response wait, at least 30 ms after success. This is per-invocation return pacing; concurrent callers can overlap the delay, and it is not a global throughput floor.",
       "Scoped work performs a final live identity check immediately before command bytes are written.",
       "Malformed result JSON with a stable length is retained for up to 0.3 s before being discarded, protecting against reading a partially published result."
     ]
@@ -222,10 +222,10 @@
     }
   },
   "lwtoolPerformanceFacts": {
-    "sharedMemoryReservation": "CMD + RESULT + OUT reserve approximately 15 MiB of shared mapping address space per GameClient, plus ERR. Reserved mapping size is not equivalent to resident RAM.",
+    "sharedMemoryReservation": "CMD + RESULT + OUT provide approximately 15 MiB of mapping capacity per distinct instance channel set, plus ERR. Normal single clients reuse global mappings. Capacity is not equivalent to resident RAM or a fresh allocation per GameClient object.",
     "polling": [
       "GameClient RESULT polling: 3 ms fast or 5 ms -> 20 ms normal.",
-      "Normal successful command pacing has an intentional ~80 ms floor.",
+      "Normal successful invocations have an intentional approximately 80 ms return floor including response wait; the post-success sleep is outside the lock and is not a global command-rate limit.",
       "Late-connect: 5 s.",
       "Auto-reconnect monitor: 5 s.",
       "UI status refresh: approximately 1 s after the preceding refresh completes."
