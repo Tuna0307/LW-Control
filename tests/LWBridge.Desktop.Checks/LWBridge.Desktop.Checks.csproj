@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\LWBridge.Desktop\LWBridge.Desktop.csproj" />
+    <ProjectReference Include="..\..\src\LWBridge.GamePipeAdapter\LWBridge.GamePipeAdapter.csproj" />
   </ItemGroup>
   <Target Name="RemoveUnusedWebView2WpfReference" BeforeTargets="ResolveAssemblyReferences">
     <ItemGroup>

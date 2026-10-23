@@ -18,6 +18,7 @@ namespace LWBridge.GamePipe
         public static readonly Func<string, string> ReadRuntimeSnapshot = ReadRuntimeSnapshotCore;
 
         private const int MaxFrameBytes = 0x800000;
+        private const int LeaseValidationCacheMilliseconds = 250;
         private const uint GenericRead = 0x80000000;
         private const uint GenericWrite = 0x40000000;
         private const uint OpenExisting = 3;
@@ -33,6 +34,7 @@ namespace LWBridge.GamePipe
         private static int outboundSequence;
         [ThreadStatic] private static long? lastValidatedLeaseUpdatedAt;
         [ThreadStatic] private static string? lastValidatedLeaseInstance;
+        [ThreadStatic] private static long lastLeaseValidationTimestamp;
 
         private static string ReadRuntimeSnapshotCore(string path)
         {
@@ -263,6 +265,28 @@ namespace LWBridge.GamePipe
             {
                 lastValidatedLeaseUpdatedAt = null;
                 lastValidatedLeaseInstance = expectedInstance;
+                lastLeaseValidationTimestamp = 0;
+            }
+            // The host renews once per second and the existing freshness contract
+            // already permits a five-second lease horizon. Re-reading and parsing
+            // the same file on every 10 ms idle adapter loop adds disk/decoder work
+            // without adding identity information. Reuse a *successful exact-owner*
+            // validation for at most 250 ms, but re-evaluate the published timestamp
+            // against the original five-second rule on every cache hit. A due
+            // revalidation still reads a complete snapshot and remains fail-closed
+            // under sharing contention; the cache is never substituted for a failed
+            // current read.
+            long cachedNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            if (lastValidatedLeaseUpdatedAt.HasValue && lastLeaseValidationTimestamp != 0)
+            {
+                long elapsedTicks = Stopwatch.GetTimestamp() - lastLeaseValidationTimestamp;
+                double elapsedMilliseconds = elapsedTicks * 1000.0 / Stopwatch.Frequency;
+                long cachedUpdatedAt = lastValidatedLeaseUpdatedAt.Value;
+                if (elapsedMilliseconds >= 0 &&
+                    elapsedMilliseconds < LeaseValidationCacheMilliseconds &&
+                    cachedUpdatedAt <= cachedNow + 5 &&
+                    cachedNow - cachedUpdatedAt <= 5)
+                    return true;
             }
             // Clone-internal adaptation for the host's exact-identity file guard.
             // Retry only Windows sharing/lock contention, at the existing 10ms
@@ -302,7 +326,16 @@ namespace LWBridge.GamePipe
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     bool fresh = updatedAt.Value <= now + 5 &&
                                  now - updatedAt.Value <= 5;
-                    if (fresh) lastValidatedLeaseUpdatedAt = updatedAt;
+                    if (fresh)
+                    {
+                        lastValidatedLeaseUpdatedAt = updatedAt;
+                        lastLeaseValidationTimestamp = Stopwatch.GetTimestamp();
+                    }
+                    else
+                    {
+                        lastValidatedLeaseUpdatedAt = null;
+                        lastLeaseValidationTimestamp = 0;
+                    }
                     return fresh;
                 }
                 catch (IOException error) when (
