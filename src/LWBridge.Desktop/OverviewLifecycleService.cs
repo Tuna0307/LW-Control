@@ -235,7 +235,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                         requireFreshness: false) ||
                     !root.TryGetProperty("updatedAt", out JsonElement updated) ||
                     !updated.TryGetInt64(out long updatedAtUnix))
+                {
+                    ForgetPresentationHeartbeat(
+                        snapshot.InstanceId, snapshot.Challenge, snapshot.GamePid);
                     return false;
+                }
 
                 long updatedAtUnixMilliseconds = checked(updatedAtUnix * 1_000);
                 RememberPresentationHeartbeat(
@@ -1957,6 +1961,16 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 snapshot.Challenge,
                 snapshot.GamePid,
                 RecoveryNow().ToUnixTimeSeconds());
+            if (!matches && !HeartbeatMatches(
+                    heartbeat.RootElement,
+                    profileId,
+                    snapshot.InstanceId,
+                    snapshot.Challenge,
+                    snapshot.GamePid,
+                    RecoveryNow().ToUnixTimeSeconds(),
+                    requireFreshness: false))
+                ForgetPresentationHeartbeat(
+                    snapshot.InstanceId, snapshot.Challenge, snapshot.GamePid);
             if (matches && heartbeat.RootElement.TryGetProperty("updatedAt", out JsonElement updated) &&
                 updated.TryGetInt64(out long updatedAtUnix))
                 RememberPresentationHeartbeat(
@@ -1997,6 +2011,23 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 observed.GamePid == currentPid.Value
                 ? observed.UpdatedAtUnixMilliseconds
                 : null;
+        }
+    }
+
+    private void ForgetPresentationHeartbeat(
+        string currentInstanceId,
+        string currentChallenge,
+        int currentPid)
+    {
+        lock (presentationHeartbeatGate)
+        {
+            // A delayed read from a retired owner cannot clear its successor's
+            // independently validated presentation observation.
+            if (lastPresentationHeartbeat is { } observed &&
+                observed.InstanceId == currentInstanceId &&
+                observed.Challenge == currentChallenge &&
+                observed.GamePid == currentPid)
+                lastPresentationHeartbeat = null;
         }
     }
 

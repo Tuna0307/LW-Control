@@ -35,7 +35,9 @@ namespace LWBridge.GamePipe
         private const uint GenericWrite = 0x40000000;
         private const uint OpenExisting = 3;
         private static readonly object Gate = new object();
+        private static readonly object TraceGate = new object();
         private static Stream? stream;
+        private static Thread? workerThread;
         private static volatile bool running;
         // Every Connect supersedes the prior worker. A retired worker must not
         // close/relabel the replacement stream or make its worker stop.
@@ -171,8 +173,7 @@ namespace LWBridge.GamePipe
                 running = false;
                 directTransportEnabled = false;
                 ClearDirectQueuesLocked();
-                try { stream?.Dispose(); } catch { }
-                stream = null;
+                RetireStreamLocked();
                 WriteState("closed");
                 outboundSignal.Set();
                 return "ok";
@@ -232,8 +233,7 @@ namespace LWBridge.GamePipe
             running = false;
             ClearDirectQueuesLocked();
             WriteState(state);
-            try { stream?.Dispose(); } catch { }
-            stream = null;
+            RetireStreamLocked();
             outboundSignal.Set();
         }
 
@@ -299,11 +299,14 @@ namespace LWBridge.GamePipe
                     return;
                 string directory = Path.Combine(configured, "overview-bridge");
                 Directory.CreateDirectory(directory);
-                File.AppendAllText(Path.Combine(directory, "pipe-native-receipts.txt"),
-                    DateTime.UtcNow.ToString("O") + "|pid=" + Process.GetCurrentProcess().Id +
-                    "|session=" + session + "|stage=" + stage +
-                    (string.IsNullOrEmpty(detail) ? "" : "|detail=" + detail) +
-                    Environment.NewLine, new UTF8Encoding(false));
+                lock (TraceGate)
+                {
+                    File.AppendAllText(Path.Combine(directory, "pipe-native-receipts.txt"),
+                        DateTime.UtcNow.ToString("O") + "|pid=" + Process.GetCurrentProcess().Id +
+                        "|session=" + session + "|stage=" + stage +
+                        (string.IsNullOrEmpty(detail) ? "" : "|detail=" + detail) +
+                        Environment.NewLine, new UTF8Encoding(false));
+                }
             }
             catch { /* diagnostics must not perturb production connectivity */ }
         }
@@ -354,6 +357,7 @@ namespace LWBridge.GamePipe
                     IsBackground = true,
                     Name = "LWBridgeGamePipeWorker",
                 };
+                workerThread = worker;
                 TraceStage("worker_created");
                 worker.Start();
                 TraceStage("worker_start_called");
@@ -378,6 +382,7 @@ namespace LWBridge.GamePipe
         {
             SafeFileHandle? handle = null;
             FileStream? opened = null;
+            FileStream? ownedStream = null;
             bool hadError = false;
             TraceStage("worker_entry");
             try
@@ -401,8 +406,12 @@ namespace LWBridge.GamePipe
                 opened = new FileStream(
                     handle,
                     FileAccess.ReadWrite,
-                    4096,
+                    // A pipe frame is already explicitly flushed. Buffered
+                    // Dispose can flush concurrently with the worker and block
+                    // the game thread during Retire/Connect.
+                    1,
                     false);
+                ownedStream = opened;
                 handle = null;
                 if (!CurrentWorker(generation)) return;
                 WriteFrame(opened, helloJson);
@@ -503,12 +512,13 @@ namespace LWBridge.GamePipe
                     if (connectionGeneration == generation)
                     {
                         running = false;
-                        try { stream?.Dispose(); } catch { }
                         stream = null;
                         if (!hadError && failedGeneration != generation) WriteState("closed");
                     }
                 }
-                try { opened?.Dispose(); } catch { }
+                // Only this worker disposes its unbuffered stream, after pipe
+                // I/O has returned and after releasing the shared state gate.
+                try { ownedStream?.Dispose(); } catch { }
                 try { handle?.Dispose(); } catch { }
             }
         }
@@ -655,9 +665,34 @@ namespace LWBridge.GamePipe
             running = false;
             directTransportEnabled = false;
             ClearDirectQueuesLocked();
-            try { stream?.Dispose(); } catch { }
-            stream = null;
+            RetireStreamLocked();
             outboundSignal.Set();
+        }
+
+        private static void RetireStreamLocked()
+        {
+            var retired = stream as FileStream;
+            stream = null;
+            if (retired == null) return;
+
+            // Cancel only this detached worker's exact native handle. Never
+            // flush/dispose a FileStream from the Lua caller or under Gate.
+            // Retry until the worker's own finally closes the handle: a single
+            // cancellation can race with an I/O call just about to be issued.
+            ThreadPool.QueueUserWorkItem(state =>
+            {
+                try
+                {
+                    SafeFileHandle retiredHandle = retired.SafeFileHandle;
+                    while (!retiredHandle.IsClosed)
+                    {
+                        if (CancelIoEx(retiredHandle, IntPtr.Zero))
+                            TraceStage("retired_io_cancelled");
+                        Thread.Sleep(10);
+                    }
+                }
+                catch (ObjectDisposedException) { }
+            });
         }
 
         private static string InboundPath(int sequence) =>
@@ -806,6 +841,10 @@ namespace LWBridge.GamePipe
         private static extern bool WaitNamedPipeW(
             string lpNamedPipeName,
             uint nTimeOut);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool CancelIoEx(SafeFileHandle handle, IntPtr overlapped);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]

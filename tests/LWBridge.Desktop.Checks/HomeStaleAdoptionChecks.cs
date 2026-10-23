@@ -118,6 +118,7 @@ internal static class HomeStaleAdoptionChecks
         bool alive = false;
         bool heartbeatReadable = true;
         bool heartbeatReady = true;
+        bool heartbeatOwnerMatches = true;
         bool routeConnected = true;
         long testNow = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         DateTimeOffset HookNow() => exercisePresentationGrace
@@ -139,7 +140,8 @@ internal static class HomeStaleAdoptionChecks
                         ? JsonSerializer.SerializeToUtf8Bytes(new
                         {
                             schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = Profile,
-                            sessionId = session, challenge = nonce, gamePid = 48125, ready = heartbeatReady,
+                            sessionId = heartbeatOwnerMatches ? session : "foreign-heartbeat-owner",
+                            challenge = nonce, gamePid = 48125, ready = heartbeatReady,
                             messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
                             updatedAt = HookNow().ToUnixTimeSeconds()
                         })
@@ -279,6 +281,27 @@ internal static class HomeStaleAdoptionChecks
                 heartbeatReady = true;
                 Require(service.IsReady && service.IsPresentationReady,
                     "explicit ready heartbeat restores both readiness layers");
+
+                foreach (bool observeThroughStrictGate in new[] { false, true })
+                {
+                    foreach (bool wrongOwner in new[] { false, true })
+                    {
+                        string observation = observeThroughStrictGate ? "strict gate" : "presentation gate";
+                        string negative = wrongOwner ? "wrong owner" : "explicit not-ready";
+                        heartbeatReady = wrongOwner;
+                        heartbeatOwnerMatches = !wrongOwner;
+                        Require(!(observeThroughStrictGate ? service.IsReady : service.IsPresentationReady),
+                            $"{observation} rejects readable {negative} heartbeat");
+                        heartbeatReadable = false;
+                        Require(!service.IsReady && !service.IsPresentationReady,
+                            $"{observation} {negative} evidence retires cached ready before subsequent read loss");
+                        heartbeatReadable = true;
+                        heartbeatReady = true;
+                        heartbeatOwnerMatches = true;
+                        Require(service.IsReady && service.IsPresentationReady,
+                            $"fresh valid heartbeat recovers after {observation} {negative} and read loss");
+                    }
+                }
             }
             if (closeAfterRunning)
                 service.Close();

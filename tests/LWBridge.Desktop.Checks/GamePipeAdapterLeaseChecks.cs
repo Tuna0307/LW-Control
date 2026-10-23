@@ -88,6 +88,124 @@ internal static class GamePipeAdapterLeaseChecks
 
         RunDirectQueueChecks();
         RunDirectPipeIntegrationChecks();
+        RunBlockedWriteRetirementChecks();
+    }
+
+    private static void RunBlockedWriteRetirementChecks()
+    {
+        const string owner = "blocked-write-owner";
+        string root = Path.Combine(Path.GetTempPath(),
+            "lwbridge-adapter-blocked-write-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        string? previousInstance = Environment.GetEnvironmentVariable("LWBRIDGE_INSTANCE_ID");
+        string? previousDiagnostic = Environment.GetEnvironmentVariable("LWBRIDGE_PIPE_DIAGNOSTIC");
+        string? previousDiagnosticRoot = Environment.GetEnvironmentVariable("LWBRIDGE_REBUILD_DATA_ROOT");
+        NamedPipeServerStream? blockedServer = null;
+        Thread? blockedWorker = null;
+        Task<string>? retirement = null;
+        try
+        {
+            Environment.SetEnvironmentVariable("LWBRIDGE_INSTANCE_ID", owner);
+            Environment.SetEnvironmentVariable("LWBRIDGE_PIPE_DIAGNOSTIC", "1");
+            Environment.SetEnvironmentVariable("LWBRIDGE_REBUILD_DATA_ROOT", root);
+            WriteLease(Path.Combine(root, "lease.txt"), owner,
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            string pipeName = "lwbridge-blocked-write-" + Guid.NewGuid().ToString("N");
+            blockedServer = new NamedPipeServerStream(pipeName, PipeDirection.InOut,
+                1, PipeTransmissionMode.Byte, PipeOptions.None, 1024, 1024);
+            Task waiting = Task.Run(blockedServer.WaitForConnection);
+            Require(PipeClientAdapter.EnableDirectTransport(owner) == "ok", "blocked-write opt-in failed");
+            PipeClientAdapter.Connect("\\\\.\\pipe\\" + pipeName, "{}", root);
+            Require(waiting.Wait(TimeSpan.FromSeconds(4)), "blocked-write pipe did not connect");
+            Require(ReadPipeFrame(blockedServer) == "{}", "blocked-write hello changed");
+            int generation = ParseDirectGeneration(WaitForDirectState(owner, "connected"));
+            blockedWorker = (Thread)Get("workerThread");
+
+            // The peer stays connected but deliberately stops reading. A frame
+            // much larger than its pipe quota must block the exact worker write.
+            string payload = new string('x', 0x100000);
+            Require(PipeClientAdapter.PublishOutbound(generation + "\n" + owner + "\n" + payload) == "ok",
+                "blocked-write payload was rejected");
+            var dequeueDeadline = Stopwatch.StartNew();
+            while (QueueCount("outboundFrames") != 0 && dequeueDeadline.Elapsed < TimeSpan.FromSeconds(2))
+                Thread.Sleep(5);
+            Require(QueueCount("outboundFrames") == 0 && !blockedWorker.Join(100),
+                "blocked-write worker never reached the held pipe write");
+
+            // Run retirement off the check runner so the old implementation
+            // fails within a bound; finally closes the peer to release it.
+            retirement = Task.Run(() => PipeClientAdapter.Retire(generation + "\n" + owner));
+            Require(retirement.Wait(TimeSpan.FromSeconds(2)) && retirement.Result == "ok",
+                "Retire blocked on an unresponsive peer/stream flush");
+            Require(blockedWorker.Join(TimeSpan.FromSeconds(2)),
+                "Retire returned but left the exact old worker blocked in pipe I/O");
+            string receipt = Path.Combine(root, "overview-bridge", "pipe-native-receipts.txt");
+            var receiptDeadline = Stopwatch.StartNew();
+            bool cancellationObserved = false;
+            while (!cancellationObserved && receiptDeadline.Elapsed < TimeSpan.FromSeconds(2))
+            {
+                try
+                {
+                    cancellationObserved = File.ReadAllText(receipt)
+                        .Contains("|stage=retired_io_cancelled", StringComparison.Ordinal);
+                }
+                catch (IOException) { }
+                if (!cancellationObserved) Thread.Sleep(5);
+            }
+            Require(cancellationObserved,
+                "exact blocked write did not report a successful CancelIoEx request");
+            Require(!blockedServer.SafePipeHandle.IsClosed,
+                "blocked-write cancellation required closing the peer");
+
+            // Keep the old server alive while proving successor traffic and
+            // stale retirement fencing; old cancellation must use its own handle.
+            WriteLease(Path.Combine(root, "lease.txt"), owner,
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            string successorName = "lwbridge-blocked-successor-" + Guid.NewGuid().ToString("N");
+            using var successor = new NamedPipeServerStream(successorName, PipeDirection.InOut,
+                1, PipeTransmissionMode.Byte, PipeOptions.None);
+            Task successorWaiting = Task.Run(successor.WaitForConnection);
+            Require(PipeClientAdapter.EnableDirectTransport(owner) == "ok", "successor opt-in failed");
+            PipeClientAdapter.Connect("\\\\.\\pipe\\" + successorName, "{}", root);
+            Require(successorWaiting.Wait(TimeSpan.FromSeconds(4)), "successor pipe did not connect");
+            Require(ReadPipeFrame(successor) == "{}", "successor hello changed");
+            int successorGeneration = ParseDirectGeneration(WaitForDirectState(owner, "connected"));
+            Thread successorWorker = (Thread)Get("workerThread");
+            Require(PipeClientAdapter.Retire(generation + "\n" + owner) == "stale",
+                "old retirement affected the successor");
+            Require(PipeClientAdapter.PublishOutbound(successorGeneration + "\n" + owner + "\n{\"ok\":true}") == "ok" &&
+                    ReadPipeFrame(successor) == "{\"ok\":true}",
+                "old cancellation corrupted successor delivery");
+            Require(PipeClientAdapter.Retire(successorGeneration + "\n" + owner) == "ok" &&
+                    successorWorker.Join(TimeSpan.FromSeconds(2)), "successor did not retire cleanly");
+            Console.WriteLine("GAME_PIPE_ADAPTER_BLOCKED_WRITE_RETIRE_OK bounded retire, CancelIoEx=true, exact worker exit, peer alive, successor fence");
+        }
+        finally
+        {
+            // This release is essential for bounded failure on the old code.
+            blockedServer?.Dispose();
+            retirement?.Wait(TimeSpan.FromSeconds(2));
+            blockedWorker?.Join(TimeSpan.FromSeconds(2));
+            try
+            {
+                int generation = (int)Get("connectionGeneration");
+                if ((string)Get("instanceId") == owner)
+                    _ = PipeClientAdapter.Retire(generation + "\n" + owner);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("LWBRIDGE_INSTANCE_ID", previousInstance);
+                Environment.SetEnvironmentVariable("LWBRIDGE_PIPE_DIAGNOSTIC", previousDiagnostic);
+                Environment.SetEnvironmentVariable("LWBRIDGE_REBUILD_DATA_ROOT", previousDiagnosticRoot);
+                ResetDirect(string.Empty, 0, enabled: false, running: false);
+                Set("directTransportRequestedInstance", string.Empty);
+                Set("runtimeDirectory", string.Empty);
+                Set("instanceId", string.Empty);
+                Set("transportState", "idle");
+                Set("failedGeneration", 0);
+                try { Directory.Delete(root, recursive: true); } catch { }
+            }
+        }
     }
 
     private static void RunDirectQueueChecks()
