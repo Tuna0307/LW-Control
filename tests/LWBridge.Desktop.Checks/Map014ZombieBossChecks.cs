@@ -116,6 +116,12 @@ internal static class Map014ZombieBossChecks
         CurrentClientMapBlockSource.RequireZombieBossSourceRows(
             Request("city", "resource", "monster", "zombie_boss", "truck", "railway", "dispatch", "ghost", "treasure"),
             false, monsterSourceVerifiedComplete: true);
+        // MAP-019: empty selections are verified only by their own working source.
+        Require(CurrentClientMapBlockSource.VerifiedEmptySelection(["ghost"], 5, 0), "Ghost-only none with native points is verified");
+        Require(!CurrentClientMapBlockSource.VerifiedEmptySelection(["ghost"], 0, 0), "Ghost-only none without native points is not");
+        Require(CurrentClientMapBlockSource.VerifiedEmptySelection(["zombie_boss"], 0, 3), "Boss-only none with Monster rows is verified");
+        Require(!CurrentClientMapBlockSource.VerifiedEmptySelection(["ghost", "zombie_boss"], 5, 0), "every selected kind needs its own proof");
+        Require(!CurrentClientMapBlockSource.VerifiedEmptySelection(["truck"], 5, 5), "Truck is never verified this way");
         // A point-ready receipt never substitutes for independent processed
         // March evidence. Reject delayed, stale and incomplete source witnesses
         // before their rows can acquire trusted normalized timestamps.

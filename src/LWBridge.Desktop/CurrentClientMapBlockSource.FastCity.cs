@@ -3064,6 +3064,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal bool CameraFreeAcquisition { get; set; }
         internal bool RailwaySweepVerified { get; set; }
         internal long MonsterSourceRows { get; set; }
+        internal long NativePointRows { get; set; }
         internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
@@ -3235,5 +3236,7 @@ internal sealed partial class CurrentClientMapBlockSource
         double? HomeRestorationMilliseconds,
         double? TotalProbeMilliseconds,
         // Raw game Monster rows in this batch (bosses and ordinary monsters) before kind filtering.
-        int MonsterSourceRows = 0);
+        int MonsterSourceRows = 0,
+        // Total native map points the reply carried in its areas (any type), when the probe reports it.
+        int NativePointRows = 0);
 }

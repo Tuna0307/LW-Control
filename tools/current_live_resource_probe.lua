@@ -7584,7 +7584,9 @@ function M._map015CameraFree.capture(s)
     -- City/Monster/Dispatch/Ghost/Treasure use their own strict typed source
     -- collectors; enumerating the entire native point store again on all 63
     -- replies adds measurable work without a second completeness gate.
-    if s.includeResource then
+    -- MAP-019: Secret Task/Ghost/Treasure can be genuinely empty; their reply's total native point
+    -- count is the evidence that a zero result came from a working sweep, not a broken one.
+    if s.includeResource or s.includeDispatch or s.includeGhost or s.includeTreasure then
         local native, native_err = point_aoi_counts(s.world, s.manager, 10, 100, selected)
         if native == nil then return false, "point_source_" .. tostring(native_err) end
         batch.matchedCount = native.total
