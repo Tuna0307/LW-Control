@@ -23,6 +23,7 @@ Read in this order:
 5. IMPROVEMENT_BENCHMARK_REPORT.md — pre-change baseline, matched candidate measurements, inert authenticated-pipe RTT/soak and live-performance limits.
 6. FULL_IMPROVEMENT_LEDGER.md — durable programme state, implementation commits and completion boundary.
 7. IMPROVEMENT_EVIDENCE.json — sanitized machine-readable implementation/measurement/check index.
+8. FINAL_QUALIFICATION.md — final full regression, transport recovery and source-pinned packaging boundary receipt.
 
 ## Local evidence that is intentionally not in Git
 

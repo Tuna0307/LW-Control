@@ -91,6 +91,43 @@
       "seconds": 56.469
     }
   },
+  "finalRegressionAtRuntimeToolCheckpoint": {
+    "checkpoint": "b2c94dc4",
+    "desktop": {
+      "result": "PASS HOME_FEATURE_DELIVERY_CHECKS_OK",
+      "seconds": 64.735,
+      "includesMapChecks": true
+    },
+    "ui": {
+      "result": "PASS",
+      "seconds": 53.606
+    },
+    "releaseUi": {
+      "result": "PASS",
+      "viewportLanguageVariants": 3,
+      "conditionalStates": 16,
+      "screenshotCount": 41,
+      "errors": 0
+    },
+    "allInertLua": {
+      "result": "PASS",
+      "suiteCount": 49
+    },
+    "productionPipeRecovery": {
+      "result": "PASS HOME004_R3_R1_ISOLATED_PIPE_RECOVERY_OK",
+      "realWindowsNamedPipes": true,
+      "gameLaunches": 0,
+      "wrongImageRejected": true,
+      "authenticatedMalformedFrameRetired": true,
+      "idleTimeoutSeconds": 30,
+      "sharedListenerSurvivedIdle": true,
+      "obsoleteGenerationPreservedSuccessor": true,
+      "explicitHostCloseRetiredPendingRpc": true,
+      "simultaneousAuthenticatedProfilesAndRpc": true
+    },
+    "programmePackageBoundaryTests": "PASS 2/2",
+    "inheritedPackageBoundaryTests": "PASS 8/8"
+  },
   "crossProductLivePerformance": {
     "status": "UNRESOLVED",
     "reason": "No task-owned background-safe equivalent connected LwTool/LW-Control game session was available. LwTool source proves connect and late-connect can auto-start AFK/chat, so competitor idle benchmarking was not attempted without first disabling and verifying automation through supported controls.",
