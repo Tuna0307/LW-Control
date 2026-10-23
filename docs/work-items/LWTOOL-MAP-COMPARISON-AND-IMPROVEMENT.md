@@ -1,9 +1,13 @@
-# Map comparison and improvement after accepted Home
+# LwTool fast-scan recovery and Map improvement after accepted Home
 
 This is a self-contained owner-forwardable worker assignment. Complete the Map
 comparison, supported implementation and qualification autonomously; do not stop
 after another comparison table or request a new prompt for routine next steps.
 Independent lead acceptance remains separate from the worker's handback.
+
+Owner update, 2026-10-24: prioritize recovering how LwTool performs its advertised
+few-second scan before choosing our optimization. This assignment includes
+implementation and qualification; older report-only Map tasks are historical.
 
 ## Checkout and evidence
 
@@ -37,6 +41,24 @@ RECOVERED competitor behavior and UNKNOWN claims distinct. A different mechanism
 alone does not establish a performance win. Do not blindly replace a qualified
 scanner or copy weaker ownership, correlation or cleanup behavior.
 
+The owner reports our fastest scan takes **20+ seconds** and supplies this LwTool
+advertisement:
+
+> 全图扫描 基地玩家 联盟等级 战力 部队战力
+> 隐秘任务 联盟隐秘 幽灵行动 卡车 （扫描只需要几秒的时间）别人的脚本都比不了
+
+Treat these as an owner-reported baseline and a marketing claim, respectively,
+until measured. Recover the actual UI schema and field provenance: do not assume
+whether 联盟等级 means alliance level or separate alliance/player-level columns.
+Determine which player/base, power/troop-power, Secret Task, alliance-task,
+Ghost Ops and Truck data the active scan really obtains. Establish what 全图
+covers and what the advertised timer includes. A few seconds to show retained
+rows or acquire identities is different work from a fresh scan with all fields.
+
+The decisive questions are: **How does the active LwTool scanner work? Under
+which conditions does it finish in a few seconds? Is that equivalent to our
+scan? Which supported changes make ours measurably better without losing data?**
+
 1. Inventory every current Map kind, Manual/Auto scan, individual and combined
    selections, server context, filters/search/pagination, saved data, clear,
    export, read-only inspection, Jump, moving-target Follow, Stop and restoration.
@@ -52,6 +74,65 @@ scanner or copy weaker ownership, correlation or cleanup behavior.
 4. Implement useful proven improvements, run distinguishing tests, then validate
    the actual native app and clean source-pinned Windows package. Resolve failures
    through fix/retest loops. Keep historical negative results and regressions.
+
+## Scanner recovery and comparison sequence
+
+Work through these stages without requesting another prompt between routine
+steps. Recover and measure before making an architectural replacement; continue
+useful independent work when one specific live comparison is unavailable.
+
+1. **Recover the production path.** Trace the real scan button through UI,
+   Python orchestration, Lua/native bridge or game protocol, incoming replies,
+   caches, detail hydration, database storage and displayed completion. Retain
+   sanitized function/line or native-offset anchors for both products. Separate
+   active code from dormant alternatives and confirm the invoked route with
+   bounded observations where available. Inspect targeted native functions only
+   when the recovered Python/UI/Lua evidence leaves a concrete gap.
+2. **Explain the source of speed.** Evaluate source-backed candidates such as
+   bulk/server indexes versus AOI sweeps; complete manager lists versus cached
+   local coverage; direct block requests, request batching or concurrency;
+   shared acquisition across kinds; deferred detail hydration; incremental saved
+   data; bridge transfer/serialization costs; and completion shown before later
+   work finishes. These are hypotheses, not findings. Shared memory alone is not
+   evidence of a few-second full scan. Trace camera and server dependencies and
+   actual acquired coverage, not target echoes or cached row totals.
+3. **Define equivalent work and baseline it.** Record the selected kinds, server,
+   area, object/field definitions, cache state, readiness and expiry rules. Time
+   button press to first row, all acquired identities, all required fields,
+   database commit and fully browsable results. Break out acquisition, transfer,
+   hydration, persistence and UI costs, including work before the timer or after
+   the displayed completion. Disclose login/connect/preload costs separately.
+   Baseline our current branch; use main as a control only when necessary to
+   isolate a change, without undoing accepted Home work.
+4. **Run fair bounded comparisons.** Use several valid repetitions for cold and
+   warm scans, single kinds, advertised combined kinds and all supported kinds;
+   include home/remote contexts where supported. Define cold/warm explicitly and
+   use isolated state or safe supported cache controls; do not delete owner data.
+   Compare typed identities, positions, field completeness and freshness through
+   source-matched joins and sampled independent coverage checks. Record request
+   counts, timing distributions, CPU, private memory and repeated-run growth.
+   Account for moving/expired objects and time separation. Empty or cached scans
+   cannot substitute for populated fresh full-world coverage.
+5. **Choose, implement and qualify.** Rank the demonstrated bottlenecks and
+   credible alternatives, implement useful changes in our own maintainable code,
+   and perform matched before/after trials. Preserve complete fields, accuracy,
+   cancellation, correlation and cleanup. Do not force a few-second result by
+   shrinking coverage, returning stale data or hiding unfinished work. If the
+   advertisement is unsupported or does less work, document that and still
+   finish the supported Map improvements and qualification below.
+
+Verify that competitor automation which can cause gameplay is off through
+supported controls before a live comparison. If legitimate access or a specific
+control prevents an equivalent run, state that exact limitation, retain recovered
+method evidence and continue our matched baseline/candidate trials. Do not turn
+one blocked measurement into an unsupported claim about the whole competitor.
+
+After the scanner work, complete the current Map feature inventory and affected
+end-to-end checks. The assignment is not complete after source recovery or a
+benchmark report alone; deliver useful supported implementation and evidence,
+or a concrete measured reason to retain the existing method for each rejected
+candidate. Do not repeat unchanged historical failures without a new causal
+hypothesis and a distinguishing observation.
 
 ## Live authority and boundaries
 
@@ -97,9 +178,21 @@ paths inertly; do not silently expand authority to obtain a live positive.
   with original scripts restored and no task-owned target process left running.
 
 Commit and push coherent work to the same branch, update draft PR #16, and retain
-sanitized source anchors, method decisions, before/after measurements, accuracy
-limits, fault tests and package/cleanup receipts in a new dated Map research
-directory. Raw account/competitor/runtime evidence stays ignored locally.
+sanitized evidence in `docs/research/lwtool/2026-10-24/map/`:
+
+- `SCAN_METHOD_REPORT.md`: the active methods, advertised versus actual scope,
+  source anchors, explicit answers to the four decisive questions above, and
+  limitations;
+- machine-readable benchmark/accuracy results with run IDs, timing definitions,
+  equivalent-work conditions, sampled coverage and field checks, including failed
+  attempts;
+- a method decision and feature qualification ledger: accepted improvements,
+  rejected alternatives with reasons, affected regressions and unresolved gates;
+- final source-pinned package identity, hashes, privacy and exact cleanup receipts.
+
+Raw account/competitor/runtime evidence stays ignored locally. Public reports
+must be understandable without access to private recovered source; include
+sanitized technical descriptions and reproducible checks, not proprietary dumps.
 
 Return the source commit, supported improvements, measured benefits, remaining
 limits, exact checks/negatives, package path/hash and restoration receipt for

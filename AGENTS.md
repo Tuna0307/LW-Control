@@ -1,3 +1,14 @@
+Latest owner Map assignment, 2026-10-24: investigate LwTool's advertised few-second full-map scan and use
+supported findings to improve our Map speed, accuracy, efficiency and stability. Owner reports our fastest
+scan is 20+ seconds; neither that baseline nor the advertisement is an independently matched measurement.
+Continue codex/lwtool-full-improvement / draft PR #16 and read
+docs/work-items/LWTOOL-MAP-COMPARISON-AND-IMPROVEMENT.md. Recover the active scanner end to end, establish
+equivalent coverage/fields/freshness/timing, then implement and qualify useful improvements autonomously.
+This assignment supersedes historical report-only Map scope for this work. Preserve accepted Home and
+other tabs, exact session ownership/restoration and read-only game-action boundaries. Task-owned app/game
+start/close/restart is authorized; one live controller. No main merge or public release. Independent lead
+review follows the worker handback; this update itself includes no Map implementation or live testing.
+
 Latest lead Home acceptance, 2026-10-24: Home is DONE for the owner's agreed finite stress-test scope.
 Read docs/reviews/2026-10-23-HOME-FINAL-ACCEPTANCE.md and its sanitized evidence JSON. Final product/package
 source ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb on codex/lwtool-full-improvement / draft PR #16.
