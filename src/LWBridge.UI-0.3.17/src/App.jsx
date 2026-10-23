@@ -795,7 +795,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     });
   }, []);
 
-  const readStatusSnapshot = useCallback(async (canAcknowledge = () => true) => {
+  const readStatusSnapshot = useCallback(async (canAcknowledge = () => true, includeConfig = true) => {
     if (!backendBridge.available) return;
     const statusReadRevision = statusReadRevisionRef.current + 1;
     statusReadRevisionRef.current = statusReadRevision;
@@ -806,12 +806,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     const reconnectGeneration = reconnectStatusGeneration.current;
     const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
     const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;
-    const autoLaunchConfigPollGeneration = autoLaunchConfigPollGenerationRef.current + 1;
-    autoLaunchConfigPollGenerationRef.current = autoLaunchConfigPollGeneration;
+    const autoLaunchConfigPollGeneration = includeConfig
+      ? autoLaunchConfigPollGenerationRef.current + 1
+      : autoLaunchConfigPollGenerationRef.current;
+    if (includeConfig) autoLaunchConfigPollGenerationRef.current = autoLaunchConfigPollGeneration;
+    const configRead = includeConfig
+      ? backendBridge.invoke("local_config_get", { profileId: owner.profileId })
+      : Promise.resolve(null);
     const [statusResult, proxyResult, configResult] = await Promise.allSettled([
       mapApi.readStatus(),
       mapApi.readProxyStatus(),
-      backendBridge.invoke("local_config_get", { profileId: owner.profileId }),
+      configRead,
     ]);
     if (!canAcknowledge()
       || !isCurrentProfileOwner(owner)
@@ -820,7 +825,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       acknowledgeRuntimeStatus(statusResult.value, reconnectGeneration, owner);
     }
     if (proxyResult.status === "fulfilled") setProxyStatus(proxyResult.value);
-    if (configResult.status === "fulfilled") {
+    if (includeConfig && configResult.status === "fulfilled") {
       if (autoLaunchConfigPollGenerationRef.current === autoLaunchConfigPollGeneration
         && autoLaunchSaveRevisionRef.current === autoLaunchRevision
         && autoLaunchNativeCommitEpochRef.current === autoLaunchNativeCommitEpoch
@@ -948,7 +953,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       if (inFlight) return;
       inFlight = true;
       try {
-        await readStatusSnapshot(() => !closed && isCurrentProfileOwner(owner));
+        // Native status/proxy events provide the fast path. The 5-second poll is
+        // a dropped-event/watchdog path, so do not also reread persisted local
+        // config every tick. Config is read on owner admission/manual refresh and
+        // is updated transactionally by the save path itself.
+        await readStatusSnapshot(() => !closed && isCurrentProfileOwner(owner), false);
       } finally {
         inFlight = false;
       }
@@ -1052,7 +1061,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const nativeAssetReader = useMemo(() => createProfileGameAssetReader(backendBridge), [selectedProfileId, imageGameRoot, online]);
 
   useEffect(() => {
-    if (!online || !backendBridge.available) return undefined;
+    // RetainedPages keeps hidden tabs mounted. Summary refresh already happens
+    // on Map entry, profile change and scan completion, so polling SQLite every
+    // five seconds while another tab is visible is pure background work.
+    if (!online || !backendBridge.available || activeRoute !== "map-data") return undefined;
     let closed = false;
     let polling = false;
     const poll = async () => {
@@ -1072,7 +1084,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       closed = true;
       window.clearInterval(timer);
     };
-  }, [online, refreshMapSummary]);
+  }, [activeRoute, online, refreshMapSummary]);
 
   const updateAutoLaunch = useCallback((value) => {
     if (!backendBridge.available) return undefined;

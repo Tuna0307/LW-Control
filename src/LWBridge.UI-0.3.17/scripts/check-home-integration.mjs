@@ -236,6 +236,18 @@ function deliver(fixture, message) {
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
+assert.match(appSource,
+  /const readStatusSnapshot = useCallback\(async \(canAcknowledge = \(\) => true, includeConfig = true\)/,
+  "status watchdog must make persisted-config rereads optional");
+assert.match(appSource,
+  /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\), false\)/,
+  "periodic status watchdog must skip redundant local_config_get");
+assert.match(appSource,
+  /const autoLaunchConfigPollGeneration = includeConfig[\s\S]*if \(includeConfig\) autoLaunchConfigPollGenerationRef\.current = autoLaunchConfigPollGeneration/,
+  "status-only watchdog must not retire an overlapping config-bearing read generation");
+assert.match(appSource,
+  /!online \|\| !backendBridge\.available \|\| activeRoute !== "map-data"/,
+  "hidden retained Map route must not keep polling aggregate summary");
 {
   const enabledBody = appSource.slice(appSource.indexOf("const setNativeProfileEnabled ="),
     appSource.indexOf("const reorderNativeProfiles ="));
@@ -678,7 +690,8 @@ assert.ok(periodicStatusIndex >= 0, "recurring status refresh must use its own g
 const periodicStatusBody = appSource.slice(appSource.lastIndexOf("useEffect(() => {", periodicStatusIndex), appSource.indexOf("useEffect(() => {", periodicStatusIndex + 1));
 assert.match(periodicStatusBody, /let inFlight = false/, "recurring status refresh must own an in-flight fence");
 assert.match(periodicStatusBody, /if \(inFlight\) return/, "overlapping periodic status reads must be suppressed");
-assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\)\)/, "periodic acknowledgements must remain owned by the live profile generation");
+assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\), false\)/,
+  "periodic acknowledgements must remain owned by the live profile generation while skipping redundant persisted-config reads");
 assert.match(periodicStatusBody, /statusReadRevisionRef\.current \+= 1;[\s\S]*acknowledgeRuntimeStatus\(status/,
   "a newer bridge status event must retire any older in-flight paired status read before applying runtime state");
 assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring status refresh must clear its timer with the effect");
