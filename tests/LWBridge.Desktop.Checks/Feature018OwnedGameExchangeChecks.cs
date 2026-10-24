@@ -91,6 +91,7 @@ internal static class Feature018OwnedGameExchangeChecks
     {
         await LockedMailboxAsync();
         await CityTransientIdentityAsync();
+        await EquipmentSnapshotAuthorityAsync();
         FreshHeartbeatReadRaceChecks();
         var city = Feature018GameCommandService.ReadFields("city_layout_apply_start",
             JsonSerializer.SerializeToElement(new
@@ -725,6 +726,78 @@ internal static class Feature018OwnedGameExchangeChecks
             requestLock?.Dispose(); responseLock?.Dispose();
             Directory.Delete(root, recursive: true);
         }
+    }
+
+    private static async Task EquipmentSnapshotAuthorityAsync()
+    {
+        foreach (string scenario in new[] { "before", "after", "owner-change", "account-change", "expired", "late-ready", "cancel", "mutation" })
+        {
+            string root = Path.Combine(Path.GetTempPath(), "equipment-authority-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            try
+            {
+                string request = Path.Combine(root, "request.txt"), reply = Path.Combine(root, "reply.json");
+                var owner = new OverviewMapScanSession("equipment-profile", "equipment-session", "equipment-challenge",
+                    12345, @"C:\test\LastWar.exe", "2026-10-25T00:00:00Z");
+                var account = new Feature018AuthenticatedGameAccount("90001", 999);
+                DateTimeOffset now = DateTimeOffset.UtcNow, began = now;
+                bool available = scenario == "after", owns = true, postGap = false;
+                int waits = 0;
+                var ids = new HashSet<string>();
+                using var cancellation = new CancellationTokenSource();
+                var exchange = new Feature018OwnedGameExchange(
+                    () => {
+                        if (scenario == "after" && File.Exists(request) && !postGap)
+                        { postGap = true; available = false; }
+                        return available ? owner : null;
+                    }, session => owns && session == owner, request, reply,
+                    utcNow: () => now,
+                    currentAccount: _ => !available ? null : scenario == "account-change"
+                        ? new Feature018AuthenticatedGameAccount("90002", 999) : account,
+                    retainedSession: () => owner,
+                    delay: (_, _) => {
+                        waits++; now = now.AddMilliseconds(scenario == "late-ready" ? 700 : 100);
+                        if (scenario == "cancel") cancellation.Cancel();
+                        if (scenario == "owner-change") owns = false;
+                        if (scenario != "expired") available = true;
+                        if (File.Exists(request))
+                        {
+                            var wire = File.ReadAllLines(request).Select(line => line.Split('=', 2))
+                                .Where(pair => pair.Length == 2).ToDictionary(pair => pair[0], pair => pair[1]);
+                            ids.Add(wire["requestId"]);
+                            File.WriteAllText(reply, JsonSerializer.Serialize(new {
+                                schemaVersion = 1, requestId = wire["requestId"], profileId = owner.ProfileId,
+                                launchSessionId = owner.SessionId, challenge = owner.Challenge, gamePid = owner.GamePid,
+                                command = wire["command"], observedAt = now.ToUnixTimeMilliseconds(),
+                                state = "confirmed", data = new { freshAuthorityRecovered = true },
+                            }));
+                        }
+                        return Task.CompletedTask;
+                    });
+                string command = scenario == "mutation" ? "feature018_hotkey_action" : "feature018_equipment_snapshot";
+                Task<JsonElement> Run() => exchange.ExchangeAsync(command, null,
+                    TimeSpan.FromSeconds(4), cancellation.Token, expectedAccount: account);
+                if (scenario is "before" or "after")
+                {
+                    JsonElement value = await Run();
+                    Require(value.GetProperty("freshAuthorityRecovered").GetBoolean() && ids.Count == 1,
+                        "Equipment snapshot aborted a brief gap or replayed a request: " + scenario);
+                }
+                else if (scenario == "cancel")
+                {
+                    bool cancelled = false;
+                    try { await Run(); } catch (OperationCanceledException) { cancelled = true; }
+                    Require(cancelled, "Equipment wait ignored cancellation");
+                }
+                else await RequireErrorAsync(scenario is "expired" or "late-ready" ? "GAME_ACCOUNT_NOT_AUTHORIZED" : "GAME_CONNECTION_UNAVAILABLE", async () => await Run());
+                if (scenario is not ("before" or "after"))
+                    Require(!File.Exists(request), "Equipment authority failure published a request: " + scenario);
+                if (scenario == "expired") Require(now - began <= TimeSpan.FromMilliseconds(600), "Equipment freshness wait exceeded its bound");
+                if (scenario == "mutation") Require(waits == 0, "Mutation inherited the read-only grace policy");
+            }
+            finally { Directory.Delete(root, true); }
+        }
+        Console.WriteLine("FEATURE018_EQUIPMENT_SNAPSHOT_AUTHORITY_PASS scenarios=8 noReplay=true mutationPolicyUnchanged=true");
     }
 
     private static async Task CityTransientIdentityAsync()

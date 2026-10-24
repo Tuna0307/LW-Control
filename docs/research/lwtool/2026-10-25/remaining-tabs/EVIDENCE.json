@@ -32,7 +32,8 @@
   "implementedCandidates": [
     "queued Hotkeys/Mini Games edit generation fencing",
     "FPS/ping edit capture before first async yield and generation-safe rollback",
-    "atomic saved equipment preset rename without recapture"
+    "atomic saved equipment preset rename without recapture",
+    "500 ms fresh-authority wait for read-only equipment snapshots; exact owner/account and no-replay retained"
   ],
   "ownerDecisions": {
     "marchSpeedups": "compare-only-keep-removed-explicit-2026-10-25",
@@ -48,5 +49,17 @@
     "integrated Home/Map regression and cleanup"
   ],
   "privateEvidenceRoot": "artifacts/lwtool-remaining-tabs-20261025",
-  "noMergeOrRelease": true
+  "noMergeOrRelease": true,
+  "retainedNegatives": [
+    {
+      "candidateSource": "1eb1a32f93cc8f07ece824a2dbf880f5e86632a7",
+      "case": "Equipment WebView",
+      "reason": "Native drag steps completed, then an independent equipment snapshot refused a temporarily unavailable ready-session observation. The initial diagnostic lookup used the wrong receipt filename; native gear comparison prevented a workflow replay.",
+      "exactEquipmentRestored": true,
+      "originalScriptsRestored": true,
+      "taskSessionClosed": true,
+      "runtimeArtifact": "artifacts/map014-takeover/native-ui-20261024-220254",
+      "receiptSha256": "d993b642f132f223c2d2458531b5069016901dfc218d2a439e6428fa7a3be2c6"
+    }
+  ]
 }

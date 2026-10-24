@@ -91,3 +91,27 @@ reject stale IDs and malformed requests without writing the file.
 No cross-product speed/CPU superiority is claimed. The selected changes improve
 correctness and avoid recapturing gear for a rename; final package/live receipts
 are still required before handoff.
+
+## Retained first-package refusal and correction
+
+The first package candidate (`1eb1a32f`) completed native gear attach/drag/back
+steps, then a read-only snapshot failed its ready-session freshness check. No
+preset-rename or later City/Settings action is certified from that attempt. An
+initial diagnostic lookup used the wrong receipt filename; a native gear
+comparison stopped any workflow replay. One moved item was restored through the
+saved native baseline, and every slot and inventory wearer matched the original.
+The owned game exited and original scripts were restored. The partial receipt
+and screenshots remain private and are indexed by hash in EVIDENCE.json.
+
+Eight subsequent read-only snapshots succeeded with the same owned process and
+account. The exact cause of the brief readiness gap is not established. The
+selected correction waits up to 500 ms for fresh authority **only** for the exact
+read-only equipment-snapshot command. It requires the same retained process/
+launch/session and current account; changed owners/accounts, expiry or
+cancellation fail closed. It neither publishes nor accepts a reply while
+authority is missing and never replays a published envelope. Non-City mutation
+commands retain their original immediate-fail policy; City behavior is unchanged.
+
+Distinguishing controlled cases cover gaps before/after publication, changed
+owner, changed account, persistent missing authority, late readiness, cancellation
+and the unchanged mutation policy. Fresh package qualification remains required.
