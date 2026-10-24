@@ -10,6 +10,7 @@ import sqlite3
 import tempfile
 import time
 import unittest
+from unittest import mock
 import importlib.util
 import zipfile
 
@@ -17,6 +18,15 @@ import map_015_package_ui as package_ui
 
 
 class ProgrammePackageCompatibilityTests(unittest.TestCase):
+    def test_owned_runner_disables_python_bytecode_without_weakening_package_gate(self):
+        with mock.patch.dict(os.environ, {"SENTINEL_TEST_ONLY": "keep"}):
+            result = package_ui.owned_runner_environment("C:/package/LWBridge.Desktop.exe", True)
+        self.assertEqual(result["PYTHONDONTWRITEBYTECODE"], "1")
+        self.assertEqual(result["LWBRIDGE_MAP014_UI_EXE"], "C:/package/LWBridge.Desktop.exe")
+        self.assertEqual(result["LWBRIDGE_MAP014_NEW_KINDS_UI"], "1")
+        self.assertEqual(result["SENTINEL_TEST_ONLY"], "keep")
+        self.assertNotIn("SENTINEL_TEST_ONLY", os.environ)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="map015-programme-package-", dir=package_ui.ARTIFACTS)
         self.addCleanup(self.temporary.cleanup)
@@ -795,7 +805,18 @@ class PackagedSavedClearReopenProofTests(unittest.TestCase):
                           homeServer=2212, remoteServer=2213,
                           stages=[
                               dict(stage="preserved_home", serverId=2212, count=3,
-                                   priorRemote=0, beforeServers=[2212]),
+                                   priorRemote=0, beforeServers=[2212],
+                                   initialHomeRows=0, initialSavedServers=[],
+                                   acquisition="same_owned_session_genuine_manual_resource_after_r18_startup_clear",
+                                   homeScanRunId="fresh-home-resource-run", homeDurableStatus="completed",
+                                   homeScan=dict(scanRunId="fresh-home-resource-run",serverId=2212,
+                                                 serverIdSource="live",selectedTypes=["resource"],
+                                                 scanMode="fast",phase="completed",isReading=False,
+                                                 totalBlocks=2500,completedBlocks=2500,readBlocks=2500,
+                                                 failedBlocks=0,nativeDroppedRecords=0,nativePendingRecords=0),
+                                   nativeAois=10000,nativeReplies=63,
+                                   homeNativeReceipt="map016-home-native-resource-receipt.json",
+                                   homeNativeMetrics="map016-home-native-resource-metrics.json"),
                               dict(stage="two_server_auto_published",
                                    requestedAt=datetime.fromtimestamp((now-1000)/1000, timezone.utc).isoformat(),
                                    scan=dict(outcome="completed", lastError=None,
@@ -818,6 +839,15 @@ class PackagedSavedClearReopenProofTests(unittest.TestCase):
         self.metrics["uniqueRecordKeys"]["resource"] = 5
         self.metrics["source"] = "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync"
         self.metrics.update(phase="prepared", validatedProbeResponses=63, uniqueCoveredAois=10000)
+        home_native = dict(self.native, probeVersion="lwbridge-live-resource-probe-2",
+                           requestId="direct-home", scanRunId="fresh-home-resource-run",
+                           serverId=2212)
+        home_metrics = dict(self.metrics,
+                            identity=dict(self.metrics["identity"],RunId="fresh-home-resource-run",
+                                          ServerId=2212,SelectedTypesKey="resource",ScanMode="fast"),
+                            acquisitionPolicy="direct")
+        self.write("map016-home-native-resource-receipt.json", home_native)
+        self.write("map016-home-native-resource-metrics.json", home_metrics)
         self.stage = dict(runId=self.run, serverId=2213, scanMode="fast",
                           sourceCaptureMilliseconds=31000, checkpointMilliseconds=250,
                           publicationMilliseconds=150, wholeEngineMilliseconds=31400)
@@ -874,6 +904,11 @@ class PackagedSavedClearReopenProofTests(unittest.TestCase):
             ("no Resource provenance", lambda: self.metrics["identity"].update(SelectedTypesKey="city")),
             ("missing screenshot", lambda: (self.root/"map016-saved-after-clear.png").unlink()),
             ("wrong sqlite retained", lambda: self.remove_resource_rows()),
+            ("old startup data", lambda: self.saved["stages"][0].update(initialHomeRows=3)),
+            ("missing new home run", lambda: self.saved["stages"][0].update(homeScanRunId="")),
+            ("wrong home run phase", lambda: self.saved["stages"][0]["homeScan"].update(phase="failed")),
+            ("old row reinjection", lambda: self.saved["stages"][0].update(acquisition="source_clone")),
+            ("home aliases remote", lambda: self.saved["stages"][0].update(homeScanRunId=self.run)),
         ]
         for label, mutate in cases:
             with self.subTest(label=label):

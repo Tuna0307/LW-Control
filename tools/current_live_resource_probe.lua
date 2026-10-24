@@ -2663,8 +2663,20 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
                          duplicateRetainedPointIndices = 0,
                          nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0,
                          supersededNativeCityCount = 0, nativeOwnerConflicts = 0,
-                         nativeCanonicalLookupFailures = 0 }
-    local retained_ids, retained_owners = {}, {}
+                         nativeCanonicalLookupFailures = 0,
+                         -- Aggregate diagnostics only; never serialize a raw UID,
+                         -- point index, player name or unresolved native row.
+                         nativeIdentityDiagnostics = {
+                             inspected = 0, absentRetainedIndex = 0,
+                             nativeOwnerPresent = 0, ownerFromRetained = 0,
+                             ownerUnavailable = 0, retainedOwnerAtOtherIndex = 0,
+                             canonicalCallAttempted = 0, canonicalCallSucceeded = 0,
+                             canonicalCallFailed = 0, canonicalResultNil = 0,
+                             canonicalIndexInvalid = 0, canonicalTypeInvalid = 0,
+                             canonicalServerInvalid = 0, canonicalOwnerInvalid = 0,
+                             canonicalSameIndex = 0, canonicalDifferentIndex = 0,
+                         } }
+    local retained_ids, retained_owners, retained_owner_indices = {}, {}, {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
@@ -2708,6 +2720,7 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         end
         retained_ids[id] = true
         retained_owners[id] = tostring(owner_uid)
+        retained_owner_indices[tostring(owner_uid)] = id
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
@@ -2766,16 +2779,55 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count or
            selected_lookup[cell_y * block_count + cell_x] ~= true then return true end
         local native_owner = scalar_field(info,{"ownerUid","OwnerUid"})
-        local owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
-            and tostring(native_owner) or retained_owners[id]
+        local has_native_owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
+        local owner = has_native_owner and tostring(native_owner) or retained_owners[id]
         local ok_canonical, canonical = false, nil
         if owner ~= nil then ok_canonical, canonical = call(point_manager,"GetBaseMainInfoByOwnerUid",owner) end
         local canonical_id = canonical and integer_field(canonical,{"pointIndex","PointIndex"}) or nil
         local canonical_owner = canonical and scalar_field(canonical,{"ownerUid","OwnerUid"}) or nil
-        if ok_canonical and canonical_id ~= nil and canonical_id > 0 and
-           canonical_owner ~= nil and tostring(canonical_owner) == owner and
-           integer_field(canonical,{"pointType","PointType"}) == 6 and
-           integer_field(canonical,{"serverId","ServerId"}) == current_server_id() then
+        -- Observe only discrepancies and preserve the existing admission check.
+        -- A missing retained index plus canonical failure is ambiguous: the
+        -- native row may lack an owner entirely, the getter may throw/return
+        -- nil, or it may return an invalid/cross-server main base. These
+        -- bounded counters distinguish those cases on the next native receipt.
+        local native_unretained = retained_ids[id] ~= true
+        local canonical_valid = ok_canonical and canonical_id ~= nil and canonical_id > 0 and
+            canonical_owner ~= nil and tostring(canonical_owner) == owner and
+            integer_field(canonical,{"pointType","PointType"}) == 6 and
+            integer_field(canonical,{"serverId","ServerId"}) == current_server_id()
+        if native_unretained or not canonical_valid then
+            local diag = accounting.nativeIdentityDiagnostics
+            diag.inspected = diag.inspected + 1
+            if native_unretained then diag.absentRetainedIndex = diag.absentRetainedIndex + 1 end
+            if has_native_owner then diag.nativeOwnerPresent = diag.nativeOwnerPresent + 1
+            elseif retained_owners[id] ~= nil then diag.ownerFromRetained = diag.ownerFromRetained + 1 end
+            if owner == nil then diag.ownerUnavailable = diag.ownerUnavailable + 1 end
+            if owner ~= nil and retained_owner_indices[owner] ~= nil and retained_owner_indices[owner] ~= id then
+                diag.retainedOwnerAtOtherIndex = diag.retainedOwnerAtOtherIndex + 1
+            end
+            if owner ~= nil then
+                diag.canonicalCallAttempted = diag.canonicalCallAttempted + 1
+                if ok_canonical then diag.canonicalCallSucceeded = diag.canonicalCallSucceeded + 1
+                else diag.canonicalCallFailed = diag.canonicalCallFailed + 1 end
+                if ok_canonical and canonical == nil then diag.canonicalResultNil = diag.canonicalResultNil + 1 end
+            end
+            if canonical ~= nil then
+                if canonical_id == nil or canonical_id <= 0 then
+                    diag.canonicalIndexInvalid = diag.canonicalIndexInvalid + 1
+                elseif canonical_id == id then diag.canonicalSameIndex = diag.canonicalSameIndex + 1
+                else diag.canonicalDifferentIndex = diag.canonicalDifferentIndex + 1 end
+                if integer_field(canonical,{"pointType","PointType"}) ~= 6 then
+                    diag.canonicalTypeInvalid = diag.canonicalTypeInvalid + 1
+                end
+                if integer_field(canonical,{"serverId","ServerId"}) ~= current_server_id() then
+                    diag.canonicalServerInvalid = diag.canonicalServerInvalid + 1
+                end
+                if canonical_owner == nil or tostring(canonical_owner) ~= owner then
+                    diag.canonicalOwnerInvalid = diag.canonicalOwnerInvalid + 1
+                end
+            end
+        end
+        if canonical_valid then
             if canonical_id ~= id then
                 -- _pointInfos may still carry the prior location for the same
                 -- player. The game's own owner->main-base resolver identifies
@@ -3668,8 +3720,17 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
         local pair = safe_get(enumerator, "Current")
         local march = pair and (safe_get(pair, "Value") or pair) or nil
         local train = march and safe_get(march, "train") or nil
-        local train_type_hint = train and integer_field(train, { "type", "Type" }) or nil
-        if train ~= nil and train_type_hint == nil then
+        -- The fast mobile lane revisits the entire current march dictionary on
+        -- each Update. Captured UUIDs can no longer contribute a second row;
+        -- skip their type reflection as well as their position/reward reads.
+        -- With no seen set (camera/diagnostics), keep the original full path.
+        local march_id = nil
+        if train ~= nil and already_seen ~= nil then
+            march_id = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+        end
+        local inspect_train = train ~= nil and (already_seen == nil or not already_seen[march_id])
+        local train_type_hint = inspect_train and integer_field(train, { "type", "Type" }) or nil
+        if inspect_train and train_type_hint == nil then
             local hint = scalar_field(train, { "type", "Type" })
             if hint ~= nil then train_type_hint = tonumber(tostring(hint):match(":%s*(-?%d+)%s*$")) end
         end
@@ -3679,10 +3740,8 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
         -- position has moved into another rectangle).
         -- train.type is authoritative here: type 2 Railway remains on the
         -- Railway route, and must never be hydrated as a Truck candidate.
-        if train ~= nil and (already_seen == nil or train_type_hint == (capture_type or 1) or
-            (capture_type == 3 and (train_type_hint == 1 or train_type_hint == 2))) and
-            (already_seen == nil or not already_seen[
-            tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")]) then
+        if inspect_train and (already_seen == nil or train_type_hint == (capture_type or 1) or
+            (capture_type == 3 and (train_type_hint == 1 or train_type_hint == 2))) then
             local ok_index, position_index = call(march, "GetMarchCurPosIndex")
             local index = ok_index and tonumber(position_index) or nil
             if index == nil or index <= 0 then index = integer_field(march, { "targetPos", "TargetPos" }) end
@@ -3691,7 +3750,7 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                 local cell_x = math.floor(tile.x / block_size)
                 local cell_y = math.floor(tile.y / block_size)
                 local aoi_index = cell_y * block_count + cell_x
-                local march_id = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+                march_id = march_id or tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
                 if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and
                    selected_lookup[aoi_index] == true and (already_seen == nil or not already_seen[march_id]) then
                     local config = safe_get(train, "config")
@@ -3712,16 +3771,23 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                         end
                     end
                     if train_data == nil and raw_train_data ~= nil then train_data = raw_train_data end
-                    local train_type_raw = scalar_field(train, { "type", "Type" })
-                    local train_data_type_raw = train_data and scalar_field(train_data, { "type", "Type" }) or nil
-                    local train_type = integer_field(train, { "type", "Type" })
-                    if train_type == nil and train_type_raw ~= nil then
-                        train_type = tonumber(tostring(train_type_raw):match(":%s*(-?%d+)%s*$"))
+                    -- The same game-owned train.type already determined this
+                    -- row's lane. Reuse it; retain the original TrainData type
+                    -- fallback for camera callers without a usable hint.
+                    local train_type = train_type_hint
+                    if train_type == nil then
+                        local train_type_raw = scalar_field(train, { "type", "Type" })
+                        if train_type_raw ~= nil then
+                            train_type = tonumber(tostring(train_type_raw):match(":%s*(-?%d+)%s*$"))
+                        end
                     end
                     if train_type == nil and train_data ~= nil then
                         train_type = integer_field(train_data, { "type", "Type" })
-                        if train_type == nil and train_data_type_raw ~= nil then
-                            train_type = tonumber(tostring(train_data_type_raw):match(":%s*(-?%d+)%s*$"))
+                        if train_type == nil then
+                            local train_data_type_raw = scalar_field(train_data, { "type", "Type" })
+                            if train_data_type_raw ~= nil then
+                                train_type = tonumber(tostring(train_data_type_raw):match(":%s*(-?%d+)%s*$"))
+                            end
                         end
                     end
                     local train_data_json = nil

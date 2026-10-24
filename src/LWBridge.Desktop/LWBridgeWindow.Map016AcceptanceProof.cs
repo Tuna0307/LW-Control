@@ -6,8 +6,9 @@ namespace LWBridge.Desktop;
 
 internal sealed partial class LWBridgeWindow
 {
-    // Opt-in MAP016 packaged acceptance: genuine preserved 2212 Resource data,
-    // one owned Auto Resource acquisition on 2213, original-server return, then
+    // Opt-in MAP016 packaged acceptance: R18 removes old Map rows at startup.
+    // Acquire fresh genuine Resource rows on home 2212 in THIS owned session,
+    // then one owned Auto Resource acquisition on 2213, original-server return,
     // Clear 2213 through the actual WebView and reconstruct the Map page.
     // This does not click any game coordinate, claim, plunder, or account action.
     private async Task RunMap016SavedClearReopenProofAsync(
@@ -104,17 +105,99 @@ internal sealed partial class LWBridgeWindow
         if (initial.Running || initial.Config.Enabled || mapAutoScanService.IsCycleBusy ||
             initial.Config.ServerIds is { Count: > 0 })
             throw new InvalidDataException("Saved Clear proof requires a fresh disabled Auto schedule and no foreign target.");
-        int original = await ResourceTotal(home);
+        int initialHome = await ResourceTotal(home);
         int priorRemote = await ResourceTotal(remote);
         int[] beforeServers = await Servers();
-        if (original <= 0 || priorRemote != 0 || !beforeServers.Contains(home) ||
-            beforeServers.Contains(remote))
-            throw new InvalidDataException("Saved Clear requires genuine preserved home 2212 rows and no pre-existing 2213 data.");
-        stages.Add(new { stage = "preserved_home", serverId = home, count = original, priorRemote, beforeServers, live });
-        await Save();
-
+        // Reimporting an old DB AFTER startup would defeat R18's session-only
+        // admission. Insist on a genuinely empty published store and use the
+        // actual Manual Map317 native scanner, not a fixture or DB mutation.
+        if (initialHome != 0 || priorRemote != 0 || beforeServers.Length != 0 ||
+            map317CommandService.IsScanActive)
+            throw new InvalidDataException("Saved Clear needs R18-cleared Map data, idle Manual scan and no saved servers before acquiring home 2212.");
+        string? homeRunId = null;
         try
         {
+            RequireOwner();
+            // Include slow/blocked status reads in the six-minute limit, not
+            // just the 100-ms delays between polls. A timeout reaches finally
+            // and stops only this accepted RunId under the transition gate.
+            using var homeBudget = CancellationTokenSource.CreateLinkedTokenSource(token);
+            homeBudget.CancelAfter(TimeSpan.FromMinutes(6));
+            Map317.MapScanState homeStarted = (Map317.MapScanState)(await map317CommandService.InvokeAsync(
+                "map_scan_start",
+                JsonSerializer.SerializeToElement(new
+                {
+                    selectedTypes = new[] { "resource" },
+                    scanMode = "fast",
+                    resume = false,
+                }, JsonOptions.Default), homeBudget.Token)
+                ?? throw new InvalidDataException("Genuine home Resource scan returned no Map317 state."));
+            homeRunId = homeStarted.ScanRunId;
+            Map016SavedClearHomeRunProof.RequireStarted(homeStarted, home);
+
+            Map317.MapScanState? homeCompleted = null;
+            for (int attempt = 0; attempt < 3600; attempt++)
+            {
+                RequireOwner();
+                var state = (Map317.MapScanState)(await map317CommandService.InvokeAsync(
+                    "map_scan_status", JsonSerializer.SerializeToElement(new { }, JsonOptions.Default), homeBudget.Token)
+                    ?? throw new InvalidDataException("Home Map317 scan status unavailable."));
+                if (!string.Equals(state.ScanRunId, homeRunId, StringComparison.Ordinal) ||
+                    state.ServerId != home || state.ServerIdSource != "live")
+                    throw new InvalidDataException("Home Resource scan lost its exact live 2212 RunId.");
+                if (!state.IsReading)
+                {
+                    Map016SavedClearHomeRunProof.RequireCompleted(state, homeStarted, home);
+                    homeCompleted = state;
+                    break;
+                }
+                if (state.Phase is "failed" or "cancelled" or "idle" or "completed")
+                    throw new InvalidDataException("Home Resource scan claimed a terminal phase while still reading.");
+                await Task.Delay(100, homeBudget.Token);
+            }
+            if (homeCompleted is null)
+                throw new TimeoutException("Same-owned native home Resource scan did not finish within 360 seconds.");
+            RequireOwner();
+            Map317.MapScanRun? durable = map317CommandService.ReadPersistedScanRunForProof(homeRunId);
+            Map016SavedClearHomeRunProof.RequireDurable(durable, homeRunId, home);
+
+            // Preserve the actual game's independent native receipts BEFORE
+            // the remote Auto scan can replace these source-owned file paths.
+            string nativeRoot = overviewLifecycleService.LiveResourceRuntimeRoot;
+            string nativePath = Path.Combine(nativeRoot, "camera-free-scan-result.json");
+            string metricPath = Path.Combine(nativeRoot, "map-fullworld-probe-metrics.json");
+            byte[] nativeBytes = await File.ReadAllBytesAsync(nativePath, token);
+            byte[] metricBytes = await File.ReadAllBytesAsync(metricPath, token);
+            using (JsonDocument native = JsonDocument.Parse(nativeBytes))
+            using (JsonDocument metrics = JsonDocument.Parse(metricBytes))
+                Map016SavedClearHomeRunProof.RequireNative(
+                    native.RootElement, metrics.RootElement, homeRunId, home, owner);
+            RequireOwner();
+            const string homeNativeReceipt = "map016-home-native-resource-receipt.json";
+            const string homeNativeMetrics = "map016-home-native-resource-metrics.json";
+            await using (var copy = new FileStream(Path.Combine(directory, homeNativeReceipt),
+                FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                await copy.WriteAsync(nativeBytes, token);
+            await using (var copy = new FileStream(Path.Combine(directory, homeNativeMetrics),
+                FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                await copy.WriteAsync(metricBytes, token);
+
+            int original = await ResourceTotal(home);
+            int[] homeServers = await Servers();
+            if (original <= 0 || homeServers.Length != 1 || homeServers[0] != home ||
+                await ResourceTotal(remote) != 0 || overviewLifecycleService.GetLiveServerId() != home)
+                throw new InvalidDataException("New genuine home 2212 scan did not publish preserved Resource rows exclusively on home.");
+            stages.Add(new {
+                stage = "preserved_home", serverId = home, count = original, priorRemote,
+                beforeServers = homeServers, live = overviewLifecycleService.GetLiveServerId(),
+                initialHomeRows = initialHome, initialSavedServers = beforeServers,
+                homeScanRunId = homeRunId, homeScan = homeCompleted,
+                homeDurableStatus = durable!.Status,
+                nativeAois = 10000, nativeReplies = 63, homeNativeReceipt, homeNativeMetrics,
+                acquisition = "same_owned_session_genuine_manual_resource_after_r18_startup_clear",
+            });
+            await Save();
+
             // Existing production Auto service owns the native transition,
             // run token and return-to-home checks. No duplicate navigation
             // code or direct off-server camera request is introduced here.
@@ -275,6 +358,18 @@ internal sealed partial class LWBridgeWindow
                     await mapAutoScanService.CancelAsync(cleanupBudget.Token);
                 }
                 RequireCleanupOwner();
+                if (homeRunId is not null)
+                {
+                    // This method checks the exact active RunId while holding
+                    // Map317's transition gate. Never Stop an independent
+                    // Manual/Auto successor just because this proof timed out.
+                    bool stoppedHome = await map317CommandService.StopAutoScanIfOwnedAsync(
+                        homeRunId, cleanupBudget.Token);
+                    if (stoppedHome &&
+                        map317CommandService.ReadPersistedScanRunForProof(homeRunId)?.Status != "cancelled")
+                        throw new InvalidDataException("MAP016 owned home Stop did not durably cancel the exact native run.");
+                }
+                RequireCleanupOwner();
                 MapAutoScanSnapshot stopped = await mapAutoScanService.GetSnapshotAsync(cleanupBudget.Token);
                 bool restored = !stopped.Running && !stopped.Config.Enabled &&
                     overviewLifecycleService.GetLiveServerId() == home;
@@ -285,5 +380,111 @@ internal sealed partial class LWBridgeWindow
             }
             finally { await Save(); }
         }
+    }
+}
+
+/// <summary>
+/// Immutable admission predicates for MAP016's new same-session HOME scan.
+/// Kept independent of WebView/game so an inert harness can exercise the
+/// exact checks used before the remote Auto/Clear acceptance may proceed.
+/// </summary>
+internal static class Map016SavedClearHomeRunProof
+{
+    private static bool OnlyResource(IReadOnlyList<string> types) =>
+        types.Count == 1 && types[0] == "resource";
+
+    internal static void RequireStarted(Map317.MapScanState state, int home)
+    {
+        if (string.IsNullOrWhiteSpace(state.ScanRunId) ||
+            state.ServerId != home || state.ServerIdSource != "live" ||
+            !state.IsReading || !OnlyResource(state.SelectedTypes) ||
+            state.ScanMode != "fast" || !state.NativeCaptureReady ||
+            state.TotalBlocks != 2500 || state.FailedBlocks != 0 ||
+            state.Error is not null)
+            throw new InvalidDataException("Home Resource start was not accepted by the exact native 2500-block Map317 scanner.");
+    }
+
+    internal static void RequireCompleted(
+        Map317.MapScanState state, Map317.MapScanState started, int home)
+    {
+        if (!string.Equals(state.ScanRunId, started.ScanRunId, StringComparison.Ordinal) ||
+            state.ServerId != home || state.ServerIdSource != "live" ||
+            state.IsReading || state.Phase != "completed" ||
+            !OnlyResource(state.SelectedTypes) || state.ScanMode != "fast" ||
+            !state.NativeCaptureReady || state.NativeDroppedRecords != 0 ||
+            state.NativePendingRecords != 0 || state.TotalBlocks != 2500 ||
+            state.CompletedBlocks != 2500 || state.ReadBlocks != 2500 ||
+            state.FailedBlocks != 0 || state.UnreadBlocks != 0 ||
+            state.InflightBlocks != 0 || state.Error is not null ||
+            state.StartedAt != started.StartedAt)
+            throw new InvalidDataException("Exact home Resource run did not durably complete 2500/2500 native blocks without losses.");
+    }
+
+    internal static void RequireDurable(Map317.MapScanRun? run, string runId, int home)
+    {
+        if (run is null || run.Id != runId || run.ServerId != home ||
+            !OnlyResource(run.SelectedTypes) || run.Status != "completed" ||
+            run.TotalBlocks != 2500 || run.CompletedBlocks != 2500 ||
+            run.FailedBlocks != 0 || run.Error is not null ||
+            run.CreatedAt <= 0 || run.UpdatedAt < run.CreatedAt)
+            throw new InvalidDataException("Home Resource scan lacks its exact genuine completed SQLite Map317 run.");
+    }
+
+    internal static void RequireNative(
+        JsonElement receipt, JsonElement metrics, string runId, int home,
+        OverviewMapScanSession owner)
+    {
+        if (receipt.ValueKind != JsonValueKind.Object ||
+            receipt.GetProperty("schemaVersion").GetInt32() != 1 ||
+            receipt.GetProperty("probeVersion").GetString() != "lwbridge-live-resource-probe-2" ||
+            receipt.GetProperty("state").GetString() != "proven" ||
+            receipt.GetProperty("scanRunId").GetString() != runId ||
+            receipt.GetProperty("profileId").GetString() != owner.ProfileId ||
+            receipt.GetProperty("launchSessionId").GetString() != owner.SessionId ||
+            receipt.GetProperty("challenge").GetString() != owner.Challenge ||
+            receipt.GetProperty("gamePid").GetInt32() != owner.GamePid ||
+            receipt.GetProperty("serverId").GetInt32() != home ||
+            receipt.GetProperty("worldId").GetInt32() != 0 ||
+            !receipt.GetProperty("requestId").GetString()!.StartsWith("direct", StringComparison.Ordinal) ||
+            receipt.GetProperty("cameraStable").ValueKind != JsonValueKind.True ||
+            receipt.GetProperty("curViewRestored").ValueKind != JsonValueKind.True ||
+            receipt.GetProperty("completedAois").GetInt32() != 10000 ||
+            receipt.GetProperty("repliesCaptured").GetInt32() != 63 ||
+            receipt.GetProperty("requestsSent").GetInt32() is < 63 or > 65)
+            throw new InvalidDataException("Home Resource native receipt has wrong owner, run, camera restoration or 10000-AOI direct coverage.");
+        JsonElement batches = receipt.GetProperty("batches");
+        if (batches.ValueKind != JsonValueKind.Array || batches.GetArrayLength() != 63)
+            throw new InvalidDataException("Home Resource native receipt lacks 63 source replies.");
+        var covered = new HashSet<int>();
+        foreach (JsonElement batch in batches.EnumerateArray())
+        {
+            JsonElement indices = batch.GetProperty("indices");
+            if (indices.ValueKind != JsonValueKind.Array ||
+                indices.GetArrayLength() is < 1 or > 160)
+                throw new InvalidDataException("Home Resource native AOI batch has an invalid footprint.");
+            foreach (JsonElement index in indices.EnumerateArray())
+            {
+                if (!index.TryGetInt32(out int cell) ||
+                    cell is < 0 or >= 10000 || !covered.Add(cell))
+                    throw new InvalidDataException("Home Resource native AOIs overlap or have an invalid identity.");
+            }
+        }
+        if (covered.Count != 10000)
+            throw new InvalidDataException("Home Resource native source omitted AOIs.");
+        if (metrics.ValueKind != JsonValueKind.Object ||
+            metrics.GetProperty("source").GetString() != "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync" ||
+            metrics.GetProperty("phase").GetString() != "prepared" ||
+            metrics.GetProperty("validatedProbeResponses").GetInt32() != 63 ||
+            metrics.GetProperty("requiredAois").GetInt32() != 10000 ||
+            metrics.GetProperty("uniqueCoveredAois").GetInt32() != 10000 ||
+            metrics.GetProperty("acquisitionPolicy").GetString() != "direct")
+            throw new InvalidDataException("Home Resource native prepared metrics are absent or not direct.");
+        JsonElement identity = metrics.GetProperty("identity");
+        if (identity.GetProperty("RunId").GetString() != runId ||
+            identity.GetProperty("ServerId").GetInt32() != home ||
+            identity.GetProperty("WorldId").GetInt32() != 0 ||
+            identity.GetProperty("SelectedTypesKey").GetString() != "resource" ||
+            identity.GetProperty("ScanMode").GetString() != "fast")
+            throw new InvalidDataException("Home Resource prepared native metrics refer to a different run or selection.");
     }
 }

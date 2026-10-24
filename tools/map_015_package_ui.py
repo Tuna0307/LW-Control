@@ -863,6 +863,83 @@ def audit_saved_clear_reopen(destination: Path, proof: dict, restoration: dict) 
             len(stages) != len(required)):
         raise ValueError("MAP016 Saved Clear lacks exactly one genuine owned scan/clear/reopen sequence")
     home, published, cleared, reopened, cleanup = stages
+    # R18 intentionally clears every old map row at normal app startup. The
+    # accepted home data must therefore come from a NEW same-owned, full-world
+    # native Resource scan, not merely source.json's pre-start SQLite clone.
+    home_run_id = home.get("homeScanRunId")
+    home_state = home.get("homeScan")
+    if (home.get("acquisition") !=
+            "same_owned_session_genuine_manual_resource_after_r18_startup_clear" or
+            home.get("initialHomeRows") != 0 or home.get("initialSavedServers") != [] or
+            home.get("homeDurableStatus") != "completed" or
+            not isinstance(home_run_id, str) or not home_run_id or
+            not isinstance(home_state, dict) or
+            home_state.get("scanRunId") != home_run_id or
+            home_state.get("serverId") != 2212 or
+            home_state.get("serverIdSource") != "live" or
+            home_state.get("selectedTypes") != ["resource"] or
+            home_state.get("scanMode") != "fast" or
+            home_state.get("phase") != "completed" or
+            home_state.get("isReading") is not False or
+            home_state.get("totalBlocks") != 2500 or
+            home_state.get("completedBlocks") != 2500 or
+            home_state.get("readBlocks") != 2500 or
+            home_state.get("failedBlocks") != 0 or
+            home_state.get("nativeDroppedRecords") != 0 or
+            home_state.get("nativePendingRecords") != 0 or
+            home.get("nativeAois") != 10000 or home.get("nativeReplies") != 63 or
+            home.get("homeNativeReceipt") != "map016-home-native-resource-receipt.json" or
+            home.get("homeNativeMetrics") != "map016-home-native-resource-metrics.json"):
+        raise ValueError("MAP016 home rows lack the new exact-owned genuine R18-session full-world Resource scan")
+    home_native = json.loads((destination / home["homeNativeReceipt"]).read_text(encoding="utf-8"))
+    home_metrics = json.loads((destination / home["homeNativeMetrics"]).read_text(encoding="utf-8"))
+    helper = json.loads((destination / "overview-evidence" / restoration["sessionId"] / "helper-start.json")
+                        .read_text(encoding="utf-8"))
+    if (home_native.get("schemaVersion") != 1 or
+            home_native.get("probeVersion") != "lwbridge-live-resource-probe-2" or
+            home_native.get("state") != "proven" or
+            home_native.get("scanRunId") != home_run_id or
+            home_native.get("serverId") != 2212 or home_native.get("worldId") != 0 or
+            home_native.get("profileId") != restoration["profileId"] or
+            home_native.get("launchSessionId") != restoration["sessionId"] or
+            home_native.get("gamePid") != restoration["gamePid"] or
+            hashlib.sha256(str(home_native.get("challenge", "")).encode()).hexdigest() !=
+                helper.get("challengeSha256") or
+            not str(home_native.get("requestId", "")).startswith("direct") or
+            home_native.get("cameraStable") is not True or
+            home_native.get("curViewRestored") is not True or
+            home_native.get("completedAois") != 10000 or
+            home_native.get("repliesCaptured") != 63 or
+            type(home_native.get("requestsSent")) is not int or
+            not 63 <= home_native["requestsSent"] <= 65):
+        raise ValueError("MAP016 new home native Resource receipt lacks exact ownership or complete direct work")
+    home_batches = home_native.get("batches")
+    if not isinstance(home_batches, list) or len(home_batches) != 63:
+        raise ValueError("MAP016 new home did not receive 63 native AOI replies")
+    home_covered = set()
+    for batch in home_batches:
+        indices = batch.get("indices") if isinstance(batch, dict) else None
+        if (not isinstance(indices, list) or not 1 <= len(indices) <= 160 or
+                any(type(index) is not int or index < 0 or index >= 10000
+                    for index in indices) or
+                len(indices) != len(set(indices)) or not home_covered.isdisjoint(indices)):
+            raise ValueError("MAP016 new home native AOI reply has missing/duplicate cells")
+        home_covered.update(indices)
+    if len(home_covered) != 10000:
+        raise ValueError("MAP016 new home lacks exact 10000 native AOIs")
+    home_identity = home_metrics.get("identity") or {}
+    if (home_metrics.get("source") != "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync" or
+            home_metrics.get("phase") != "prepared" or
+            home_metrics.get("acquisitionPolicy") != "direct" or
+            home_metrics.get("validatedProbeResponses") != 63 or
+            home_metrics.get("requiredAois") != 10000 or
+            home_metrics.get("uniqueCoveredAois") != 10000 or
+            home_identity.get("RunId") != home_run_id or
+            home_identity.get("ServerId") != 2212 or
+            home_identity.get("WorldId") != 0 or
+            home_identity.get("SelectedTypesKey") != "resource" or
+            home_identity.get("ScanMode") != "fast"):
+        raise ValueError("MAP016 new home independent native metrics disagree with direct Resource run")
     source = json.loads((destination / "source.json").read_text(encoding="utf-8"))
     if (source.get("genuine") is not True or source.get("fixture") is not False or
             source.get("mode") != "saved-clear-reopen" or
@@ -924,7 +1001,7 @@ def audit_saved_clear_reopen(destination: Path, proof: dict, restoration: dict) 
     run_id = direct.get("scanRunId")
     helper = json.loads((destination / "overview-evidence" / restoration["sessionId"] / "helper-start.json")
                         .read_text(encoding="utf-8"))
-    if (not isinstance(run_id, str) or not run_id or
+    if (not isinstance(run_id, str) or not run_id or run_id == home_run_id or
             direct.get("state") != "proven" or direct.get("serverId") != 2213 or
             direct.get("profileId") != restoration["profileId"] or
             direct.get("launchSessionId") != restoration["sessionId"] or
@@ -1244,6 +1321,22 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
                 **({"officialSettlement": no_updater} if no_updater else {}))
 
 
+def owned_runner_environment(executable: str, include_new_kinds: bool) -> dict[str, str]:
+    """Prevent packaged Python helpers from writing into source-verified extraction.
+
+    Runtime __pycache__ files were observed after a genuine first packaged
+    attempt. A subsequent strict ZIP/extraction identity check correctly fails
+    on those extra files. Keep the identity gate strict: instead prevent the
+    *owned child* from creating bytecode files in the audited application tree.
+    This does not alter the user's global Python environment or remove files.
+    """
+    environment = os.environ.copy()
+    environment["LWBRIDGE_MAP014_UI_EXE"] = executable
+    environment["LWBRIDGE_MAP014_NEW_KINDS_UI"] = "1" if include_new_kinds else "0"
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    return environment
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--zip", required=True, help="Final source-pinned Windows release ZIP under artifacts")
@@ -1280,9 +1373,7 @@ def main(argv: list[str] | None = None) -> int:
     if not args.execute:
         return 0
     require_executable_source_commit(package["executable"], args.commit)
-    environment = os.environ.copy()
-    environment["LWBRIDGE_MAP014_UI_EXE"] = package["executable"]
-    environment["LWBRIDGE_MAP014_NEW_KINDS_UI"] = "1" if mode.get("new_kinds") else "0"
+    environment = owned_runner_environment(package["executable"], bool(mode.get("new_kinds")))
     before = set((ARTIFACTS / "map014-takeover").glob("native-ui-*"))
     completed = subprocess.run(command, cwd=ROOT, env=environment, check=False)
     after = set((ARTIFACTS / "map014-takeover").glob("native-ui-*")) - before
