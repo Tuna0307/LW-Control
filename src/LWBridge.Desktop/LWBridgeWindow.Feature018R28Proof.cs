@@ -214,6 +214,27 @@ internal sealed partial class LWBridgeWindow
                     throw new InvalidDataException("R28 Save preset changed game gear");
                 await CaptureState("preset-" + ordinal + "-saved");
             }
+            JsonObject beforeRename = JsonNode.Parse(JsonSerializer.Serialize(
+                await equipmentConfigService.InvokeAsync("equipment_config_get", empty.RootElement, token),
+                JsonOptions.Default))!.AsObject();
+            if (await core.ExecuteScriptAsync("""
+                (()=>{const input=document.querySelector('[data-equipment-preset-name]');
+                if(!input||input.disabled)return false;
+                Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'Renamed loadout');
+                input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+                """) != "true")
+                throw new InvalidDataException("Equipment rename input unavailable");
+            await WaitDom("document.querySelector('[data-equipment-action=rename-preset]')?.disabled===false", "rename enabled");
+            await Click("rename-preset");
+            JsonObject afterRename = JsonNode.Parse(JsonSerializer.Serialize(
+                await equipmentConfigService.InvokeAsync("equipment_config_get", empty.RootElement, token),
+                JsonOptions.Default))!.AsObject();
+            beforeRename["equipmentPresets"]![3]!["name"] = "Renamed loadout";
+            JsonElement renamedGear = await Snapshot();
+            if (!JsonNode.DeepEquals(beforeRename, afterRename) ||
+                !Slots(renamedGear).SequenceEqual(equippedSlots) || !Wearers(renamedGear).SequenceEqual(equippedWearers))
+                throw new InvalidDataException("Preset rename changed saved/native gear or another config field");
+            await CaptureState("preset-renamed-without-capture");
             for (int ordinal = 1; ordinal <= 4; ordinal++)
             {
                 await Set(label, previous);
@@ -232,7 +253,7 @@ internal sealed partial class LWBridgeWindow
             await Save(new { state = "proven", proof = "r28_mailbox_lock_live_drag_levels_presets_single_refresh", mailboxLockRecovered = true, dragBetweenHeroes = true,
                 game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
                 actualNativeGearLevel = gearLevel, presetSaveLeftGameUnchanged = true, allFourHotkeyOrdinalsEquippedExactSavedGear = true,
-                physicalKeyboardNotUsed = true, oneRefresh = true, exactRestore, checkpoints, finishedAtUtc = DateTimeOffset.UtcNow });
+                presetRenameNameOnly = true, physicalKeyboardNotUsed = true, oneRefresh = true, exactRestore, checkpoints, finishedAtUtc = DateTimeOffset.UtcNow });
         }
         catch (Exception error)
         {

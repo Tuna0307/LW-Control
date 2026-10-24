@@ -17,6 +17,7 @@ merge, publish a release, discard `.claude/` or overwrite private research.
   cancellation, partial failure and restoration.
 - Hotkeys: Q/W/E/R, recall, item/gem speed-ups and every retained shortcut;
   key-repeat, focus, edit controls, conflicts and exact target admission.
+  Owner clarification, 2026-10-25: speed-ups are comparison only; keep them removed.
 - Mini Games: Food House, Black Market and chest hint, including current event
   availability. Compare any related retained solver but do not resurrect removed
   Unlock Land Cell or Space-countdown features.
