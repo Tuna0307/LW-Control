@@ -1,5 +1,7 @@
 # Lead Map finish review — 2026-10-24
 
+> Historical candidate checkpoint. Final source, live receipts and disposition: [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md).
+
 Status: candidate changes pass controlled checks; new genuine package scenarios
 are still required. No acceptance, merge or release is implied by this checkpoint.
 

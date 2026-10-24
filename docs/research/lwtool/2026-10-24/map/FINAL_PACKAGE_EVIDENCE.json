@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
   "date": "2026-10-24",
-  "sourceCommit": "dd6bf8819aba859561fec7ff1870cbd87ef99748",
+  "sourceCommit": "2b32d64f4a531ec8a3b8c61926da358d0d96f0c4",
   "package": {
-    "path": "artifacts/map-lead-finish-20261024/package-final/LW-Control-lwtool-improvement-dd6bf8819aba.zip",
-    "sha256": "8a13f0f3616cf2e8ff15e4f9bcc9189cc6ed974e40b561627b85191a43142fe3",
-    "bytes": 10376493,
+    "path": "artifacts/map-lead-finish-20261024/cancel-final/package-final/LW-Control-lwtool-improvement-2b32d64f4a53.zip",
+    "sha256": "ff2cb0189288638a21a00121d07d9ab6f7448cbd0e8a65fabf4f40c99cf8b763",
+    "bytes": 10377389,
     "zipEntries": 105,
     "applicationFiles": 104,
-    "sourceInputSha256": "8958d07f29a6c0b15e5ec38bd911440e2ee7eab7d63f432e50f785d43141cde9",
+    "sourceInputSha256": "419f1a4c7e8bc633ce3670b13c0e2cd10a90dbef4069657b74e746e48a5d216f",
     "bridgesVerified": 29,
     "sourceManifestVerified": true,
     "payloadHashesVerified": true,
@@ -22,32 +22,32 @@
     "cases": [
       {
         "mode": "all-ten",
-        "artifact": "artifacts/map014-takeover/native-ui-20261024-113644"
+        "artifact": "artifacts/map014-takeover/native-ui-20261024-121316"
       },
       {
         "mode": "auto-all-ten",
-        "artifact": "artifacts/map014-takeover/native-ui-20261024-113945"
+        "artifact": "artifacts/map014-takeover/native-ui-20261024-121607"
       },
       {
         "mode": "truck-stop",
-        "artifact": "artifacts/map014-takeover/native-ui-20261024-114236"
+        "artifact": "artifacts/map014-takeover/native-ui-20261024-121908"
       },
       {
         "mode": "saved-clear-reopen",
-        "artifact": "artifacts/map014-takeover/native-ui-20261024-114347"
+        "artifact": "artifacts/map014-takeover/native-ui-20261024-122019"
       }
     ]
   },
   "homeSmoke": {
     "state": "pass",
-    "artifact": "artifacts/map-lead-finish-20261024/home-smoke-final-dd6bf881",
+    "artifact": "artifacts/map-lead-finish-20261024/cancel-final/home-smoke-final-2b32d64f",
     "sameGameRouteRecoveries": 2,
     "stopDuringReconnect": true,
     "exactGameExited": true,
-    "noSuccessorObservedSeconds": 15,
+    "noSuccessorObservedSeconds": 15.0,
     "originalScriptsRestored": true,
     "hostExited": true,
-    "stopReceiptSha256": "789b6d18cff1fbec00bc0d33765c06a066a858c7797fdb56f9d4db929aea7ee2"
+    "stopReceiptSha256": "310729d63a26b668a45347ed38a8b83b38a2b6cc265752fee03980d1e3a8e015"
   },
   "remainingLiveGates": [],
   "classification": "qualified-local-map-scope-with-recorded-negatives"

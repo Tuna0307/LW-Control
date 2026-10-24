@@ -1,7 +1,7 @@
-# Map qualification closeout — 2026-10-24
+# Map qualification closeout — 2026-10-25
 
 No required Map gate remains in the owner's finite local/read-only scope.
-Product pin: `dd6bf8819aba859561fec7ff1870cbd87ef99748`.
+Product pin: `2b32d64f4a531ec8a3b8c61926da358d0d96f0c4`.
 
 | Final package gate | Status |
 |---|---|

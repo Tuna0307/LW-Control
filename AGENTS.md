@@ -1,9 +1,9 @@
-Latest lead Map qualification, 2026-10-24: required LOCAL/read-only Map gates pass on product source
-dd6bf8819aba859561fec7ff1870cbd87ef99748. Read
+Latest lead Map qualification, 2026-10-25: required LOCAL/read-only Map gates pass on product source
+2b32d64f4a531ec8a3b8c61926da358d0d96f0c4. Read
 docs/research/lwtool/2026-10-24/map/LEAD_FINAL_MAP_QUALIFICATION.md and its evidence JSON. Genuine final-package
 Manual/Auto all-ten, mid-flight Stop, fresh saved-data Clear/reopen and bounded Home recovery/Stop pass,
 with exact originals restored. Native City main-base classification and Resource request/connection
-correlation plus bounded repair are qualified; remote LwTool service is not integrated. One intermittent
+correlation, bounded repair and exact native retry-lane Stop acknowledgement are qualified; remote LwTool service is not integrated. One intermittent
 existing controlled HomeR2 assertion remains a documented follow-up (isolated rerun and live smoke pass);
 do not claim every Home race is solved. Prior journal/incomplete-package notes below are historical.
 No main merge or release; further tab work needs its own scope. Preserve all private research and .claude/.

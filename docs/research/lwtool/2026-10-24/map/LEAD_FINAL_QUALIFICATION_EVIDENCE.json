@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "date": "2026-10-24",
   "classification": "qualified-local-map-scope-with-recorded-negatives",
-  "sourceCommit": "dd6bf8819aba859561fec7ff1870cbd87ef99748",
+  "sourceCommit": "2b32d64f4a531ec8a3b8c61926da358d0d96f0c4",
   "package": {
-    "path": "artifacts/map-lead-finish-20261024/package-final/LW-Control-lwtool-improvement-dd6bf8819aba.zip",
-    "sha256": "8a13f0f3616cf2e8ff15e4f9bcc9189cc6ed974e40b561627b85191a43142fe3",
-    "bytes": 10376493,
+    "path": "artifacts/map-lead-finish-20261024/cancel-final/package-final/LW-Control-lwtool-improvement-2b32d64f4a53.zip",
+    "sha256": "ff2cb0189288638a21a00121d07d9ab6f7448cbd0e8a65fabf4f40c99cf8b763",
+    "bytes": 10377389,
     "zipEntries": 105,
     "applicationFiles": 104,
-    "sourceInputSha256": "8958d07f29a6c0b15e5ec38bd911440e2ee7eab7d63f432e50f785d43141cde9",
+    "sourceInputSha256": "419f1a4c7e8bc633ce3670b13c0e2cd10a90dbef4069657b74e746e48a5d216f",
     "bridgesVerified": 29,
     "sourceManifestVerified": true,
     "payloadHashesVerified": true,
@@ -22,9 +22,9 @@
     {
       "mode": "all-ten",
       "state": "pass",
-      "artifact": "artifacts/map014-takeover/native-ui-20261024-113644",
-      "proofSha256": "f87d6ccbd39f097b827aeba5c7b94c7a3c989c8634b752ccba4525e29396d8d4",
-      "ownedExitSha256": "51ed6fce71cf45720d4096e006b97f63fbeee600531ad3ec6bd34e7fefd9e87d",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-121316",
+      "proofSha256": "6ca39cbc33fb9e6232f1c8648ba1a97f44248301cead1b06aef0d0bd69ffeb08",
+      "ownedExitSha256": "0d3f02f8c42a3c3eeefcf2397e1878daeb0281e268f35841ec9a37a017098128",
       "exactRestoration": true,
       "durableRuns": [
         {
@@ -36,22 +36,21 @@
         }
       ],
       "publishedKindCounts": {
-        "city": 4447,
-        "dispatch": 861,
-        "monster": 9503,
-        "railway": 1,
-        "resource": 8006,
-        "treasure": 26,
-        "truck": 431
+        "city": 4440,
+        "dispatch": 804,
+        "monster": 9477,
+        "resource": 8011,
+        "treasure": 24,
+        "truck": 436
       },
       "lastResourceDetailCohort": {
         "serverId": 2212,
-        "targetCount": 7946,
-        "requestCount": 7946,
-        "readyCount": 7946,
+        "targetCount": 7945,
+        "requestCount": 7945,
+        "readyCount": 7945,
         "cacheBeforeCount": 0,
         "ignoredCacheCount": 0,
-        "retryRequestCount": 7,
+        "retryRequestCount": 4,
         "nativeReplyCorrelation": "future_id_connection_config_proxy"
       },
       "cameraFree": {
@@ -68,9 +67,9 @@
     {
       "mode": "auto-all-ten",
       "state": "pass",
-      "artifact": "artifacts/map014-takeover/native-ui-20261024-113945",
-      "proofSha256": "130de487698188489db9009665c44be119261a4db5fefc31fe29502925e9ccaa",
-      "ownedExitSha256": "be7f2c3b7ab27444c015e14e8ead775ddd367de3b99a249326c7ca9ff3a125bd",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-121607",
+      "proofSha256": "a5006b442934bf8f4d64b85f597743107e9e60ef2d6b128aad7c00f76fad8817",
+      "ownedExitSha256": "a4a547827d378b9fd35e34d8ac8fa24365b1b9d32d93fd54e58dc0a6c819ea7b",
       "exactRestoration": true,
       "durableRuns": [
         {
@@ -82,18 +81,18 @@
         }
       ],
       "publishedKindCounts": {
-        "city": 3067,
-        "dispatch": 815,
-        "monster": 9248,
-        "resource": 8004,
+        "city": 3069,
+        "dispatch": 793,
+        "monster": 9168,
+        "resource": 8005,
         "treasure": 16,
-        "truck": 284
+        "truck": 302
       },
       "lastResourceDetailCohort": {
         "serverId": 2211,
-        "targetCount": 7965,
-        "requestCount": 7965,
-        "readyCount": 7965,
+        "targetCount": 7963,
+        "requestCount": 7963,
+        "readyCount": 7963,
         "cacheBeforeCount": 0,
         "ignoredCacheCount": 0,
         "retryRequestCount": 2,
@@ -119,9 +118,9 @@
     {
       "mode": "truck-stop",
       "state": "pass",
-      "artifact": "artifacts/map014-takeover/native-ui-20261024-114236",
-      "proofSha256": "483c342bb72c801886bfac28438616d09b7e503378f90a68e931e19ee38453dd",
-      "ownedExitSha256": "78ae6b83d481df0d73ea4b64b081114d31841a1fe41d27b53f9b0d415ccbf942",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-121908",
+      "proofSha256": "e79b92500605af4f32a35d74118f3008f1afb32b1c9f120268ab839acbe513d1",
+      "ownedExitSha256": "f4d9decaaf7998ec500ca0ac651c9ddd6440f43218508e4f281e8576f09679a4",
       "exactRestoration": true,
       "durableRuns": [
         {
@@ -137,9 +136,9 @@
     {
       "mode": "saved-clear-reopen",
       "state": "pass",
-      "artifact": "artifacts/map014-takeover/native-ui-20261024-114347",
-      "proofSha256": "bcdb136b79e18a60c8bab2e19b46c071efc47d153f9c983a954fb048a189a420",
-      "ownedExitSha256": "d91f672d0fdeb4feed90714b4adcf0cdc894679b3663b0527a3166e994646fea",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-122019",
+      "proofSha256": "cac72115362c464ebbf3ea985de857bf5fff97beab0074335f67245d01d82b05",
+      "ownedExitSha256": "5f7904ffa3805498fcf8703c73a4d547a37df8d4431721a85609a54c42b30d1f",
       "exactRestoration": true,
       "durableRuns": [
         {
@@ -151,48 +150,50 @@
         }
       ],
       "publishedKindCounts": {
-        "resource": 8000
+        "resource": 8008
       },
       "lastResourceDetailCohort": {
         "serverId": 2213,
-        "targetCount": 7976,
-        "requestCount": 7976,
-        "readyCount": 7976,
+        "targetCount": 7972,
+        "requestCount": 7972,
+        "readyCount": 7972,
         "cacheBeforeCount": 0,
-        "ignoredCacheCount": 62,
-        "retryRequestCount": 7,
+        "ignoredCacheCount": 67,
+        "retryRequestCount": 4,
         "nativeReplyCorrelation": "future_id_connection_config_proxy"
       },
       "savedClearReopen": {
         "originalServerId": 2212,
         "clearedServerId": 2213,
         "restoredServerId": 2212,
-        "preservedResourceRows": 8000,
+        "preservedResourceRows": 8008,
         "remoteResourceRows": 0,
         "nativeAois": 10000,
-        "sourceTimingMilliseconds": 31984,
+        "sourceTimingMilliseconds": 31750,
         "reopenedManualAndAuto": true
       }
     }
   ],
   "homeSmoke": {
     "state": "pass",
-    "artifact": "artifacts/map-lead-finish-20261024/home-smoke-final-dd6bf881",
+    "artifact": "artifacts/map-lead-finish-20261024/cancel-final/home-smoke-final-2b32d64f",
     "sameGameRouteRecoveries": 2,
     "stopDuringReconnect": true,
     "exactGameExited": true,
-    "noSuccessorObservedSeconds": 15,
+    "noSuccessorObservedSeconds": 15.0,
     "originalScriptsRestored": true,
     "hostExited": true,
-    "stopReceiptSha256": "789b6d18cff1fbec00bc0d33765c06a066a858c7797fdb56f9d4db929aea7ee2"
+    "stopReceiptSha256": "310729d63a26b668a45347ed38a8b83b38a2b6cc265752fee03980d1e3a8e015"
   },
   "checks": {
-    "desktop": "pass-isolated-rerun",
+    "desktop": "pass-final-source-isolated",
+    "desktopLog": "artifacts/map-lead-finish-20261024/cancel-desktop-final.log",
     "packageAuditorTests": 31,
-    "nativeCorrelationTests": 7,
+    "nativeCorrelationTests": 11,
+    "resourceCancellationIdentityInverses": 9,
     "citySubsetAndLuaCompileTests": 2,
     "inertLuaSuites": 49,
-    "luaSuiteSource": "077350ec; identical Lua in final dd6bf881",
+    "luaSuiteSource": "2b32d64f4a531ec8a3b8c61926da358d0d96f0c4",
     "productionUiBuildAndFingerprint": "pass"
   },
   "retainedNegatives": [
@@ -209,6 +210,10 @@
     {
       "artifact": "artifacts/map-lead-finish-20261024/final-desktop-checks.log",
       "reason": "Existing HomeR2 late-helper cancellation assertion failed once during concurrent build. Unchanged isolated rerun passed; cause unestablished; follow-up retained."
+    },
+    {
+      "artifact": "artifacts/map-lead-finish-20261024/all-lua-cancel/feature018_package_checks.log",
+      "reason": "First cancellation draft exceeded the native 65535-byte LENC module envelope; existing guard rejected it. Compact equivalent control flow and a preserved standalone comment restored the limit; all 49 inert suites and final package replay pass."
     }
   ],
   "remainingRequiredMapGates": [],
@@ -219,5 +224,7 @@
     "Intermittent controlled HomeR2 assertion remains a follow-up; isolated suite and genuine Home smoke pass."
   ],
   "mergePerformed": false,
-  "releasePerformed": false
+  "releasePerformed": false,
+  "leadCloseoutDate": "2026-10-25",
+  "supersedesPackage": "artifacts/map-lead-finish-20261024/package-final/LW-Control-lwtool-improvement-dd6bf8819aba.zip"
 }

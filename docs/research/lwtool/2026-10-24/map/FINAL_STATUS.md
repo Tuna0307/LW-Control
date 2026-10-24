@@ -1,7 +1,7 @@
-# Map final status — 2026-10-24
+# Map final status — 2026-10-25
 
 **All required local Map package gates pass** on product source
-`dd6bf8819aba859561fec7ff1870cbd87ef99748`. The interrupted worker work is
+`2b32d64f4a531ec8a3b8c61926da358d0d96f0c4`. The interrupted worker work is
 preserved, reviewed and completed for the tested Map scope. No merge or release.
 
 Read [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md) and
@@ -11,7 +11,8 @@ They supersede earlier recovery-journal and incomplete-package statuses.
 The finished changes retain local scanning, transactional batch staging and
 collector deduplication, correct City main-base classification, and require
 fresh Resource replies correlated to native request/connection identity.
-Bounded missing-reply repair preserves fail-closed publication and exact cleanup.
+Bounded missing-reply repair and exact native retry-lane Stop acknowledgement
+preserve fail-closed publication and exact cleanup.
 
 Final packaged Manual all-ten, remote Auto all-ten, mid-scan Stop, saved-data
 Clear/reopen and same-game Home recovery/Stop smoke passed. Original scripts

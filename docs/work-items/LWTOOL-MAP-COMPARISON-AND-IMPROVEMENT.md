@@ -1,7 +1,7 @@
 # LwTool fast-scan recovery and Map improvement after accepted Home
 
-Lead closeout, 2026-10-24: required local/read-only Map gates pass on product
-source `dd6bf8819aba859561fec7ff1870cbd87ef99748`. Read
+Lead closeout, 2026-10-25: required local/read-only Map gates pass on product
+source `2b32d64f4a531ec8a3b8c61926da358d0d96f0c4`. Read
 `docs/research/lwtool/2026-10-24/map/LEAD_FINAL_MAP_QUALIFICATION.md` and its
 evidence JSON for final acceptance boundaries and the separate intermittent
 controlled Home assertion follow-up. The owner stopped remote-service pursuit;

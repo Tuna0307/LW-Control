@@ -1,11 +1,12 @@
-# Lead final Map qualification — 2026-10-24
+# Lead final Map qualification — 2026-10-25
 
 **Map's required local, read-only qualification gates pass.** Source review,
 implementation, genuine packaged Manual/Auto all-ten, Stop, Clear/reopen and
 bounded Home integration smoke are complete. This accepts the tested Map scope;
 it does not establish universal performance, reproduce every seasonal population
 or resolve the separate intermittent controlled Home assertion described below.
-No main merge or public release occurred.
+No main merge or public release occurred. The retained runtime receipts are dated
+2026-10-24; this closeout was refreshed on 2026-10-25.
 
 The authoritative sanitized receipts are in
 [LEAD_FINAL_QUALIFICATION_EVIDENCE.json](LEAD_FINAL_QUALIFICATION_EVIDENCE.json).
@@ -13,11 +14,11 @@ Earlier journal-blocked and incomplete-package statuses are historical.
 
 ## Final source and package
 
-- Product source: `dd6bf8819aba859561fec7ff1870cbd87ef99748`.
+- Product source: `2b32d64f4a531ec8a3b8c61926da358d0d96f0c4`.
 - Branch: `codex/lwtool-full-improvement`; draft PR #16.
-- ZIP: `artifacts/map-lead-finish-20261024/package-final/LW-Control-lwtool-improvement-dd6bf8819aba.zip`.
-- SHA-256: `8a13f0f3616cf2e8ff15e4f9bcc9189cc6ed974e40b561627b85191a43142fe3`.
-- 10,376,493 bytes; 105 ZIP entries, including root integrity manifest;
+- ZIP: `artifacts/map-lead-finish-20261024/cancel-final/package-final/LW-Control-lwtool-improvement-2b32d64f4a53.zip`.
+- SHA-256: `ff2cb0189288638a21a00121d07d9ab6f7448cbd0e8a65fabf4f40c99cf8b763`.
+- 10,377,389 bytes; 105 ZIP entries, including root integrity manifest;
   104 application files; 29 linked bridge identities verified.
 - ZIP CRC, payload hashes/sizes, source pin, production UI fingerprint and
   privacy exclusions passed. Each Map case used a separate clean extraction.
@@ -33,7 +34,7 @@ normal Truck route. We retained complete local acquisition and the qualified
 LwTool's remote scanner service is not integrated or required.
 
 The worker's transactional batch staging and early seen-UUID March collector
-guard remain. Independent finish testing also corrected two native data issues:
+guard remain. Independent finish testing also corrected native data and Stop issues:
 
 1. **City main-base classification.** Native point type 6 includes buildings
    beyond the main bases returned by the game's canonical owner index. The
@@ -48,6 +49,12 @@ guard remain. Independent finish testing also corrected two native data issues:
    follows the recovered v27 signature. Only missing replies receive bounded
    repairs; superseded request IDs are retired. Two eight-second repair windows
    follow the initial eight-second window; the host deadline is 28 seconds.
+3. **Resource Stop acknowledgement.** The host cancels the exact detail request
+   and waits for native confirmation that the private retry lane and observer
+   have retired. Stop is checked before a due repair. A late cancellation after
+   completion can acknowledge the exact already-retired request; a foreign run
+   cannot cancel its successor. The adverse timing cases are actual-source inert
+   tests; the genuine packaged Stop gate interrupts the typed Truck sweep.
 
 The current-version official-settlement auditor was also completed. It selects
 the exact trusted v27 settlement and verifies its original bytes and prior owned
@@ -60,33 +67,36 @@ re-audited against the exact extraction used by that case.
 
 | Gate | Retained run | Result |
 |---|---|---|
-| Manual all-ten | `native-ui-20261024-113644` | 2500/2500, zero failed blocks; direct 63 replies/10,000 AOIs; complete publication and browse |
-| Auto all-ten | `native-ui-20261024-113945` | Actual Run Now, 2212→2211→2212; complete remote publication and saved-data browse |
-| Mid-flight Truck Stop | `native-ui-20261024-114236` | Native cancellation, durable cancelled run, no staged/publication leakage |
-| Resource saved-data Clear/reopen | `native-ui-20261024-114347` | Fresh home acquisition, remote 2213 scan, exact return, Clear and both views reopened; 8,000 home rows preserved |
-| Home integration | `home-smoke-final-dd6bf881` | Two route recoveries in the same exact game; Stop during reconnect; no successor for 15 seconds |
+| Manual all-ten | `native-ui-20261024-121316` | 2500/2500, zero failed blocks; direct 63 replies/10,000 AOIs; complete publication and browse |
+| Auto all-ten | `native-ui-20261024-121607` | Actual Run Now, 2212→2211→2212; complete remote publication and saved-data browse |
+| Mid-flight Truck Stop | `native-ui-20261024-121908` | Native cancellation, durable cancelled run, no staged/publication leakage |
+| Resource saved-data Clear/reopen | `native-ui-20261024-122019` | Fresh home acquisition, remote 2213 scan, exact return, Clear and both views reopened; 8,008 home rows preserved |
+| Home integration | `cancel-final/home-smoke-final-2b32d64f` | Two route recoveries in the same exact game; Stop during reconnect; no successor for 15 seconds |
 
-Final Resource cohorts received 7,946/7,946 home details, 7,965/7,965 on the Auto
-all-ten target and 7,976/7,976 on the saved-data remote target. The last cohort
-ignored **62** existing native cache entries and obtained fresh correlated
-replies instead. Missing-only repair counts were 7, 2 and 7 respectively.
+Final Resource cohorts received 7,945/7,945 home details, 7,963/7,963 on the Auto
+all-ten target and 7,972/7,972 on the saved-data remote target. The last cohort
+ignored **67** existing native cache entries and obtained fresh correlated
+replies instead. Missing-only repair counts were 4, 2 and 4 respectively.
 All final cases established exact owned exit and original-script restoration.
 The final Home controller also closed its isolated host.
 
-Some selected kinds were genuinely empty. Final home had a Railway positive;
-Other/Ghost/Zombie Boss and remote Railway availability varied. Earlier accepted
-populated receipts remain historical evidence, never relabelled as final positives.
+Some selected kinds were genuinely empty. Final all-ten selections had no
+Railway, Other, Ghost or Zombie Boss rows at that availability point. The earlier
+dd6bf881 home Railway positive and other accepted populated receipts remain
+historical evidence, never relabelled as final-source positives.
 
 ## Checks and performance boundaries
 
 - Full Release Desktop checks passed through `HOME_FEATURE_DELIVERY_CHECKS_OK`
-  on the isolated final rerun; 22 native Resource source, 10 hydration and 15
+  on final source; 22 native Resource source, 10 hydration and 15
   per-row provenance rejection cases passed.
-- Seven actual-source Lua correlation tests passed, including wrong/missing
+- Eleven actual-source inert Lua correlation/cancellation tests passed, including wrong/missing
   reply ID, wrong point/server, connection reset, retired run, hook replacement,
-  frozen results, superseded repairs and bounded exhaustion.
+  frozen results, superseded repairs, bounded exhaustion, Stop before a due repair,
+  early Stop, foreign Stop and the completion/cancellation race. Nine managed
+  cancellation identity/retirement inverses also passed.
 - Two City source/syntax checks and 31 package-auditor tests passed.
-- All 49 inert Lua suites passed on the identical final Lua source.
+- All 49 inert Lua suites passed on the final `2b32d64f` Lua source.
 - Canonical production UI build/fingerprint and package integrity checks passed.
 
 The retained 24,362-record storage benchmark is **2.484→0.673 seconds median**
@@ -110,6 +120,10 @@ unverified and is not an acceptance target for this local implementation.
   `final-desktop-checks-r2.log` under the ignored finish workspace. This is a
   separate follow-up; do not claim that every Home race or every random disconnect
   is fixed from the Map evidence.
+- The first cancellation draft exceeded the native 65,535-byte encoded-module
+  limit and was rejected by the existing package guard. Equivalent compact
+  control flow and moving a preserved inline comment to its own line brought
+  the final module to 65,493 bytes. The guard and package round-trip stay enforced.
 - Test setup negatives (unsupported internal Home view, generated bytecode in a
   warmed extraction, and re-auditing against another case's extraction path) were
   corrected without weakening package or restoration checks. Earlier evidence
