@@ -57,3 +57,17 @@ bodies are retained under `artifacts/map-lead-finish-20261024/native/`.
 
 These are controlled evidence, not new live-game positives or speed measurements.
 The original fail-closed receipts and earlier benchmark limitations are retained.
+
+## Initial live candidate and bounded repair
+
+The `ed2a5b41` packaged saved Clear/reopen attempt reached a genuine home Resource
+sweep. The new observer accepted 7,934 of 7,936 native target replies with unique
+native IDs; two missing replies correctly prevented publication. This establishes
+that native correlation is available in the actual runtime, but is an incomplete
+scan, not acceptance. The retained run is `native-ui-20261024-110205`.
+
+The follow-up repairs only unreceived issued targets, at most twice with an
+eight-second bound per pass. Each repair uses a new observed native ID and removes
+the superseded ID from the pending table; late old-attempt replies remain refused.
+Seven actual-source correlation tests cover bounded exhaustion and ID retirement.
+The existing pointId cache remains unused as source data.

@@ -4769,7 +4769,7 @@ function resource_scan_detail_runtime.observe(response)
        identity.challenge ~= state.challenge or identity.gamePid ~= state.gamePid then return end
     local reply_id = tonumber(safe_get(response, "_id"))
     local target = reply_id and state.byReplyId[reply_id] or nil
-    if target == nil or target.detail ~= nil or safe_get(response, "errorCode") ~= nil or
+    if target == nil or reply_id ~= target.expectedReplyId or target.detail ~= nil or safe_get(response, "errorCode") ~= nil or
        tonumber(safe_get(response, "pointId")) ~= target.pointId then return end
     local server = tonumber(safe_get(response, "scrServer") or safe_get(response, "serverId"))
     if server ~= nil and server ~= 0 and server ~= target.serverId then return end
@@ -4821,6 +4821,7 @@ function resource_scan_detail_runtime.send(target, state)
     local after = resource_scan_detail_runtime.network_scope()
     if not ok or not resource_scan_detail_runtime.scope_matches(before, after) or
        after.counter ~= before.counter + 1 or state.byReplyId[after.counter] ~= nil then return false end
+    if target.expectedReplyId ~= nil then state.byReplyId[target.expectedReplyId] = nil end
     target.expectedReplyId = after.counter
     state.byReplyId[after.counter] = target
     return true
@@ -4835,7 +4836,7 @@ function resource_scan_detail_runtime.queue(request, target)
             challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
             scanRunId = request.scanRunId, targets = {}, targetByKey = {},
             requestCount = 0, cacheBeforeCount = 0, sendFailureCount = 0,
-            byReplyId = {}, scope = resource_scan_detail_runtime.network_scope(), ignoredCacheCount = 0,
+            byReplyId = {}, scope = resource_scan_detail_runtime.network_scope(), ignoredCacheCount = 0, retryRequestCount = 0,
         }
     end
     local state = resource_scan_detail_runtime.state
@@ -4923,6 +4924,7 @@ function resource_scan_detail_runtime.write_result(request, error_text, state, r
         requestCount = type(state) == "table" and state.requestCount or 0,
         cacheBeforeCount = type(state) == "table" and state.cacheBeforeCount or 0,
         ignoredCacheCount = type(state) == "table" and state.ignoredCacheCount or 0,
+        retryRequestCount = type(state) == "table" and state.retryRequestCount or 0,
         nativeReplyCorrelation = "future_id_connection_config_proxy",
         sendFailureCount = type(state) == "table" and state.sendFailureCount or 0,
         readyCount = ready, details = rows,
@@ -4957,6 +4959,25 @@ function resource_scan_detail_runtime.pump(now)
         return true
     end
     if runtime_clock() - (resource_scan_detail_runtime.startedAt or runtime_clock()) >= 8 then
+        -- A complete point sweep can leave a small number of genuinely lost
+        -- detail replies. Repair only missing targets, at most twice, using
+        -- new native IDs and removing the superseded pending ID. Never use a
+        -- delayed reply for the previous attempt or a cache hit as the repair.
+        if state.error == nil and (request.repairPass or 0) < 2 and
+           resource_scan_detail_runtime.scope_matches(state.scope, resource_scan_detail_runtime.network_scope()) then
+            request.repairPass = (request.repairPass or 0) + 1
+            for _, target in ipairs(state.targets) do
+                if target.requestIssued and target.detail == nil then
+                    if not resource_scan_detail_runtime.send(target, state) then
+                        state.error = "resource_detail_repair_send_failed"
+                        break
+                    end
+                    state.retryRequestCount = state.retryRequestCount + 1
+                end
+            end
+            resource_scan_detail_runtime.startedAt = runtime_clock()
+            return true
+        end
         resource_scan_detail_runtime.write_result(request, state.error or "resource_scan_detail_partial_response", state)
         resource_scan_detail_runtime.reset()
         return true

@@ -13,6 +13,7 @@ BODY = 'function resource_scan_detail_runtime.same_state' + SOURCE.split(
     'local function write_resource_detail_diagnostic_result', 1)[0]
 MODEL = r'''
 resource_scan_detail_runtime={}
+M={VERSION='inert-actual-source'}
 local function safe_get(o,k)return o and o[k]end
 local function reflected_value(o,k)return safe_get(o,k)end
 local function call(o,k,...)if not o or type(o[k])~='function'then return false end;return pcall(o[k],o,...)end
@@ -25,10 +26,10 @@ local function resource_detail_snapshot(manager,p)
  local d=manager[p];if not d then return nil end
  return {resourceId=1,remainRes=d.remainRes,initRes=d.initRes}
 end
-local function runtime_clock()return 1 end
+local function runtime_clock()return testClock or 1 end
 local function read_kv_file()return nil end
 local function valid_token()return true end
-local function write_json()end
+local function write_json(path,value)lastReceipt=value end
 liveServer=2212
 local future={_futureId=100}
 local network={_config={},m_proxy={},IsConnected=true,getFutureManager=function()return future end}
@@ -91,6 +92,28 @@ assert(queue());local state=resource_scan_detail_runtime.state
 network._config={};future._futureId=101
 reply(101,42,70,2212)
 assert(select(2,resource_scan_detail_runtime.rows(state))==0)
+''')
+
+    def test_repair_retires_old_request_id(self):
+        self.check(r'''
+assert(queue());local state=resource_scan_detail_runtime.state
+assert(resource_scan_detail_runtime.send(state.targets[1],state))
+assert(state.targets[1].expectedReplyId==102 and state.byReplyId[101]==nil)
+reply(101,42,70,2212);assert(select(2,resource_scan_detail_runtime.rows(state))==0)
+reply(102,42,60,2212);assert(select(2,resource_scan_detail_runtime.rows(state))==1)
+''')
+
+    def test_missing_reply_repairs_are_bounded_and_restore_handler(self):
+        self.check(r'''
+assert(queue());resource_scan_detail_runtime.request=request
+resource_scan_detail_runtime.startedAt=0
+testClock=9;resource_scan_detail_runtime.pump(9)
+assert(request.repairPass==1 and resource_scan_detail_runtime.state.retryRequestCount==1)
+testClock=18;resource_scan_detail_runtime.pump(18)
+assert(request.repairPass==2 and resource_scan_detail_runtime.state.retryRequestCount==2)
+testClock=27;resource_scan_detail_runtime.pump(27)
+assert(resource_scan_detail_runtime.state==nil and class.HandleMessage==original)
+assert(lastReceipt.error=='resource_scan_detail_partial_response'and lastReceipt.readyCount==0)
 ''')
 
     def test_retired_run_response_cannot_complete_successor(self):
