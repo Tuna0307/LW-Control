@@ -55,15 +55,19 @@
     "sourceCommit": "9ddd0ed83afc771813cd60786698d32f85f5eeb7",
     "sha256": "c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f",
     "zipExtractionAndSourceManifestVerification": "independent-pass",
-    "livePackageExecution": "pending",
+    "zipEntries": 105,
+    "applicationFiles": 104,
+    "structuralModesVerified": ["all-ten", "auto-all-ten", "truck-stop", "saved-clear-reopen"],
+    "livePackageExecution": "blocked-before-launch-by-preexisting-unowned-recovery-journal",
+    "gameOrAppStartedByBlockedAttempt": false,
+    "recoveryToolInvoked": false,
     "acceptance": "independent-review-required"
   },
   "remainingGates": [
-    "packaged Manual all-ten",
-    "packaged Auto all-ten with exact remote return",
-    "packaged Truck Stop against current batch staging",
-    "packaged saved-data Clear/reopen persistence sanity",
-    "final packaged Home same-game reconnect and Stop-during-reconnect smoke",
-    "final package identity/hash/privacy/exact cleanup evidence"
+    "packaged Manual all-ten after the pre-existing unowned recovery journal is independently resolved",
+    "packaged Auto all-ten with exact remote return after the same admission blocker is resolved",
+    "packaged Truck Stop against current batch staging after the same admission blocker is resolved",
+    "packaged saved-data Clear/reopen persistence sanity after the same admission blocker is resolved",
+    "final packaged Home same-game reconnect and Stop-during-reconnect smoke after the same admission blocker is resolved"
   ]
 }

@@ -19,15 +19,15 @@ The production contract has ten explicit kinds: `city`, `resource`, `monster`, `
 | Kind | Qualification already supported | Method/decision | Current remaining gate |
 |---|---|---|---|
 | City | **ACCEPTED LIVE.** MAP-019 same-session current-vs-camera comparison matched 4,395 rows with 0–2 cross-method identity drift and complete field comparison. Historical packaged scans/browse also passed. | Retain the current camera-free point census, atomic publication and SQL browse contract. | No City-specific live rerun merely for coverage. Final packaged all-ten qualification still includes City. |
-| Resource | **ACCEPTED LIVE.** MAP-019 current-vs-camera identity differences stayed within observed time-separated drift; prior source/freshness and package filter checks passed. | Retain full census plus fail-closed dynamic hydration. | No Resource-specific live rerun. Final package persistence sanity remains pending. |
+| Resource | **ACCEPTED LIVE.** MAP-019 current-vs-camera identity differences stayed within observed time-separated drift; prior source/freshness and package filter checks passed. | Retain full census plus fail-closed dynamic hydration. | No Resource-specific live rerun. Final package persistence replay is blocked before launch by the pre-existing recovery journal. |
 | Monster | **ACCEPTED LIVE.** MAP-019 current-vs-camera comparison was equal within moving-world drift. | Retain current native point source and detail handling. | No kind-specific rerun unless the source changes. |
 | Zombie Boss | **ACCEPTED LIVE.** Populated remote-server comparisons matched within drift. The MAP-019 D1/D2 fix also accepted a genuinely verified empty home-server result after complete source coverage instead of forcing a camera failure. | Retain the dedicated verified source. Retain verified-empty acceptance only where the source-alive/coverage proof is present. | No new Boss-only run required for the present batching change. Do not generalize its verified-empty rule to unrelated kinds without source proof. |
 | Dispatch / Secret Task | **ACCEPTED LIVE.** MAP-019 compared the production Dispatch/Secret Task population against camera and found equivalent identities; historical package/filter/name evidence also exists. | Retain the complete native census/publication path rather than the competitor's filtered high-value subset. | No kind-specific rerun. |
 | Ghost | **ACCEPTED LIVE.** MAP-019 current-vs-camera comparison was equal within drift; historical packaged reward/filter rendering was accepted. | Retain the current native source and authoritative stored reward filters. | No new populated Ghost is required merely to satisfy the current task. A genuinely empty Ghost-only run may still take the camera fallback; do not present that as the Zombie-Boss empty optimization. |
 | Treasure | **ACCEPTED LIVE** for scanning/comparison and **QUALIFIED DETERMINISTIC** for read-only inspection/preview boundaries. | Retain the independent Treasure source. Inspection stays read-only; claim execution is outside this Map qualification. | Seasonal/current availability must not be manufactured. No live claim is required or implied. |
-| Railway | **ACCEPTED LIVE.** MAP-019 found the current 625-rectangle source returned more trains than the camera control in the measured session; MAP-016 also accepted a genuine remote positive and exact return. | Retain the typed 625-rectangle sweep with bounded repair and exact cleanup. | No Railway-specific live rerun. Final packaged all-ten/Auto evidence remains pending. |
+| Railway | **ACCEPTED LIVE.** MAP-019 found the current 625-rectangle source returned more trains than the camera control in the measured session; MAP-016 also accepted a genuine remote positive and exact return. | Retain the typed 625-rectangle sweep with bounded repair and exact cleanup. | No Railway-specific live rerun. Final packaged all-ten/Auto live replay is blocked before launch by the pre-existing recovery journal. |
 | Truck | **ACCEPTED LIVE.** MAP-019 and MAP-015 establish the typed 625-rectangle source, current-vs-camera advantage, arrival filtering and repair behavior. Historical packaged Truck-only/filter and mid-flight Stop evidence exists. | Retain 20 requests/s plus bounded missing-rectangle repair; camera remains the guarded fallback when source admission fails. | **PENDING CURRENT PACKAGE** Stop replay because the current staging sink changed. Do not infer that the old package alone certifies the new staging transaction boundary. |
-| Other | **ACCEPTED LIVE.** Current-source same-session ABBA at `artifacts/map014-lead-live/native-benchmark-review-20261024-025620/` completed direct **16.918 / 16.606 s** versus camera **122.780 / 122.466 s**, with **4 rows in every round** and exact cleanup. The deterministic classification/persistence/filter/migration/inspection checks also remain valid. | Retain `MapOtherEventScanSource` / shared source. Only source-confirmed `event:27000` and canonical positive `supplies:<n>` subtypes are classified; unknown names remain unknown. | No Other-specific live rerun is required for the current source. Final packaged all-ten evidence remains pending. |
+| Other | **ACCEPTED LIVE.** Current-source same-session ABBA at `artifacts/map014-lead-live/native-benchmark-review-20261024-025620/` completed direct **16.918 / 16.606 s** versus camera **122.780 / 122.466 s**, with **4 rows in every round** and exact cleanup. The deterministic classification/persistence/filter/migration/inspection checks also remain valid. | Retain `MapOtherEventScanSource` / shared source. Only source-confirmed `event:27000` and canonical positive `supplies:<n>` subtypes are classified; unknown names remain unknown. | No Other-specific live rerun is required for the current source. Final packaged all-ten live replay is blocked before launch by the pre-existing recovery journal. |
 
 ## Manual and Auto scanning
 
@@ -35,7 +35,7 @@ The production contract has ten explicit kinds: `city`, `resource`, `monster`, `
 |---|---|---|---|
 | Manual individual selections | **ACCEPTED LIVE / QUALIFIED DETERMINISTIC**, depending on kind as above. Selection validation, duplicate-start fencing and selected-kind publication are exercised through the production command/state/store path; Other now has its own current-source ABBA witness. | Retain one exact run owner, selected-kind atomic replacement and previously published unrelated kinds. | No blanket rerun of all ten singles. |
 | Manual combined historical all-nine | **ACCEPTED PACKAGE (historical source).** MAP-015/MAP-017 genuine packaged all-nine scans completed and browsed the nine then-supported combined kinds (all current kinds except Other). | Keep as historical capability evidence only. | Must not be relabeled all-ten. |
-| Manual all-ten | **ACCEPTED LIVE for the current source.** After restoring production to **20 requests/s with fence25**, the corrected direct-only run `artifacts/map014-lead-live/native-benchmark-review-20261024-031605/` completed in **101.706 / 82.686 s**. The final same-session ABBA `artifacts/map014-lead-live/native-benchmark-review-20261024-032125/` completed direct **90.713 / 91.327 s** versus camera **142.766 / 142.512 s**; every round was **2500/2500 with zero failures**. Mean direct **91.020 s** versus camera **142.639 s** is **36.19% lower wall time**. | Retain the exact ten-kind selection and current staging/publication path. The final ABBA populated City, Resource, Monster, Truck, Railway, Dispatch, Treasure and Other; Ghost and Zombie Boss were genuinely empty at that availability point and must not be turned into positive-population claims. | **PENDING CURRENT PACKAGE only:** genuine packaged Manual all-ten remains required. |
+| Manual all-ten | **ACCEPTED LIVE for the current source.** After restoring production to **20 requests/s with fence25**, the corrected direct-only run `artifacts/map014-lead-live/native-benchmark-review-20261024-031605/` completed in **101.706 / 82.686 s**. The final same-session ABBA `artifacts/map014-lead-live/native-benchmark-review-20261024-032125/` completed direct **90.713 / 91.327 s** versus camera **142.766 / 142.512 s**; every round was **2500/2500 with zero failures**. Mean direct **91.020 s** versus camera **142.639 s** is **36.19% lower wall time**. | Retain the exact ten-kind selection and current staging/publication path. The final ABBA populated City, Resource, Monster, Truck, Railway, Dispatch, Treasure and Other; Ghost and Zombie Boss were genuinely empty at that availability point and must not be turned into positive-population claims. | Final ZIP/structural package verification passes; genuine packaged Manual all-ten is **blocked before launch** by the pre-existing unowned recovery journal. |
 | Auto one-off / schedule | **ACCEPTED PACKAGE (historical source)** for genuine all-nine remote Run Now, server return and scheduler behavior; **QUALIFIED DETERMINISTIC** for empty selection, schedule-off one-off, no unwanted repeat, config persistence and disable/cancel ordering. | Retain exact owned-run Stop-before-return ordering and saved Auto config semantics. | **PENDING CURRENT PACKAGE:** genuine `auto-all-ten` remote Run Now containing Other and exact return on the final current package. |
 
 The current qualification harness already contains `all-ten` and `auto-all-ten` modes in `tools/map_014_lead_native/run_ui.py` and `tools/map_015_package_ui.py`, with fail-closed unit coverage. That implementation support is not itself a live/package pass.
@@ -100,18 +100,11 @@ LwTool Quick Map was **not measured live** in this qualification. Recovered clie
 
 ## Package, privacy and cleanup ledger
 
-Historical MAP-015/016/017 packages prove that source-pinned Windows packaging, Map scanning/browsing, remote return, Stop, filters and Clear/reopen have worked on accepted earlier sources. They are not the final package for this worktree.
+Historical MAP-015/016/017 packages prove that source-pinned Windows packaging, Map scanning/browsing, remote return, Stop, filters and Clear/reopen have worked on accepted earlier sources.
 
-The final package remains **PENDING CURRENT PACKAGE** until all of the following are in one coherent source-pinned checkpoint:
+The current final package is source `9ddd0ed83afc771813cd60786698d32f85f5eeb7`, ZIP `artifacts/map-final-acceptance-20261024/package-9ddd0ed8/LW-Control-lwtool-improvement-9ddd0ed83afc.zip`, SHA-256 `c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f`. Clean pushed source, fresh win-x64 publish, reopened ZIP identity, per-entry hashes, production UI/source/helper identity and privacy exclusions all pass. Structural package verification passes for Manual all-ten, Auto all-ten, Truck Stop and saved Clear/reopen.
 
-1. clean pushed exact branch HEAD and a fresh win-x64 framework-dependent publish;
-2. package receipt plus reopened ZIP identity, per-entry hashes and canonical production UI/source/helper identity;
-3. privacy gates rejecting retained test/account identifiers, credentials, recovered competitor source/binaries and private evidence from the package;
-4. genuine packaged Manual all-ten and Auto all-ten (Other included), current-stage Stop, and saved-data Clear/reopen sanity;
-5. required Home connect/reconnect/Stop smoke;
-6. exact task-owned process exit, original installed scripts restored byte-for-byte, no recovery journal and no task-owned target process left running.
-
-No current final ZIP/hash is claimed by this ledger.
+Genuine package execution remains **BLOCKED BEFORE LAUNCH** because the machine already has a recovery journal whose exact owner could not be matched to the current task receipts. The recorded old process is absent, but that is not sufficient ownership proof. The recovery helper was not invoked; no journal deletion/restoration was attempted; no new packaged app/game process was started by the failed admission. The remaining packaged live gates therefore await independent recovery-owner resolution rather than a weaker admission rule.
 
 ## Method decisions carried into the final qualification
 
@@ -131,13 +124,11 @@ No current final ZIP/hash is claimed by this ledger.
 
 ## Final unresolved qualification set
 
-The remaining concrete evidence work is finite:
+The remaining concrete evidence work is finite and all items share the same external blocker:
 
-1. fresh source-pinned final Windows package;
-2. packaged Manual all-ten and Auto all-ten with Other and exact return;
-3. packaged mid-flight Stop against current batched staging;
-4. packaged saved-data Clear/reopen persistence sanity;
-5. final-package Home connect/reconnect/Stop integration smoke;
-6. package identity/hash/privacy and final cleanup receipt.
+1. after independent recovery-owner resolution, packaged Manual all-ten and Auto all-ten with Other and exact return;
+2. packaged mid-flight Stop against current batched staging;
+3. packaged saved-data Clear/reopen persistence sanity;
+4. final-package Home connect/reconnect/Stop integration smoke.
 
 Everything else above is either already supported by accepted evidence, deterministically qualified, or deliberately rejected/deferred. Passing these remaining gates would support a reviewable current candidate; it would not prove a globally fastest scanner or competitor-wide superiority.

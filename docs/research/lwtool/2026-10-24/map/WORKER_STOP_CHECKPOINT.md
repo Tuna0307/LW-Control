@@ -1,6 +1,6 @@
 # Map worker stop checkpoint — 2026-10-24
 
-Status: **implementation/research saved; final packaged qualification incomplete**.
+Status: **implementation/research/package saved; genuine packaged live qualification blocked by a pre-existing unowned recovery journal**.
 This is a lead progress/housekeeping check, not independent acceptance of every
 production change or a new live scan. No merge or release occurred.
 
@@ -51,6 +51,15 @@ Fresh independent checks at this stop checkpoint:
 - `tools/map_015_package_ui.py` with the paths above, exact 40-character source
   commit and `--mode all-ten`, **without `--execute`**: passed ZIP/extraction,
   per-file inventory/hash/size and source-manifest checks; `executesGame=false`.
+- The same non-executing structural verification passed for `auto-all-ten`,
+  `truck-stop` and `saved-clear-reopen` against the same extracted package.
+- A genuine packaged `all-ten --execute` attempt stopped at admission before any
+  new app/game launch because the global recovery journal already existed. Its
+  exact owner could not be correlated to the retained current-task Home/Map
+  receipts. The journal and recovery helper were left untouched.
+- Read-only current-client compatibility inspection still reports an unchanged,
+  supported installed game package. No current LastWar/launcher/LWBridge process
+  was present after the blocked attempt.
 - `git diff --check`: passed before documentation tidy-up.
 - Native process inventory: no LastWar, launcher, LwTool, LWBridge, Ghidra or
   Java analysis process running. Remaining Python processes are MCP/tool
@@ -58,16 +67,14 @@ Fresh independent checks at this stop checkpoint:
 - Previous native evidence reports exact Stop/script restoration. No fresh
   installed-script hash comparison or live-game test was performed in this check.
 
-## Required next work
+## Required next work after independent recovery-owner resolution
 
-1. Independently review the production staging and provider changes, preserving
-   ownership, transaction, cancellation, last-good data and completeness gates.
-2. Execute final packaged Manual all-ten, remote Auto all-ten with exact return,
+1. Execute final packaged Manual all-ten, remote Auto all-ten with exact return,
    Truck Stop and saved-data Clear/reopen using the existing audited harness.
-3. Complete bounded final-package Home same-game route recovery and
+2. Complete bounded final-package Home same-game route recovery and
    Stop-during-reconnect smoke. Do not repeat the completed Home campaign.
-4. Finish package helper/UI/privacy and live restoration receipts, update the
-   ledger/JSON/report and return for independent lead acceptance.
+3. Add only the resulting live restoration receipts and return for independent
+   lead acceptance. Package helper/UI/privacy/source identity is already complete.
 
 Use the full assignment and `QUALIFICATION_REMAINING_GAPS.md` for commands and
 authority. The existing pinned package can be reused after documentation-only

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "sourceCommit": "9ddd0ed83afc771813cd60786698d32f85f5eeb7",
+  "package": {
+    "path": "artifacts/map-final-acceptance-20261024/package-9ddd0ed8/LW-Control-lwtool-improvement-9ddd0ed83afc.zip",
+    "sha256": "c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f",
+    "bytes": 10363558,
+    "zipEntries": 105,
+    "applicationFiles": 104,
+    "sourceManifestVerified": true,
+    "payloadHashesVerified": true,
+    "crcVerified": true,
+    "privacyGatesVerified": true,
+    "competitorOrRecoveredPayloadsIncluded": false,
+    "accountOrRuntimeStateIncluded": false
+  },
+  "structuralPackageModes": {
+    "all-ten": "pass-no-execution",
+    "auto-all-ten": "pass-no-execution",
+    "truck-stop": "pass-no-execution",
+    "saved-clear-reopen": "pass-no-execution"
+  },
+  "liveExecution": {
+    "status": "blocked-before-launch",
+    "attemptedMode": "all-ten",
+    "reason": "pre-existing recovery journal requires independent ownership review",
+    "journalStage": "active_ready_deferred_restore",
+    "recordedGameProcessPresent": false,
+    "exactCurrentTaskOwnershipEstablished": false,
+    "newPackagedAppOrGameStarted": false,
+    "recoveryHelperInvoked": false,
+    "journalModifiedOrRemoved": false,
+    "currentInstalledGameCompatibility": "pass-read-only-check",
+    "currentInstalledFilesChangedByReview": false
+  },
+  "remainingLiveGates": [
+    "packaged Manual all-ten",
+    "packaged Auto all-ten with exact server return",
+    "packaged mid-flight Truck Stop against batched staging",
+    "packaged saved-data Clear/reopen persistence sanity",
+    "final-package Home reconnect and Stop-during-reconnect smoke"
+  ],
+  "classification": "source-pinned-package-verified-live-qualification-blocked"
+}

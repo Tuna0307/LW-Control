@@ -135,19 +135,13 @@ The inert transactional-staging benchmark in `artifacts/map019/staging-benchmark
 
 The candidate-only semantic pass additionally rejects a foreign-server batch, invalid JSON before any write and a late batch after cancellation, and accepts a valid zero-record verified-empty publication. This inert result still supports only the local SQLite bottleneck claim; the live ABBA above separately supplies the genuine current-source publication evidence.
 
-## Final package evidence still pending
+## Final package boundary
 
-Benchmark acceptance alone does not close the assignment. Current-source final evidence still needs:
+The source-pinned Windows package is complete at source `9ddd0ed83afc771813cd60786698d32f85f5eeb7`: ZIP `artifacts/map-final-acceptance-20261024/package-9ddd0ed8/LW-Control-lwtool-improvement-9ddd0ed83afc.zip`, SHA-256 `c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f`. Reopened ZIP CRC, per-entry hash/size, source manifest, production UI/helper identity and privacy gates pass. Non-executing structural verification also passes for Manual all-ten, Auto all-ten, Truck Stop and saved Clear/reopen.
 
-1. a clean source-pinned Windows package with reopened ZIP identity/hashes and privacy gates;
-2. genuine packaged Manual all-ten, browsable with Other present;
-3. genuine packaged Auto all-ten on the approved remote context with exact original-server return;
-4. one mid-flight packaged Stop proving the current staging transaction cannot publish late rows;
-5. one saved-data Clear/reopen persistence sanity after the staging change;
-6. the required final-package Home connect/reconnect/Stop smoke;
-7. exact final cleanup: owned processes ended, original scripts restored and no recovery journal.
+The genuine packaged Manual all-ten attempt then failed closed **before launch** because a pre-existing recovery journal requires independent ownership review. The journal's recorded process is no longer running, but it could not be correlated to the retained current-task receipts, so the mutating recovery helper was not invoked and the journal was not edited or removed. A read-only current-client check reports the installed game package supported and unchanged.
 
-Historical all-nine, Truck Stop, remote Auto/return, filters and Clear/reopen remain valid capability evidence, but they are not substituted for these current-source final-package receipts.
+Accordingly, benchmark/package identity is closed, while genuine packaged Manual/Auto all-ten, mid-flight Stop, saved-data Clear/reopen and final-package Home reconnect/Stop remain blocked on independent resolution of that recovery owner. Historical all-nine, Truck Stop, remote Auto/return, filters and Clear/reopen remain valid capability evidence but are not relabelled as final-package live receipts.
 
 ## Evidence anchors
 
@@ -158,6 +152,7 @@ Historical all-nine, Truck Stop, remote Auto/return, filters and Clear/reopen re
 - `docs/reviews/2026-10-17-MAP-017-LEAD-AUDIT.md` — accepted owner-scope scanning/browse/filter/Jump/Clear/one-off controls.
 - `docs/research/lwtool/2026-10-24/map/QUALIFICATION_REMAINING_GAPS.md` — reconciliation of the remaining final package/Home gates after current live qualification.
 - `docs/research/lwtool/2026-10-24/map/SCAN_METHOD_REPORT.md` — canonical sanitized recovered LwTool quick-scan mechanics, timer/cache/completion boundaries, provenance and fair-comparison limits.
+- `docs/research/lwtool/2026-10-24/map/FINAL_PACKAGE_EVIDENCE.json` and `FINAL_STATUS.md` — final package identity/privacy verification and the pre-launch recovery-journal blocker.
 - `artifacts/map019/staging-benchmark/README.md` — inert matched old-vs-batched staging timings and semantic-equivalence boundary.
 - `artifacts/map014-lead-live/native-benchmark-review-20261024-025620/` and `artifacts/map019/20261024-other-allten-broken-fence-audit.json` — valid Other ABBA plus retained invalid fence10 all-ten negative control.
 - `artifacts/map014-lead-live/native-benchmark-review-20261024-031605/` and `artifacts/map019/20261024-allten-corrected-audit.json` — corrected direct-only all-ten after restoring 20 req/s fence25.
