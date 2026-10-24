@@ -124,6 +124,28 @@ const wrong=calls.filter(c=>c.command==='feature018_visual_metrics_configure'&&c
 assert.equal(wrong.length,0,'W07: rollback must not reach profile-b');
 console.log('FIXED settings-rollback: no game call to profile-b');
 
+// A profile switch inside the click's first asynchronous yield must not
+// rebind a visual preference to the newly selected generation.
+for (const returnToOriginal of [false,true]) {
+ bridge.setSelectedProfile('profile-a');calls.length=0;
+ invokeHandler=async(command)=>{
+  if(command==='visual_metrics_config_get'||command==='visual_metrics_config_save')return {showFps:false,showPing:false};
+  if(command==='feature018_visual_metrics_configure')return {};
+  throw Error(command);
+ };
+ root=createRoot(container);
+ await flush(()=>root.render(wrap(React.createElement(mod.exports.SettingsPage,{online:true}))));
+ const beforeClick=calls.length;
+ await flush(()=>{
+  container.querySelector('[role="switch"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+  bridge.setSelectedProfile('profile-b');
+  if(returnToOriginal)bridge.setSelectedProfile('profile-a');
+ });
+ assert.equal(calls.length,beforeClick,'Visual preference dispatched after its originating generation retired');
+ await flush(()=>root.unmount());
+}
+console.log('FIXED settings-click-owner: no rebind across the first yield, including A-B-A');
+
 bridge.setSelectedProfile('profile-a');calls.length=0;
 let saved={attack:true,recall:true,shieldUse:true,equipment:true,randomRelocate:false,allianceRelocate:false,frontlineReinforce:true,treasureChestHint:false,frontlineReinforceCount:5};
 let hold=false,gets=[];
@@ -146,3 +168,27 @@ for(let i=0;i<5&&gets.length;i++){const r=gets.shift();await flush(()=>r(structu
 assert.equal(saved.attack,false);assert.equal(saved.treasureChestHint,true);
 console.log('FIXED hotkey-multiview-save: attack='+saved.attack+' treasureChestHint='+saved.treasureChestHint+' (both kept)');
 await flush(()=>root.unmount());
+
+// A save waiting behind another view belongs to the profile/generation that
+// originated it, even if its first fresh read has not been dispatched yet.
+for (const returnToOriginal of [false,true]) {
+ bridge.setSelectedProfile('profile-a');calls.length=0;hold=false;gets=[];
+ root=createRoot(container);
+ await flush(()=>root.render(wrap(React.createElement(React.Fragment,null,
+  React.createElement('div',{id:'keys'},React.createElement(mod.exports.HotkeysPage,{online:false})),
+  React.createElement('div',{id:'mini'},React.createElement(mod.exports.MiniGamesPage,{online:false}))))));
+ hold=true;
+ await flush(()=>{
+  container.querySelector('#keys .hotkey-card button').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+  container.querySelector('#mini button[role="switch"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+ });
+ assert.equal(gets.length,1,'First edit must hold the shared queue');
+ const beforeSwitch=calls.length;
+ bridge.setSelectedProfile('profile-b');
+ if(returnToOriginal)bridge.setSelectedProfile('profile-a');
+ await flush(()=>root.unmount());
+ await flush(()=>gets.shift()(structuredClone(saved)));
+ assert.equal(calls.length,beforeSwitch,'Retired queued edit dispatched after profile/generation change');
+ assert.equal(gets.length,0,'Retired queued edit dispatched a fresh config read');
+}
+console.log('FIXED hotkey-queued-owner: retired edits dispatch no read/save, including A-B-A');

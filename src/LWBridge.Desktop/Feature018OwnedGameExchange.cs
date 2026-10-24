@@ -84,26 +84,36 @@ internal sealed class Feature018OwnedGameExchange
         try
         {
             bool cityRequest = command.StartsWith("city_layout_", StringComparison.Ordinal);
+            // Equipment snapshots cannot mutate the game. Like City observations,
+            // they may wait for fresh authority without replaying any envelope.
+            // Keep every non-City mutation on the existing immediate-fail path.
+            bool equipmentSnapshot = command == "feature018_equipment_snapshot";
+            bool waitForAuthority = cityRequest || equipmentSnapshot;
             DateTimeOffset deadline = utcNow() + timeout;
-            OverviewMapScanSession owner = currentSession() ?? (cityRequest ? retainedSession?.Invoke() : null) ?? throw new BridgeCommandException(
+            OverviewMapScanSession owner = currentSession() ?? (waitForAuthority ? retainedSession?.Invoke() : null) ?? throw new BridgeCommandException(
                 "GAME_CONNECTION_UNAVAILABLE", "There is no authenticated owned game session.");
             async Task<Feature018AuthenticatedGameAccount?> RequireOwnerAsync(Feature018AuthenticatedGameAccount? expected = null)
             {
-                if (!cityRequest) return RequireSameOwner(owner, expected);
+                if (!waitForAuthority) return RequireSameOwner(owner, expected);
+                DateTimeOffset authorityDeadline = equipmentSnapshot
+                    ? utcNow() + TimeSpan.FromMilliseconds(500) : deadline;
+                string subject = equipmentSnapshot ? "Equipment snapshot" : "City";
                 while (true)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     OverviewMapScanSession? ready = currentSession();
                     if (!isSameSession(owner) || (ready is not null && ready != owner))
-                        throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "City session changed; pending actions are never replayed.");
+                        throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", subject + " session changed; pending actions are never replayed.");
                     if (!approvedAccount(owner))
-                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", "City account is not authorized.");
+                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", subject + " account is not authorized.");
                     Feature018AuthenticatedGameAccount? fresh = currentAccount?.Invoke(owner);
                     if (fresh is not null && expected is not null && fresh != expected)
-                        throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "City UID/server changed; pending actions are never replayed.");
+                        throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", subject + " UID/server changed; pending actions are never replayed.");
+                    if (equipmentSnapshot && (utcNow() >= deadline || utcNow() >= authorityDeadline))
+                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", "Equipment snapshot freshness wait expired; no request was replayed.");
                     if (ready == owner && (currentAccount is null || fresh is not null)) return fresh;
-                    if (utcNow() >= deadline)
-                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", "City request paused for an unavailable account; no request was replayed.");
+                    if (utcNow() >= deadline || utcNow() >= authorityDeadline)
+                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", subject + " request paused for an unavailable account; no request was replayed.");
                     await delay(PollPeriod, cancellationToken).ConfigureAwait(false);
                 }
             }

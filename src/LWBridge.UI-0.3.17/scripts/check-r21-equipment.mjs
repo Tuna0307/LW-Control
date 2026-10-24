@@ -10,7 +10,7 @@ import { equipmentPresetTexts } from "../src/locales/feature018-equipment-preset
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
   assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
   assert.equal(Object.keys(liveEquipmentTexts[language]).length, 14);
-  assert.equal(Object.keys(equipmentPresetTexts[language]).length, 10);
+  assert.equal(Object.keys(equipmentPresetTexts[language]).length, 13);
   for (const value of Object.values(equipmentPresetTexts[language])) assert.ok(value.length > 0);
   for (const value of Object.values(liveEquipmentTexts[language])) assert.ok(value.length > 0);
   for (const text of Object.values(equipmentPlanTexts[language])) assert.ok(text.length > 0);
@@ -216,6 +216,28 @@ for (const code of ["GAME_RESPONSE_TIMEOUT", "INTERNAL_ERROR"]) {
   assert.equal(edits, 1); assert.equal(queries, 2); assert.equal(reads, 1);
 }
 
+for (const settles of [true, false]) {
+  const lagBridge = fakeBridge(); let edits = 0, queries = 0, clock = 0, operationId;
+  lagBridge.invokeProfileScoped = async (command, payload = {}) => {
+    if (command === "feature018_equipment_snapshot") return structuredClone(baseline);
+    if (!payload.queryOnly) { edits++; operationId = payload.operationId; return { equipmentApplied: false }; }
+    assert.equal(payload.operationId, operationId, "Observation must retain the original edit identity");
+    queries++;
+    if (!settles || queries < 3) throw Object.assign(new Error("Separate native slot/wearer pushes disagree"), { code: "GAME_PRECONDITION_FAILED" });
+    return { equipmentApplied: true };
+  };
+  const lag = createLiveEquipmentRuntime(lagBridge, "A", { wait: async () => { clock += 150; }, now: () => clock, timeoutMs: 1000 });
+  const edit = () => lag.edit(baseline.squads[0].positions[0], 1, "502", baseline);
+  if (settles) { await edit(); assert.equal(lag.pending, false); assert.equal(queries, 3); }
+  else {
+    await assert.rejects(edit, e => e.code === "EQUIPMENT_CONFIRMATION_PENDING");
+    assert.equal(lag.pending, true);
+    await assert.rejects(edit, /Wait for the current equipment change/);
+    await assert.rejects(() => lag.resume(), e => e.code === "EQUIPMENT_CONFIRMATION_PENDING");
+  }
+  assert.equal(edits, 1, "Transient or persistent observation failure must never replay the mutation");
+}
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), req = createRequire(path.join(root, "package.json"));
 const { JSDOM } = req("jsdom"), { build } = req("esbuild"), React = req("react");
 const dom = new JSDOM('<div id="root"></div><div id="real-bridge-root"></div>', { url: "http://127.0.0.1/" });
@@ -246,7 +268,15 @@ const liveBridge = {
       return { readOnly: true, requestDispatched: false };
     }
     if (command === "equipment_config_save") { savedPresets = structuredClone(payload); return structuredClone(savedPresets); }
-    if (command === "feature018_equipment_snapshot") return structuredClone(current);
+    if (command === "equipment_preset_rename") {
+      assert.equal(savedPresets.equipmentPresets[payload.slot - 1].id, payload.expectedPresetId);
+      savedPresets.equipmentPresets[payload.slot - 1].name = payload.name;
+      return structuredClone(savedPresets);
+    }
+    if (command === "feature018_equipment_snapshot") {
+      if (liveBridge.snapshotFailures > 0) { liveBridge.snapshotFailures--; throw Object.assign(new Error("Transient native snapshot disagreement"), { code: "GAME_PRECONDITION_FAILED" }); }
+      return structuredClone(current);
+    }
     if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "native", localeSha256: "locale", englishSha256: "english", texts: Object.fromEntries(payload.keys.map(key => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
     if (!["feature018_equipment_edit", "feature018_hotkey_action"].includes(command)) throw new Error(`Unexpected live command ${command}`);
     if (liveBridge.editError) throw Object.assign(new Error("Access to the path is denied."), { code: liveBridge.editError });
@@ -265,7 +295,12 @@ const liveBridge = {
       if (pending.equipUuid) target.equips.push({ slot: pending.equipSlot, equipUuid: pending.equipUuid });
     }
     for (const item of current.items) item.heroUuid = current.squads.flatMap(s => s.positions).find(p => p.equips.some(e => e.equipUuid === item.equipUuid))?.heroUuid || "";
-    pending = undefined; return { equipmentApplied: true };
+    pending = undefined;
+    if (liveBridge.failConfirmedSnapshotOnce || liveBridge.failConfirmedSnapshotCount) {
+      liveBridge.snapshotFailures = liveBridge.failConfirmedSnapshotCount || 1;
+      liveBridge.failConfirmedSnapshotCount = 0; liveBridge.failConfirmedSnapshotOnce = false;
+    }
+    return { equipmentApplied: true };
   },
 };
 const { createRoot } = req("react-dom/client"), mounted = createRoot(document.getElementById("root"));
@@ -346,6 +381,23 @@ for (let slot = 1; slot <= 4; slot++) {
   otherPresets.forEach((preset, index) => { if (index !== slot - 1) assert.deepEqual(savedPresets.equipmentPresets[index], preset, "Saving one preset must preserve the others"); });
   assert.match(document.body.textContent, new RegExp(`Alt\\+${slot}`));
 }
+await flush(() => document.querySelector('[data-equipment-preset="2"]').click());
+const presetBeforeRename = structuredClone(savedPresets);
+const gearBeforeRename = equipmentPositionSnapshot(current);
+await flush(() => {
+  const input = document.querySelector('[data-equipment-preset-name]');
+  Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(input, "Renamed loadout");
+  input.dispatchEvent(new window.Event("input", { bubbles: true }));
+});
+assert.equal(document.querySelector('[data-equipment-action="rename-preset"]').disabled, false);
+const callsBeforeRename = calls.length;
+await flush(() => document.querySelector('[data-equipment-action="rename-preset"]').click());
+presetBeforeRename.equipmentPresets[1].name = "Renamed loadout";
+assert.deepEqual(savedPresets, presetBeforeRename, "Rename must preserve all gear, metadata and other presets");
+assert.deepEqual(equipmentPositionSnapshot(current), gearBeforeRename, "Rename changed live gear");
+assert.deepEqual(calls.slice(callsBeforeRename).map(c=>c.command), ["equipment_preset_rename"],
+  "Rename must use the atomic name-only command, with no native gear call or capture");
+assert.match(document.body.textContent, /Saved gear unchanged/);
 liveBridge.preflightError = true;
 await flush(() => document.querySelector('[data-equipment-action="equip-preset"]').click());
 assert.match(document.querySelector('[role="alert"]').textContent, /Equipment state changed/);
@@ -363,6 +415,28 @@ for (let slot = 1; slot <= 4; slot++) {
   assert.deepEqual(equipmentPositionSnapshot(current), beforeCaptures, `Preset ${slot} must equip through its hotkey ordinal`);
 }
 assert.deepEqual(calls.filter(c => c.command === "feature018_hotkey_action" && !c.payload.queryOnly).map(c => c.payload.slot), [1, 2, 3, 4]);
+// A genuine native completion must not become a visible failed edit solely
+// because its first follow-up snapshot failed. Recovery reads must not replay it.
+liveBridge.failConfirmedSnapshotOnce = true;
+const beforeConfirmedRecovery = calls.length;
+await selectValue("1:2:1", ""); await settle();
+assert.equal(document.querySelector('[role="alert"]'), null, "Confirmed change kept a false failure after a successful state refresh");
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "synced");
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').value, "");
+assert.equal(calls.slice(beforeConfirmedRecovery).filter(c=>c.command === "feature018_equipment_edit" && !c.payload.queryOnly).length, 1,
+ "Post-confirmation snapshot recovery replayed the mutation");
+await selectValue("1:2:1", "501"); await settle();
+liveBridge.failConfirmedSnapshotCount = 2;
+const beforePendingRefresh = calls.length;
+await selectValue("1:2:1", ""); await settle();
+assert.equal(document.querySelector('[role="alert"]'), null, "Confirmed change with pending refresh must not be reported as rejected");
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "refreshing");
+assert.match(document.body.textContent, /Equipment change confirmed/);
+assert.equal(document.querySelector('[data-equipment-action="save-preset"]').disabled, true);
+await flush(() => tick());
+assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "synced");
+assert.equal(calls.slice(beforePendingRefresh).filter(c=>c.command === "feature018_equipment_edit" && !c.payload.queryOnly).length, 1);
+await selectValue("1:2:1", "501"); await settle();
 const callsBeforeOffline = calls.length;
 await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: liveBridge, online: false }))));
 assert.equal(document.querySelector('[data-equipment-sync]').dataset.equipmentSync, "offline");

@@ -213,6 +213,30 @@ internal sealed class ProfileRuntimeConfigStore
         }
     }
 
+    internal JsonObject RenameEquipmentPreset(int slot, string expectedPresetId, string name)
+    {
+        if (slot is < 1 or > 4 || string.IsNullOrWhiteSpace(expectedPresetId) || string.IsNullOrWhiteSpace(name))
+            throw new BridgeCommandException("INVALID_REQUEST", "Choose an existing preset and enter its name.");
+        using (Exclusive())
+        {
+            try
+            {
+                JsonObject root = ReadRoot(allowMissing: false) ?? throw StateUnavailable();
+                if (root["equipmentPresets"] is not JsonArray presets || presets.Count < slot ||
+                    presets[slot - 1] is not JsonObject preset ||
+                    preset["id"]?.GetValue<string>() != expectedPresetId)
+                    throw new BridgeCommandException("INVALID_REQUEST", "The saved preset changed. Refresh before renaming it.");
+                // Read, patch and write under the same cross-process gate. A UI
+                // snapshot must not overwrite newer gear or restoration data.
+                preset["name"] = name.Trim();
+                WriteRoot(root);
+                return ProjectEquipmentConfig(root);
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
     internal JsonObject ReadTasksSnapshot()
     {
         using (Exclusive())

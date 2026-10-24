@@ -125,6 +125,40 @@ internal static class Feature018HotkeyConfigChecks
             }
             Require(equipmentStore.ReadEquipmentConfig()["equipmentPresets"]![0]!["name"]!.GetValue<string>() == "Unsaved edits",
                 "exclusive read lock retry or later save lost the retained plan");
+            var renameStore = new ProfileRuntimeConfigStore(Path.Combine(root, "rename.json"));
+            renameStore.SaveEquipmentConfig(JsonNode.Parse("""
+                {"equipmentPresets":[{"id":"saved-one","name":"Original","squads":[{"latestGear":"keep"}]},
+                 {"id":"saved-two","name":"Other","squads":[]}],"initialEquipmentConfig":{"restore":"keep"}}
+                """)!.AsObject());
+            renameStore.SaveHotkeys(HotkeyConfig.Default with { Attack = false });
+            string renamePath = Path.Combine(root, "rename.json");
+            JsonNode beforeRename = JsonNode.Parse(File.ReadAllText(renamePath))!;
+            var renameService = new EquipmentConfigCommandService(renameStore);
+            using (JsonDocument renameRequest = JsonDocument.Parse("""
+                {"slot":1,"expectedPresetId":"saved-one","name":"  Renamed  "}
+                """))
+                await renameService.InvokeAsync("equipment_preset_rename", renameRequest.RootElement, CancellationToken.None);
+            beforeRename["equipmentPresets"]![0]!["name"] = "Renamed";
+            Require(JsonNode.DeepEquals(beforeRename, JsonNode.Parse(File.ReadAllText(renamePath))),
+                "Rename changed saved gear, another preset, restoration data or unrelated preferences");
+            string afterRename = File.ReadAllText(renamePath);
+            foreach (string invalid in new[] {
+                "{\"slot\":0,\"expectedPresetId\":\"saved-one\",\"name\":\"Bad\"}",
+                "{\"slot\":5,\"expectedPresetId\":\"saved-one\",\"name\":\"Bad\"}",
+                "{\"slot\":1,\"expectedPresetId\":\"retired-id\",\"name\":\"Bad\"}",
+                "{\"slot\":1,\"expectedPresetId\":\"saved-one\",\"name\":\" \"}",
+                "{\"slot\":\"1\",\"expectedPresetId\":\"saved-one\",\"name\":\"Bad\"}",
+                "{\"slot\":1,\"name\":\"Bad\"}",
+            })
+            {
+                bool renameRejected = false;
+                using JsonDocument invalidRename = JsonDocument.Parse(invalid);
+                try { await renameService.InvokeAsync("equipment_preset_rename", invalidRename.RootElement, CancellationToken.None); }
+                catch (BridgeCommandException) { renameRejected = true; }
+                Require(renameRejected && File.ReadAllText(renamePath) == afterRename,
+                    "Invalid or stale-ID rename modified persisted data");
+            }
+            Console.WriteLine("FEATURE018_EQUIPMENT_RENAME_PASS nameOnly=true staleIdAndMalformed=6");
             Console.WriteLine("FEATURE018_HOTKEY_CONFIG_PASS");
         }
         finally
