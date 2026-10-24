@@ -1,5 +1,7 @@
 # LwTool active scan method report
 
+> Local Map closeout: [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md). Required final packaged gates now pass; earlier pending-package statements below are historical. Remote-service recovery limits are unchanged.
+
 Date: 2026-10-24
 Status: canonical recovered-method report for the Map comparison assignment.
 Scope: sanitized client-side recovery from the shipped LwTool artifacts already retained under `artifacts/lwtool-connection-20261023/`, combined with existing accepted MAP-019 facts for comparison boundaries. This report contains source/function anchors and behavior summaries only; it does not reproduce proprietary recovered implementation.

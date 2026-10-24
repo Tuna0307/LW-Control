@@ -1,5 +1,7 @@
 # Map worker stop checkpoint — 2026-10-24
 
+> Historical checkpoint. Current Map disposition and final-source receipts: [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md). Pending/journal statements below describe that earlier checkpoint.
+
 Status: **implementation/research/package saved; genuine packaged live qualification blocked by a pre-existing unowned recovery journal**.
 This is a lead progress/housekeeping check, not independent acceptance of every
 production change or a new live scan. No merge or release occurred.

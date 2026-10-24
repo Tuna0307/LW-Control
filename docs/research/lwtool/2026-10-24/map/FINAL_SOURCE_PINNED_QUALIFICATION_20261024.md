@@ -1,5 +1,7 @@
 # Map qualification — source-pinned independent lead handoff (2026-10-24)
 
+> Historical checkpoint. Current Map disposition and final-source receipts: [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md). Pending/journal statements below describe that earlier checkpoint.
+
 **Status:** Independent lead review required. **Map final acceptance is not complete.** Do not merge, release, or start another tab. This report supersedes the older `FINAL_STATUS.md`/`QUALIFICATION_REMAINING_GAPS.md` statements that a recovery journal prevents all packaged tests.
 
 ## Pin and safe closeout

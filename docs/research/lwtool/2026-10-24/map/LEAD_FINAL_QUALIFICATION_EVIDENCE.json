@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 2,
+  "date": "2026-10-24",
+  "classification": "qualified-local-map-scope-with-recorded-negatives",
+  "sourceCommit": "dd6bf8819aba859561fec7ff1870cbd87ef99748",
+  "package": {
+    "path": "artifacts/map-lead-finish-20261024/package-final/LW-Control-lwtool-improvement-dd6bf8819aba.zip",
+    "sha256": "8a13f0f3616cf2e8ff15e4f9bcc9189cc6ed974e40b561627b85191a43142fe3",
+    "bytes": 10376493,
+    "zipEntries": 105,
+    "applicationFiles": 104,
+    "sourceInputSha256": "8958d07f29a6c0b15e5ec38bd911440e2ee7eab7d63f432e50f785d43141cde9",
+    "bridgesVerified": 29,
+    "sourceManifestVerified": true,
+    "payloadHashesVerified": true,
+    "crcVerified": true,
+    "privacyGatesVerified": true,
+    "competitorOrRecoveredPayloadsIncluded": false,
+    "accountOrRuntimeStateIncluded": false
+  },
+  "liveCases": [
+    {
+      "mode": "all-ten",
+      "state": "pass",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-113644",
+      "proofSha256": "f87d6ccbd39f097b827aeba5c7b94c7a3c989c8634b752ccba4525e29396d8d4",
+      "ownedExitSha256": "51ed6fce71cf45720d4096e006b97f63fbeee600531ad3ec6bd34e7fefd9e87d",
+      "exactRestoration": true,
+      "durableRuns": [
+        {
+          "serverId": 2212,
+          "state": "completed",
+          "completedBlocks": 2500,
+          "totalBlocks": 2500,
+          "failedBlocks": 0
+        }
+      ],
+      "publishedKindCounts": {
+        "city": 4447,
+        "dispatch": 861,
+        "monster": 9503,
+        "railway": 1,
+        "resource": 8006,
+        "treasure": 26,
+        "truck": 431
+      },
+      "lastResourceDetailCohort": {
+        "serverId": 2212,
+        "targetCount": 7946,
+        "requestCount": 7946,
+        "readyCount": 7946,
+        "cacheBeforeCount": 0,
+        "ignoredCacheCount": 0,
+        "retryRequestCount": 7,
+        "nativeReplyCorrelation": "future_id_connection_config_proxy"
+      },
+      "cameraFree": {
+        "source": "direct",
+        "serverId": 2212,
+        "completedAois": 10000,
+        "successfulReplies": 63,
+        "successfulBatches": 63,
+        "requestsSent": 63,
+        "cameraStable": true,
+        "curViewRestored": true
+      }
+    },
+    {
+      "mode": "auto-all-ten",
+      "state": "pass",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-113945",
+      "proofSha256": "130de487698188489db9009665c44be119261a4db5fefc31fe29502925e9ccaa",
+      "ownedExitSha256": "be7f2c3b7ab27444c015e14e8ead775ddd367de3b99a249326c7ca9ff3a125bd",
+      "exactRestoration": true,
+      "durableRuns": [
+        {
+          "serverId": 2211,
+          "state": "completed",
+          "completedBlocks": 2500,
+          "totalBlocks": 2500,
+          "failedBlocks": 0
+        }
+      ],
+      "publishedKindCounts": {
+        "city": 3067,
+        "dispatch": 815,
+        "monster": 9248,
+        "resource": 8004,
+        "treasure": 16,
+        "truck": 284
+      },
+      "lastResourceDetailCohort": {
+        "serverId": 2211,
+        "targetCount": 7965,
+        "requestCount": 7965,
+        "readyCount": 7965,
+        "cacheBeforeCount": 0,
+        "ignoredCacheCount": 0,
+        "retryRequestCount": 2,
+        "nativeReplyCorrelation": "future_id_connection_config_proxy"
+      },
+      "cameraFree": {
+        "source": "direct",
+        "serverId": 2211,
+        "completedAois": 10000,
+        "successfulReplies": 63,
+        "successfulBatches": 63,
+        "requestsSent": 63,
+        "cameraStable": true,
+        "curViewRestored": true
+      },
+      "autoAllTen": {
+        "originalServerId": 2212,
+        "targetServerId": 2211,
+        "restoredServerId": 2212,
+        "runNowClicks": 1
+      }
+    },
+    {
+      "mode": "truck-stop",
+      "state": "pass",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-114236",
+      "proofSha256": "483c342bb72c801886bfac28438616d09b7e503378f90a68e931e19ee38453dd",
+      "ownedExitSha256": "78ae6b83d481df0d73ea4b64b081114d31841a1fe41d27b53f9b0d415ccbf942",
+      "exactRestoration": true,
+      "durableRuns": [
+        {
+          "serverId": 2212,
+          "state": "cancelled",
+          "completedBlocks": 0,
+          "totalBlocks": 2500,
+          "failedBlocks": 0
+        }
+      ],
+      "publishedKindCounts": {}
+    },
+    {
+      "mode": "saved-clear-reopen",
+      "state": "pass",
+      "artifact": "artifacts/map014-takeover/native-ui-20261024-114347",
+      "proofSha256": "bcdb136b79e18a60c8bab2e19b46c071efc47d153f9c983a954fb048a189a420",
+      "ownedExitSha256": "d91f672d0fdeb4feed90714b4adcf0cdc894679b3663b0527a3166e994646fea",
+      "exactRestoration": true,
+      "durableRuns": [
+        {
+          "serverId": 2212,
+          "state": "completed",
+          "completedBlocks": 2500,
+          "totalBlocks": 2500,
+          "failedBlocks": 0
+        }
+      ],
+      "publishedKindCounts": {
+        "resource": 8000
+      },
+      "lastResourceDetailCohort": {
+        "serverId": 2213,
+        "targetCount": 7976,
+        "requestCount": 7976,
+        "readyCount": 7976,
+        "cacheBeforeCount": 0,
+        "ignoredCacheCount": 62,
+        "retryRequestCount": 7,
+        "nativeReplyCorrelation": "future_id_connection_config_proxy"
+      },
+      "savedClearReopen": {
+        "originalServerId": 2212,
+        "clearedServerId": 2213,
+        "restoredServerId": 2212,
+        "preservedResourceRows": 8000,
+        "remoteResourceRows": 0,
+        "nativeAois": 10000,
+        "sourceTimingMilliseconds": 31984,
+        "reopenedManualAndAuto": true
+      }
+    }
+  ],
+  "homeSmoke": {
+    "state": "pass",
+    "artifact": "artifacts/map-lead-finish-20261024/home-smoke-final-dd6bf881",
+    "sameGameRouteRecoveries": 2,
+    "stopDuringReconnect": true,
+    "exactGameExited": true,
+    "noSuccessorObservedSeconds": 15,
+    "originalScriptsRestored": true,
+    "hostExited": true,
+    "stopReceiptSha256": "789b6d18cff1fbec00bc0d33765c06a066a858c7797fdb56f9d4db929aea7ee2"
+  },
+  "checks": {
+    "desktop": "pass-isolated-rerun",
+    "packageAuditorTests": 31,
+    "nativeCorrelationTests": 7,
+    "citySubsetAndLuaCompileTests": 2,
+    "inertLuaSuites": 49,
+    "luaSuiteSource": "077350ec; identical Lua in final dd6bf881",
+    "productionUiBuildAndFingerprint": "pass"
+  },
+  "retainedNegatives": [
+    {
+      "artifact": "native-ui-20261024-110205",
+      "reason": "Initial candidate received 7934/7936 details; refused publication; bounded repair added afterwards.",
+      "restored": true
+    },
+    {
+      "artifact": "native-ui-20261024-111445",
+      "reason": "Remote server_changed during mobile acquisition; no partial publication; subsequent instrumented and final-source Auto cases passed.",
+      "restored": true
+    },
+    {
+      "artifact": "artifacts/map-lead-finish-20261024/final-desktop-checks.log",
+      "reason": "Existing HomeR2 late-helper cancellation assertion failed once during concurrent build. Unchanged isolated rerun passed; cause unestablished; follow-up retained."
+    }
+  ],
+  "remainingRequiredMapGates": [],
+  "limits": [
+    "No equivalent live LwTool Quick Map speed/backend-freshness claim.",
+    "Collector/storage slice measurements are not whole-scan speedups.",
+    "Seasonal/moving kinds can be empty; no positive population is fabricated.",
+    "Intermittent controlled HomeR2 assertion remains a follow-up; isolated suite and genuine Home smoke pass."
+  ],
+  "mergePerformed": false,
+  "releasePerformed": false
+}

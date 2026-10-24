@@ -1,27 +1,29 @@
-# Map comparison and improvement final status — 2026-10-24
+# Map final status — 2026-10-24
 
-> **Latest source-pinned qualification continuation (later 2026-10-24):** the historic recovery journal is **closed by the application's supported restore-only preflight**, and the old "all final-package gates blocked before launch" statements below are superseded. Genuine old/new packaged Truck-only trials (all 625/625), source-pinned mid-flight Stop, two exact-game Home route recoveries/Stop, and a new same-session home Resource acquisition have now run. Final `d018ea5a` has a conservative cross-server stale Resource-cache rejection and fail-fast sanitized Auto failure proof. The game still lacks authoritative native City canonical identity on several real all-ten scans and trustworthy cross-server Resource-detail response provenance; **Manual/Auto all-ten and saved Clear/reopen are not accepted**. Latest package identity and dispositions are in [FINAL_SOURCE_PINNED_QUALIFICATION_20261024.md](FINAL_SOURCE_PINNED_QUALIFICATION_20261024.md), supported recovery in [RECOVERY_SUPPORTED_CLOSEOUT.json](RECOVERY_SUPPORTED_CLOSEOUT.json) and old/new Truck comparisons in [TRUCK_ONLY_FOUR_RUN_PACKAGED_COMPARISON.md](TRUCK_ONLY_FOUR_RUN_PACKAGED_COMPARISON.md). Nothing has been merged or released.
+**All required local Map package gates pass** on product source
+`dd6bf8819aba859561fec7ff1870cbd87ef99748`. The interrupted worker work is
+preserved, reviewed and completed for the tested Map scope. No merge or release.
 
-## Later owner-directed LOCAL scanner continuation
+Read [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md) and
+[LEAD_FINAL_QUALIFICATION_EVIDENCE.json](LEAD_FINAL_QUALIFICATION_EVIDENCE.json).
+They supersede earlier recovery-journal and incomplete-package statuses.
 
-The owner requested stopping the remote-service comparison and tracing LwTool's normal/local game-backed scan. Completed: local 100×100 LOD0 requests, adaptive pacing, 100-UID detail batches/conditional fallback, distinct filtered normal Truck and UI completion limitations were traced against our production 63 direct AOI replies plus one typed, complete 625-rectangle Truck/Railway sweep. [LOCAL_SCANNER_CONTINUATION.md](LOCAL_SCANNER_CONTINUATION.md) records source anchors and a decision ledger. An offline, nonexecuting [LOCAL_SCAN_PHASE_BREAKDOWN.json](LOCAL_SCAN_PHASE_BREAKDOWN.json) now attributes genuine existing all-ten A1/A2 source capture to 56.536/57.001 s mobile, 27.491/27.757 s direct AOI and 1.461/1.362 s detail hydration; it includes process CPU and sampled memory. The accompanying Python analyzer has four tests and an inert late-cache/stamp counterexample has two more; these are new research tooling. No acquired normal-local competitor method proves equivalent complete coverage more quickly, so production's qualified acquisition settings and existing transactional batch staging are retained; **no newly measured live before/after scan gain or new production change is claimed**.
+The finished changes retain local scanning, transactional batch staging and
+collector deduplication, correct City main-base classification, and require
+fresh Resource replies correlated to native request/connection identity.
+Bounded missing-reply repair preserves fail-closed publication and exact cleanup.
 
-The recovery journal was audited further: its historical profile matches config, and the retained helper/host startup records match its session/PID. The original installed game script triplet, backup copies and journal hashes all match. However, no same-owner Stop/restore receipt or restored manifest exists, and the historical PID is absent. Running the recovery helper would mutate installed files and remove the marker; it was not used. Read-only current-client `check-only` passed with installed files unchanged. All four no-execute final package modes and the 29 auditor tests passed again. **The same five genuine final-package/Home live gates remain blocked**; see [QUALIFICATION_REMAINING_GAPS.md](QUALIFICATION_REMAINING_GAPS.md). This continuation is for independent lead review and does not close Map final acceptance.
+Final packaged Manual all-ten, remote Auto all-ten, mid-scan Stop, saved-data
+Clear/reopen and same-game Home recovery/Stop smoke passed. Original scripts
+were restored and task-owned sessions closed.
 
-## Historical source/package checkpoint
+No measured equivalent speed comparison with LwTool is available. Storage and
+collector slice gains are not whole-scan gains. One intermittent existing
+controlled HomeR2 assertion remains an unresolved follow-up, explicitly recorded
+in the final report despite the passing isolated rerun and genuine Home smoke.
 
-The implementation, recovered-method investigation, current-source live benchmarks and source-pinned Windows package are complete on `codex/lwtool-full-improvement`. The only unfinished assignment gates are genuine final-package live replays. They are blocked before launch by a pre-existing recovery journal whose exact ownership does not match the retained current-task receipts. The journal was preserved and no recovery operation was run against it.
-
-LwTool's active Quick Map path is a remote scanning service, not its normal local game sweep. With quick/VIP mode enabled, the client submits the selected server to LwTool's service, streams partial city/resource results, merges them into in-memory tables and renders ordinary Map rows. Already-enriched player fields arrive from that remote service, while the normal local path performs discovery and player-detail hydration through the user's game. The client has a short duplicate-job/result cache and its visible quick timer does not include every UI/freshness/durable-publication boundary. The server farm's map-walking algorithm, worker count, cache/freshness policy and per-request full-world freshness are not present in the shipped client. Live Quick Map timing was not obtained because the route is Premium-only and the safely readable cached local entitlement was free.
-
-LW-Control's retained improvement is transactional batch staging for shared Map acquisitions. The real `MapStore` path now stages a batch inside one SQLite transaction while preserving exact run ownership, server/kind validation, cancellation and late-callback fencing, and last-good publication semantics. The matched inert 24,362-record benchmark reports a staging median of 2483.671 ms before versus 672.559 ms batched, with identical canonical staged/published hashes and row counts. This is a persistence-slice improvement, not a 73% whole-scan claim.
-
-The current-source live all-ten result is a same-session direct/camera/camera/direct ABBA: direct 90.713 / 91.327 s versus camera 142.766 / 142.512 s, all rounds 2500/2500 with zero failed blocks. Mean direct wall time is 91.020 s versus 142.639 s, 36.19% lower in that matched session. City, Resource, Monster, Truck, Railway, Dispatch, Treasure and Other were populated; Ghost and Zombie Boss were empty at that availability point. The earlier fence10 combined run is retained only as a negative control because Railway failed closed and forced camera fallback. Production is restored to the qualified Truck settings of 20 requests/s and fence25.
-
-Final source-pinned package: `artifacts/map-final-acceptance-20261024/package-9ddd0ed8/LW-Control-lwtool-improvement-9ddd0ed83afc.zip`, SHA-256 `c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f`, source `9ddd0ed83afc771813cd60786698d32f85f5eeb7`. ZIP CRC, every payload hash/size, production UI/source manifest, 29 bridge identities and privacy exclusions passed. The exact extracted package also passes non-executing structural verification for Manual all-ten, Auto all-ten, Truck Stop and saved Clear/reopen.
-
-The first genuine packaged Manual all-ten attempt stopped at the repository's existing admission guard before any new app/game process was launched: `Existing recovery journal requires independent ownership review`. The journal records an old inactive process, but process absence is not sufficient ownership proof and it could not be correlated to the retained current task receipts. The mutating recovery helper was therefore not used. A read-only current-client compatibility check still reports the installed game package supported and unchanged.
-
-Regression status before package creation: full Desktop checks passed through `HOME_FEATURE_DELIVERY_CHECKS_OK`; canonical UI checks passed; package-auditor tests passed 29/29; benchmark-matrix tests passed 8/8; fast-Truck proof tests passed 21/21; `git diff --check` passed. Existing accepted capability evidence continues to cover Manual/Auto controls, search/filter/pagination, saved servers, all-server Clear, City export, Inspect, Jump, Follow/expiry, Stop/stale callbacks/profile changes, missing replies and server restoration. No main merge or release was performed.
-
-The remaining live package commands are documented in `QUALIFICATION_REMAINING_GAPS.md`. They should be run only after the pre-existing recovery owner is independently reconciled; weakening or bypassing the admission rule would invalidate the ownership/restoration guarantees this assignment is required to preserve.
+Historical evidence remains in WORKER_STOP_CHECKPOINT.md,
+FINAL_SOURCE_PINNED_QUALIFICATION_20261024.md, MAP_ACQUISITION_AND_ACCEPTANCE_CONTINUATION.md,
+the benchmark reports and Git history. Raw proprietary/account evidence stays
+ignored locally. Further tab work requires its own scope; Map completion does
+not authorize gameplay actions or a release.

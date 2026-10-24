@@ -1,40 +1,26 @@
-# Map qualification — remaining package/Home gates (2026-10-24)
+# Map qualification closeout — 2026-10-24
 
-> **Current handoff supersedes the historical gate table below:** the old restoration-journal blocker was resolved through the supported, hash-verified preflight; final source is `d018ea5a` (not the earlier pinned `9ddd0ed8`). The historical first-party package commands remain structurally appropriate, but their "BLOCKED BEFORE LAUNCH" descriptions are obsolete. Genuine candidate-package Stop **passed**; the exact-owned two-cycle Home route/Stop **passed on the unchanged prior package**; a new home 2212 Resource scan within saved Clear completed 2500/2500, but the remote 2213 run failed closed because the game-owned native detail cache is keyed by pointId only. Native City canonical identity remains incomplete on genuine Manual/Auto all-ten. See [FINAL_SOURCE_PINNED_QUALIFICATION_20261024.md](FINAL_SOURCE_PINNED_QUALIFICATION_20261024.md) for current exact package hash and remaining open acceptance gates. Do not count a fallback, cancelled run or synthetically reconstructed row as an accepted direct scan.
+No required Map gate remains in the owner's finite local/read-only scope.
+Product pin: `dd6bf8819aba859561fec7ff1870cbd87ef99748`.
 
-**Current owner-directed local-scan update:** [LOCAL_SCANNER_CONTINUATION.md](LOCAL_SCANNER_CONTINUATION.md) adds complete recovered *normal* LwTool game-scanner method trace, actual all-ten acquisition phase attribution, and an independent read-only journal owner/file-hash audit. The exact journal profile/session/PID and matching retained start receipts were found, and **all installed script hashes equal the journal's original and backup values**. No same-owner Stop/restoration receipt or `restored` backup manifest exists, and its old process is gone. The supported recovery helper rewrites files and removes the journal; it remains untouched. Live admission is still blocked and the five package/Home gates below remain open. Current-client `check-only` was rerun successfully with `installedFilesChanged=false`; all four non-executing structural package modes and **29/29** package tests passed again. Research-only timing analyzer tests also passed. Existing source `9ddd0ed8` and ZIP identity stay pinned because no product/package inputs changed. No new final-package live pass is claimed.
+| Final package gate | Status |
+|---|---|
+| Manual all-ten direct acquisition/publication/browse | PASS |
+| Actual Auto all-ten remote Run Now and exact home return | PASS |
+| Native mid-flight Stop and durable cancellation | PASS |
+| Fresh home/remote Resource data, Clear and both views reopened | PASS |
+| Two same-game Home route recoveries and Stop during reconnect | PASS |
+| Package source/UI/helper identity, privacy and original restoration | PASS |
 
-Scope: sanitized reconciliation of the Map assignment against qualification already completed on `codex/lwtool-full-improvement`. The current-source Other/all-ten live benchmark is complete; this file now records only final-package/Home gates. It does not replace the retained raw/ignored receipts and does not authorize an additional live controller.
+See [LEAD_FINAL_MAP_QUALIFICATION.md](LEAD_FINAL_MAP_QUALIFICATION.md) and its
+machine-readable evidence for exact runs, hashes, known limits and retained
+negatives. The historical recovery journal was resolved through supported
+restoration, not ignored or manually deleted.
 
-Lead stop-check update: source `9ddd0ed83afc771813cd60786698d32f85f5eeb7` is committed/pushed and its Windows package exists. Independent ZIP/extraction/source-manifest verification and all **29** package-auditor tests pass. The final ZIP has 105 entries (104 application files plus the programme integrity manifest), SHA-256 `c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f`, and passes the package privacy gates. Structural verification of `all-ten`, `auto-all-ten`, `truck-stop` and `saved-clear-reopen` passes against the extracted package without starting the game. Live package execution is blocked before launch by a pre-existing recovery journal whose exact ownership does not match the retained current task receipts. The recovery helper was not invoked and the journal was not edited or removed. See [WORKER_STOP_CHECKPOINT.md](WORKER_STOP_CHECKPOINT.md) and [FINAL_STATUS.md](FINAL_STATUS.md) for the boundary.
+Separate follow-up: one existing controlled HomeR2 late-helper assertion failed
+once during concurrent build activity; its cause remains unresolved. An unchanged
+isolated full rerun and genuine bounded Home smoke passed. Do not erase this
+negative or claim all possible Home races are settled.
 
-## Already satisfied; do not repeat just for coverage
-
-The full Desktop delivery checks, canonical UI checks and 49 Lua suites have passed. Existing MAP-019 receipts cover genuine current/camera comparisons for the historical nine Map kinds, remote Zombie Boss populations, City+Resource combined scans, remote all-nine publication, Truck rate/fence experiments, typed/freshness audits and exact Stop/script restoration. Current 2026-10-24 evidence now also closes the missing Other and true all-ten live benchmark boundary:
-
-- `artifacts/map014-lead-live/native-benchmark-review-20261024-025620/`: valid Other ABBA at direct **16.918 / 16.606 s** versus camera **122.780 / 122.466 s**, 4 rows every round. Its all-ten requested-direct rounds are retained only as **invalid negative controls** because the temporary unqualified fence10 edit made Railway fail closed and forced camera fallback (**213.118 / 198.370 s**). Audit: `artifacts/map019/20261024-other-allten-broken-fence-audit.json`.
-- Production was restored to **20 requests/s, fence25**. `artifacts/map014-lead-live/native-benchmark-review-20261024-031605/` then completed two genuine direct all-ten runs at **101.706 / 82.686 s**, both 2500/2500 with zero failures. Audit: `artifacts/map019/20261024-allten-corrected-audit.json`.
-- Final same-session all-ten ABBA `artifacts/map014-lead-live/native-benchmark-review-20261024-032125/`: direct **90.713 / 91.327 s**, camera **142.766 / 142.512 s**, every round 2500/2500 with zero failures; mean direct **91.020 s** versus camera **142.639 s**, **36.19% lower wall time**. City/Resource/Monster/Truck/Railway/Dispatch/Treasure/Other were populated; Ghost/Zombie Boss were empty at that availability point. `artifacts/map019/20261024-allten-final-abba-audit.json` is non-provisional after exact Stop/restoration and records zero external account actions.
-
-The qualification harness also now supports fail-closed `all-ten` and `auto-all-ten` modes. Historical packaged Map acceptance already proved Truck Stop, all-nine publication, remote Auto/return, saved-data Clear/reopen, filters and restoration. Re-run these only where the final current package below needs a fresh boundary.
-
-## Remaining live gates and current blocker
-
-The commands below remain valid, but the current machine must first have the pre-existing recovery owner independently reconciled. The attempted packaged Manual all-ten run failed closed during admission with `Existing recovery journal requires independent ownership review`; no packaged app/game was launched by that attempt. The journal's recorded old game PID is absent, but PID absence alone is not ownership proof. Current-client `check-only` reports the installed game package unchanged and compatible. The journal is therefore treated as an external ownership blocker, not as permission to run the mutating recovery helper.
-
-| Gate | Why it is still open | Minimum evidence | Reusable command/script |
-|---|---|---|---|
-| Final packaged Manual + Auto all-ten | **BLOCKED BEFORE LAUNCH** by the pre-existing unowned recovery journal. Historical package evidence is all-nine; structural package admission for both new modes passes. | After independent journal resolution: Manual all-ten completed/browsable; Auto all-ten on an owned remote target completed and returned to the exact original server; `other` included in both selections; exact owned exit/restoration. | `python tools/map_015_package_ui.py --zip <zip> --extracted <extract>/LW-Control-UI --commit <40sha> --mode all-ten --execute`; then `... --mode auto-all-ten --allow-remote --execute`. |
-| Final packaged Stop against current batched staging | **BLOCKED BEFORE LAUNCH** by the same journal. MAP-015 historically proved packaged Truck Stop, and current deterministic batch-staging/late-callback tests pass. | After independent journal resolution: exact run stops mid-sweep, terminal idle/cancel state is durable, no late staged/publication rows appear, prior published data remains, exact restoration passes. | `python tools/map_015_package_ui.py --zip <zip> --extracted <extract>/LW-Control-UI --commit <40sha> --mode truck-stop --execute`. |
-| Final packaged persistence/clear sanity | **BLOCKED BEFORE LAUNCH** by the same journal. Structural package mode verification passes; historical packaged Clear/reopen remains accepted capability evidence. | After independent journal resolution: remote saved scan, clear selected remote data, reopen same packaged WebView/store, preserved home data and exact server restoration. | `python tools/map_015_package_ui.py --zip <zip> --extracted <extract>/LW-Control-UI --commit <40sha> --mode saved-clear-reopen --allow-remote --execute`. |
-| Required Home integration smoke on the final package | **BLOCKED BEFORE LAUNCH** by the same journal. Home's accepted scope and the current full Desktop/UI regression suites remain green. | After independent journal resolution: exact task-owned isolated final-package app/game, at least two same-game authenticated-route recoveries, then production Stop during reconnect with exact process exit, no successor, original scripts restored and no recovery journal. | `python tools/lwtool_home_stability_route_cycles.py --isolated-root <root> --output <route.json> --cycles 2`; then `python tools/lwtool_home_stability_owned_faults.py stop-reconnect --isolated-root <root> --game-root <game-root> --backup-dir <fresh-backup> --output <stop.json>`. |
-
-## Deliberately not remaining live gates
-
-- Acquisition/hydration/publication Stop races, stale callbacks, missing replies, repeat scans, profile changes and cross-owner fencing already have deterministic production-path checks; do not manufacture extra live failures for them.
-- Search, filters, pagination, saved-server selection, all-server Clear, City XLSX export, Jump, Follow/expiry and read-only Inspect have existing production/mounted or historical packaged qualification. Their code is unchanged by the current batching work, so the final package scenarios above are sufficient unless one of those paths is edited again.
-- The historical `KNOWN_LIMITS` sentence saying no packaged mid-flight Stop exists is stale; MAP-015 lead acceptance records a genuine packaged Stop. Keep that historical receipt, while the final package still replays Stop because staging changed.
-- Truck 20/25/30 rate and 5/10/25 fence experiments are retained with clean exact restoration. The temporary fence10 production edit used during the first all-ten attempt is explicitly rejected; production is restored to the qualified **20 requests/s, fence25** configuration. Do not rerun unchanged rate/fence experiments unless production changes again.
-- LwTool Quick Map itself was not live-benchmarked. Recovered entitlement makes that route **Premium-only**, while safely readable local session metadata reports cached plan **free**. No decryption or entitlement bypass was attempted. Treat the missing LwTool live timing as an entitlement limitation, not a failed performance result and not a remaining final-package gate.
-
-Package privacy/helper/source identity is already complete for `9ddd0ed8`; only the genuine live package gates above remain blocked. No main merge or public release is implied.
+No universally fastest method, equivalent LwTool speed, unavailable seasonal
+positive, main merge or public release is implied.

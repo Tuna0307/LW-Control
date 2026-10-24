@@ -1,73 +1,52 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "date": "2026-10-24",
-  "scope": "Map feature and regression qualification ledger",
+  "scope": "qualified local read-only Map scope",
+  "sourceCommit": "dd6bf8819aba859561fec7ff1870cbd87ef99748",
   "acceptedImprovements": [
-    {
-      "name": "Map317 transactional batch staging",
-      "status": "accepted-current-source",
-      "evidence": ["24,362-row matched inert staging benchmark", "full Desktop.Checks", "genuine all-ten production-pipeline publications"],
-      "safety": ["exact run ownership", "foreign kind/server rejection", "duplicate block rejection", "cancelled/stale run rejection", "last-good publication preservation"]
-    },
-    {
-      "name": "Direct all-ten acquisition on current normal-world server",
-      "status": "accepted-current-source",
-      "evidence": ["native-benchmark-review-20261024-031605", "native-benchmark-review-20261024-032125"],
-      "productionTruckSettings": {"requestsPerSecond": 20, "responseFenceSize": 25}
-    },
-    {
-      "name": "All-ten and Auto all-ten packaged qualification harness",
-      "status": "implemented-and-inertly-qualified",
-      "evidence": ["tools/test_map_015_package_ui.py", "full Desktop.Checks"],
-      "note": "Final package execution remains a separate gate."
-    }
-  ],
-  "rejectedOrDeferredAlternatives": [
-    {"name": "Truck fence10 production candidate", "decision": "rejected", "reason": "Broke combined Truck+Railway proof and forced safe camera fallback; no matched accuracy qualification."},
-    {"name": "Truck rates above 20 requests/s", "decision": "rejected", "reason": "Retained rate trials were slower than the accepted 20/s path."},
-    {"name": "Previously tested coarse/naive overlap scanners", "decision": "retained-rejection", "reason": "Historical tests improved speed only by losing recall or replies."},
-    {"name": "Replace local scanner with opaque remote farm", "decision": "not-supported", "reason": "LwTool remote backend coverage/freshness/cache/worker behavior is not exposed and live Premium Quick Map access is unavailable on this machine."}
+    "transactional batch staging",
+    "early seen-UUID March collector deduplication",
+    "native main-base City classification",
+    "request-and-connection-correlated fresh Resource hydration",
+    "bounded missing-reply repair and aligned host deadline",
+    "current-version exact settlement/package auditor"
   ],
   "featureStatus": {
-    "kinds": ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"],
-    "manualAllTenCurrentSource": "accepted-live",
-    "autoAllTenHarness": "implemented-inertly-qualified",
-    "searchFiltersPagination": "accepted-existing",
-    "savedServerSelection": "accepted-existing",
-    "allServerClear": "accepted-existing",
-    "cityXlsxExport": "accepted-existing",
-    "readOnlyInspect": "accepted-existing",
-    "jump": "accepted-existing",
-    "movingTargetFollowExpiry": "accepted-existing",
-    "stopStaleCallbacksProfileChangesMissingRepliesRepeatedScans": "accepted-deterministic",
-    "remoteServerReturnRestoration": "accepted-historical-current-harness",
-    "homeRegressionBoundary": "desktop-and-ui-regressions-pass-final-package-smoke-pending"
+    "all-ten": "accepted-final-package",
+    "auto-all-ten": "accepted-final-package",
+    "truck-stop": "accepted-final-package",
+    "saved-clear-reopen": "accepted-final-package"
   },
+  "homeRegressionBoundary": "genuine bounded final-package smoke passed; intermittent controlled assertion retained separately",
   "regressionChecks": {
-    "desktopChecks": "pass",
-    "canonicalUiChecks": "pass",
-    "sourcePinnedLuaSuites": {"status": "pass", "count": 49},
-    "packageAuditorUnitTests": {"status": "pass", "count": 29, "independentlyRerunAtStopCheckpoint": true},
-    "benchmarkMatrixTests": {"status": "pass", "count": 6},
-    "gitDiffCheck": "pass"
+    "desktop": "pass-isolated-rerun",
+    "packageAuditorTests": 31,
+    "nativeCorrelationTests": 7,
+    "citySubsetAndLuaCompileTests": 2,
+    "inertLuaSuites": 49,
+    "luaSuiteSource": "077350ec; identical Lua in final dd6bf881",
+    "productionUiBuildAndFingerprint": "pass"
   },
   "packageCheckpoint": {
-    "sourceCommit": "9ddd0ed83afc771813cd60786698d32f85f5eeb7",
-    "sha256": "c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f",
-    "zipExtractionAndSourceManifestVerification": "independent-pass",
+    "path": "artifacts/map-lead-finish-20261024/package-final/LW-Control-lwtool-improvement-dd6bf8819aba.zip",
+    "sha256": "8a13f0f3616cf2e8ff15e4f9bcc9189cc6ed974e40b561627b85191a43142fe3",
+    "bytes": 10376493,
     "zipEntries": 105,
     "applicationFiles": 104,
-    "structuralModesVerified": ["all-ten", "auto-all-ten", "truck-stop", "saved-clear-reopen"],
-    "livePackageExecution": "blocked-before-launch-by-preexisting-unowned-recovery-journal",
-    "gameOrAppStartedByBlockedAttempt": false,
-    "recoveryToolInvoked": false,
-    "acceptance": "independent-review-required"
+    "sourceInputSha256": "8958d07f29a6c0b15e5ec38bd911440e2ee7eab7d63f432e50f785d43141cde9",
+    "bridgesVerified": 29,
+    "sourceManifestVerified": true,
+    "payloadHashesVerified": true,
+    "crcVerified": true,
+    "privacyGatesVerified": true,
+    "competitorOrRecoveredPayloadsIncluded": false,
+    "accountOrRuntimeStateIncluded": false
   },
-  "remainingGates": [
-    "packaged Manual all-ten after the pre-existing unowned recovery journal is independently resolved",
-    "packaged Auto all-ten with exact remote return after the same admission blocker is resolved",
-    "packaged Truck Stop against current batch staging after the same admission blocker is resolved",
-    "packaged saved-data Clear/reopen persistence sanity after the same admission blocker is resolved",
-    "final packaged Home same-game reconnect and Stop-during-reconnect smoke after the same admission blocker is resolved"
+  "remainingGates": [],
+  "knownLimits": [
+    "No equivalent live LwTool Quick Map speed/backend-freshness claim.",
+    "Collector/storage slice measurements are not whole-scan speedups.",
+    "Seasonal/moving kinds can be empty; no positive population is fabricated.",
+    "Intermittent controlled HomeR2 assertion remains a follow-up; isolated suite and genuine Home smoke pass."
   ]
 }
