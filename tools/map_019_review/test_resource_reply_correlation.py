@@ -14,6 +14,7 @@ BODY = 'function resource_scan_detail_runtime.same_state' + SOURCE.split(
 MODEL = r'''
 resource_scan_detail_runtime={}
 M={VERSION='inert-actual-source'}
+local root='inert-only'
 local function safe_get(o,k)return o and o[k]end
 local function reflected_value(o,k)return safe_get(o,k)end
 local function call(o,k,...)if not o or type(o[k])~='function'then return false end;return pcall(o[k],o,...)end
@@ -27,7 +28,7 @@ local function resource_detail_snapshot(manager,p)
  return {resourceId=1,remainRes=d.remainRes,initRes=d.initRes}
 end
 local function runtime_clock()return testClock or 1 end
-local function read_kv_file()return nil end
+local function read_kv_file(path)if path==resource_scan_detail_runtime.cancelPath then return cancelInput end;return nil end
 local function valid_token()return true end
 local function write_json(path,value)lastReceipt=value end
 liveServer=2212
@@ -46,7 +47,7 @@ SFSNetwork={SendMessage=function(route,point,server,world,kind,uid,...)
  assert(select('#',...)==0,'OnCreate must receive exactly five arguments')
  future._futureId=future._futureId+1
 end}
-request={profileId='p',launchSessionId='s',challenge='c',gamePid=123,serverId=2212,scanRunId='run',includeResourceDetails=true}
+request={requestId='request1',profileId='p',launchSessionId='s',challenge='c',gamePid=123,serverId=2212,scanRunId='run',includeResourceDetails=true}
 local function queue()
  return resource_scan_detail_runtime.queue(request,{pointId=42,serverId=liveServer,worldId=0,pointType=7,uid='0'})
 end
@@ -114,6 +115,49 @@ assert(request.repairPass==2 and resource_scan_detail_runtime.state.retryRequest
 testClock=27;resource_scan_detail_runtime.pump(27)
 assert(resource_scan_detail_runtime.state==nil and class.HandleMessage==original)
 assert(lastReceipt.error=='resource_scan_detail_partial_response'and lastReceipt.readyCount==0)
+''')
+
+    def test_stop_before_due_repair_acknowledges_after_retirement(self):
+        self.check(r'''
+assert(queue());resource_scan_detail_runtime.request=request
+resource_scan_detail_runtime.startedAt=0;testClock=9
+cancelInput={};for k,v in pairs(request)do cancelInput[k]=v end
+resource_scan_detail_runtime.pump(9)
+assert(future._futureId==101,'Stop must precede the due retry')
+assert(resource_scan_detail_runtime.state==nil and class.HandleMessage==original)
+assert(lastReceipt.state=='cancelled'and lastReceipt.nativeLaneStopped==true)
+''')
+
+    def test_foreign_stop_cannot_cancel_current_lane(self):
+        self.check(r'''
+assert(queue());resource_scan_detail_runtime.request=request
+resource_scan_detail_runtime.startedAt=0;testClock=9
+cancelInput={};for k,v in pairs(request)do cancelInput[k]=v end
+cancelInput.scanRunId='foreign-run'
+resource_scan_detail_runtime.pump(9)
+assert(resource_scan_detail_runtime.state~=nil and future._futureId==102)
+''')
+
+    def test_stop_arriving_before_first_hydration_pump(self):
+        self.check(r'''
+assert(queue());cancelInput={};for k,v in pairs(request)do cancelInput[k]=v end
+resource_scan_detail_runtime.read=function()return request end
+testClock=1;resource_scan_detail_runtime.pump(1)
+testClock=2;resource_scan_detail_runtime.pump(2)
+assert(future._futureId==101 and resource_scan_detail_runtime.state==nil)
+assert(lastReceipt.state=='cancelled'and lastReceipt.nativeLaneStopped==true)
+assert(class.HandleMessage==original)
+''')
+
+    def test_completion_cancel_race_acknowledges_retired_lane(self):
+        self.check(r'''
+assert(queue());resource_scan_detail_runtime.request=request
+reply(101,42,70,2212);resource_scan_detail_runtime.pump(1)
+assert(resource_scan_detail_runtime.state==nil)
+cancelInput={};for k,v in pairs(request)do cancelInput[k]=v end
+resource_scan_detail_runtime.pump(2)
+assert(lastReceipt.state=='cancelled'and lastReceipt.nativeLaneStopped==true)
+assert(future._futureId==101)
 ''')
 
     def test_retired_run_response_cannot_complete_successor(self):

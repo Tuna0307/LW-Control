@@ -4728,6 +4728,14 @@ function resource_scan_detail_runtime.same_state(state, request)
         state.scanRunId == request.scanRunId
 end
 
+resource_scan_detail_runtime.cancelPath = root .. [[\resource-scan-detail-cancel.txt]]
+
+function resource_scan_detail_runtime.cancel_matches(cancel, request)
+    if cancel == nil or not request then return false end
+    cancel.gamePid, cancel.serverId = tonumber(cancel.gamePid), tonumber(cancel.serverId)
+    return cancel.requestId == request.requestId and resource_scan_detail_runtime.same_state(cancel, request)
+end
+
 function resource_scan_detail_runtime.network_scope()
     local entry = CS and safe_get(CS, "GameEntry") or nil
     local network = entry and safe_get(entry, "Network") or nil
@@ -4831,6 +4839,7 @@ function resource_scan_detail_runtime.queue(request, target)
     if request == nil or request.includeResourceDetails ~= true or target == nil or target.pointId == nil then return false end
     if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
         resource_scan_detail_runtime.reset()
+        resource_scan_detail_runtime.lastTerminal = nil
         resource_scan_detail_runtime.state = {
             profileId = request.profileId, launchSessionId = request.launchSessionId,
             challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
@@ -4926,6 +4935,7 @@ function resource_scan_detail_runtime.write_result(request, error_text, state, r
         ignoredCacheCount = type(state) == "table" and state.ignoredCacheCount or 0,
         retryRequestCount = type(state) == "table" and state.retryRequestCount or 0,
         nativeReplyCorrelation = "future_id_connection_config_proxy",
+        nativeLaneStopped = result_state == "cancelled" and resource_scan_detail_runtime.state == nil,
         sendFailureCount = type(state) == "table" and state.sendFailureCount or 0,
         readyCount = ready, details = rows,
         elapsedSeconds = resource_scan_detail_runtime.startedAt and (runtime_clock() - resource_scan_detail_runtime.startedAt) or 0,
@@ -4934,52 +4944,60 @@ function resource_scan_detail_runtime.write_result(request, error_text, state, r
 end
 
 function resource_scan_detail_runtime.pump(now)
-    if resource_scan_detail_runtime.request == nil then
-        local request = resource_scan_detail_runtime.read(now)
-        if request == nil then return false end
-        resource_scan_detail_runtime.startedAt = runtime_clock()
-        if request.error ~= nil then
-            resource_scan_detail_runtime.write_result(request, request.error, nil)
-            resource_scan_detail_runtime.startedAt = nil
-            return true
-        end
-        if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
-            resource_scan_detail_runtime.write_result(request, "resource_scan_detail_runtime.state_unavailable", nil)
-            resource_scan_detail_runtime.startedAt = nil
-            return true
-        end
-        resource_scan_detail_runtime.request = request
-    end
-    local request = resource_scan_detail_runtime.request
-    local state = resource_scan_detail_runtime.state
-    local _, ready = resource_scan_detail_runtime.rows(state)
-    if ready == #state.targets and state.error == nil then
-        resource_scan_detail_runtime.write_result(request, nil, state)
-        resource_scan_detail_runtime.reset()
+    local r = resource_scan_detail_runtime
+    local cancel = read_kv_file(r.cancelPath, 4096)
+    local pending = r.request or (r.state == nil and r.lastTerminal)
+    if r.cancel_matches(cancel, pending) then
+        -- Retire the observer before acknowledgement or any due repair.
+        r.reset()
+        r.lastTerminal = nil
+        pcall(os.remove, r.cancelPath)
+        r.write_result(pending, "cancelled", nil, "cancelled")
         return true
     end
-    if runtime_clock() - (resource_scan_detail_runtime.startedAt or runtime_clock()) >= 8 then
+    if r.request == nil then
+        local request = r.read(now)
+        if request == nil then return false end
+        r.startedAt = runtime_clock()
+        if request.error ~= nil or not r.same_state(r.state, request) then
+            r.write_result(request, request.error or "resource_scan_detail_state_unavailable", nil)
+            r.startedAt = nil
+            return true
+        end
+        r.request = request
+    end
+    local request = r.request
+    local state = r.state
+    local _, ready = r.rows(state)
+    if ready == #state.targets and state.error == nil then
+        r.write_result(request, nil, state)
+        r.reset()
+        r.lastTerminal = request
+        return true
+    end
+    if runtime_clock() - (r.startedAt or runtime_clock()) >= 8 then
         -- A complete point sweep can leave a small number of genuinely lost
         -- detail replies. Repair only missing targets, at most twice, using
         -- new native IDs and removing the superseded pending ID. Never use a
         -- delayed reply for the previous attempt or a cache hit as the repair.
         if state.error == nil and (request.repairPass or 0) < 2 and
-           resource_scan_detail_runtime.scope_matches(state.scope, resource_scan_detail_runtime.network_scope()) then
+           r.scope_matches(state.scope, r.network_scope()) then
             request.repairPass = (request.repairPass or 0) + 1
             for _, target in ipairs(state.targets) do
                 if target.requestIssued and target.detail == nil then
-                    if not resource_scan_detail_runtime.send(target, state) then
+                    if not r.send(target, state) then
                         state.error = "resource_detail_repair_send_failed"
                         break
                     end
                     state.retryRequestCount = state.retryRequestCount + 1
                 end
             end
-            resource_scan_detail_runtime.startedAt = runtime_clock()
+            r.startedAt = runtime_clock()
             return true
         end
-        resource_scan_detail_runtime.write_result(request, state.error or "resource_scan_detail_partial_response", state)
-        resource_scan_detail_runtime.reset()
+        r.write_result(request, state.error or "resource_scan_detail_partial_response", state)
+        r.reset()
+        r.lastTerminal = request
         return true
     end
     return true
@@ -7500,7 +7518,8 @@ function M._map015FastTruck.pump(now)
         local current = manager and reflected_value(manager, "_curViewIndex")
         local marchManager = world and safe_get(world, "MarchDataManager")
         if world == nil or current == nil or marchManager == nil or server ~= current_server_id() then
-            return true -- the managed owner times out; never mutate an unready scene
+            -- The managed owner times out; never mutate an unready scene.
+            return true
         end
         local before = select(1, collection_int_values(current, 10001))
         local tile = safe_get(world, "CurTilePosClamped")

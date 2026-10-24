@@ -1563,29 +1563,68 @@ internal sealed partial class CurrentClientMapBlockSource
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
-        DateTimeOffset deadline = startedAt + ResourceDetailProbeTimeout;
-        while (Now() < deadline)
+        bool terminal = false;
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            JsonElement? root = TryReadJson(resultPath);
-            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            DateTimeOffset deadline = startedAt + ResourceDetailProbeTimeout;
+            while (Now() < deadline)
             {
-                // Keep the first request-correlated native response BEFORE
-                // validation or the Lua lane clears its state. A retry must
-                // never overwrite the evidence of the original failure.
-                try { RetainFirstResourceHydrationReply(probeRuntimeRoot, request.RunId, requestId, root.Value); }
-                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
-                    JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+                cancellationToken.ThrowIfCancellationRequested();
+                JsonElement? root = TryReadJson(resultPath);
+                if (root is not null && MatchesString(root.Value, "requestId", requestId))
                 {
-                    Console.Error.WriteLine("Resource hydration reply retention unavailable: " + error.Message);
+                    // Keep the first request-correlated native response BEFORE
+                    // validation or the Lua lane clears its state. A retry must
+                    // never overwrite the evidence of the original failure.
+                    try { RetainFirstResourceHydrationReply(probeRuntimeRoot, request.RunId, requestId, root.Value); }
+                    catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
+                        JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+                    {
+                        Console.Error.WriteLine("Resource hydration reply retention unavailable: " + error.Message);
+                    }
+                    terminal = true;
+                    return ValidateResourceScanDetailResult(
+                        root.Value, requestId, startedAt, session, request, resourceRecordCount);
                 }
-                return ValidateResourceScanDetailResult(
-                    root.Value, requestId, startedAt, session, request, resourceRecordCount);
+                await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
             }
-            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+            throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
         }
-        throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
+        finally
+        {
+            if (!terminal)
+            {
+                await WriteCommandAsync(Path.Combine(probeRuntimeRoot, "resource-scan-detail-cancel.txt"),
+                    command, CancellationToken.None).ConfigureAwait(false);
+                DateTimeOffset cancelDeadline = Now() + TimeSpan.FromSeconds(4);
+                bool stopped = false;
+                while (Now() < cancelDeadline)
+                {
+                    JsonElement? reply = TryReadJson(resultPath);
+                    if (reply is { } value && ResourceDetailCancellationMatches(value,
+                        requestId, request.RunId, session.ProfileId, session.SessionId,
+                        session.Challenge, session.GamePid, request.ServerId))
+                    {
+                        stopped = true;
+                        break;
+                    }
+                    await DelayAsync(PollDelay, CancellationToken.None).ConfigureAwait(false);
+                }
+                if (!stopped)
+                    throw new MapScanSourceValidationException(
+                        "Resource detail cancellation did not prove the exact native retry lane stopped.");
+            }
+        }
     }
+
+    internal static bool ResourceDetailCancellationMatches(JsonElement value,
+        string requestId, string runId, string profileId, string sessionId,
+        string challenge, int gamePid, int serverId) =>
+        MatchesString(value, "requestId", requestId) && MatchesString(value, "scanRunId", runId) &&
+        MatchesString(value, "profileId", profileId) && MatchesString(value, "launchSessionId", sessionId) &&
+        MatchesString(value, "challenge", challenge) && MatchesInt(value, "gamePid", gamePid) &&
+        MatchesInt(value, "serverId", serverId) && MatchesString(value, "state", "cancelled") &&
+        MatchesBool(value, "nativeLaneStopped", true);
 
     internal static string RetainFirstResourceHydrationReply(
         string probeRoot, string runId, string requestId, JsonElement reply)

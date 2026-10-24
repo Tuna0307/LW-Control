@@ -264,6 +264,30 @@ internal static class Map014ResourceNativeSourceChecks
         if (nativeInverses != 22 || hydrationInverses != 10 || provenanceInverses != 15 ||
             snapshotInverses != 9 || censusTotalInverses != 4)
             throw new Exception("Incomplete Resource native source inverse coverage.");
+        JsonObject cancelAck = JsonNode.Parse("""
+            {"requestId":"request","scanRunId":"run","profileId":"profile",
+             "launchSessionId":"session","challenge":"challenge","gamePid":123,
+             "serverId":2212,"state":"cancelled","nativeLaneStopped":true}
+            """)!.AsObject();
+        bool CancelMatches(JsonObject node)
+        {
+            using JsonDocument doc = JsonDocument.Parse(node.ToJsonString());
+            return CurrentClientMapBlockSource.ResourceDetailCancellationMatches(
+                doc.RootElement, "request", "run", "profile", "session", "challenge", 123, 2212);
+        }
+        if (!CancelMatches(cancelAck)) throw new Exception("Exact Resource native cancellation rejected.");
+        foreach (string field in new[] { "requestId", "scanRunId", "profileId", "launchSessionId", "challenge", "state" })
+        {
+            JsonObject foreign = (JsonObject)cancelAck.DeepClone(); foreign[field] = "foreign";
+            if (CancelMatches(foreign)) throw new Exception("Foreign Resource cancellation admitted: " + field);
+        }
+        foreach (string field in new[] { "gamePid", "serverId" })
+        {
+            JsonObject foreign = (JsonObject)cancelAck.DeepClone(); foreign[field] = 999;
+            if (CancelMatches(foreign)) throw new Exception("Foreign Resource cancellation identity admitted.");
+        }
+        cancelAck["nativeLaneStopped"] = false;
+        if (CancelMatches(cancelAck)) throw new Exception("Unretired Resource lane acknowledged cancellation.");
         Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} firstCensusTotalInverses={censusTotalInverses} native=false");
     }
 
