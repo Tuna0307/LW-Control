@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = (ROOT / "artifacts").resolve()
 RUNNER = ROOT / "tools/map_014_lead_native/run_ui.py"
 APP_FOLDER = "LW-Control-UI"
+PROGRAMME_MANIFEST = "PROGRAMME-RELEASE-INTEGRITY.json"
 KIND_ORDER = ["city", "resource", "monster", "truck", "railway",
               "dispatch", "ghost", "treasure", "other", "zombie_boss"]
 MODES = {
@@ -122,10 +123,18 @@ def verify_package(archive: Path, extracted: Path, commit: str) -> dict:
     if extracted.name != APP_FOLDER:
         raise ValueError(f"--extracted must point to the {APP_FOLDER} directory")
     expected = {}
+    programme_manifest = None
     with zipfile.ZipFile(archive) as source:
         for info in source.infolist():
             name = info.filename.replace("\\", "/").rstrip("/")
             parts = PurePosixPath(name).parts
+            if name == PROGRAMME_MANIFEST and len(parts) == 1:
+                if info.is_dir():
+                    raise ValueError("Programme integrity manifest cannot be a directory")
+                if programme_manifest is not None:
+                    raise ValueError("Duplicate programme integrity manifest")
+                programme_manifest = json.loads(source.read(info))
+                continue
             if not parts or parts[0] != APP_FOLDER or any(p in ("..", ".") for p in parts):
                 raise ValueError(f"Unexpected packaged path: {info.filename!r}")
             # Windows Compress-Archive can encode directories with backslashes,
@@ -159,6 +168,21 @@ def verify_package(archive: Path, extracted: Path, commit: str) -> dict:
     source_commit = (extracted / "SOURCE-COMMIT.txt").read_text(encoding="ascii").strip()
     if source_commit.lower() != commit.lower():
         raise ValueError(f"Package source {source_commit!r} does not equal pinned commit {commit}")
+    if programme_manifest is not None:
+        if str(programme_manifest.get("sourceCommit", "")).lower() != commit.lower():
+            raise ValueError("Programme integrity manifest source commit differs from pinned commit")
+        manifest_files = programme_manifest.get("files")
+        if not isinstance(manifest_files, dict):
+            raise ValueError("Programme integrity manifest has no file inventory")
+        expected_manifest_names = {f"{APP_FOLDER}/{name}" for name in expected}
+        if set(manifest_files) != expected_manifest_names:
+            raise ValueError("Programme integrity manifest file inventory differs from extracted package")
+        for relative, archive_digest in expected.items():
+            entry = manifest_files[f"{APP_FOLDER}/{relative}"]
+            path = extracted / relative
+            if (not isinstance(entry, dict) or entry.get("sha256") != archive_digest or
+                    entry.get("size") != path.stat().st_size):
+                raise ValueError(f"Programme integrity manifest payload differs: {relative}")
     if commit[:12].lower() not in archive.name.lower():
         raise ValueError("ZIP name does not contain the pinned source commit prefix")
     return dict(zip=str(archive), zipSha256=sha256(archive), sourceCommit=source_commit,

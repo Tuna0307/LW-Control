@@ -11,8 +11,58 @@ import tempfile
 import time
 import unittest
 import importlib.util
+import zipfile
 
 import map_015_package_ui as package_ui
+
+
+class ProgrammePackageCompatibilityTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="map015-programme-package-", dir=package_ui.ARTIFACTS)
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.commit = "a" * 40
+        self.extracted = self.root / package_ui.APP_FOLDER
+        (self.extracted / "ProductionUi").mkdir(parents=True)
+        payloads = {
+            "LWBridge.Desktop.exe": b"exe",
+            "LWBridge.Desktop.dll": b"dll",
+            "ProductionUi/index.html": b"<html></html>",
+            "SOURCE-COMMIT.txt": (self.commit + "\n").encode("ascii"),
+        }
+        for name, data in payloads.items():
+            path = self.extracted / Path(name)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        self.manifest = {
+            "sourceCommit": self.commit,
+            "files": {
+                f"{package_ui.APP_FOLDER}/{name}": {
+                    "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)
+                } for name, data in payloads.items()
+            },
+        }
+        self.archive = self.root / f"LW-Control-lwtool-improvement-{self.commit[:12]}.zip"
+        self.write_archive()
+
+    def write_archive(self):
+        with zipfile.ZipFile(self.archive, "w") as archive:
+            for path in sorted(self.extracted.rglob("*")):
+                if path.is_file():
+                    archive.write(path, (Path(package_ui.APP_FOLDER) / path.relative_to(self.extracted)).as_posix())
+            archive.writestr(package_ui.PROGRAMME_MANIFEST, json.dumps(self.manifest))
+
+    def test_programme_root_manifest_is_validated_and_allowed(self):
+        result = package_ui.verify_package(self.archive, self.extracted, self.commit)
+        self.assertEqual(result["sourceCommit"], self.commit)
+        self.assertEqual(result["fileCount"], 4)
+
+    def test_programme_root_manifest_source_mismatch_fails_closed(self):
+        self.manifest["sourceCommit"] = "b" * 40
+        self.archive.unlink()
+        self.write_archive()
+        with self.assertRaisesRegex(ValueError, "manifest source commit"):
+            package_ui.verify_package(self.archive, self.extracted, self.commit)
 
 
 class PackagedCityCameraFreeTests(unittest.TestCase):
