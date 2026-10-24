@@ -217,6 +217,40 @@ class PackagedCityCameraFreeTests(unittest.TestCase):
                 witness.clear()
                 witness.update(original)
 
+    def test_all_ten_keeps_public_other_but_metrics_use_shared_treasure_census(self):
+        selected = package_ui.MODES["all-ten"]["selected"]
+        native_selected = sorted({"treasure" if kind == "other" else kind for kind in selected})
+        results = [dict(kind=kind, serverId=self.server,
+                        firstPageRows=0, total=0,
+                        nativeSearchRequestId="real-source-request-" + kind,
+                        positiveGhostRewardRendering=None)
+                   for kind in selected]
+        self.proof.update(selection="all-ten", selectedTypes=selected,
+                          proof="actual_packaged_ui_all_ten_fullworld_scan_and_results",
+                          browse=dict(ghostNativeRewardDisplayProven=False,
+                                      scanRunId=self.run, serverId=self.server, selectedKinds=selected,
+                                      cameraFree=dict(source="direct", completedAois=10000,
+                                                      repliesCaptured=63, batchesCaptured=63,
+                                                      requestsSent=63, cameraStable=True,
+                                                      curViewRestored=True, metricsPhase="prepared"),
+                                      results=results))
+        self.proof["completedStatus"]["selectedTypes"] = selected
+        self.metrics["identity"]["SelectedTypesKey"] = "\x1f".join(native_selected)
+        with closing(sqlite3.connect(self.db_path)) as database:
+            database.execute("UPDATE scan_runs SET selected_types=? WHERE id=?",
+                             (json.dumps(selected, separators=(",", ":")), self.run))
+            database.commit()
+        self.save_receipts()
+        receipt = package_ui.audit_city_camera_free(self.root, self.proof, self.restoration, "all-ten")
+        self.assertEqual(receipt["runId"], self.run)
+        self.assertIn("other", selected)
+        self.assertNotIn("other", native_selected)
+
+        self.metrics["identity"]["SelectedTypesKey"] = "\x1f".join(sorted(selected))
+        self.save_receipts()
+        with self.assertRaisesRegex(ValueError, "prepared metrics"):
+            package_ui.audit_city_camera_free(self.root, self.proof, self.restoration, "all-ten")
+
     def test_mixed_eight_truck_filter_requires_fresh_matching_rows(self):
         selected = package_ui.MODES["mixed-eight"]["selected"]
         uuid = "native-truck-witness"
@@ -299,6 +333,17 @@ class PackagedPublishedFastTruckSourceTests(unittest.TestCase):
                 self.put(dict(captureProtocol="current_fast_truck_625_v1", arriveTs=arrived))
                 with self.assertRaisesRegex(ValueError, "already arrived"):
                     package_ui.audit_published_fast_truck_rows(self.database, self.server)
+
+    def test_qualified_fast_truck_proof_requires_exact_20_per_second_fence25(self):
+        proof = dict(pushes=625, requestsPerSecond=20, responseFenceSize=25,
+                     cameraStable=True, curViewRestored=True, trainRecordCount=3)
+        package_ui.require_qualified_fast_truck_proof(proof)
+        for key, value in (("requestsPerSecond", 15), ("responseFenceSize", 10)):
+            with self.subTest(key=key, value=value):
+                mutated = proof.copy()
+                mutated[key] = value
+                with self.assertRaisesRegex(ValueError, "20/s fence25"):
+                    package_ui.require_qualified_fast_truck_proof(mutated)
 
 
 class PackagedRailwaySourceTests(unittest.TestCase):
@@ -572,19 +617,23 @@ class PackagedAutoAllNineProofTests(unittest.TestCase):
     write = PackagedCityCameraFreeTests.write
     save_receipts = PackagedCityCameraFreeTests.save_receipts
 
-    def make_auto(self):
-        kinds = package_ui.MODES["auto-all-nine"]["selected"]
-        self.assertTrue(package_ui.MODES["auto-all-nine"]["remote"])
-        self.assertEqual(package_ui.MODES["auto-all-nine"]["args"], ["auto-all-nine"])
-        self.assertIn('LWBRIDGE_MAP016_AUTO_ALL_NINE="1" if mode == "auto-all-nine"',
-                      (package_ui.ROOT / "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8"))
+    def make_auto(self, mode="auto-all-nine"):
+        kinds = package_ui.MODES[mode]["selected"]
+        self.assertTrue(package_ui.MODES[mode]["remote"])
+        self.assertEqual(package_ui.MODES[mode]["args"], [mode])
+        runner = (package_ui.ROOT / "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8")
+        env_name = "LWBRIDGE_MAP016_AUTO_ALL_TEN" if mode == "auto-all-ten" else "LWBRIDGE_MAP016_AUTO_ALL_NINE"
+        self.assertIn(f'{env_name}="1" if mode == "{mode}"', runner)
         t = int(time.time() * 1000)
         metrics = dict(runId=self.run, serverId=2211, scanMode="fast",
                        sourceCaptureMilliseconds=150000,
                        checkpointMilliseconds=7000, publicationMilliseconds=2000,
                        wholeEngineMilliseconds=159000)
-        self.proof = dict(state="proven", selection="auto-all-nine",
-                          proof="actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results",
+        proof_name = ("actual_packaged_ui_auto_all_ten_run_now_fullworld_scan_and_results"
+                      if mode == "auto-all-ten" else
+                      "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results")
+        self.proof = dict(state="proven", selection=mode,
+                          proof=proof_name,
                           genuineGame=True, controlledProvider=False,
                           profileId=self.profile, gamePid=self.pid,
                           selectedTypes=kinds, serverId=2211,
@@ -615,8 +664,8 @@ class PackagedAutoAllNineProofTests(unittest.TestCase):
                 nativeSearchRequestId="native-" + kind, screenshotPath=str(screenshot)))
         self.write("live-resource/map-engine-stage-metrics.json", metrics)
 
-    def audit_auto(self):
-        return package_ui.audit_auto_all_nine(self.root, self.proof, self.restoration)
+    def audit_auto(self, mode="auto-all-nine"):
+        return package_ui.audit_auto_all_nine(self.root, self.proof, self.restoration, mode)
 
     def test_exact_one_auto_run_and_time_admission(self):
         self.make_auto()
@@ -625,6 +674,16 @@ class PackagedAutoAllNineProofTests(unittest.TestCase):
         self.assertEqual(result["restoredServerId"], 2212)
         self.assertEqual(result["scanRunId"], self.run)
         self.assertEqual(result["timings"]["wholeEngineMilliseconds"], 159000)
+
+    def test_all_ten_auto_includes_other_and_fails_closed(self):
+        self.make_auto("auto-all-ten")
+        self.assertEqual(self.proof["selectedTypes"], package_ui.KIND_ORDER)
+        self.assertIn("other", self.proof["selectedTypes"])
+        result = self.audit_auto("auto-all-ten")
+        self.assertEqual(result["scanRunId"], self.run)
+        self.proof["auto"]["selectedTypes"] = [kind for kind in package_ui.KIND_ORDER if kind != "other"]
+        with self.assertRaises(ValueError):
+            self.audit_auto("auto-all-ten")
 
     def test_auto_cannot_substitute_interval_manual_or_foreign_owner(self):
         mutations = [
@@ -822,8 +881,8 @@ class OfficialSettleNoUpdaterAdmissionTests(unittest.TestCase):
         copied = self.copy()
         self.assertEqual(copied.read_bytes(), self.marker.read_bytes())
         self.assertEqual(self.runner.NO_UPDATER_MODES,
-                         {"all-nine", "truck", "railway",
-                          "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
+                         {"all-nine", "all-ten", "truck", "railway",
+                          "auto-all-nine", "auto-all-ten", "saved-clear-reopen", "auto-interval-20m",
                           "boss-first", "boss-after-resource", "picker-empty", "once-two-server",
                           "feature018-tabs"})
 

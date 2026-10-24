@@ -39,9 +39,12 @@ MODES = {
     "all-nine": {"args": ["all-nine"], "selected": [
         "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
         "requires_db": True},
+    "all-ten": {"args": ["all-ten"], "selected": KIND_ORDER.copy(), "requires_db": True},
     "auto-all-nine": {"args": ["auto-all-nine"], "selected": [
         "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
         "requires_db": True, "remote": True},
+    "auto-all-ten": {"args": ["auto-all-ten"], "selected": KIND_ORDER.copy(),
+                     "requires_db": True, "remote": True},
     "saved-clear-reopen": {"args": ["saved-clear-reopen"], "selected": None,
                            "requires_db": True, "remote": True},
     "auto-interval-20m": {"args": ["auto-interval-20m"], "selected": None,
@@ -65,14 +68,14 @@ KNOWN_LIMITS = [
     "Individual City, Railway and Other selections and the opt-in full eight-kind non-Truck selection are supported.",
     "mixed-six selects City/Resource/Monster/Truck/Railway/Dispatch; mixed-eight "
     "also selects Ghost/Zombie Boss, but excludes Treasure/Other.",
-    "No existing packaged proof stops a scan mid-flight or exercises the Home UI regression.",
+    "Truck Stop has historical packaged proof; the final candidate replays it because Map staging changed.",
     "Ghost plunder-share rendering is source-calculated against native base_reward_show and steal_reward_ratio; "
     "the separate AND-filter proof still uses genuine saved native rows.",
     "remote-clear requires a 2212 authenticated owned start; it performs an Auto "
     "visit to 2213 and verifies Clear of 2213 saved rows after returning to 2212.",
     "The existing UI runner uses a retained native DB path even for new scans, "
     "and browse-new-kinds additionally needs an explicit saved complete genuine DB.",
-    "auto-all-nine is opt-in only: a single real Auto Run Now scans all nine on 2211 "
+    "auto-all-nine/auto-all-ten are opt-in only: a single real Auto Run Now scans the requested kinds on 2211 "
     "from original 2212 and must return home. Interval runs, Manual Start, and "
     "partial native/SQLite/UI evidence are not accepted.",
     "saved-clear-reopen clones genuine preserved 2212 source SQLite, performs one "
@@ -209,17 +212,21 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         raise ValueError("City direct receipt does not match the genuine helper-start owner")
 
     selected = MODES[mode]["selected"]
-    all_nontruck = mode in ("all-nontruck", "all-nine", "auto-all-nine")
+    all_nontruck = mode in ("all-nontruck", "all-nine", "all-ten", "auto-all-nine", "auto-all-ten")
     completed = proof.get("completedStatus", {})
     ui_run = completed.get("scanRunId")
     if ui_run is not None and (not isinstance(ui_run, str) or not ui_run):
         raise ValueError("City UI completedStatus has an invalid scanRunId")
     if completed.get("selectedTypes") is not None and not (
             exact_unordered_selected_types(completed["selectedTypes"], selected)
-            if mode == "auto-all-nine" else completed["selectedTypes"] == selected):
+            if mode in ("auto-all-nine", "auto-all-ten") else completed["selectedTypes"] == selected):
         raise ValueError("Packaged completed native scan selected unexpected kinds")
-    expected_proof = ("actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results"
+    expected_proof = ("actual_packaged_ui_auto_all_ten_run_now_fullworld_scan_and_results"
+                      if mode == "auto-all-ten" else
+                      "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results"
                       if mode == "auto-all-nine" else
+                      "actual_packaged_ui_all_ten_fullworld_scan_and_results"
+                      if mode == "all-ten" else
                       "actual_packaged_ui_all_nontruck_fullworld_scan_and_results"
                       if all_nontruck else "actual_packaged_ui_fullworld_selected_scan_and_results")
     if (proof.get("genuineGame") is not True or proof.get("controlledProvider") is not False or
@@ -232,7 +239,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         native_gate = browse.get("cameraFree", {})
         ghost_tab = next((item for item in results if item.get("kind") == "ghost"), {})
         ghost_positive_proven = browse.get("ghostNativeRewardDisplayProven") is True
-        if (not (ghost_positive_proven or mode in ("all-nine", "auto-all-nine") and
+        if (not (ghost_positive_proven or mode in ("all-nine", "all-ten", "auto-all-nine", "auto-all-ten") and
                  ghost_tab.get("total") == 0 and ghost_tab.get("firstPageRows") == 0 and
                  ghost_tab.get("positiveGhostRewardRendering") is None) or
                 not isinstance(browse.get("scanRunId"), str) or not browse["scanRunId"] or
@@ -280,7 +287,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
     if (not isinstance(run_id, str) or not run_id or
             ui_run is not None and ui_run != run_id or
             not (exact_unordered_selected_types(json.loads(selected_json), selected)
-                 if mode == "auto-all-nine" else json.loads(selected_json) == selected) or status != "completed" or
+                 if mode in ("auto-all-nine", "auto-all-ten") else json.loads(selected_json) == selected) or status != "completed" or
             total != 2500 or finished != 2500 or failed != 0 or
             type(server_id) is not int or server_id <= 0 or
             type(created_at) is not int or type(updated_at) is not int or
@@ -330,12 +337,13 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
 
     identity = metrics.get("identity", {})
     record_counts = metrics.get("uniqueRecordKeys", {})
+    native_selected = sorted({"treasure" if kind == "other" else kind for kind in selected})
     if (metrics.get("schemaVersion") != 1 or
             metrics.get("source") != "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync" or
             metrics.get("phase") != "prepared" or metrics.get("acquisitionPolicy") != "direct" or
             identity.get("RunId") != run_id or identity.get("ServerId") != server_id or
             identity.get("WorldId") != 0 or
-            identity.get("SelectedTypesKey") != "\x1f".join(sorted(selected)) or
+            identity.get("SelectedTypesKey") != "\x1f".join(native_selected) or
             metrics.get("uniqueCoveredAois") != 10000 or metrics.get("requiredAois") != 10000 or
             metrics.get("newlyCoveredAois") != 10000 or
             metrics.get("validatedProbeResponses") != 63 or
@@ -453,6 +461,14 @@ def audit_published_fast_truck_rows(db_path: Path, server_id: int) -> int:
             if arrive_ms <= updated_at:
                 raise ValueError("Fast Truck published a row already arrived at capture")
     return len(published)
+
+
+def require_qualified_fast_truck_proof(native: dict) -> None:
+    if (not isinstance(native, dict) or native.get("pushes") != 625 or
+            native.get("requestsPerSecond") != 20 or native.get("responseFenceSize") != 25 or
+            native.get("cameraStable") is not True or native.get("curViewRestored") is not True or
+            not isinstance(native.get("trainRecordCount"), int) or native["trainRecordCount"] <= 0):
+        raise ValueError("Packaged fast Truck native proof does not match qualified 20/s fence25 acquisition")
 
 
 def audit_fast_railway(destination: Path, proof: dict, restoration: dict,
@@ -719,13 +735,19 @@ def audit_remote_railway(destination: Path, proof: dict, restoration: dict) -> d
                 noCoordinateJump=True, noClear=True)
 
 
-def audit_auto_all_nine(destination: Path, proof: dict, restoration: dict) -> dict:
+def audit_auto_all_nine(destination: Path, proof: dict, restoration: dict,
+                        mode: str = "auto-all-nine") -> dict:
     """Supplement existing exact-owned native/SQLite/UI gates with Auto ownership."""
     auto, run, browse = proof.get("auto", {}), proof.get("completedStatus", {}), proof.get("browse", {})
     cycle = auto.get("lastCycle", {}) if isinstance(auto, dict) else {}
-    selected = MODES["auto-all-nine"]["selected"]
-    if (proof.get("proof") != "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results" or
-            proof.get("selection") != "auto-all-nine" or proof.get("selectedTypes") != selected or
+    if mode not in ("auto-all-nine", "auto-all-ten"):
+        raise ValueError("Auto combined proof requested an unsupported mode")
+    selected = MODES[mode]["selected"]
+    expected_proof = ("actual_packaged_ui_auto_all_ten_run_now_fullworld_scan_and_results"
+                      if mode == "auto-all-ten" else
+                      "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results")
+    if (proof.get("proof") != expected_proof or
+            proof.get("selection") != mode or proof.get("selectedTypes") != selected or
             proof.get("genuineGame") is not True or proof.get("controlledProvider") is not False or
             not isinstance(cycle, dict) or
             auto.get("originalServerId") != 2212 or auto.get("targetServerId") != 2211 or
@@ -746,7 +768,7 @@ def audit_auto_all_nine(destination: Path, proof: dict, restoration: dict) -> di
             run.get("readBlocks") != 2500 or run.get("failedBlocks") != 0 or
             run.get("unreadBlocks") != 0 or browse.get("serverId") != 2211 or
             browse.get("scanRunId") != run.get("scanRunId")):
-        raise ValueError("MAP016 Auto all-nine lacks a single explicit complete Run Now and verified original-server return")
+        raise ValueError("MAP016 Auto combined scan lacks a single explicit complete Run Now and verified original-server return")
     if (type(cycle.get("startedAt")) is not int or type(cycle.get("completedAt")) is not int or
             cycle["completedAt"] <= cycle["startedAt"]):
         raise ValueError("MAP016 Auto cycle timestamps invalid")
@@ -775,7 +797,7 @@ def audit_auto_all_nine(destination: Path, proof: dict, restoration: dict) -> di
 
     results = browse.get("results")
     if not isinstance(results, list) or [row.get("kind") for row in results] != selected:
-        raise ValueError("MAP016 Auto did not browse all nine current native Map result tabs")
+        raise ValueError("MAP016 Auto did not browse every requested current native Map result tab")
     ids = set()
     for row in results:
         screenshot = Path(row.get("screenshotPath", "")).resolve()
@@ -1090,17 +1112,13 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     if config["selected"] is not None:
         if proof.get("selectedTypes") != config["selected"] or proof.get("scan", {}).get("phase") != "completed":
             # City/Other selection proof records completedStatus instead of scan.
-            if not (mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "auto-all-nine") and proof.get("selectedTypes") == config["selected"]
+            if not (mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "all-ten", "auto-all-nine", "auto-all-ten") and proof.get("selectedTypes") == config["selected"]
                     and proof.get("completedStatus", {}).get("phase") == "completed"):
                 raise ValueError("Packaged proof does not certify the requested completed selection")
-    if mode in ("truck", "all-nine", "auto-all-nine"):
+    if mode in ("truck", "all-nine", "all-ten", "auto-all-nine", "auto-all-ten"):
         browse = proof.get("browse", {})
         native = browse.get("native") if mode == "truck" else browse.get("fastTruck")
-        if (not isinstance(native, dict) or native.get("pushes") != 625 or
-                native.get("requestsPerSecond") not in (15, 20) or
-                native.get("cameraStable") is not True or native.get("curViewRestored") is not True or
-                not isinstance(native.get("trainRecordCount"), int) or native["trainRecordCount"] <= 0):
-            raise ValueError("Packaged fast Truck native push/field/restoration proof missing")
+        require_qualified_fast_truck_proof(native)
         if mode == "truck":
             filter_result = browse.get("filter", {})
         else:
@@ -1117,6 +1135,8 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
                 receipt.get("rectanglesCompleted") != 625 or
                 receipt.get("initialRequestsSent") != 625 or
                 receipt.get("unprovenRectangles") != 0 or
+                receipt.get("requestsPerSecond") != 20 or
+                receipt.get("responseFenceSize") != 25 or
                 receipt.get("responseAttribution") != "bounded_sequential_fences" or
                 type(receipt.get("repairPasses")) is not int or
                 not 0 <= receipt["repairPasses"] <= 2 or
@@ -1179,14 +1199,14 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         gates = [entry.get("gate") for entry in extras.get("receipts", [])]
         if not {"native_zombie_boss_tab_level_filter", "native_ghost_reward_and_filter"}.issubset(gates):
             raise ValueError("Saved genuine Zombie Boss/Ghost positive UI filters were not proven")
-    direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck", "all-nine", "auto-all-nine") else None
+    direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck", "all-nine", "all-ten", "auto-all-nine", "auto-all-ten") else None
     truck = audit_fresh_truck_filter(destination, proof, restoration) if mode == "mixed-eight" else None
     railway = audit_fast_railway(destination, proof, restoration) if mode == "railway" else None
     remote_railway = audit_remote_railway(destination, proof, restoration) if mode == "remote-railway" else None
-    auto_all_nine = audit_auto_all_nine(destination, proof, restoration) if mode == "auto-all-nine" else None
+    auto_all_kinds = audit_auto_all_nine(destination, proof, restoration, mode) if mode in ("auto-all-nine", "auto-all-ten") else None
     saved_clear = audit_saved_clear_reopen(destination, proof, restoration) if mode == "saved-clear-reopen" else None
     interval = audit_auto_interval(destination, proof, restoration) if mode == "auto-interval-20m" else None
-    no_updater = audit_no_official_updater(destination, restoration) if mode in ("auto-all-nine", "saved-clear-reopen", "auto-interval-20m") else None
+    no_updater = audit_no_official_updater(destination, restoration) if mode in ("auto-all-nine", "auto-all-ten", "saved-clear-reopen", "auto-interval-20m") else None
     return dict(mode=mode, state="proven", proof=str(destination / "native-ui-map.json"),
                 ownedExit=str(destination / "owned-exit.json"), hostPid=restoration["hostPid"],
                 gamePid=restoration["gamePid"], sessionId=restoration["sessionId"],
@@ -1194,7 +1214,7 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
                 **({"freshTruckFilter": truck} if truck else {}),
                 **({"fastRailway": railway} if railway else {}),
                 **({"remoteRailway": remote_railway} if remote_railway else {}),
-                **({"autoAllNine": auto_all_nine} if auto_all_nine else {}),
+                **({("autoAllTen" if mode == "auto-all-ten" else "autoAllNine"): auto_all_kinds} if auto_all_kinds else {}),
                 **({"savedClearReopen": saved_clear} if saved_clear else {}),
                 **({"autoInterval20m": interval} if interval else {}),
                 **({"officialSettlement": no_updater} if no_updater else {}))
@@ -1208,7 +1228,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mode", required=True, choices=sorted(MODES))
     parser.add_argument("--saved-db", help="Existing genuine completed scan DB for browse-new-kinds")
     parser.add_argument("--allow-remote", action="store_true",
-                        help="Explicitly allow owned 2212->2213->2212 Resource or 2212->2211->2212 Railway / all-nine Auto proof")
+                        help="Explicitly allow owned 2212->2213->2212 Resource or 2212->2211->2212 Railway / combined Auto proof")
     parser.add_argument("--execute", action="store_true", help="Start the exact-owned app/game proof")
     args = parser.parse_args(argv)
     package = verify_package(require_artifact(args.zip, file=True),

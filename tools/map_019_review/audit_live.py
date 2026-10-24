@@ -24,7 +24,17 @@ def digest(path):
 
 
 def redacted(value):
-    return re.sub(r'\b(?:\d{13,}|[0-9a-fA-F]{32,})\b', '[private-id]', str(value))
+    text = str(value)
+    text = re.sub(r'(?i)(?:[a-z]:\\|\\\\)[^\r\n\"\']+', '[local-path]', text)
+    text = re.sub(r'(?i)/(?:home|users|github|mnt|tmp)/[^\r\n\"\']+', '[local-path]', text)
+    return re.sub(r'\b(?:\d{13,}|[0-9a-fA-F]{32,})\b', '[private-id]', text)
+
+
+def run_label(root):
+    try:
+        return root.relative_to(REPO).as_posix()
+    except ValueError:
+        return root.name
 
 
 def audit(root):
@@ -112,6 +122,18 @@ def audit(root):
         if metrics:
             row['metrics'] = {key: val for key, val in metrics.items() if not isinstance(val, (dict, list))}
             row['metricsCorrelated'] = (metrics.get('identity') or {}).get('RunId') == terminal.get('scanRunId')
+        stage = load(root/f'benchmark-{ordinal}-stage-metrics.json', True) or entry.get('stageMetrics')
+        if stage:
+            correlated_stage = (stage.get('runId') == terminal.get('scanRunId') and
+                                stage.get('serverId') == terminal.get('serverId'))
+            numeric = ('sourceCaptureMilliseconds', 'checkpointMilliseconds',
+                       'publicationMilliseconds', 'wholeEngineMilliseconds')
+            if not correlated_stage or any(type(stage.get(key)) not in (int, float) or stage.get(key) < 0
+                                           for key in numeric):
+                row['validationErrors'].append('engine stage metrics are missing, invalid or belong to another run')
+            else:
+                row['stageMetrics'] = {key: stage.get(key) for key in ('scanMode', *numeric)}
+                row['stageMetricsCorrelated'] = True
         request_counts = []
         for lane in ('direct-evidence', 'mobile-evidence', 'camera-free-failed-evidence', 'fast-truck-failed-evidence'):
             evidence = load(root/f'benchmark-{ordinal}-{lane}.json', True)
@@ -207,8 +229,10 @@ def audit(root):
                 'fieldParityQualified': None, 'accuracyQualified': None,
                 'caveat': 'Missing control/empty populations cannot prove accuracy. Field absence/null/changes above require source and temporal interpretation.'}
     launches = load(root/'diagnostic-launch-hashes.json', True)
-    return {'schemaVersion': 1, 'run': str(root), 'provisionalUntilFinalStop': not bool(final.get('exactStopSucceeded') and final.get('originalScriptsRestored')),
-            'cleanup': {key: final.get(key) for key in ('managedExit', 'error', 'sourceCommit', 'exactStopSucceeded', 'originalScriptsRestored', 'externalAccountActions', 'workingSourceHashes', 'workingSourceHashesAtCompletion')},
+    cleanup = {key: final.get(key) for key in ('managedExit', 'sourceCommit', 'exactStopSucceeded', 'originalScriptsRestored', 'externalAccountActions', 'workingSourceHashes', 'workingSourceHashesAtCompletion')}
+    cleanup['error'] = redacted(final.get('error')) if final.get('error') else None
+    return {'schemaVersion': 1, 'run': run_label(root), 'provisionalUntilFinalStop': not bool(final.get('exactStopSucceeded') and final.get('originalScriptsRestored')),
+            'cleanup': cleanup,
             'launchHashes': launches,
             'rounds': rounds, 'pairs': pairs, 'sources': sources,
             'auditScriptSha256': digest(Path(__file__)),

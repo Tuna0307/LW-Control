@@ -11,7 +11,8 @@ internal sealed partial class LWBridgeWindow
     // LWBRIDGE_MAP016_AUTO_ALL_NINE=1 after obtaining the owned game session.
     private async Task RunMap016AutoAllNineUiProofAsync(
         CoreWebView2 core, string outputPath, string directory,
-        OverviewMapScanSession proofSession, CancellationToken token)
+        OverviewMapScanSession proofSession, CancellationToken token,
+        bool includeOther = false)
     {
         if (productionPaths?.ExplicitIsolation != true || mapAutoScanService is null ||
             map317CommandService is null || overviewLifecycleService is null)
@@ -19,9 +20,10 @@ internal sealed partial class LWBridgeWindow
 
         const int homeServer = 2212;
         const int targetServer = 2211;
-        string[] kinds =
-            ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"];
-        bool ExactlyNineTypes(IReadOnlyList<string>? types) => types is not null &&
+        string[] kinds = includeOther
+            ? ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"]
+            : ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"];
+        bool ExactlyExpectedTypes(IReadOnlyList<string>? types) => types is not null &&
             types.Count == kinds.Length &&
             types.Distinct(StringComparer.Ordinal).Count() == kinds.Length &&
             types.ToHashSet(StringComparer.Ordinal).SetEquals(kinds);
@@ -80,7 +82,7 @@ internal sealed partial class LWBridgeWindow
             // updated kind before touching the next checkbox.
             for (int index = 0; index < 10; index++)
             {
-                if (index == 8) continue;
+                if (!includeOther && index == 8) continue;
                 string select = $"(()=>{{const b=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[{index}];if(!b)return false;if(!b.checked)b.click();return true;}})()";
                 if (!await Dom(select))
                     throw new InvalidDataException("MAP016 Auto category checkbox missing: " + index);
@@ -88,15 +90,22 @@ internal sealed partial class LWBridgeWindow
                 await RequireUi(async () =>
                 {
                     var snapshot = await mapAutoScanService.GetSnapshotAsync(token);
-                    return snapshot.Config.SelectedTypes?.Contains(kinds[selectedIndex < 8 ? selectedIndex : selectedIndex - 1],
+                    int kindIndex = includeOther || selectedIndex < 8 ? selectedIndex : selectedIndex - 1;
+                    return snapshot.Config.SelectedTypes?.Contains(kinds[kindIndex],
                         StringComparer.Ordinal) == true &&
                         await Dom($"document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[{selectedIndex}]?.checked===true");
                 }, "native persisted Auto category " + index);
             }
-            if (!await Dom("(()=>{const b=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[8];if(!b)return false;if(b.checked)b.click();return true;})()"))
-                throw new InvalidDataException("MAP016 Auto Other category deselection failed.");
-            await RequireUi(() => Dom("(()=>{const a=[...document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')];return a.length===10&&a.every((b,i)=>b.checked===(i!==8));})()"),
-                "exact nine Auto categories");
+            if (!includeOther)
+            {
+                if (!await Dom("(()=>{const b=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[8];if(!b)return false;if(b.checked)b.click();return true;})()"))
+                    throw new InvalidDataException("MAP016 Auto Other category deselection failed.");
+            }
+            string expectedCategories = includeOther
+                ? "(()=>{const a=[...document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')];return a.length===10&&a.every(b=>b.checked);})()"
+                : "(()=>{const a=[...document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')];return a.length===10&&a.every((b,i)=>b.checked===(i!==8));})()";
+            await RequireUi(() => Dom(expectedCategories),
+                includeOther ? "exact ten Auto categories" : "exact nine Auto categories");
             if (!await Dom("(()=>{const b=document.querySelector('.map-auto-return input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("MAP016 Auto original-server return toggle missing.");
             if (!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-master input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
@@ -110,8 +119,8 @@ internal sealed partial class LWBridgeWindow
                     configured.Config.ReturnToOriginalServer &&
                     configured.Config.ServerIds is { Count: 1 } &&
                     configured.Config.ServerIds[0] == targetServer &&
-                    ExactlyNineTypes(configured.Config.SelectedTypes);
-            }, "native persisted nine-kind configuration");
+                    ExactlyExpectedTypes(configured.Config.SelectedTypes);
+            }, includeOther ? "native persisted ten-kind configuration" : "native persisted nine-kind configuration");
             RequireOwner();
             if (configured.Running || mapAutoScanService.IsCycleBusy ||
                 configured.LastCycle != originalCycle ||
@@ -179,7 +188,7 @@ internal sealed partial class LWBridgeWindow
                 ?? throw new InvalidDataException("MAP016 Auto run not found in native SQLite store.");
             if (persisted.Id != runId || persisted.ServerId != targetServer ||
                 persisted.Status != "completed" || persisted.Error is not null ||
-                !ExactlyNineTypes(persisted.SelectedTypes) ||
+                !ExactlyExpectedTypes(persisted.SelectedTypes) ||
                 persisted.TotalBlocks != 2500 || persisted.CompletedBlocks != 2500 ||
                 persisted.FailedBlocks != 0)
                 throw new InvalidDataException("MAP016 Auto published incomplete or wrong SQLite scan run.");
@@ -204,7 +213,8 @@ internal sealed partial class LWBridgeWindow
             await RequireUi(() => Dom("document.querySelector('select[data-map-saved-server]')?.value==='2211'"),
                 "saved remote 2211 selection");
             object browse = await RunMap015AllNonTruckUiProofAsync(
-                core, directory, completedStatus, proofSession, token, includeTruck: true);
+                core, directory, completedStatus, proofSession, token,
+                includeTruck: true, includeOther: includeOther);
 
             string metricsPath = Path.Combine(overviewLifecycleService.LiveResourceRuntimeRoot,
                 "map-engine-stage-metrics.json");
@@ -226,9 +236,11 @@ internal sealed partial class LWBridgeWindow
             await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new
             {
                 schemaVersion = 1, state = "proven",
-                proof = "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results",
+                proof = includeOther
+                    ? "actual_packaged_ui_auto_all_ten_run_now_fullworld_scan_and_results"
+                    : "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results",
                 genuineGame = true, controlledProvider = false,
-                selection = "auto-all-nine", selectedTypes = kinds,
+                selection = includeOther ? "auto-all-ten" : "auto-all-nine", selectedTypes = kinds,
                 serverId = targetServer, profileId = proofSession.ProfileId,
                 gamePid = proofSession.GamePid, completedStatus, browse,
                 auto = new

@@ -113,13 +113,19 @@ public sealed class MapControlPlane : IDisposable
     public void StageRecordForRun(string expectedRunId, MapRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);
+        StageRecordsForRun(expectedRunId, [record]);
+    }
+
+    public void StageRecordsForRun(string expectedRunId, IReadOnlyList<MapRecord> records)
+    {
+        ArgumentNullException.ThrowIfNull(records);
         scan.WithOwnedRunningScan(expectedRunId, state =>
         {
-            if (record.ServerId != state.ServerId ||
-                !state.SelectedTypes.Contains(record.Kind, StringComparer.Ordinal))
+            if (records.Any(record => record.ServerId != state.ServerId ||
+                !state.SelectedTypes.Contains(record.Kind, StringComparer.Ordinal)))
                 throw new BridgeCommandException("INVALID_MAP_RECORD",
                     "map record does not belong to the exact active scan");
-            store.StageRecord(expectedRunId, record);
+            store.StageRecords(expectedRunId, records);
         });
     }
 

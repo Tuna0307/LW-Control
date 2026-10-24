@@ -1510,7 +1510,7 @@ internal sealed partial class LWBridgeWindow : Form
         string? qualifiedKind = ownerFixNativeProof && !ownerFixRemoteProof
             ? Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_SELECTION_UI") : null;
         if (string.IsNullOrEmpty(qualifiedKind)) qualifiedKind = null;
-        if (qualifiedKind is not (null or "city" or "other" or "railway" or "all-nontruck" or "truck" or "all-nine" or "truck-stop"))
+        if (qualifiedKind is not (null or "city" or "other" or "railway" or "all-nontruck" or "truck" or "all-nine" or "all-ten" or "truck-stop"))
             throw new InvalidOperationException("MAP014 packaged selection proof requested an unsupported kind.");
         string desiredSelection = qualifiedKind switch
         {
@@ -1519,6 +1519,7 @@ internal sealed partial class LWBridgeWindow : Form
             "railway" => "index === 4",
             "truck" or "truck-stop" => "index === 3",
             "all-nine" => "index !== 8",
+            "all-ten" => "true",
             // Opt-in MAP-015 genuine direct AOI proof: every map kind except
             // moving Truck and seasonal Other, in the recovered UI tab order.
             "all-nontruck" => "index !== 3 && index !== 8",
@@ -1673,11 +1674,13 @@ internal sealed partial class LWBridgeWindow : Form
                 return;
             }
 
+            bool autoAllTenProof = Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_ALL_TEN") == "1";
             if (ownerFixNativeProof && !ownerFixRemoteProof &&
-                Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_ALL_NINE") == "1")
+                (autoAllTenProof || Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_ALL_NINE") == "1"))
             {
                 await RunMap016AutoAllNineUiProofAsync(
-                    core, fullOutputPath, directory, ownedMapSession, operationCts.Token);
+                    core, fullOutputPath, directory, ownedMapSession, operationCts.Token,
+                    includeOther: autoAllTenProof);
                 return;
             }
             if (ownerFixNativeProof && !ownerFixRemoteProof &&
@@ -1855,23 +1858,29 @@ internal sealed partial class LWBridgeWindow : Form
             if (ReadStatusString(completedStatus, "scanMode") != "fast")
                 throw new InvalidDataException("MAP016 packaged Map did not use its automatic fast scanner.");
 
-            if (qualifiedKind is "all-nontruck" or "all-nine")
+            if (qualifiedKind is "all-nontruck" or "all-nine" or "all-ten")
             {
-                string[] expectedKinds = qualifiedKind == "all-nine"
-                    ? ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"]
-                    : ["city", "resource", "monster", "railway", "dispatch", "ghost", "treasure", "zombie_boss"];
+                string[] expectedKinds = qualifiedKind switch
+                {
+                    "all-ten" => ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"],
+                    "all-nine" => ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
+                    _ => ["city", "resource", "monster", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
+                };
                 if (!actualSelectedTypes.SequenceEqual(expectedKinds, StringComparer.Ordinal))
-                    throw new InvalidDataException("MAP015 packaged full scan did not select exactly the eight non-Truck map kinds.");
+                    throw new InvalidDataException("MAP015 packaged full scan did not select exactly the requested map kinds.");
                 if (ReadStatusInt32(completedStatus, "totalBlocks") != 2500 ||
                     ReadStatusInt32(completedStatus, "readBlocks") != 2500)
                     throw new InvalidDataException("MAP015 packaged non-Truck scan did not complete every map block.");
                 object browse = await RunMap015AllNonTruckUiProofAsync(
                     core, directory, completedStatus, ownedMapSession!, operationCts.Token,
-                    includeTruck: qualifiedKind == "all-nine");
+                    includeTruck: qualifiedKind is "all-nine" or "all-ten",
+                    includeOther: qualifiedKind == "all-ten");
                 await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
                 {
                     schemaVersion = 1, state = "proven",
-                    proof = "actual_packaged_ui_all_nontruck_fullworld_scan_and_results",
+                    proof = qualifiedKind == "all-ten"
+                        ? "actual_packaged_ui_all_ten_fullworld_scan_and_results"
+                        : "actual_packaged_ui_all_nontruck_fullworld_scan_and_results",
                     genuineGame = true, controlledProvider = false, selection = qualifiedKind,
                     selectedTypes = actualSelectedTypes,
                     serverId = ReadStatusInt32(completedStatus, "serverId"),

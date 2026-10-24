@@ -7275,7 +7275,7 @@ function M._map015FastTruck.finish(reason)
         pushesObserved = s.pushes, rectanglesCompleted = s.verified,
         initialRequestsSent = s.initialSent, repairRequestsSent = s.sent - s.initialSent,
         repairPasses = s.pass, unprovenRectangles = 625 - s.verified,
-        responseFenceSize = 25, responseAttribution = "bounded_sequential_fences",
+        responseFenceSize = s.fenceSize or 25, responseAttribution = "bounded_sequential_fences",
         trainRecords = proven and s.records or {}, trainRecordCount = #s.records,
         railwayRecords = proven and (s.railwayRecords or {}) or {},
         railwayRecordCount = #(s.railwayRecords or {}),
@@ -7313,6 +7313,15 @@ function M._map015FastTruck.pump(now)
         for _, index in ipairs(before) do original[index] = true end
         local whole_world = {}
         for index = 0, 9999 do whole_world[index] = true end
+        local requested_rate = tonumber(values.rate)
+        if requested_rate ~= 15 and requested_rate ~= 20 and
+           requested_rate ~= 25 and requested_rate ~= 30 then
+            requested_rate = 20
+        end
+        local requested_fence = tonumber(values.fenceSize)
+        if requested_fence ~= 5 and requested_fence ~= 10 and requested_fence ~= 25 then
+            requested_fence = 25
+        end
         s = {
             requestId = values.requestId, profileId = values.profileId,
             launchSessionId = values.launchSessionId, challenge = values.challenge,
@@ -7333,8 +7342,9 @@ function M._map015FastTruck.pump(now)
             pushes = 0, completed = {}, verified = 0, pass = 0,
             group = nil, unproven = {}, repair = {}, repairCursor = 1,
             startedAt = runtime_clock(), lastSend = -1,
-            rate = values.rate == "15" and 15 or 20,
-            interval = values.rate == "15" and 1 / 15 or 1 / 20,
+            rate = requested_rate,
+            interval = 1 / requested_rate,
+            fenceSize = requested_fence,
         }
         lane.active = s
         pcall(os.remove, lane.cancelPath)
@@ -7433,7 +7443,7 @@ function M._map015FastTruck.pump(now)
     if s.group == nil then
         local indices = {}
         if s.pass == 0 then
-            for n = s.next, math.min(624, s.next + 24) do
+            for n = s.next, math.min(624, s.next + (s.fenceSize or 25) - 1) do
                 indices[#indices + 1] = n
             end
             s.next = s.next + #indices

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "scope": "Map scanner recovery, current-source timing and accuracy evidence",
+  "competitor": {
+    "product": "LwTool",
+    "quickMapLiveMeasured": false,
+    "accessBoundary": "Recovered Quick Map route is Premium-only; safely readable local session metadata reported cached plan free. No decryption, license bypass or entitlement bypass was attempted.",
+    "recoveredMethod": "Local UI/Python orchestration submits one selected server to a remote scan service, receives streamed partial city/resource results, merges them in process memory and renders ordinary Map rows. The remote scanner-farm AOI algorithm, worker count, freshness and cold-cache state are not exposed by the shipped client.",
+    "clientIdenticalRequestCacheSeconds": 30,
+    "timerBoundary": "Displayed quick duration starts inside the background quick worker and is not equivalent to button-to-final-paint or durable publication.",
+    "comparisonVerdict": "No legitimate matched LwTool live Quick Map timing is available on this machine; no global speed-superiority claim is made."
+  },
+  "persistenceBenchmark": {
+    "runLabel": "artifacts/map019/staging-benchmark",
+    "records": 24362,
+    "repetitionsPerMethod": 6,
+    "legacyMedianMilliseconds": 2483.671,
+    "batchedMedianMilliseconds": 672.559,
+    "medianReductionPercent": 72.922,
+    "canonicalStagedAndPublishedHashesEqual": true,
+    "rowCountsEqual": true,
+    "scope": "Inert SQLite staging only; not a live scan wall-time result."
+  },
+  "liveRuns": [
+    {
+      "runLabel": "native-benchmark-review-20261024-025620",
+      "workload": "other",
+      "design": "same-session direct/camera/camera/direct",
+      "seconds": [16.918, 122.780, 122.466, 16.606],
+      "effectiveMethods": ["direct", "camera", "camera", "direct"],
+      "rowsPerRound": [4, 4, 4, 4],
+      "completedBlocksPerRound": [2500, 2500, 2500, 2500],
+      "failedBlocksPerRound": [0, 0, 0, 0],
+      "accepted": true
+    },
+    {
+      "runLabel": "native-benchmark-review-20261024-025620",
+      "workload": "all-ten",
+      "design": "temporary fence10 negative control",
+      "requestedDirectSeconds": [213.118, 198.370],
+      "effectiveMethod": "camera-fallback",
+      "reason": "Temporary unqualified Truck fence10 conflicted with the Railway sidecar's accepted fence25 proof and failed closed.",
+      "accepted": false
+    },
+    {
+      "runLabel": "native-benchmark-review-20261024-031605",
+      "workload": "all-ten",
+      "design": "corrected direct-only pair after restoring 20 requests/s fence25",
+      "seconds": [101.706, 82.686],
+      "effectiveMethods": ["direct", "direct"],
+      "completedBlocksPerRound": [2500, 2500],
+      "failedBlocksPerRound": [0, 0],
+      "accepted": true
+    },
+    {
+      "runLabel": "native-benchmark-review-20261024-032125",
+      "audit": "artifacts/map019/20261024-allten-final-abba-audit.json",
+      "workload": "all-ten",
+      "design": "same-session direct/camera/camera/direct",
+      "seconds": [90.713, 142.766, 142.512, 91.327],
+      "effectiveMethods": ["direct", "camera", "camera", "direct"],
+      "directMeanSeconds": 91.020,
+      "cameraMeanSeconds": 142.639,
+      "directWallTimeReductionPercent": 36.19,
+      "completedBlocksPerRound": [2500, 2500, 2500, 2500],
+      "failedBlocksPerRound": [0, 0, 0, 0],
+      "stageMetrics": [
+        {"method": "direct", "sourceCaptureMilliseconds": 88805.3632, "checkpointMilliseconds": 1000.8759, "publicationMilliseconds": 672.618, "wholeEngineMilliseconds": 90500},
+        {"method": "camera", "sourceCaptureMilliseconds": 140958.2494, "checkpointMilliseconds": 725.0303, "publicationMilliseconds": 874.9549, "wholeEngineMilliseconds": 142547},
+        {"method": "camera", "sourceCaptureMilliseconds": 140713.6653, "checkpointMilliseconds": 752.4737, "publicationMilliseconds": 766.1483, "wholeEngineMilliseconds": 142234},
+        {"method": "direct", "sourceCaptureMilliseconds": 89341.1901, "checkpointMilliseconds": 730.5217, "publicationMilliseconds": 845.6511, "wholeEngineMilliseconds": 90922}
+      ],
+      "populatedKindsObserved": ["city", "resource", "monster", "truck", "railway", "dispatch", "treasure", "other"],
+      "availabilityLimitedEmptyKinds": ["ghost", "zombie_boss"],
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true,
+      "externalAccountActions": 0,
+      "accepted": true
+    }
+  ],
+  "productionDecision": {
+    "truckRequestsPerSecond": 20,
+    "truckResponseFenceSize": 25,
+    "transactionalBatchStaging": true,
+    "smallerTruckFences": "diagnostic-only and rejected for production without matched accuracy qualification",
+    "higherTruckRates": "rejected after slower retained trials"
+  },
+  "limitations": [
+    "Sequential mobile populations naturally change as Trucks and Railways move or expire.",
+    "Empty seasonal kinds cannot manufacture a positive availability proof.",
+    "The current live benchmark validates LW-Control's supported candidate against its camera control, not a matched live LwTool scanner-farm run.",
+    "Finite testing identifies the best tested supported method; it does not prove a globally fastest scanner."
+  ]
+}

@@ -18,11 +18,16 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Fast Truck requires the current normal-world server.");
 
         // One 20/s native sweep performs at most two repair passes over its
-        // unverified rectangles. A terminal native loss is eligible for the
-        // established camera fallback after exact owned cleanup.
+        // unverified rectangles. Production retains the accepted 25-request
+        // response fence: smaller fences remain diagnostic-only until a matched
+        // accuracy trial proves they are no worse than natural Truck drift. A
+        // terminal native loss is eligible for the established camera fallback
+        // after exact owned cleanup.
         {
             const int rate = 20;
-            JsonElement response = await ProbeFastTruckAsync(session, request, rate, cancellationToken)
+            const int fenceSize = 25;
+            JsonElement response = await ProbeFastTruckAsync(
+                    session, request, rate, cancellationToken, railwayOnly: false, fenceSize)
                 .ConfigureAwait(false);
             if (MatchesString(response, "state", "failed"))
             {
@@ -35,7 +40,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 !MatchesInt(response, "requestsPerSecond", rate) ||
                 !MatchesInt(response, "unprovenRectangles", 0) ||
                 !MatchesString(response, "responseAttribution", "bounded_sequential_fences") ||
-                !MatchesInt(response, "responseFenceSize", 25) ||
+                !MatchesInt(response, "responseFenceSize", fenceSize) ||
                 !response.TryGetProperty("repairPasses", out JsonElement passes) ||
                 !passes.TryGetInt32(out int passCount) || passCount is < 0 or > 2 ||
                 !response.TryGetProperty("requestsSent", out JsonElement sent) ||
@@ -124,8 +129,11 @@ internal sealed partial class CurrentClientMapBlockSource
 
     private async Task<JsonElement> ProbeFastTruckAsync(
         OverviewMapScanSession session, MapScanExecutionRequest request,
-        int rate, CancellationToken cancellationToken, bool railwayOnly = false)
+        int rate, CancellationToken cancellationToken, bool railwayOnly = false,
+        int fenceSize = 25)
     {
+        if (fenceSize is not (5 or 10 or 25))
+            throw new ArgumentOutOfRangeException(nameof(fenceSize), "Fast Truck fence size must be 5, 10 or 25.");
         string requestId = "truck" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         string commandPath = Path.Combine(probeRuntimeRoot, "fast-truck-scan.txt");
         string resultPath = Path.Combine(probeRuntimeRoot, "fast-truck-scan-result.json");
@@ -140,7 +148,8 @@ internal sealed partial class CurrentClientMapBlockSource
             $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
             $"trainType={(railwayOnly ? 2 : 1)}",
             $"includeRailway={request.SelectedTypes.Contains("railway", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
-            $"rate={rate.ToString(CultureInfo.InvariantCulture)}", string.Empty,
+            $"rate={rate.ToString(CultureInfo.InvariantCulture)}",
+            $"fenceSize={fenceSize.ToString(CultureInfo.InvariantCulture)}", string.Empty,
         });
         DateTimeOffset started = Now();
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);

@@ -647,6 +647,206 @@ internal static class Map014Map317SharedAdapterChecks
             "failed current successor leaked staged City into published SQLite rows");
     }
 
+    private static async Task CheckMap317BatchStagingGuardsAsync()
+    {
+        // Exercise the production IMapScanBatchRunSink -> MapControlPlane ->
+        // MapStore path with a two-block world. A batch must stage all records
+        // under the exact accepted run before either block is certified, and
+        // rejected/cancelled/stale batches must leave the last publication intact.
+        const int server = 2213;
+        const int foreignServer = 2214;
+        const long updatedAt = 1800000000000L;
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(40, 20);
+        Require(blocks.Count == 2,
+            "controlled batch staging geometry did not produce exactly two logical blocks");
+
+        CurrentClientMap317ScanProvider NewProvider() => new(
+            new NonSharedOwnedSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, server, server, [], [], 0, 40, 20, 20, 10)),
+            _ => Task.FromResult(new CurrentClientMapContext(
+                server, 0, 40, 20, 20, 10, "batch-staging-session")));
+
+        static MapStoredRecord Record(string kind, int recordServer, string key, int pointIndex) =>
+            new(kind, recordServer, key, pointIndex, null, key, null, 1, null, null,
+                null, null, updatedAt, JsonSerializer.Serialize(new { ownerUid = key }));
+
+        static Map317.MapRecord PublishedRecord(string key) => new(
+            "city", server, key, 1, null, key, null, 1, null, null, null, null,
+            1700000000000L, JsonSerializer.Serialize(new { ownerUid = key }));
+
+        MapScanExecutionRequest Request(string runId) => new(
+            runId, server, 0, 40, 20, ["city"], 2,
+            PlayerTileX: 20, PlayerTileY: 10, ScanMode: "fast",
+            LaunchSessionId: "batch-staging-session", LiveServerId: server);
+
+        MapScanBlockSuccess Success(MapScanTargetBlock block, params MapStoredRecord[] records) =>
+            new(block, new MapScanBlockCapture(
+                server, 0, block.BlockIndex, "{}", records));
+
+        MapScanBlockSuccess[] ValidBatch() =>
+        [
+            Success(blocks[0], Record("city", server, "batch-city-a", 1)),
+            Success(blocks[1], Record("city", server, "batch-city-b", 21)),
+        ];
+
+        // A valid multi-block batch is visible only through exact-run staging
+        // until completion, then replaces the prior publication atomically.
+        {
+            using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+            store.UpsertRecord(PublishedRecord("saved-batch-owner"));
+            var provider = NewProvider();
+            using var control = new Map317.MapControlPlane(store, provider);
+            Map317.MapScanState run = await control.StartScanAsync(
+                new Map317.MapScanStartRequest(["city"], "fast"));
+            var request = Request(run.ScanRunId);
+            var sink = new Map317ScanRunSink(control);
+            sink.Begin(request, run.TotalBlocks, updatedAt);
+            sink.CheckpointSuccessBatch(request, ValidBatch(), 1, updatedAt);
+
+            Map317.MapSearchResult staged = store.Search(
+                new Map317.MapQuery("city", server, ScanRunId: run.ScanRunId));
+            Map317.MapSearchResult published = store.Search(new Map317.MapQuery("city", server));
+            Require(staged.Total == 2 && published.Total == 1 &&
+                    published.Rows[0].GetRawText().Contains("saved-batch-owner", StringComparison.Ordinal),
+                "multi-block exact-run batch leaked before publication or failed to stage both records");
+
+            control.ReportProgressForRun(run.ScanRunId,
+                new Map317.MapScanProgressUpdate(run.TotalBlocks, run.TotalBlocks,
+                    0, 0, 1.0, true, 0, 0));
+            sink.Publish(request, updatedAt + 1);
+            published = store.Search(new Map317.MapQuery("city", server));
+            Require(store.ReadScanRun(run.ScanRunId)?.Status == "completed" &&
+                    published.Total == 2 &&
+                    published.Rows.All(row => !row.GetRawText().Contains(
+                        "saved-batch-owner", StringComparison.Ordinal)),
+                "complete exact-run batch did not atomically replace the last good publication");
+            await provider.StopMapScanAsync();
+        }
+
+        // Foreign kind/server records and duplicate logical blocks are rejected
+        // before any part of the batch is staged or its block ledger advances.
+        foreach (string invalidCase in new[] { "kind", "server", "duplicate" })
+        {
+            using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+            store.UpsertRecord(PublishedRecord("saved-before-" + invalidCase));
+            var provider = NewProvider();
+            using var control = new Map317.MapControlPlane(store, provider);
+            Map317.MapScanState run = await control.StartScanAsync(
+                new Map317.MapScanStartRequest(["city"], "fast"));
+            var request = Request(run.ScanRunId);
+            var sink = new Map317ScanRunSink(control);
+            sink.Begin(request, run.TotalBlocks, updatedAt);
+
+            MapScanBlockSuccess[] invalid = invalidCase switch
+            {
+                "kind" =>
+                [
+                    Success(blocks[0], Record("city", server, "valid-before-kind", 1)),
+                    Success(blocks[1], Record("resource", server, "foreign-kind", 21)),
+                ],
+                "server" =>
+                [
+                    Success(blocks[0], Record("city", server, "valid-before-server", 1)),
+                    Success(blocks[1], Record("city", foreignServer, "foreign-server", 21)),
+                ],
+                _ =>
+                [
+                    Success(blocks[0], Record("city", server, "duplicate-a", 1)),
+                    Success(blocks[0], Record("city", server, "duplicate-b", 2)),
+                ],
+            };
+            bool rejected = false;
+            try
+            {
+                sink.CheckpointSuccessBatch(request, invalid, 1, updatedAt);
+            }
+            catch (Map317.BridgeCommandException error) when (
+                invalidCase is "kind" or "server" && error.Code == "INVALID_MAP_RECORD")
+            {
+                rejected = true;
+            }
+            catch (InvalidDataException) when (invalidCase == "duplicate")
+            {
+                rejected = true;
+            }
+
+            Map317.MapSearchResult staged = store.Search(
+                new Map317.MapQuery("city", server, ScanRunId: run.ScanRunId));
+            Map317.MapSearchResult published = store.Search(new Map317.MapQuery("city", server));
+            Require(rejected && staged.Total == 0 && published.Total == 1 &&
+                    published.Rows[0].GetRawText().Contains(
+                        "saved-before-" + invalidCase, StringComparison.Ordinal),
+                "rejected " + invalidCase + " batch partially staged or changed last-good rows");
+
+            // Retrying the same two logical blocks proves a rejected batch did
+            // not consume either ledger entry before its SQLite commit.
+            sink.CheckpointSuccessBatch(request, ValidBatch(), 1, updatedAt + 1);
+            Require(store.Search(new Map317.MapQuery(
+                        "city", server, ScanRunId: run.ScanRunId)).Total == 2,
+                "rejected " + invalidCase + " batch advanced the block ledger before commit");
+            control.FailScanForRun(run.ScanRunId, "controlled rejected-batch cleanup");
+            published = store.Search(new Map317.MapQuery("city", server));
+            Require(store.ReadScanRun(run.ScanRunId)?.Status == "failed" &&
+                    published.Total == 1 && published.Rows[0].GetRawText().Contains(
+                        "saved-before-" + invalidCase, StringComparison.Ordinal),
+                "failed batch retry replaced the last good publication");
+            await provider.StopMapScanAsync();
+        }
+
+        // Cancellation clears staging and retires exact ownership. The same
+        // old batch must remain rejected both while cancelled and after a new
+        // independent run has been admitted.
+        {
+            using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+            store.UpsertRecord(PublishedRecord("saved-before-cancel"));
+            var provider = NewProvider();
+            using var control = new Map317.MapControlPlane(store, provider);
+            Map317.MapScanState cancelled = await control.StartScanAsync(
+                new Map317.MapScanStartRequest(["city"], "fast"));
+            var oldRequest = Request(cancelled.ScanRunId);
+            var oldSink = new Map317ScanRunSink(control);
+            oldSink.Begin(oldRequest, cancelled.TotalBlocks, updatedAt);
+            await control.StopScanAsync();
+
+            bool cancelledRejected = false;
+            try
+            {
+                oldSink.CheckpointSuccessBatch(oldRequest, ValidBatch(), 1, updatedAt + 1);
+            }
+            catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
+            {
+                cancelledRejected = true;
+            }
+            Require(cancelledRejected &&
+                    store.ReadScanRun(cancelled.ScanRunId)?.Status == "cancelled" &&
+                    store.Search(new Map317.MapQuery(
+                        "city", server, ScanRunId: cancelled.ScanRunId)).Total == 0 &&
+                    store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                        .GetRawText().Contains("saved-before-cancel", StringComparison.Ordinal),
+                "cancelled exact run accepted late batch staging or changed last-good rows");
+
+            Map317.MapScanState successor = await control.StartScanAsync(
+                new Map317.MapScanStartRequest(["city"], "fast"));
+            bool staleRejected = false;
+            try
+            {
+                oldSink.CheckpointSuccessBatch(oldRequest, ValidBatch(), 1, updatedAt + 2);
+            }
+            catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
+            {
+                staleRejected = true;
+            }
+            Require(staleRejected && control.ScanState.ScanRunId == successor.ScanRunId &&
+                    store.Search(new Map317.MapQuery(
+                        "city", server, ScanRunId: successor.ScanRunId)).Total == 0 &&
+                    store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                        .GetRawText().Contains("saved-before-cancel", StringComparison.Ordinal),
+                "stale cancelled batch contaminated an independently accepted successor");
+            await control.StopScanAsync();
+        }
+    }
+
     private static async Task CheckMap317EarlyOwnedPublishCannotReplaceSavedRowsAsync()
     {
         // Direct actual provider -> Map317 -> SQLite inverse. A still-owned
@@ -866,6 +1066,7 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();
         await CheckRetiredMap317SinkCannotMutateSuccessorAsync();
+        await CheckMap317BatchStagingGuardsAsync();
         await CheckMap317EarlyOwnedPublishCannotReplaceSavedRowsAsync();
         await CheckRealMap317CancelAndPublishExclusionAsync();
         await CheckMap317AcceptedStartCannotOutliveStopAsync();

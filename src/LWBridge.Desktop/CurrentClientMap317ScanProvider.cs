@@ -561,7 +561,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         new(error.Code, error.Message, error.Details);
 }
 
-internal sealed class Map317ScanRunSink : IMapScanRunSink
+internal sealed class Map317ScanRunSink : IMapScanBatchRunSink
 {
     private readonly Map317.MapControlPlane control;
     private readonly object checkpointGate = new();
@@ -615,6 +615,44 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
             foreach (MapStoredRecord record in capture.Records)
                 control.StageRecordForRun(request.RunId, ToMap317Record(record));
             checkpointedBlocks.Add(block.BlockIndex);
+        }
+    }
+
+    public void CheckpointSuccessBatch(
+        MapScanExecutionRequest request,
+        IReadOnlyList<MapScanBlockSuccess> successes,
+        int attempts,
+        long updatedAt)
+    {
+        ArgumentNullException.ThrowIfNull(successes);
+        if (successes.Count == 0)
+            throw new InvalidDataException("Map317 rejected an empty native checkpoint batch.");
+        lock (checkpointGate)
+        {
+            if (!string.Equals(begunRunId, request.RunId, StringComparison.Ordinal))
+                throw new InvalidDataException("Map317 rejected a foreign native checkpoint batch.");
+
+            var batchBlocks = new HashSet<int>();
+            var records = new List<Map317.MapRecord>();
+            foreach (MapScanBlockSuccess success in successes)
+            {
+                MapScanTargetBlock block = success.Block;
+                MapScanBlockCapture capture = success.Capture;
+                if (block.BlockIndex is < 0 || block.BlockIndex >= expectedBlocks ||
+                    capture.BlockIndex != block.BlockIndex ||
+                    checkpointedBlocks.Contains(block.BlockIndex) ||
+                    !batchBlocks.Add(block.BlockIndex))
+                    throw new InvalidDataException("Map317 rejected a missing, foreign or duplicate native checkpoint batch.");
+                foreach (MapStoredRecord record in capture.Records)
+                    records.Add(ToMap317Record(record));
+            }
+
+            // The exact run and all records are certified in one SQLite
+            // transaction. Do not advance the block ledger until that commit
+            // succeeds, so Stop/late callbacks cannot manufacture completion.
+            control.StageRecordsForRun(request.RunId, records);
+            foreach (int blockIndex in batchBlocks)
+                checkpointedBlocks.Add(blockIndex);
         }
     }
 

@@ -7,11 +7,12 @@ namespace LWBridge.Desktop;
 internal sealed partial class LWBridgeWindow
 {
     // MAP-015: opt-in read-only acceptance on the owner's isolated packaged WebView.
-    // The real Manual Start has already finished; browse the actual eight tabs,
+    // The real Manual Start has already finished; browse the selected tabs,
     // correlating production map_search responses to the same completed server.
     private async Task<object> RunMap015AllNonTruckUiProofAsync(
         CoreWebView2 core, string directory, JsonElement completedStatus,
-        OverviewMapScanSession ownedSession, CancellationToken token, bool includeTruck = false)
+        OverviewMapScanSession ownedSession, CancellationToken token,
+        bool includeTruck = false, bool includeOther = false)
     {
         if (productionPaths?.ExplicitIsolation != true || map317CommandService is null ||
             overviewLifecycleService is null)
@@ -28,6 +29,7 @@ internal sealed partial class LWBridgeWindow
             (5, "dispatch"), (6, "ghost"), (7, "treasure"), (9, "zombie_boss")
         };
         if (includeTruck) kinds = kinds.Append((Index: 3, Kind: "truck")).OrderBy(kind => kind.Index).ToArray();
+        if (includeOther) kinds = kinds.Append((Index: 8, Kind: "other")).OrderBy(kind => kind.Index).ToArray();
         object? fastTruck = includeTruck ? await RequireMap015FastTruckNativeProofAsync(
             ownedSession, runId, serverId, token) : null;
         // A completed UI scan can silently have used the safe camera fallback.
@@ -40,7 +42,12 @@ internal sealed partial class LWBridgeWindow
             Path.Combine(liveRoot, "map-fullworld-probe-metrics.json"), token));
         JsonElement native = nativeDocument.RootElement;
         JsonElement metrics = metricsDocument.RootElement;
-        string selectedKey = string.Join("\u001f", kinds.Select(item => item.Kind).Order(StringComparer.Ordinal));
+        // Other is a separate public Map category, but it shares the native
+        // Treasure census. The inner current-client source therefore records
+        // the mapped native selection while the terminal/UI still owns all ten
+        // public kinds.
+        string nativeSelectedKey = string.Join("\u001f", kinds.Select(item => item.Kind == "other" ? "treasure" : item.Kind)
+            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
         int sent = native.GetProperty("requestsSent").GetInt32();
         JsonElement batches = native.GetProperty("batches");
         JsonElement identity = metrics.GetProperty("identity");
@@ -64,7 +71,7 @@ internal sealed partial class LWBridgeWindow
             identity.GetProperty("RunId").GetString() != runId ||
             identity.GetProperty("ServerId").GetInt32() != serverId ||
             identity.GetProperty("WorldId").GetInt32() != 0 ||
-            identity.GetProperty("SelectedTypesKey").GetString() != selectedKey ||
+            identity.GetProperty("SelectedTypesKey").GetString() != nativeSelectedKey ||
             metrics.GetProperty("uniqueCoveredAois").GetInt32() != 10000 ||
             metrics.GetProperty("requiredAois").GetInt32() != 10000 ||
             metrics.GetProperty("newlyCoveredAois").GetInt32() != 10000 ||

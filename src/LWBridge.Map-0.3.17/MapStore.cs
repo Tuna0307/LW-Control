@@ -221,24 +221,35 @@ public sealed partial class MapStore : IDisposable
     }
 
     public void StageRecord(string runId, MapRecord record)
+        => StageRecords(runId, [record]);
+
+    public void StageRecords(string runId, IReadOnlyList<MapRecord> records)
     {
         if (string.IsNullOrWhiteSpace(runId))
             throw new BridgeCommandException("INVALID_SCAN", "invalid map scan run");
-        ValidateRecord(record);
+        ArgumentNullException.ThrowIfNull(records);
+        foreach (MapRecord record in records) ValidateRecord(record);
         lock (gate)
         {
+            using SqliteTransaction transaction = connection.BeginTransaction();
             // Stop commits cancellation before the provider finishes unwinding.
             // A provider batch returning late must not recreate cancelled staging,
             // even while the in-memory UI state has not yet transitioned to idle.
+            int runServerId;
             using (SqliteCommand state = connection.CreateCommand())
             {
-                state.CommandText = "SELECT status FROM scan_runs WHERE id=$run AND server_id=$server";
+                state.Transaction = transaction;
+                state.CommandText = "SELECT status,server_id FROM scan_runs WHERE id=$run";
                 state.Parameters.AddWithValue("$run", runId);
-                state.Parameters.AddWithValue("$server", record.ServerId);
-                if (!string.Equals(state.ExecuteScalar() as string, "running", StringComparison.Ordinal))
+                using SqliteDataReader reader = state.ExecuteReader();
+                if (!reader.Read() || !string.Equals(reader.GetString(0), "running", StringComparison.Ordinal))
                     throw new BridgeCommandException("INVALID_SCAN", "map scan run is not running");
+                runServerId = reader.GetInt32(1);
             }
+            if (records.Any(record => record.ServerId != runServerId))
+                throw new BridgeCommandException("INVALID_SCAN", "map scan record server does not match the running scan");
             using SqliteCommand command = connection.CreateCommand();
+            command.Transaction = transaction;
             command.CommandText = """
                 INSERT INTO scan_records(run_id,kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)
                 VALUES ($run,$kind,$server,$key,$point,$uuid,$name,$alliance,$level,$quality,$power,$distance,$shield,$updated,$json)
@@ -249,9 +260,14 @@ public sealed partial class MapStore : IDisposable
                   shield_end_time=excluded.shield_end_time,updated_at=excluded.updated_at,
                   data_json=excluded.data_json
                 """;
-            command.Parameters.AddWithValue("$run", runId);
-            AddRecordParameters(command, record);
-            command.ExecuteNonQuery();
+            foreach (MapRecord record in records)
+            {
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("$run", runId);
+                AddRecordParameters(command, record);
+                command.ExecuteNonQuery();
+            }
+            transaction.Commit();
         }
     }
 
