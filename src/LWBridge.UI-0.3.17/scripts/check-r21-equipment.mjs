@@ -10,7 +10,7 @@ import { equipmentPresetTexts } from "../src/locales/feature018-equipment-preset
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
   assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
   assert.equal(Object.keys(liveEquipmentTexts[language]).length, 14);
-  assert.equal(Object.keys(equipmentPresetTexts[language]).length, 10);
+  assert.equal(Object.keys(equipmentPresetTexts[language]).length, 12);
   for (const value of Object.values(equipmentPresetTexts[language])) assert.ok(value.length > 0);
   for (const value of Object.values(liveEquipmentTexts[language])) assert.ok(value.length > 0);
   for (const text of Object.values(equipmentPlanTexts[language])) assert.ok(text.length > 0);
@@ -246,6 +246,11 @@ const liveBridge = {
       return { readOnly: true, requestDispatched: false };
     }
     if (command === "equipment_config_save") { savedPresets = structuredClone(payload); return structuredClone(savedPresets); }
+    if (command === "equipment_preset_rename") {
+      assert.equal(savedPresets.equipmentPresets[payload.slot - 1].id, payload.expectedPresetId);
+      savedPresets.equipmentPresets[payload.slot - 1].name = payload.name;
+      return structuredClone(savedPresets);
+    }
     if (command === "feature018_equipment_snapshot") return structuredClone(current);
     if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "native", localeSha256: "locale", englishSha256: "english", texts: Object.fromEntries(payload.keys.map(key => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
     if (!["feature018_equipment_edit", "feature018_hotkey_action"].includes(command)) throw new Error(`Unexpected live command ${command}`);
@@ -346,6 +351,23 @@ for (let slot = 1; slot <= 4; slot++) {
   otherPresets.forEach((preset, index) => { if (index !== slot - 1) assert.deepEqual(savedPresets.equipmentPresets[index], preset, "Saving one preset must preserve the others"); });
   assert.match(document.body.textContent, new RegExp(`Alt\\+${slot}`));
 }
+await flush(() => document.querySelector('[data-equipment-preset="2"]').click());
+const presetBeforeRename = structuredClone(savedPresets);
+const gearBeforeRename = equipmentPositionSnapshot(current);
+await flush(() => {
+  const input = document.querySelector('[data-equipment-preset-name]');
+  Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(input, "Renamed loadout");
+  input.dispatchEvent(new window.Event("input", { bubbles: true }));
+});
+assert.equal(document.querySelector('[data-equipment-action="rename-preset"]').disabled, false);
+const callsBeforeRename = calls.length;
+await flush(() => document.querySelector('[data-equipment-action="rename-preset"]').click());
+presetBeforeRename.equipmentPresets[1].name = "Renamed loadout";
+assert.deepEqual(savedPresets, presetBeforeRename, "Rename must preserve all gear, metadata and other presets");
+assert.deepEqual(equipmentPositionSnapshot(current), gearBeforeRename, "Rename changed live gear");
+assert.deepEqual(calls.slice(callsBeforeRename).map(c=>c.command), ["equipment_preset_rename"],
+  "Rename must use the atomic name-only command, with no native gear call or capture");
+assert.match(document.body.textContent, /Saved gear unchanged/);
 liveBridge.preflightError = true;
 await flush(() => document.querySelector('[data-equipment-action="equip-preset"]').click());
 assert.match(document.querySelector('[role="alert"]').textContent, /Equipment state changed/);

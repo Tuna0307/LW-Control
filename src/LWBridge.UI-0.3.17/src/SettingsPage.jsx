@@ -1,7 +1,6 @@
 import { formatDiagnosticBytes, previewUpdateStatus, updateDownloadVisible, updateManualCooldownSeconds, updateStatusBusy } from "./previewRemainingPagesContracts.js";
 import { useEffect, useRef, useState } from "react";
 import { backendBridge } from "./backendBridge.js";
-import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 import { useI18n } from "./i18n.jsx";
 import { ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
 
@@ -80,6 +79,7 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
     if (previewEnabled) return undefined;
     let closed = false;
     setVisualPreferences(null);
+    setVisualBusy(false);
     setVisualErrorKey("");
     backendBridge.invokeProfileScoped("visual_metrics_config_get", {}).then((stored) => {
       if (closed) return;
@@ -93,7 +93,7 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
       if (!closed) setVisualErrorKey("settings.visualMetrics.loadFailed");
     });
     return () => { closed = true; };
-  }, [previewEnabled, visualLoadRevision]);
+  }, [previewEnabled, visualLoadRevision, backendBridge.profileGeneration]);
 
   useEffect(() => {
     if (updateCooldown <= 0) return undefined;
@@ -103,6 +103,12 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
 
   async function saveVisualPreference(field, value) {
     if (!visualPreferences || visualBusy) return;
+    const owner = backendBridge.currentProfileOwner();
+    const ownsEdit = () => previewEnabled || backendBridge.isCurrentProfileOwner(owner);
+    const assertOwner = () => {
+      if (!ownsEdit()) throw Object.assign(new Error("The visual preference's profile generation retired."),
+        { code: "PROFILE_GENERATION_RETIRED" });
+    };
     const previousVisual = visualPreferences;
     const optimistic = { ...visualPreferences, [field]: value };
     setVisualPreferences(optimistic);
@@ -110,6 +116,7 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
     setVisualErrorKey("");
     try {
       await Promise.resolve();
+      assertOwner();
       if (previewState === "settings-visual-save-error") throw new Error("preview visual metrics save failure");
       const saved = { ...visualSourceRef.current, [field]: value };
       if (previewEnabled) {
@@ -118,10 +125,9 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
       } else {
         // Audit 2026-10-23 W07: every game call below, the rollback included, is for the profile that
         // started this change; after a profile switch nothing is sent to the newly selected profile.
-        const ownerProfile = backendBridge.profileId;
         let appliedToGame = false;
         if (online) {
-          assertBridgeProfileOwner(backendBridge, ownerProfile);
+          assertOwner();
           await backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
             showFps: saved.showFps === true,
             showPing: saved.showPing === true,
@@ -129,7 +135,7 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
           appliedToGame = true;
         }
         try {
-          assertBridgeProfileOwner(backendBridge, ownerProfile);
+          assertOwner();
           const stored = await backendBridge.invokeProfileScoped("visual_metrics_config_save", {
             showFps: saved.showFps === true,
             showPing: saved.showPing === true,
@@ -138,10 +144,11 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
             showFps: stored?.showFps === true,
             showPing: stored?.showPing === true,
           };
+          assertOwner();
           visualSourceRef.current = normalized;
           setVisualPreferences(normalized);
         } catch (error) {
-          if (appliedToGame && backendBridge.profileId === ownerProfile) {
+          if (appliedToGame && ownsEdit()) {
             await backendBridge.invokeProfileScoped("feature018_visual_metrics_configure", {
               showFps: previousVisual.showFps === true,
               showPing: previousVisual.showPing === true,
@@ -151,10 +158,12 @@ export function SettingsPage({ previewState = "", online = false, showProfileFoc
         }
       }
     } catch {
-      setVisualPreferences(previousVisual);
-      setVisualErrorKey("settings.visualMetrics.saveFailed");
+      if (ownsEdit()) {
+        setVisualPreferences(previousVisual);
+        setVisualErrorKey("settings.visualMetrics.saveFailed");
+      }
     } finally {
-      setVisualBusy(false);
+      if (ownsEdit()) setVisualBusy(false);
     }
   }
 

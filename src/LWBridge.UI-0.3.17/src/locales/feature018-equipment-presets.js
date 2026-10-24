@@ -10,5 +10,45 @@ const messages = {
   ru: ["Ур.{level}", "Уровень недоступен", "Изменения ниже сразу применяются в игре. Сохраните текущее снаряжение в набор для вызова через Alt+1–4. Сохранение набора не меняет снаряжение.", "Сохранить текущее снаряжение в набор", "Надеть набор", "Сохранён", "Не сохранён", "Текущее снаряжение сохранено в набор {number} (Alt+{number}). Снаряжение в игре не изменилось.", "Набор {number} надет в игре", "Не удалось сохранить набор. Текущее снаряжение не изменилось. Повторите сохранение."],
   pt: ["Nv.{level}", "Nível indisponível", "As edições abaixo alteram o jogo imediatamente. Guarde o equipamento atual numa predefinição para usar Alt+1–4. Guardar a predefinição não altera o equipamento.", "Guardar equipamento atual na predefinição", "Equipar predefinição", "Guardada", "Não guardada", "Equipamento atual guardado na predefinição {number} (Alt+{number}). O equipamento no jogo não mudou.", "Predefinição {number} equipada no jogo", "Não foi possível guardar a predefinição. O equipamento atual não mudou. Tente guardar novamente."],
 };
+const renameMessages = {
+  "en": [
+    "Rename preset",
+    "Preset {number} renamed. Saved gear unchanged."
+  ],
+  "zh-CN": [
+    "重命名预设",
+    "已重命名预设 {number}。已保存的装备未更改。"
+  ],
+  "zh-TW": [
+    "重新命名預設",
+    "已重新命名預設 {number}。已儲存的裝備未變更。"
+  ],
+  "ja": [
+    "プリセット名を変更",
+    "プリセット {number} の名前を変更しました。保存済みの装備は変更されません。"
+  ],
+  "ko": [
+    "프리셋 이름 변경",
+    "프리셋 {number}의 이름을 변경했습니다. 저장된 장비는 그대로 유지됩니다."
+  ],
+  "vi": [
+    "Đổi tên bộ trang bị",
+    "Đã đổi tên bộ {number}. Trang bị đã lưu không thay đổi."
+  ],
+  "id": [
+    "Ganti nama preset",
+    "Nama preset {number} diubah. Perlengkapan tersimpan tidak berubah."
+  ],
+  "ru": [
+    "Переименовать набор",
+    "Набор {number} переименован. Сохранённое снаряжение не изменено."
+  ],
+  "pt": [
+    "Renomear predefinição",
+    "Predefinição {number} renomeada. Equipamento guardado inalterado."
+  ]
+};
+keys.push("livePresetRename", "livePresetRenamed");
+for (const [language, values] of Object.entries(messages)) values.push(...renameMessages[language]);
 export const equipmentPresetTexts = Object.fromEntries(Object.entries(messages).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [`squad.${key}`, values[index]]))]));
 export const withEquipmentPresetTexts = (language, catalog) => ({ ...catalog, ...equipmentPresetTexts[language] });

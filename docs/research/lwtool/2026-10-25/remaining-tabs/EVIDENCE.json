@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "status": "comparison-and-candidate-controls-complete-live-final-package-pending",
+  "baseline": "122d1989",
+  "baselinePackageSource": "2b32d64f4a531ec8a3b8c61926da358d0d96f0c4",
+  "recoveredArtifacts": [
+    {
+      "output": "recovered-core.py",
+      "bytes": 3315513,
+      "sha256": "f9f910e2f42ea5215fce1391ac7c6685ff4f16b7926200aa203265875c4b0ec3",
+      "gcmAuthenticated": true
+    },
+    {
+      "output": "recovered-ui.html",
+      "bytes": 789141,
+      "sha256": "5de6a7c1c9a83fdd2e141989e5998535f0a1f0e64778c8dcc2e44d9493ff05b8",
+      "gcmAuthenticated": true
+    }
+  ],
+  "baselineLive": {
+    "exactApprovedAccountVerified": true,
+    "equipmentSquads": 3,
+    "equipmentInventoryItems": 25,
+    "cityBuildings": 111,
+    "foodHouse": "unavailable-or-expired",
+    "chestHint": "no-active-view",
+    "frontline": "no-compatible-battle",
+    "readOnly": true,
+    "exactCleanupAndOriginalRestoration": "pass"
+  },
+  "implementedCandidates": [
+    "queued Hotkeys/Mini Games edit generation fencing",
+    "FPS/ping edit capture before first async yield and generation-safe rollback",
+    "atomic saved equipment preset rename without recapture"
+  ],
+  "ownerDecisions": {
+    "marchSpeedups": "compare-only-keep-removed-explicit-2026-10-25",
+    "spaceCountdown": "keep-removed",
+    "unlockLandCell": "never-test"
+  },
+  "pending": [
+    "final source pin and clean package",
+    "genuine Equipment apply/restore and rename",
+    "genuine City move/swap/cancel/restore",
+    "native Hotkeys positive/negative available cases",
+    "Settings native metrics/language/theme package sweep",
+    "integrated Home/Map regression and cleanup"
+  ],
+  "privateEvidenceRoot": "artifacts/lwtool-remaining-tabs-20261025",
+  "noMergeOrRelease": true
+}

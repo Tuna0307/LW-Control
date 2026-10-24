@@ -341,7 +341,7 @@ internal sealed partial class LWBridgeWindow
                         else if (kind == "equipmentConfig")
                         {
                             string command = root.GetProperty("command").GetString()!;
-                            if (command is not ("equipment_config_get" or "equipment_config_save") ||
+                            if (command is not ("equipment_config_get" or "equipment_config_save" or "equipment_preset_rename") ||
                                 equipmentConfigService is null)
                                 throw new InvalidDataException("Unsupported equipment config operation");
                             result = await equipmentConfigService.InvokeAsync(command,

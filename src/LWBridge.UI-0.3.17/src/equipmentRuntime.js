@@ -56,6 +56,16 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
   return {
     snapshot, assertOwner,
     readPresets: () => invoke("equipment_config_get"),
+    async renamePreset(slot, name, expectedPresetId) {
+      if (getPending()) throw new Error("Wait for the current equipment change to finish.");
+      if (!equipmentSlots.includes(slot) || typeof name !== "string" || !name.trim())
+        throw new Error("Choose a preset from 1 to 4 and enter its name.");
+      // A rename changes only its name. Do not take a fresh gear snapshot or
+      // recapture the saved loadout, and preserve other presets/restoration data.
+      if (typeof expectedPresetId !== "string" || !expectedPresetId)
+        throw Object.assign(new Error("The saved equipment preset is unavailable."), { code: "INVALID_REQUEST" });
+      return invoke("equipment_preset_rename", { slot, expectedPresetId, name: name.trim() });
+    },
     async savePreset(slot, name, defaultPresetName) {
       if (getPending()) throw new Error("Wait for the current equipment change to finish.");
       if (!equipmentSlots.includes(slot) || !name.trim()) throw new Error("Choose a preset from 1 to 4 and enter its name.");

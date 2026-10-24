@@ -14,7 +14,7 @@ internal sealed class EquipmentConfigCommandService : INativeAsyncCommandService
         this.store = store ?? throw new ArgumentNullException(nameof(store));
 
     public bool CanHandle(string command) =>
-        command is "equipment_config_get" or "equipment_config_save";
+        command is "equipment_config_get" or "equipment_config_save" or "equipment_preset_rename";
 
     public Task<object?> InvokeAsync(
         string command,
@@ -28,12 +28,23 @@ internal sealed class EquipmentConfigCommandService : INativeAsyncCommandService
             "equipment_config_get" => store.ReadEquipmentConfig(),
             "equipment_config_save" =>
                 store.SaveEquipmentConfig(ParseSavePayload(payload)),
+            "equipment_preset_rename" => Rename(payload),
             _ => throw new BridgeCommandException(
                 "COMMAND_NOT_IMPLEMENTED",
                 $"Equipment config service does not handle '{command}'."),
         };
 
         return Task.FromResult<object?>(result);
+    }
+
+    private JsonObject Rename(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("slot", out var slot) || slot.ValueKind != JsonValueKind.Number || !slot.TryGetInt32(out int ordinal) ||
+            !payload.TryGetProperty("expectedPresetId", out var id) || id.ValueKind != JsonValueKind.String ||
+            !payload.TryGetProperty("name", out var name) || name.ValueKind != JsonValueKind.String)
+            throw InvalidEquipmentPreset();
+        return store.RenameEquipmentPreset(ordinal, id.GetString() ?? "", name.GetString() ?? "");
     }
 
     private static JsonObject ParseSavePayload(JsonElement payload)
