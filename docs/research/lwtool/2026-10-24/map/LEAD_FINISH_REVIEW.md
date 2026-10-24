@@ -71,3 +71,10 @@ eight-second bound per pass. Each repair uses a new observed native ID and remov
 the superseded ID from the pending table; late old-attempt replies remain refused.
 Seven actual-source correlation tests cover bounded exhaustion and ID retirement.
 The existing pointId cache remains unused as source data.
+
+All five genuine package gates subsequently passed on `077350ec`, including the
+instrumented Auto all-ten retry. One earlier Auto run returned a native
+`server_changed` error and safely published nothing; that negative is retained.
+Final review aligned the host detail deadline to 28 seconds so the initial
+eight-second native window and both eight-second repair windows can settle.
+Final package gates are repeated against that exact later source before acceptance.

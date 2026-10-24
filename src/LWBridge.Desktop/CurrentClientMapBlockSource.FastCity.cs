@@ -35,7 +35,10 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldMaxRequestsPerRow = 200;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
-    private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(12);
+    // Native detail completion allows the initial eight-second window plus
+    // two bounded eight-second repair windows. Leave four seconds for file
+    // publication/dispatch instead of cancelling before the last repair.
+    private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(28);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
