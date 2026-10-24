@@ -4,6 +4,8 @@ Date: 2026-10-24
 Status: canonical recovered-method report for the Map comparison assignment.
 Scope: sanitized client-side recovery from the shipped LwTool artifacts already retained under `artifacts/lwtool-connection-20261023/`, combined with existing accepted MAP-019 facts for comparison boundaries. This report contains source/function anchors and behavior summaries only; it does not reproduce proprietary recovered implementation.
 
+**Owner local-only continuation, 2026-10-24:** the active *normal/local* LwTool scan, acquisition pacing and detail-hydration path is now independently traced, and its methods are compared to our qualified 63-reply point/625-rectangle mobile scanner in [LOCAL_SCANNER_CONTINUATION.md](LOCAL_SCANNER_CONTINUATION.md). The owner now prioritizes scanning through their own game and has ended the remote-service experiment. This original quick/remote analysis is retained as historical method evidence, not a recommendation to integrate its service. No current-source native acquisition change was made without an accuracy-qualified candidate.
+
 No live LwTool or game control was used for this recovery. No production source was changed. Existing MAP-019 live measurements cited below are historical accepted evidence, not new results from this worktree or from this recovery pass.
 
 ## Executive answer
