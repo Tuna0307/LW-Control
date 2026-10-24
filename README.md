@@ -1,9 +1,8 @@
 # LW-Control application candidate
 
-**Latest Windows build (v1.0, 2026-10-23):** [Download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/lw-control-v1.0-2026-10-23/LW-Control-FEATURE-018-R30-OWNER-TEST-e205f40a92ef.zip) · [Release details](https://github.com/Tuna0307/LW-Control/releases/tag/lw-control-v1.0-2026-10-23).
+**Latest Windows build (v1.1, 2026-10-25):** [Download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/lw-control-v1.1-2026-10-25/LW-Control-lwtool-improvement-33c92711549a.zip) · [Release details](https://github.com/Tuna0307/LW-Control/releases/tag/lw-control-v1.1-2026-10-25).
 Extract the complete ZIP into a fresh writable folder and run **LWBridge.Desktop.exe** (inside `LW-Control-UI`).
-All tabs: Home, Map Data, Squads / AFK, Automation, Equipment, City Layout, Hotkeys, Mini Games and Settings.
-Map scanner review: docs/MAP_019_SCAN_METHOD_REVIEW.md. Audits: artifacts are local; fixes are in the git history.
+v1.1 adds a more stable game connection (Home) and a more reliable Map scanner on top of v1.0.
 
 **Previous stable release:** [Available Map v0.6.0](https://github.com/Tuna0307/LW-Control/releases/tag/map-available-v0.6.0).
 The previous stable ZIP uses **Launch LWBridge.cmd**; the latest ZIP uses **LWBridge.Desktop.exe**. Requires the .NET 10

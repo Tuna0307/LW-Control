@@ -1,3 +1,8 @@
+Latest lead release, 2026-10-25: lead audited PR #16 (all suites pass independently; own live Map smoke passes),
+merged codex/lwtool-full-improvement into main (f7fa931d) and published release lw-control-v1.1-2026-10-25.
+Home and Map done for owner scope. Known minor follow-ups: intermittent HomeR2 controlled assertion; retired-pipe
+CancelIoEx retry loop can spin if a write never unblocks. No worker task open.
+
 Latest lead Map qualification, 2026-10-25: required LOCAL/read-only Map gates pass on product source
 2b32d64f4a531ec8a3b8c61926da358d0d96f0c4. Read
 docs/research/lwtool/2026-10-24/map/LEAD_FINAL_MAP_QUALIFICATION.md and its evidence JSON. Genuine final-package
