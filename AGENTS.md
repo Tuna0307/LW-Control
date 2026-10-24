@@ -1,3 +1,12 @@
+Latest worker remaining-tabs handback, 2026-10-25: source 4565147a9adf38ae0e21e535c584c2efaaf4aceb,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/research/lwtool/2026-10-25/remaining-tabs/FINAL_QUALIFICATION.md
+and EVIDENCE.json. Final-package Equipment, City and Settings checks/restoration pass; full UI/Desktop
+suites and 31 package-auditor tests pass. No current live attack/recall positive (unstaffed squads/target
+availability); Food House/chest/frontline positives await active game state. Do not turn availability
+checks into gameplay passes. Owner explicitly chose comparison only for speed-ups; keep them removed.
+Exact cleanup is verified, no task processes remain. Independent review/owner acceptance pending;
+no main merge or release. Reuse the source-pinned package for documentation-only follow-ups.
+
 Latest owner remaining-tabs assignment, 2026-10-25: compare Equipment, City Layout, Hotkeys, Mini Games
 and Settings side by side with LwTool; implement and qualify useful improvements. Use new branch
 codex/lwtool-remaining-tabs from main@122d1989 and read docs/work-items/LWTOOL-REMAINING-TABS-2026-10-25.md.

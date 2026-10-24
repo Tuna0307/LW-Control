@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-10-25",
-  "status": "comparison-and-candidate-controls-complete-live-final-package-pending",
+  "status": "bounded-final-package-qualified-independent-review-pending-with-availability-gaps",
   "baseline": "122d1989",
   "baselinePackageSource": "2b32d64f4a531ec8a3b8c61926da358d0d96f0c4",
   "recoveredArtifacts": [
@@ -43,12 +43,9 @@
     "unlockLandCell": "never-test"
   },
   "pending": [
-    "final source pin and clean package",
-    "genuine Equipment apply/restore and rename",
-    "genuine City move/swap/cancel/restore",
-    "native Hotkeys positive/negative available cases",
-    "Settings native metrics/language/theme package sweep",
-    "integrated Home/Map regression and cleanup"
+    "independent code/package review and owner acceptance",
+    "fresh native attack/recall positive when a staffed squad and eligible targets are available",
+    "native Mini Game gameplay positives when event/view/battle is active"
   ],
   "privateEvidenceRoot": "artifacts/lwtool-remaining-tabs-20261025",
   "noMergeOrRelease": true,
@@ -74,6 +71,123 @@
       "inventoryWearersVerified": 25,
       "runtimeArtifact": "artifacts/map014-takeover/native-ui-20261024-221935",
       "receiptSha256": "1b751fc3eb29eee7fae11ac6bee4f0fc8a3aeeefe9bee453ef82912e8a0b90f9"
+    }
+  ],
+  "productSource": "4565147a9adf38ae0e21e535c584c2efaaf4aceb",
+  "package": {
+    "sha256": "eff0de40a1af994173f3a4608859ac4c9551ca0a6bf26b6e1c17d739118aaa2d",
+    "bytes": 10379480,
+    "zipEntries": 105,
+    "sourceCommit": "4565147a9adf38ae0e21e535c584c2efaaf4aceb",
+    "sourceGitTree": "0489cb8ac971c1bd557130e76b9b6c898cb16989",
+    "sourceInputSha256": "73383f0bfe7220c7fe7e0be9230819260698703f962bc5893bd82d63a12e6a17",
+    "sourceInputFileCount": 742,
+    "bridgesVerified": 29,
+    "fileName": "LW-Control-lwtool-improvement-4565147a9adf.zip",
+    "exactExtractionVerified": true
+  },
+  "finalNative": {
+    "exactApprovedAccountVerified": true,
+    "equipment": {
+      "exactRestore": true,
+      "presetRenameNameOnly": true,
+      "fourPresetsApplied": true,
+      "sourceProof": "r23-equipment-ui.json"
+    },
+    "city": {
+      "singleMove": true,
+      "swap": true,
+      "cancelInFlight": true,
+      "allAnchorsRestored": true,
+      "sourceProof": "feature018-city-driver-20261024-225238.json"
+    },
+    "settings": {
+      "nativeSettingsUi": true,
+      "sourceProof": "r29-part-a-ui.json"
+    },
+    "hotkeys": {
+      "liveAttackRecallPositive": false,
+      "reason": "Fewer than three eligible low-level monsters in bounded area; native inventory also showed no staffed attack squad",
+      "attackRequestsSent": 0,
+      "recallRequestsSent": 0
+    },
+    "miniGames": {
+      "foodHouse": "unavailable-or-expired",
+      "chestHint": "no-active-view",
+      "frontline": "no-compatible-battle",
+      "liveGameplayPositive": false
+    },
+    "allOriginalCityAnchorsMatched": 111,
+    "allOriginalInventoryWearersMatched": 25,
+    "allOriginalEquippedSlotsMatched": 20,
+    "originalLiveAndPersistedVisualSettingsRestored": true,
+    "exactOwnedExitAndOriginalScriptRestoration": true,
+    "recoveryJournalPresent": false,
+    "outerAvailabilityCasePassIsNotGameplayPositive": true
+  },
+  "finalReadOnly": {
+    "focusObserved": true,
+    "shieldInventory": true,
+    "randomRelocationPreflight": true,
+    "allianceRelocationPreflight": true,
+    "gameActionDispatched": false,
+    "unsavedPresetOrdinalsRefused": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "exactCleanupAndOriginalRestoration": true
+  },
+  "checks": {
+    "fullUi": "pass",
+    "desktopDelivery": "pass",
+    "snapshotAuthorityScenarios": 8,
+    "packageAuditorTests": 31,
+    "packageAuditor": "pass",
+    "homeMapControlledRegressions": "pass",
+    "freshAllTenMapStressRepeated": false
+  },
+  "retainedFinalEvidence": [
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261024-225136/r23-equipment-ui.json",
+      "sha256": "fda293dfcf9c46fcf0e5cb1c2366cfb26895f366e0fcfcf747ee62889335ea21"
+    },
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261024-225136/feature018-city-driver-20261024-225238.json",
+      "sha256": "f2a0127f7c5198d9395a886d2def0bccde564f86f88eaf2e4451a41a30f9d1c0"
+    },
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261024-225136/r29-part-a-ui.json",
+      "sha256": "9055c020e3acd3e833711c8f26924bebbfefb28fb33dd3b6284744602002e086"
+    },
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261024-225136/r23-rapid-attack-proof-attempt1.json",
+      "sha256": "e95a177aa894088fa9e0478ffaa09b976b6e56c90b904787e6b69047600c1bd5"
+    },
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261024-225136/owned-exit.json",
+      "sha256": "22fe268d939b3b30b47f0945c1c1cc4bda641e3c3a9403577de5321769295d6e"
+    },
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261024-225539/owned-exit.json",
+      "sha256": "b7cbb1d3fe4d20514eff3dbcb5011b796036837d83df6af4cf851622a12a6087"
+    },
+    {
+      "path": "artifacts/lwtool-remaining-tabs-20261025/ui-check-4.log",
+      "sha256": "497b0710abf0cf77f37daad9c4246690ab66a96e99a807577b3e8e9b1db03a1f"
+    },
+    {
+      "path": "artifacts/lwtool-remaining-tabs-20261025/desktop-check-7.log",
+      "sha256": "09dc0f246262fb4430666404fc90e35f383ce3082ea548430be826c3e7b84318"
+    },
+    {
+      "path": "artifacts/lwtool-remaining-tabs-20261025/package-auditor-final.log",
+      "sha256": "cd77b921af6fd477d3efcf7c0892c721ce0b784879576b393ab7359939b757a2"
+    },
+    {
+      "path": "artifacts/lwtool-remaining-tabs-20261025/package-final3/extraction-verification.json",
+      "sha256": "c654968ca039ee69690fee5aa90284e03b3a2295f68589ca1f46a85b0ba48d2d"
     }
   ]
 }

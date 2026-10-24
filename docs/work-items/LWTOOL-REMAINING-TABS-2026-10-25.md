@@ -61,3 +61,14 @@ its integrity receipt, integrated regression evidence, known limits and cleanup.
 Keep recovered code, credentials and raw account/runtime evidence ignored locally.
 Independent acceptance follows implementation/testing; a report alone is not the
 completion of this assignment.
+
+## Worker handback, 2026-10-25
+
+Product source `4565147a9adf38ae0e21e535c584c2efaaf4aceb`, draft PR #17.
+Read `docs/research/lwtool/2026-10-25/remaining-tabs/FINAL_QUALIFICATION.md`
+and its EVIDENCE.json. Equipment, City and Settings passed the final package's
+bounded native checks and exact restoration. Hotkey attack/recall lacks a fresh
+positive because no staffed squad/three eligible targets were available; Mini
+Games lack active event/view/battle state. Their controlled checks and genuine
+native availability refusals are retained separately. Speed-ups stay removed.
+Independent review and owner acceptance are pending; no merge/release.

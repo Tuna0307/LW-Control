@@ -1,7 +1,9 @@
 # Remaining tabs: LwTool and LW-Control
 
-Status: comparison and candidate controlled checks complete; final-source package
-and live action qualification remain open. No merge or release.
+Status: comparison, implementation and bounded final-package qualification are
+complete for the available game state. See [FINAL_QUALIFICATION.md](FINAL_QUALIFICATION.md)
+for results and explicit Hotkey/Mini live-positive gaps. Independent review is
+pending. No merge or release.
 
 The 25 October normal owner-authenticated LwTool download recovered a new core
 and UI. AES-GCM authentication passed. Core SHA-256 is
@@ -89,8 +91,8 @@ mounted test verifies one name-only command and no game gear call; native tests
 reject stale IDs and malformed requests without writing the file.
 
 No cross-product speed/CPU superiority is claimed. The selected changes improve
-correctness and avoid recapturing gear for a rename; final package/live receipts
-are still required before handoff.
+correctness and avoid recapturing gear for a rename. Final package/native results
+are recorded separately; event and squad eligibility limits remain explicit.
 
 ## Retained first-package refusal and correction
 
@@ -114,7 +116,8 @@ commands retain their original immediate-fail policy; City behavior is unchanged
 
 Distinguishing controlled cases cover gaps before/after publication, changed
 owner, changed account, persistent missing authority, late readiness, cancellation
-and the unchanged mutation policy. Fresh package qualification remains required.
+and the unchanged mutation policy. The corrected final package subsequently
+passed Equipment qualification; both unsuccessful candidates remain retained.
 
 ## Retained second-package refusal and correction
 
