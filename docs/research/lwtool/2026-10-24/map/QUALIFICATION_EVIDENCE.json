@@ -47,12 +47,18 @@
     "desktopChecks": "pass",
     "canonicalUiChecks": "pass",
     "sourcePinnedLuaSuites": {"status": "pass", "count": 49},
-    "packageAuditorUnitTests": {"status": "pass", "count": 27},
+    "packageAuditorUnitTests": {"status": "pass", "count": 29, "independentlyRerunAtStopCheckpoint": true},
     "benchmarkMatrixTests": {"status": "pass", "count": 6},
     "gitDiffCheck": "pass"
   },
+  "packageCheckpoint": {
+    "sourceCommit": "9ddd0ed83afc771813cd60786698d32f85f5eeb7",
+    "sha256": "c23a0f2603f6790417c23662297385593b830355ae721755a753147e27ff339f",
+    "zipExtractionAndSourceManifestVerification": "independent-pass",
+    "livePackageExecution": "pending",
+    "acceptance": "independent-review-required"
+  },
   "remainingGates": [
-    "fresh source-pinned Windows package",
     "packaged Manual all-ten",
     "packaged Auto all-ten with exact remote return",
     "packaged Truck Stop against current batch staging",

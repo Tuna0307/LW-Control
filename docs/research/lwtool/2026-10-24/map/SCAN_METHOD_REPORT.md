@@ -228,7 +228,7 @@ Existing MAP-019 evidence also constrains unsafe optimizations: previously teste
 
 The final same-session all-ten ABBA at `artifacts/map014-lead-live/native-benchmark-review-20261024-032125/` completed direct **90.713 / 91.327 s** versus camera **142.766 / 142.512 s**, with every round 2500/2500 and zero failures. Its sanitized audit is `artifacts/map019/20261024-allten-final-abba-audit.json`. The all-ten/auto-all-ten qualification harness is also implemented and fail-closed tested.
 
-The gates that remain are package-level only: a fresh source-pinned Windows package, packaged Manual and Auto all-ten, packaged current-staging Stop, persistence/Clear sanity, and the bounded Home reconnect/Stop smoke.
+The source-pinned `9ddd0ed8` Windows package now exists and independently passes ZIP/extraction/source-manifest checks. Packaged Manual and Auto all-ten, current-staging Stop, persistence/Clear sanity, bounded Home reconnect/Stop smoke and final independent production-code review remain open. See [WORKER_STOP_CHECKPOINT.md](WORKER_STOP_CHECKPOINT.md).
 
 An inert transactional staging benchmark already shows the current candidate can stage a deterministic 24,362-record workload substantially faster than the old per-record staging path while preserving canonical staged/published hashes and row counts (`artifacts/map019/staging-benchmark/README.md`: old median 2483.671 ms, batch median 672.559 ms). Because that benchmark does not start LWBridge, the game or any native scan owner, it is evidence for the local persistence bottleneck only; it is **not** a new live scan-time result.
 

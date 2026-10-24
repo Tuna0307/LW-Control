@@ -2,7 +2,7 @@
 
 Scope: sanitized reconciliation of the current Map assignment against tracked source, accepted lead audits, deterministic production-path checks and retained accepted receipts. This ledger does not promote an inert check into a live result and does not treat an older nine-kind package as proof of today's ten-kind combined selection.
 
-Current checkout at review time: `codex/lwtool-full-improvement`. The working tree contains the current ten-kind qualification harness and Map staging changes, so a final source-pinned package remains a separate evidence gate.
+Current checkout: `codex/lwtool-full-improvement`. Implementation and harness are committed/pushed at `9ddd0ed8`; its source-pinned Windows package now exists and independently passes ZIP/extraction/source-manifest verification. Final live packaged scenarios remain open. See [WORKER_STOP_CHECKPOINT.md](WORKER_STOP_CHECKPOINT.md). Historical references below to a dirty worktree describe the earlier review state.
 
 ## Status vocabulary
 

@@ -1,3 +1,9 @@
+Latest lead Map checkpoint, 2026-10-24: worker stopped after pushed source 9ddd0ed8 and package creation.
+Read docs/research/lwtool/2026-10-24/map/WORKER_STOP_CHECKPOINT.md before resuming. Package ZIP/extraction
+verification and 29 package-auditor tests independently pass; genuine final-package Manual/Auto all-ten,
+Stop, saved-data Clear/reopen and Home integration smoke remain open. No Map final acceptance, merge or
+release. Reuse the pinned 9ddd0ed8 package for documentation-only follow-ups; rebuild if product inputs change.
+
 Latest owner Map assignment, 2026-10-24: investigate LwTool's advertised few-second full-map scan and use
 supported findings to improve our Map speed, accuracy, efficiency and stability. Owner reports our fastest
 scan is 20+ seconds; neither that baseline nor the advertisement is an independently matched measurement.
