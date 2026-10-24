@@ -1,0 +1,105 @@
+{
+  "product_baseline": "45e151c8",
+  "target": {
+    "name": "LastWarPlugin.exe",
+    "sha256": "3d90f6c2d12f8aecd2035406ecaaaef7c109b6fff8a8a48e12c1c0be002ac311",
+    "bytes": 3330048
+  },
+  "bootstrap": {
+    "offset": "0x21afd3",
+    "bytes": 456,
+    "xor": 90,
+    "sha256": "6372938bcbc80b500816d10ac164b2f6ebf56aca9521065a32441dd27d0b00ee"
+  },
+  "retained_files": [
+    {
+      "path": "WORKER_REPORT.md",
+      "bytes": 28533,
+      "sha256": "8b4abda8ac82620bc633c2943629b36469712a6f7b33fe79e071e596129dd892"
+    },
+    {
+      "path": "LEAD_REVIEW.md",
+      "bytes": 3289,
+      "sha256": "dd2a968529458f2e3f29e1399ba927951f07e9007719f7de664dab4e55cba9bf"
+    },
+    {
+      "path": "embedded-01.html",
+      "bytes": 23019,
+      "sha256": "fb2dcf4543a144c2534db4371221274a9d99e649777d08ec0c74649eda56a9fa"
+    },
+    {
+      "path": "embedded-02.html",
+      "bytes": 29332,
+      "sha256": "c3d48f545aa5b8952878addc3fe3ef40bd82e9fe1f6701da4c533c550b7ac2d0"
+    },
+    {
+      "path": "bootstrap.txt",
+      "bytes": 456,
+      "sha256": "6372938bcbc80b500816d10ac164b2f6ebf56aca9521065a32441dd27d0b00ee"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 673,
+      "sha256": "4dc5061a8c4a96366a08aeadd1627ce4b19770f9293137f6afb77193c252e848"
+    },
+    {
+      "path": "scripts-manifest.json",
+      "bytes": 278,
+      "sha256": "e2cb90c611938532f700c08b98fa731a2758e4ea1ac667c609bc640fd71de34b"
+    },
+    {
+      "path": "lead-renderer-gate-check.json",
+      "bytes": 590,
+      "sha256": "f345e6de6bba79ae59a57e0f5a25692b09d8d84c03344ecf9ddb20235c249ff5"
+    },
+    {
+      "path": "runtime-summary.json",
+      "bytes": 789,
+      "sha256": "8444326e855024011dc0d12a74f8ad766f2c90ece94d586bd2797b310c0c6842"
+    },
+    {
+      "path": "scripts/embedded-01-inline-01.js",
+      "bytes": 14932,
+      "sha256": "95b5399c082268bb518f6918b2d6aafdc3043d11a6de97cb9169e26d85e7e4f4"
+    },
+    {
+      "path": "scripts/embedded-02-inline-01.js",
+      "bytes": 16492,
+      "sha256": "96576d2414294d21953bce912aa82ee9b83960fac97d399484e740eb8569e16e"
+    },
+    {
+      "path": "CONNECTION_METHOD_REPORT.md",
+      "bytes": 36049,
+      "sha256": "b139306b7e03853b701fe5742fd266e1c8ad3c59ef6afdddfa8304f20b1d0703"
+    },
+    {
+      "path": "connection-method-evidence.json",
+      "bytes": 12048,
+      "sha256": "3f2efbec0380a06e657bc7265f25368ea881c1187f0f59f9364ca089de7c74d7"
+    }
+  ],
+  "local_only_files": [
+    {
+      "original_local_path": "artifacts/lastwarplugin-home-20261023/rea-evidence.json",
+      "bytes": 2904328,
+      "sha256": "ac4b3aac706d12bf187dd38b1ff7994782302af08508679f6e17fc5eed4157e7",
+      "retention": "local-only, ignored; no values imported into Git"
+    },
+    {
+      "original_local_path": "artifacts/lastwarplugin-home-20261023/unauth-runtime-observation.json",
+      "bytes": 375542,
+      "sha256": "1e1e59b8d340069c6f29191f7be5eec82ca826ed547c3d0520a516162e750b1e",
+      "retention": "local-only, ignored; no values imported into Git"
+    },
+    {
+      "original_local_path": "artifacts/lastwarplugin-static-20261023/inspection.json",
+      "bytes": 5698,
+      "sha256": "4f150c563260376f45137cc3bd5b559b16eaa0e06f125b1f933904a546adc98d",
+      "retention": "local-only, ignored; no values imported into Git"
+    }
+  ],
+  "limits": [
+    "No authenticated competitor core/UI or connected-state benchmark exists.",
+    "Archived reports must be read with independent lead corrections and the clarified connection-method scope."
+  ]
+}

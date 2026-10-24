@@ -58,8 +58,8 @@ def trusted_settled_proof(hashes):
 # must have this same no-updater gate as Auto acceptance: do not let a normal
 # manual proof accidentally run the official updater on a first-use profile.
 NO_UPDATER_MODES = frozenset((
-    "all-nine", "truck", "railway",
-    "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
+    "all-nine", "all-ten", "truck", "railway",
+    "auto-all-nine", "auto-all-ten", "saved-clear-reopen", "auto-interval-20m",
     "boss-first", "boss-after-resource", "picker-empty", "once-two-server",
     "feature018-tabs",
 ))
@@ -308,8 +308,8 @@ def copy_verified_official_settlement(destination, original_hashes, *,
 
 
 def main():
-    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-railway", "remote-reuse", "track", "expiry", "city", "other", "railway", "mixed", "all-nontruck", "truck", "all-nine", "auto-all-nine", "saved-clear-reopen", "auto-interval-20m", "truck-stop", "boss-first", "boss-after-resource", "picker-empty", "once-two-server", "feature018-tabs"):
-        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-railway|remote-reuse|track|expiry|city|other|railway|mixed|all-nontruck|truck|all-nine|auto-all-nine|saved-clear-reopen|auto-interval-20m|truck-stop")
+    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-railway", "remote-reuse", "track", "expiry", "city", "other", "railway", "mixed", "all-nontruck", "truck", "all-nine", "all-ten", "auto-all-nine", "auto-all-ten", "saved-clear-reopen", "auto-interval-20m", "truck-stop", "boss-first", "boss-after-resource", "picker-empty", "once-two-server", "feature018-tabs"):
+        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-railway|remote-reuse|track|expiry|city|other|railway|mixed|all-nontruck|truck|all-nine|all-ten|auto-all-nine|auto-all-ten|saved-clear-reopen|auto-interval-20m|truck-stop")
     mode = sys.argv[1]
     saved_db = None
     if len(sys.argv) == 4:
@@ -364,13 +364,14 @@ def main():
     publish = Path(os.environ["LWBRIDGE_MAP014_UI_EXE"]).resolve(strict=True) if os.environ.get("LWBRIDGE_MAP014_UI_EXE") else ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
     proof = destination / "native-ui-map.json"
     environment = dict(os.environ, LWBRIDGE_MAP014_NATIVE_UI="1",
-                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "truck-stop") else "",
+                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "all-ten", "truck-stop") else "",
                        LWBRIDGE_MAP014_BROWSE_ONLY="1" if mode in ("browse", "track", "expiry") else "0",
                        LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse","remote-railway") else "0",
                        LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse","remote-railway") else "0",
                        LWBRIDGE_MAP014_REMOTE_REUSE="1" if mode == "remote-reuse" else "0",
                        LWBRIDGE_MAP016_REMOTE_RAILWAY="1" if mode == "remote-railway" else "0",
                        LWBRIDGE_MAP016_AUTO_ALL_NINE="1" if mode == "auto-all-nine" else "0",
+                       LWBRIDGE_MAP016_AUTO_ALL_TEN="1" if mode == "auto-all-ten" else "0",
                        LWBRIDGE_MAP016_SAVED_CLEAR_REOPEN="1" if mode == "saved-clear-reopen" else "0",
                        LWBRIDGE_MAP016_AUTO_INTERVAL="1" if mode == "auto-interval-20m" else "0",
                        LWBRIDGE_MAP017_UI_MODE=mode if mode in ("boss-first", "boss-after-resource", "picker-empty", "once-two-server") else "",

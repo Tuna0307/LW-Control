@@ -1,0 +1,447 @@
+{
+  "kind": "inert-actual-lua5.3-collector-benchmark",
+  "pinned": "3da98523",
+  "oldCollectorSha256": "c9f65ad3898895d53d1ccf0d6057dc2686c5b432bc996c5373f86637818f85a4",
+  "newCollectorSha256": "511647cfb09af777a37fe794a7dbb981eb6c555878d1e07c5e1ceb5e5a3bcb26",
+  "framesPerSample": 30,
+  "runsPerVersion": 6,
+  "cases": [
+    {
+      "scenario": "truck-low-seen",
+      "dictionarySize": 200,
+      "captureType": 1,
+      "hasAlreadySeen": true,
+      "typedRowsSha256": "34846ed83e0318e8b9ec65d6433ac5580327c350bc64ca32cfe7e6eabb76ff31",
+      "rowCounts": {
+        "firstFrameFull": 17,
+        "firstFrameAdmitted": 11,
+        "lastFrameFull": 17,
+        "lastFrameAdmitted": 11
+      },
+      "old": {
+        "wallMs": {
+          "median": 13.9887,
+          "min": 13.23,
+          "max": 17.4644,
+          "samples": [
+            13.23,
+            13.999,
+            17.4644,
+            13.9785,
+            13.46,
+            14.0097
+          ]
+        },
+        "cpuMs": {
+          "median": 15.625,
+          "min": 15.625,
+          "max": 31.25,
+          "samples": [
+            15.625,
+            15.625,
+            15.625,
+            31.25,
+            15.625,
+            31.25
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": 491.9521,
+          "min": -1088.834,
+          "max": 756.2334,
+          "samples": [
+            756.2334,
+            492.9688,
+            -974.7715,
+            490.9355,
+            567.7188,
+            -1088.834
+          ]
+        },
+        "counters": {
+          "typeReads": 6502,
+          "uuidReads": 5100,
+          "trainLookups": 502,
+          "enumerated": 6000
+        }
+      },
+      "new": {
+        "wallMs": {
+          "median": 11.9626,
+          "min": 11.0984,
+          "max": 12.6077,
+          "samples": [
+            11.9995,
+            12.6077,
+            11.9257,
+            11.0984,
+            12.3459,
+            11.8813
+          ]
+        },
+        "cpuMs": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 15.625,
+          "samples": [
+            15.625,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            15.625
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": -91.5234,
+          "min": -134.4297,
+          "max": 1414.0195,
+          "samples": [
+            228.7373,
+            1414.0195,
+            -113.2812,
+            -134.4297,
+            -118.2031,
+            -69.7656
+          ]
+        },
+        "counters": {
+          "typeReads": 600,
+          "uuidReads": 6000,
+          "trainLookups": 502,
+          "enumerated": 6000
+        }
+      },
+      "medianWallSpeedup": 1.1694,
+      "medianWallSavedPercent": 14.484
+    },
+    {
+      "scenario": "combined-high-seen",
+      "dictionarySize": 850,
+      "captureType": 3,
+      "hasAlreadySeen": true,
+      "typedRowsSha256": "521441d733086308d3e0b7a7649083808a8d1487fe86b7490f17322814db2f2a",
+      "rowCounts": {
+        "firstFrameFull": 101,
+        "firstFrameAdmitted": 74,
+        "lastFrameFull": 102,
+        "lastFrameAdmitted": 76
+      },
+      "old": {
+        "wallMs": {
+          "median": 122.639,
+          "min": 80.0792,
+          "max": 178.8169,
+          "samples": [
+            80.0792,
+            121.9345,
+            108.4006,
+            178.8169,
+            178.4437,
+            123.3435
+          ]
+        },
+        "cpuMs": {
+          "median": 117.1875,
+          "min": 78.125,
+          "max": 203.125,
+          "samples": [
+            78.125,
+            93.75,
+            125.0,
+            203.125,
+            140.625,
+            109.375
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": -281.9453,
+          "min": -1609.0684,
+          "max": 4923.2217,
+          "samples": [
+            4923.2217,
+            100.8594,
+            -179.6484,
+            -900.2031,
+            -1609.0684,
+            -384.2422
+          ]
+        },
+        "counters": {
+          "typeReads": 28547,
+          "uuidReads": 27900,
+          "trainLookups": 3047,
+          "enumerated": 25500
+        }
+      },
+      "new": {
+        "wallMs": {
+          "median": 105.8811,
+          "min": 79.0266,
+          "max": 165.1547,
+          "samples": [
+            79.0266,
+            99.4858,
+            102.0683,
+            165.1547,
+            109.694,
+            132.6187
+          ]
+        },
+        "cpuMs": {
+          "median": 93.75,
+          "min": 62.5,
+          "max": 125.0,
+          "samples": [
+            62.5,
+            109.375,
+            62.5,
+            125.0,
+            125.0,
+            78.125
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": 6.9375,
+          "min": -479.0586,
+          "max": 1729.2939,
+          "samples": [
+            1729.2939,
+            -32.3516,
+            4.8984,
+            8.9766,
+            -479.0586,
+            39.0625
+          ]
+        },
+        "counters": {
+          "typeReads": 3180,
+          "uuidReads": 25500,
+          "trainLookups": 3047,
+          "enumerated": 25500
+        }
+      },
+      "medianWallSpeedup": 1.1583,
+      "medianWallSavedPercent": 13.664
+    },
+    {
+      "scenario": "truck-very-high-seen",
+      "dictionarySize": 1800,
+      "captureType": 1,
+      "hasAlreadySeen": true,
+      "typedRowsSha256": "1b381b3e018f786f85c253596a1190a9a01cd28bce1b87b020def7e814750e8f",
+      "rowCounts": {
+        "firstFrameFull": 55,
+        "firstFrameAdmitted": 35,
+        "lastFrameFull": 55,
+        "lastFrameAdmitted": 35
+      },
+      "old": {
+        "wallMs": {
+          "median": 177.0515,
+          "min": 150.3557,
+          "max": 244.2475,
+          "samples": [
+            212.5371,
+            244.2475,
+            175.4809,
+            178.6221,
+            150.3557,
+            158.6505
+          ]
+        },
+        "cpuMs": {
+          "median": 171.875,
+          "min": 125.0,
+          "max": 234.375,
+          "samples": [
+            171.875,
+            234.375,
+            125.0,
+            234.375,
+            156.25,
+            171.875
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": 2572.6641,
+          "min": -5074.7344,
+          "max": 3578.1982,
+          "samples": [
+            3578.1982,
+            2869.7734,
+            -5074.7344,
+            2275.5547,
+            3033.3047,
+            -4718.5938
+          ]
+        },
+        "counters": {
+          "typeReads": 55635,
+          "uuidReads": 42870,
+          "trainLookups": 1635,
+          "enumerated": 54000
+        }
+      },
+      "new": {
+        "wallMs": {
+          "median": 128.2901,
+          "min": 113.6585,
+          "max": 153.2326,
+          "samples": [
+            113.6585,
+            116.9704,
+            153.2326,
+            138.8469,
+            131.357,
+            125.2231
+          ]
+        },
+        "cpuMs": {
+          "median": 125.0,
+          "min": 62.5,
+          "max": 156.25,
+          "samples": [
+            109.375,
+            125.0,
+            125.0,
+            125.0,
+            156.25,
+            62.5
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": -1509.707,
+          "min": -1823.6562,
+          "max": 6846.1045,
+          "samples": [
+            6846.1045,
+            -1823.6562,
+            -1579.4844,
+            -1725.3906,
+            5930.7109,
+            -1439.9297
+          ]
+        },
+        "counters": {
+          "typeReads": 2160,
+          "uuidReads": 54000,
+          "trainLookups": 1635,
+          "enumerated": 54000
+        }
+      },
+      "medianWallSpeedup": 1.3801,
+      "medianWallSavedPercent": 27.541
+    },
+    {
+      "scenario": "camera-no-seen",
+      "dictionarySize": 160,
+      "captureType": 3,
+      "hasAlreadySeen": false,
+      "typedRowsSha256": "6e44b033a101854e2ab68acf5c10d8f7a7be4dbb66ba0b83d7c73c4133b32b2c",
+      "rowCounts": {
+        "firstFrameFull": 158,
+        "firstFrameAdmitted": 117,
+        "lastFrameFull": 158,
+        "lastFrameAdmitted": 117
+      },
+      "old": {
+        "wallMs": {
+          "median": 133.4205,
+          "min": 109.8215,
+          "max": 164.8544,
+          "samples": [
+            109.8215,
+            112.1706,
+            116.0354,
+            150.8057,
+            164.8544,
+            159.4946
+          ]
+        },
+        "cpuMs": {
+          "median": 85.9375,
+          "min": 62.5,
+          "max": 156.25,
+          "samples": [
+            62.5,
+            93.75,
+            125.0,
+            156.25,
+            78.125,
+            62.5
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": -243.084,
+          "min": -770.125,
+          "max": 2481.9189,
+          "samples": [
+            2481.9189,
+            -724.1191,
+            2028.1152,
+            -63.2734,
+            -770.125,
+            -422.8945
+          ]
+        },
+        "counters": {
+          "typeReads": 9529,
+          "uuidReads": 4800,
+          "trainLookups": 4729,
+          "enumerated": 4800
+        }
+      },
+      "new": {
+        "wallMs": {
+          "median": 126.8939,
+          "min": 111.3093,
+          "max": 161.2342,
+          "samples": [
+            161.2342,
+            151.192,
+            111.3093,
+            115.4668,
+            126.5004,
+            127.2874
+          ]
+        },
+        "cpuMs": {
+          "median": 125.0,
+          "min": 78.125,
+          "max": 171.875,
+          "samples": [
+            156.25,
+            125.0,
+            171.875,
+            78.125,
+            125.0,
+            125.0
+          ]
+        },
+        "gcDeltaKiB": {
+          "median": 176.7559,
+          "min": -1293.9336,
+          "max": 3786.2354,
+          "samples": [
+            3786.2354,
+            -1293.9336,
+            411.2305,
+            -57.7188,
+            657.2422,
+            -704.9746
+          ]
+        },
+        "counters": {
+          "typeReads": 4800,
+          "uuidReads": 4800,
+          "trainLookups": 4729,
+          "enumerated": 4800
+        }
+      },
+      "medianWallSpeedup": 1.0514,
+      "medianWallSavedPercent": 4.892
+    }
+  ],
+  "sourceUnchanged": true
+}

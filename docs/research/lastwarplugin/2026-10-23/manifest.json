@@ -1,0 +1,24 @@
+{
+  "source_path": "Owner-supplied LastWarPlugin.exe (not stored in Git)",
+  "source_sha256": "3d90f6c2d12f8aecd2035406ecaaaef7c109b6fff8a8a48e12c1c0be002ac311",
+  "files": [
+    {
+      "file": "embedded-01.html",
+      "offset": "0x20de90",
+      "end_offset": "0x21387b",
+      "bytes": 23019,
+      "sha256": "fb2dcf4543a144c2534db4371221274a9d99e649777d08ec0c74649eda56a9fa",
+      "title": []
+    },
+    {
+      "file": "embedded-02.html",
+      "offset": "0x213bc1",
+      "end_offset": "0x21ae55",
+      "bytes": 29332,
+      "sha256": "c3d48f545aa5b8952878addc3fe3ef40bd82e9fe1f6701da4c533c550b7ac2d0",
+      "title": [
+        "Launch Center"
+      ]
+    }
+  ]
+}

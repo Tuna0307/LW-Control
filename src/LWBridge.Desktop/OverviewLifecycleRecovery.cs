@@ -366,6 +366,7 @@ internal sealed partial class OverviewLifecycleService
                 ? new(false, false, false, false, null, false)
                 : ReadRecoveryHeartbeat(snapshot);
             if (snapshot is not null) UpdateHealthRecord(snapshot.GamePid, heartbeat);
+            TraceHomeConnectionObservation(snapshot, heartbeat, currentPhase);
             if (heartbeat.RecoveryConfirmed && heartbeat.RecoveryReason is not null)
                 await StartRecoveryAsync(heartbeat.RecoveryReason, heartbeat.RecoveryUpdateDetected,
                     new("native_game_request", heartbeat.BridgeOnline, heartbeat.GameStateObserved,
@@ -849,6 +850,76 @@ internal sealed partial class OverviewLifecycleService
         }
         try { RecoveryStatusChanged?.Invoke(status); }
         catch { }
+    }
+
+    // HOME connection-stability task: opt-in, low-rate monitor observation.
+    // This is deliberately separate from the recovery state-transition trace:
+    // short self-healing pipe losses can disappear before the 60-second recovery
+    // threshold, so a transition-only log cannot prove which layer failed first.
+    // The row contains no profile/session/challenge/token/path/PID/account data.
+    private void TraceHomeConnectionObservation(
+        OwnedSnapshot? snapshot,
+        RecoveryHeartbeatObservation heartbeat,
+        string lifecyclePhase)
+    {
+        if (testHooks is not null ||
+            Environment.GetEnvironmentVariable("LWBRIDGE_HOME_STABILITY_TRACE") != "1")
+            return;
+
+        try
+        {
+            bool? processPresent = snapshot is null
+                ? null
+                : ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc);
+            // Observe the route independently of heartbeat parsing. A stale or
+            // temporarily unreadable heartbeat is itself one failure layer and
+            // must not erase evidence that the authenticated host route remained
+            // live during that same monitor pass.
+            bool? authenticatedRouteObserved = snapshot is null
+                ? null
+                : !bridgeControlPipeLaunchBindingEnabled ||
+                  bridgeHostState?.IsRouteConnected(snapshot.InstanceId) == true;
+            LWBridgeLocalConfig? local = config?.Snapshot;
+            OverviewRecoveryStatus status = CurrentRecoveryStatus;
+            var row = new
+            {
+                utc = DateTimeOffset.UtcNow.ToString("O"),
+                lifecyclePhase,
+                recoveryState = status.State,
+                recoveryReason = status.Reason,
+                desiredRunning = local?.GameDesiredRunning,
+                autoReconnect = local?.AutoReconnect,
+                ownedSnapshotPresent = snapshot is not null,
+                processPresent,
+                heartbeatFresh = heartbeat.HeartbeatFresh,
+                authenticatedRouteConnected = heartbeat.AuthenticatedRouteConnected,
+                authenticatedRouteObserved,
+                bridgeOnline = heartbeat.BridgeOnline,
+                gameStateObserved = heartbeat.GameStateObserved,
+                gameHealthy = heartbeat.GameHealthy,
+                authenticatedRoutes = bridgeHostState?.ConnectedRouteCount,
+                listenerStarted = bridgeHostState?.IsRpcTransportStarted,
+                failedRpcSessions = bridgeHostState?.FailedRpcSessionCount,
+            };
+            lock (recoveryTraceGate)
+            {
+                Directory.CreateDirectory(evidenceRoot);
+                string tracePath = Path.Combine(evidenceRoot, "home-connection-observations.jsonl");
+                // Opt-in diagnostics should remain bounded during long soaks.
+                // Keep one prior segment; this has no bearing on recovery state.
+                if (File.Exists(tracePath) && new FileInfo(tracePath).Length >= 4 * 1024 * 1024)
+                {
+                    string previousPath = tracePath + ".1";
+                    try { File.Delete(previousPath); } catch (FileNotFoundException) { }
+                    File.Move(tracePath, previousPath);
+                }
+                File.AppendAllText(
+                    tracePath,
+                    JsonSerializer.Serialize(row) + Environment.NewLine);
+            }
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
     }
 
     private void WriteRecoveryAudit(string eventType, OverviewRecoveryStatus? status,

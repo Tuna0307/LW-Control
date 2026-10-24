@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "dateUtc": "2026-10-24",
+  "operation": "supported_overview_preflight_recover",
+  "classification": "PROVEN_supported_restore_only_closeout",
+  "originalJournal": {
+    "sha256": "b4f95aada3b3270421fafd6bf080fe0badbebbafa470d1c88b59ca1fc7680ddb",
+    "historicProcessAbsent": true,
+    "profileSessionProcessPathAndStartReceiptsCorrelated": true,
+    "backupLocationAndOriginalFileManifestCorrelated": true,
+    "activeLeaseAbsent": true,
+    "unrelatedTargetProcessesAbsent": true
+  },
+  "admission": {
+    "checkedWith": "tools/map_019_review/qualify_pending_recovery.py",
+    "passedImmediatelyBeforeRecovery": true,
+    "readyStatus": "READY_FOR_SUPPORTED_RECOVERY",
+    "candidateNotInstalled": true,
+    "threeInstalledOriginalsAlreadyMatchBackup": true
+  },
+  "supportedHelper": {
+    "entrypoint": "tools/recover_overview_pending_current.py",
+    "mode": "overview_preflight_recover",
+    "ok": true,
+    "restored": true,
+    "currentClientCompatibilityOk": true,
+    "manualJournalDeletionOrAdmissionBypass": false
+  },
+  "postconditions": {
+    "journalPresent": false,
+    "backupManifestStage": "restored",
+    "selectedTargetProcessesRemaining": 0,
+    "installedOriginalSha256": {
+      "LWScripts.data": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+      "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
+      "version.txt": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf"
+    }
+  },
+  "rawPrivateReceipt": "artifacts/map019/recovery-supported-closeout-20261024/official-recovery-raw.json",
+  "limitation": "This proves supported restoration of the interrupted source. It is not a retroactive same-owner Stop receipt or a packaged Map/Auto/Home functional acceptance pass."
+}

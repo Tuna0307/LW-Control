@@ -203,7 +203,7 @@ def check_managed_rectangle_admission(truck):
         'MatchesInt(response, "initialRequestsSent", 625)',
         'MatchesInt(response, "rectanglesCompleted", 625)',
         'MatchesInt(response, "unprovenRectangles", 0)',
-        'MatchesInt(response, "responseFenceSize", 25)',
+        'MatchesInt(response, "responseFenceSize", fenceSize)',
         'MatchesString(response, "responseAttribution", "bounded_sequential_fences")',
         'passCount is < 0 or > 2',
         'totalSent < 625',
@@ -423,13 +423,20 @@ s.pushes = 625
     def test_csharp_native_receipt_acceptance_rechecks_each_rectangle_metric(self):
         check_managed_rectangle_admission(self.truck_source)
 
+    def test_production_truck_defaults_remain_20_per_second_fence25(self):
+        body = method(self.truck_source,
+                      "private async Task<IReadOnlyList<FastTrainPrepared>> CaptureFastTruckRowsAsync(")
+        self.assertIn("const int rate = 20;", body)
+        self.assertIn("const int fenceSize = 25;", body)
+        self.assertIn("railwayOnly: false, fenceSize", body)
+
     def test_csharp_receipt_field_mutations_are_detected(self):
         for old, new in (
             ('MatchesInt(response, "rectanglesCompleted", 625)', 'MatchesInt(response, "rectanglesCompleted", 624)'),
             ('MatchesInt(response, "unprovenRectangles", 0)', 'MatchesInt(response, "unprovenRectangles", 1)'),
             ('passCount is < 0 or > 2', 'passCount is < 0 or > 3'),
             ('MatchesInt(response, "initialRequestsSent", 625)', 'MatchesInt(response, "initialRequestsSent", 624)'),
-            ('MatchesInt(response, "responseFenceSize", 25)', 'MatchesInt(response, "responseFenceSize", 50)'),
+            ('MatchesInt(response, "responseFenceSize", fenceSize)', 'MatchesInt(response, "responseFenceSize", 50)'),
             ('"bounded_sequential_fences"', '"uncorrelated_stamps"'),
         ):
             with self.subTest(field=old):

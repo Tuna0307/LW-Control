@@ -1,0 +1,8 @@
+# Preserve archived/derived evidence bytes so recorded SHA-256 values survive checkout.
+WORKER_REPORT.md text eol=lf
+LEAD_REVIEW.md text eol=lf
+# Whitespace in byte-exact third-party extractions is evidence, not edited source.
+embedded-*.html -text -whitespace
+scripts/*.js -text -whitespace
+bootstrap.txt -text
+*.json text eol=lf

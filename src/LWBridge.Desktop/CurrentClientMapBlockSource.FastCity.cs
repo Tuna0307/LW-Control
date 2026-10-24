@@ -35,7 +35,10 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldMaxRequestsPerRow = 200;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
-    private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(12);
+    // Native detail completion allows the initial eight-second window plus
+    // two bounded eight-second repair windows. Leave four seconds for file
+    // publication/dispatch instead of cancelling before the last repair.
+    private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(28);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
@@ -1560,29 +1563,68 @@ internal sealed partial class CurrentClientMapBlockSource
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
-        DateTimeOffset deadline = startedAt + ResourceDetailProbeTimeout;
-        while (Now() < deadline)
+        bool terminal = false;
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            JsonElement? root = TryReadJson(resultPath);
-            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            DateTimeOffset deadline = startedAt + ResourceDetailProbeTimeout;
+            while (Now() < deadline)
             {
-                // Keep the first request-correlated native response BEFORE
-                // validation or the Lua lane clears its state. A retry must
-                // never overwrite the evidence of the original failure.
-                try { RetainFirstResourceHydrationReply(probeRuntimeRoot, request.RunId, requestId, root.Value); }
-                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
-                    JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+                cancellationToken.ThrowIfCancellationRequested();
+                JsonElement? root = TryReadJson(resultPath);
+                if (root is not null && MatchesString(root.Value, "requestId", requestId))
                 {
-                    Console.Error.WriteLine("Resource hydration reply retention unavailable: " + error.Message);
+                    // Keep the first request-correlated native response BEFORE
+                    // validation or the Lua lane clears its state. A retry must
+                    // never overwrite the evidence of the original failure.
+                    try { RetainFirstResourceHydrationReply(probeRuntimeRoot, request.RunId, requestId, root.Value); }
+                    catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
+                        JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+                    {
+                        Console.Error.WriteLine("Resource hydration reply retention unavailable: " + error.Message);
+                    }
+                    terminal = true;
+                    return ValidateResourceScanDetailResult(
+                        root.Value, requestId, startedAt, session, request, resourceRecordCount);
                 }
-                return ValidateResourceScanDetailResult(
-                    root.Value, requestId, startedAt, session, request, resourceRecordCount);
+                await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
             }
-            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+            throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
         }
-        throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
+        finally
+        {
+            if (!terminal)
+            {
+                await WriteCommandAsync(Path.Combine(probeRuntimeRoot, "resource-scan-detail-cancel.txt"),
+                    command, CancellationToken.None).ConfigureAwait(false);
+                DateTimeOffset cancelDeadline = Now() + TimeSpan.FromSeconds(4);
+                bool stopped = false;
+                while (Now() < cancelDeadline)
+                {
+                    JsonElement? reply = TryReadJson(resultPath);
+                    if (reply is { } value && ResourceDetailCancellationMatches(value,
+                        requestId, request.RunId, session.ProfileId, session.SessionId,
+                        session.Challenge, session.GamePid, request.ServerId))
+                    {
+                        stopped = true;
+                        break;
+                    }
+                    await DelayAsync(PollDelay, CancellationToken.None).ConfigureAwait(false);
+                }
+                if (!stopped)
+                    throw new MapScanSourceValidationException(
+                        "Resource detail cancellation did not prove the exact native retry lane stopped.");
+            }
+        }
     }
+
+    internal static bool ResourceDetailCancellationMatches(JsonElement value,
+        string requestId, string runId, string profileId, string sessionId,
+        string challenge, int gamePid, int serverId) =>
+        MatchesString(value, "requestId", requestId) && MatchesString(value, "scanRunId", runId) &&
+        MatchesString(value, "profileId", profileId) && MatchesString(value, "launchSessionId", sessionId) &&
+        MatchesString(value, "challenge", challenge) && MatchesInt(value, "gamePid", gamePid) &&
+        MatchesInt(value, "serverId", serverId) && MatchesString(value, "state", "cancelled") &&
+        MatchesBool(value, "nativeLaneStopped", true);
 
     internal static string RetainFirstResourceHydrationReply(
         string probeRoot, string runId, string requestId, JsonElement reply)
@@ -1719,6 +1761,16 @@ internal sealed partial class CurrentClientMapBlockSource
         string[] idleKeys = resources.Where(pair => IsKnownIdleResource(pair.Value.Record))
             .Select(pair => pair.Key).ToArray();
         if (idleKeys.Length == 0) return;
+        // The game's WorldPointDetailManager is keyed only by pointId, NOT
+        // (serverId, pointId). The same point on another world can therefore
+        // return an earlier server's detail without a native reply. Even a
+        // matching amount/config does not establish the current owner: those
+        // fields can coincide by chance. Only the separately qualified native
+        // _id/connection-config/proxy observer may supply received rows; legacy
+        // pointId-cache hits remain untrusted and must not be admitted.
+        if (observation.CacheBeforeCount != 0)
+            throw new InvalidDataException(
+                "Resource native pointId-only cache contains unverified detail from a possibly different server; current-run identity cannot be proven.");
         if (!string.IsNullOrWhiteSpace(observation.Error) ||
             observation.TargetCount < idleKeys.Length ||
             observation.TargetCount != observation.Details.Count ||
@@ -1775,6 +1827,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesString(root, "state", "completed"))
             throw new InvalidDataException("Resource detail enrichment result did not match the active owned scan.");
         RequireFreshCaptureTime(root, startedAt);
+        if (!MatchesString(root, "nativeReplyCorrelation", "future_id_connection_config_proxy"))
+            throw new InvalidDataException("Resource detail enrichment has no native request/connection correlation.");
         int targetCount = RequireNonNegativeInt(root, "targetCount");
         int requestCount = RequireNonNegativeInt(root, "requestCount");
         int cacheBeforeCount = RequireNonNegativeInt(root, "cacheBeforeCount");
@@ -1835,6 +1889,7 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Resource detail native target rows are inconsistent.");
 
         int issued = 0, cached = 0, failed = 0, receivedCount = 0;
+        var nativeReplies = new HashSet<int>();
         foreach (JsonElement row in rows.EnumerateArray())
         {
             if (row.ValueKind != JsonValueKind.Object ||
@@ -1851,6 +1906,11 @@ internal sealed partial class CurrentClientMapBlockSource
             bool wasCached = cachedValue.GetBoolean();
             bool sendFailed = failedValue.GetBoolean();
             bool received = receivedValue.GetBoolean();
+            if (received && (!wasIssued || wasCached ||
+                !row.TryGetProperty("expectedReplyId", out var expectedId) || !expectedId.TryGetInt32(out int expected) || expected <= 0 ||
+                !row.TryGetProperty("replyId", out var replyId) || !replyId.TryGetInt32(out int actual) || actual != expected ||
+                !MatchesBool(row, "replyScopeMatched", true) || !nativeReplies.Add(actual)))
+                throw new InvalidDataException("Resource detail target has no unique native request/connection-bound reply.");
             if ((wasIssued ? 1 : 0) + (wasCached ? 1 : 0) + (sendFailed ? 1 : 0) != 1 ||
                 sendFailed && received ||
                 !received && row.TryGetProperty("detail", out JsonElement rawDetail) &&

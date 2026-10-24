@@ -12,8 +12,8 @@ sys.path.insert(0,str(REPO/'tools'))
 import run_overview_bridge_current as current
 api=current.base
 
-REVIEW_WORKLOADS=('city','resource','monster','zombie_boss','dispatch','ghost','treasure','railway','truck','city-resource','all-nine')
-BENCHMARK_WORKLOADS=REVIEW_WORKLOADS+('truck-dispatch','mixed','all-nontruck','all-nonboss')
+REVIEW_WORKLOADS=('city','resource','monster','zombie_boss','dispatch','ghost','treasure','railway','truck','other','city-resource','all-ten')
+BENCHMARK_WORKLOADS=REVIEW_WORKLOADS+('all-nine','truck-dispatch','mixed','all-nontruck','all-nonboss')
 
 def review_plan(scenario, environ):
     """Validate opt-in matrix before admitting/starting any game session."""

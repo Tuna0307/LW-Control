@@ -44,6 +44,8 @@ internal static class HomeStaleAdoptionChecks
             Require(!Allowed(corrupted, exe, new("absent")), "invalid DPAPI token retained");
             ExclusiveTransaction(root, exe, valid);
             await Lifecycle(root, "dead-record", "absent", false);
+            await Lifecycle(root, "presentation-heartbeat-grace", "absent", false,
+                exercisePresentationGrace: true);
             // FEATURE-RECOVERY-018 R2: a normal FormClosed-driven lifecycle
             // Close must invoke exact-owner Stop and restore the game package.
             await Lifecycle(root, "form-close-restores", "absent", false, closeAfterRunning: true);
@@ -98,7 +100,8 @@ internal static class HomeStaleAdoptionChecks
     }
 
     private static async Task Lifecycle(string parent, string name, string processMode, bool expectRollback,
-        bool malformed = false, bool conflictingNonce = false, bool closeAfterRunning = false)
+        bool malformed = false, bool conflictingNonce = false, bool closeAfterRunning = false,
+        bool exercisePresentationGrace = false)
     {
         string root = Path.Combine(parent, name);
         string exe = Path.Combine(root, "Game", "LastWar.exe");
@@ -113,22 +116,37 @@ internal static class HomeStaleAdoptionChecks
         byte[]? report = null;
         int starts = 0, stops = 0;
         bool alive = false;
+        bool heartbeatReadable = true;
+        bool heartbeatReady = true;
+        bool heartbeatOwnerMatches = true;
+        bool routeConnected = true;
+        long testNow = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        DateTimeOffset HookNow() => exercisePresentationGrace
+            ? DateTimeOffset.FromUnixTimeMilliseconds(testNow)
+            : DateTimeOffset.UtcNow;
         var api = new ProbeApi(processMode);
         var hooks = new OverviewLifecycleTestHooks
         {
+            UtcNow = HookNow,
             OwnedProcessApi = api,
             SelectedGamePids = _ => [],
             ProcessMatches = (pid, path, creation) => alive && pid == 48125 && path == exe && creation == Created,
+            AuthenticatedRouteConnected = _ => routeConnected,
             RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
             WriteLease = (_, _, _) => { },
             ReadAllBytes = path => path.EndsWith("game-reported.txt", StringComparison.OrdinalIgnoreCase) && report is not null ? report
-                : path.EndsWith("heartbeat.json", StringComparison.OrdinalIgnoreCase) ? JsonSerializer.SerializeToUtf8Bytes(new
-                {
-                    schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = Profile,
-                    sessionId = session, challenge = nonce, gamePid = 48125, ready = true,
-                    messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
-                    updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                }) : File.ReadAllBytes(path),
+                : path.EndsWith("heartbeat.json", StringComparison.OrdinalIgnoreCase)
+                    ? heartbeatReadable
+                        ? JsonSerializer.SerializeToUtf8Bytes(new
+                        {
+                            schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = Profile,
+                            sessionId = heartbeatOwnerMatches ? session : "foreign-heartbeat-owner",
+                            challenge = nonce, gamePid = 48125, ready = heartbeatReady,
+                            messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+                            updatedAt = HookNow().ToUnixTimeSeconds()
+                        })
+                        : throw new IOException("inert heartbeat publication unavailable")
+                    : File.ReadAllBytes(path),
             RunHelperAsync = (inv, _) =>
             {
                 if (inv.Operation == "stop")
@@ -152,7 +170,7 @@ internal static class HomeStaleAdoptionChecks
                     File.WriteAllBytes(adoption, oldBytes);
                 }
                 report = Encoding.UTF8.GetBytes($"schema=1\nsessionId={session}\nchallenge={nonce}\ndeadlineMilliseconds={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 90000}\ngamePid=48125\n");
-                long unix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                long unix = HookNow().ToUnixTimeSeconds();
                 return Task.FromResult(JsonSerializer.SerializeToElement(new
                 {
                     mode = "overview_install_launch_ready_deferred_restore", bridgeVersion = OverviewLifecycleService.BridgeVersion,
@@ -187,6 +205,104 @@ internal static class HomeStaleAdoptionChecks
             Require(failure is null && starts == 1 && stops == 0 && alive && service.IsReady &&
                     OverviewAdoptionRecord.TryDeserialize(File.ReadAllBytes(adoption), out var stored) && stored is not null &&
                     stored.InstanceId == session && stored.InstanceId != OldSession, "dead record allows genuinely ready producer to persist successor");
+            if (exercisePresentationGrace)
+            {
+                var backend = new LWBridgeBackend(
+                    config: new LocalConfigStore(
+                        persistent: false,
+                        initialValue: new LWBridgeLocalConfig { ProfileId = Profile }),
+                    overviewLifecycle: service,
+                    bridgeHostState: host,
+                    applicationDataRoot: root);
+                async Task<JsonElement> StatusAsync() => JsonSerializer.SerializeToElement(
+                    await backend.InvokeAsync(
+                        "get_status",
+                        JsonSerializer.SerializeToElement(new { profileId = Profile }),
+                        CancellationToken.None),
+                    JsonOptions.Default);
+
+                Require(service.IsPresentationReady,
+                    "fresh exact heartbeat is presentation-ready");
+                JsonElement freshStatus = await StatusAsync();
+                Require(freshStatus.GetProperty("xluaOnline").GetBoolean() &&
+                        freshStatus.GetProperty("presentationOnline").GetBoolean(),
+                    "fresh exact heartbeat is strict-command and presentation online");
+                heartbeatReadable = false;
+                testNow += 6_000;
+                Require(!service.IsReady && service.IsPresentationReady,
+                    "strict command readiness fails closed while bounded presentation grace survives heartbeat publication loss");
+                JsonElement publicationGap = await StatusAsync();
+                Require(!publicationGap.GetProperty("xluaOnline").GetBoolean() &&
+                        publicationGap.GetProperty("presentationOnline").GetBoolean(),
+                    "publication gap is presentation-only and never upgrades strict xlua command readiness");
+                JsonElement profileGap = JsonSerializer.SerializeToElement(
+                    service.CreateProfileInstanceStatus(), JsonOptions.Default);
+                Require(profileGap.GetProperty("connectionState").GetString() == "reconnecting" &&
+                        !profileGap.GetProperty("commandReady").GetBoolean() &&
+                        profileGap.GetProperty("presentationReady").GetBoolean() &&
+                        profileGap.GetProperty("lastHeartbeatAt").ValueKind == JsonValueKind.Number,
+                    "15-second profile presentation stays corroborated while the 5-second command gate is degraded");
+                try
+                {
+                    await backend.InvokeAsync(
+                        "set_automation",
+                        JsonSerializer.SerializeToElement(new
+                        {
+                            profileId = Profile,
+                            name = "presentation-grace-probe",
+                            enabled = true,
+                        }),
+                        CancellationToken.None);
+                    throw new InvalidDataException("Presentation grace admitted a game-side command.");
+                }
+                catch (BridgeCommandException error) when (error.Code == "GAME_DISCONNECTED")
+                {
+                    // Presentation grace is intentionally display-only.
+                }
+                routeConnected = false;
+                Require(!service.IsPresentationReady,
+                    "presentation grace never hides authenticated route loss");
+                routeConnected = true;
+                Require(service.IsPresentationReady,
+                    "presentation grace resumes only after authenticated route corroboration");
+                alive = false;
+                Require(!service.IsPresentationReady,
+                    "presentation grace never hides exact process loss");
+                alive = true;
+                testNow += 10_000;
+                Require(!service.IsPresentationReady,
+                    "presentation grace expires after fifteen seconds without a validated heartbeat");
+                heartbeatReadable = true;
+                Require(service.IsReady && service.IsPresentationReady,
+                    "new exact heartbeat restores strict and presentation readiness");
+                heartbeatReady = false;
+                Require(!service.IsReady && !service.IsPresentationReady,
+                    "readable exact heartbeat that explicitly reports not-ready defeats remembered presentation grace immediately");
+                heartbeatReady = true;
+                Require(service.IsReady && service.IsPresentationReady,
+                    "explicit ready heartbeat restores both readiness layers");
+
+                foreach (bool observeThroughStrictGate in new[] { false, true })
+                {
+                    foreach (bool wrongOwner in new[] { false, true })
+                    {
+                        string observation = observeThroughStrictGate ? "strict gate" : "presentation gate";
+                        string negative = wrongOwner ? "wrong owner" : "explicit not-ready";
+                        heartbeatReady = wrongOwner;
+                        heartbeatOwnerMatches = !wrongOwner;
+                        Require(!(observeThroughStrictGate ? service.IsReady : service.IsPresentationReady),
+                            $"{observation} rejects readable {negative} heartbeat");
+                        heartbeatReadable = false;
+                        Require(!service.IsReady && !service.IsPresentationReady,
+                            $"{observation} {negative} evidence retires cached ready before subsequent read loss");
+                        heartbeatReadable = true;
+                        heartbeatReady = true;
+                        heartbeatOwnerMatches = true;
+                        Require(service.IsReady && service.IsPresentationReady,
+                            $"fresh valid heartbeat recovers after {observation} {negative} and read loss");
+                    }
+                }
+            }
             if (closeAfterRunning)
                 service.Close();
             else

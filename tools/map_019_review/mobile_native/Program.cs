@@ -107,12 +107,12 @@ object? Invoke(MethodInfo method,object? target,params object?[] arguments)
     try{return method.Invoke(target,arguments);}
     catch(TargetInvocationException e) when(e.InnerException is not null){ExceptionDispatchInfo.Capture(e.InnerException).Throw();throw;}
 }
-void Validate(JsonElement r,int rate)
+void Validate(JsonElement r,int rate,int fenceSize)
 {
     bool Int(string k,int expected)=>r.GetProperty(k).GetInt32()==expected;
     int sent=r.GetProperty("requestsSent").GetInt32(),passes=r.GetProperty("repairPasses").GetInt32(),pushes=r.GetProperty("pushesObserved").GetInt32();
     if(r.GetProperty("state").GetString()!="proven" || !Int("initialRequestsSent",625) || !Int("rectanglesCompleted",625) ||
-        !Int("unprovenRectangles",0) || !Int("requestsPerSecond",rate) || !Int("responseFenceSize",25) ||
+        !Int("unprovenRectangles",0) || !Int("requestsPerSecond",rate) || !Int("responseFenceSize",fenceSize) ||
         r.GetProperty("responseAttribution").GetString()!="bounded_sequential_fences" ||
         passes is <0 or >2 || sent<625 || sent>625*(passes+1) || !Int("repairRequestsSent",sent-625) ||
         pushes<625 || pushes>sent || !r.GetProperty("cameraStable").GetBoolean() || !r.GetProperty("curViewRestored").GetBoolean())
@@ -173,9 +173,19 @@ if(context.WorldId!=0 || context.TileWidth!=1000 || context.TileHeight!=1000) th
 await Task.Delay(3000,lifetime.Token);
 var measurements=new List<object>();
 var snapshots=new List<(int ordinal,string method,long at,IReadOnlyList<MapStoredRecord> rows)>();
-string[] methods=["20","camera","camera","20","15","15"];
-Save("mobile-review-plan.json",new{methods,currentRate=20,candidateRate=15,productionBehaviorChanged=false,
-    hypothesis="Lower initial send rate may reduce current selective-fence repair overhead; no speed or accuracy verdict assumed.",
+string[] methods=(Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_MOBILE_METHODS") ??
+    "20,camera,camera,20,15,15").Split(',',StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries);
+if(methods.Length is <2 or >8 || methods.Any(method=>method!="camera" &&
+    (!int.TryParse(method,CultureInfo.InvariantCulture,out int rate) || rate is not (15 or 20 or 25 or 30))))
+    throw new InvalidDataException("Mobile review methods must be camera and/or native rates 15,20,25,30 (2..8 rounds)");
+string[] fenceTexts=(Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_MOBILE_FENCES") ??
+    string.Join(',',Enumerable.Repeat("25",methods.Length))).Split(',',StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries);
+if(fenceTexts.Length!=methods.Length || fenceTexts.Select(text=>int.TryParse(text,CultureInfo.InvariantCulture,out int fence)?fence:0)
+    .Any(fence=>fence is not (5 or 10 or 25)))
+    throw new InvalidDataException("Mobile review fences must provide one 5,10 or25 value per round");
+int[] fences=fenceTexts.Select(text=>int.Parse(text,CultureInfo.InvariantCulture)).ToArray();
+Save("mobile-review-plan.json",new{methods,fences,currentRate=20,currentFence=25,candidateRates=methods.Where(method=>method!="camera"&&method!="20").Distinct().ToArray(),candidateFences=fences.Where(fence=>fence!=25).Distinct().ToArray(),productionBehaviorChanged=false,
+    hypothesis="Higher bounded initial send rates may reduce the 625-rectangle census floor while the existing fence/repair and restoration proof detects unsafe loss; no speed or accuracy verdict assumed.",
     nativeOnly=true,packagedUi=false,gameActions=0});
 for(int ordinal=0;ordinal<methods.Length;ordinal++)
 {
@@ -227,11 +237,11 @@ for(int ordinal=0;ordinal<methods.Length;ordinal++)
     }
     else
     {
-        int rate=int.Parse(method,CultureInfo.InvariantCulture);
+        int rate=int.Parse(method,CultureInfo.InvariantCulture),fenceSize=fences[ordinal];
         var request=new MapScanExecutionRequest("m19mobile"+Guid.NewGuid().ToString("N"),context.ServerId,0,1000,1000,
             ["truck"],1,PlayerTileX:context.PlayerTileX,PlayerTileY:context.PlayerTileY,LaunchSessionId:session.SessionId,LiveServerId:context.ServerId);
         using var round=CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
-        var task=(Task<JsonElement>)Invoke(Private("ProbeFastTruckAsync",false),source,session,request,rate,round.Token,false)!;
+        var task=(Task<JsonElement>)Invoke(Private("ProbeFastTruckAsync",false),source,session,request,rate,round.Token,false,fenceSize)!;
         while(!task.IsCompleted)
         {
             if(ReadSession()!=session) round.Cancel();
@@ -239,13 +249,13 @@ for(int ordinal=0;ordinal<methods.Length;ordinal++)
         }
         JsonElement receipt=await task;timer.Stop();admittedAt=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         Save($"mobile-{ordinal}-native-receipt.json",receipt);
-        Validate(receipt,rate);records=Normalize(receipt,request,admittedAt);
+        Validate(receipt,rate,fenceSize);records=Normalize(receipt,request,admittedAt);
         measurements.Add(new{ordinal,method="native-"+rate,rate,seconds=timer.Elapsed.TotalSeconds,
             admittedAtUnixMs=admittedAt,scanRunId=request.RunId,
             nativeRequestId=receipt.GetProperty("requestId").GetString(),
             nativeSeconds=receipt.GetProperty("elapsedSeconds").GetDouble(),records=records.Count,
             rawRecords=receipt.GetProperty("trainRecordCount").GetInt32(),
-            requestsSent=receipt.GetProperty("requestsSent").GetInt32(),repairPasses=receipt.GetProperty("repairPasses").GetInt32(),
+            fenceSize,requestsSent=receipt.GetProperty("requestsSent").GetInt32(),repairPasses=receipt.GetProperty("repairPasses").GetInt32(),
             repairRequestsSent=receipt.GetProperty("repairRequestsSent").GetInt32(),
             rawAcquisitionOnly=true,productionPublication=false,packagedUi=false});
     }

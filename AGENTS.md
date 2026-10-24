@@ -1,3 +1,49 @@
+Latest lead Map qualification, 2026-10-25: required LOCAL/read-only Map gates pass on product source
+2b32d64f4a531ec8a3b8c61926da358d0d96f0c4. Read
+docs/research/lwtool/2026-10-24/map/LEAD_FINAL_MAP_QUALIFICATION.md and its evidence JSON. Genuine final-package
+Manual/Auto all-ten, mid-flight Stop, fresh saved-data Clear/reopen and bounded Home recovery/Stop pass,
+with exact originals restored. Native City main-base classification and Resource request/connection
+correlation, bounded repair and exact native retry-lane Stop acknowledgement are qualified; remote LwTool service is not integrated. One intermittent
+existing controlled HomeR2 assertion remains a documented follow-up (isolated rerun and live smoke pass);
+do not claim every Home race is solved. Prior journal/incomplete-package notes below are historical.
+No main merge or release; further tab work needs its own scope. Preserve all private research and .claude/.
+
+Latest lead Map checkpoint, 2026-10-24: worker stopped after pushed source 9ddd0ed8 and package creation.
+Read docs/research/lwtool/2026-10-24/map/WORKER_STOP_CHECKPOINT.md before resuming. Package ZIP/extraction
+verification and 29 package-auditor tests independently pass; genuine final-package Manual/Auto all-ten,
+Stop, saved-data Clear/reopen and Home integration smoke remain open. No Map final acceptance, merge or
+release. Reuse the pinned 9ddd0ed8 package for documentation-only follow-ups; rebuild if product inputs change.
+
+Latest owner Map assignment, 2026-10-24: investigate LwTool's advertised few-second full-map scan and use
+supported findings to improve our Map speed, accuracy, efficiency and stability. Owner reports our fastest
+scan is 20+ seconds; neither that baseline nor the advertisement is an independently matched measurement.
+Continue codex/lwtool-full-improvement / draft PR #16 and read
+docs/work-items/LWTOOL-MAP-COMPARISON-AND-IMPROVEMENT.md. Recover the active scanner end to end, establish
+equivalent coverage/fields/freshness/timing, then implement and qualify useful improvements autonomously.
+This assignment supersedes historical report-only Map scope for this work. Preserve accepted Home and
+other tabs, exact session ownership/restoration and read-only game-action boundaries. Task-owned app/game
+start/close/restart is authorized; one live controller. No main merge or public release. Independent lead
+review follows the worker handback; this update itself includes no Map implementation or live testing.
+
+Latest lead Home acceptance, 2026-10-24: Home is DONE for the owner's agreed finite stress-test scope.
+Read docs/reviews/2026-10-23-HOME-FINAL-ACCEPTANCE.md and its sanitized evidence JSON. Final product/package
+source ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb on codex/lwtool-full-improvement / draft PR #16.
+Four lead defects were fixed and qualified, including retained exited-session Home Close and pre-ready
+recovery cancellation. Preserve exact ownership, strict authority, bounded direct queues, whole-frame
+pipe writes, no-replay behavior and original-file restoration. Main remains 45e151c8; no merge/release.
+Map is the next owner focus. The forwardable worker assignment is
+docs/work-items/LWTOOL-MAP-COMPARISON-AND-IMPROVEMENT.md; no Map live work/change is included in Home acceptance.
+
+Latest owner Home assignment, 2026-10-23: focus on actual game-connection stability before other tabs.
+Continue codex/lwtool-full-improvement / draft PR #16; read
+docs/work-items/LWTOOL-HOME-CONNECTION-STABILITY.md. Diagnose the intermittent disconnect/reconnect,
+use recovered LwTool methods to implement improvements, and qualify them with real connected-game tests.
+Owner explicitly authorizes the worker to open, close and restart the target app/game as needed; an absent
+existing session or normal startup creating a window is not a reason to skip live tests or ask again.
+This supersedes prior launch-restriction interpretations for this assignment. Preserve unrelated windows,
+account-action limits, legitimate login/licensing, Chinese game language, exact Stop/script restoration,
+and actual tool denials. No main merge or release. Earlier no-worker-open/release notes below are history.
+
 Latest lead release, 2026-10-23: owner declared the program done for now. Lead merged codex/feature-recovery-018
 (e205f40a: R30 Automation, both audits fixed, MAP-019 scanner review + Zombie Boss/empty-scan fixes, Map clear-all)
 into main and published GitHub release lw-control-v1.0-2026-10-23. No worker task open.

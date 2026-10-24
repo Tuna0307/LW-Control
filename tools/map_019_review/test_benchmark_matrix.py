@@ -7,6 +7,12 @@ ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("map019_owned_runner", ROOT / "tools/map_014_lead_native/run_owned.py")
 runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
+mobile_spec = importlib.util.spec_from_file_location("map019_mobile_audit", ROOT / "tools/map_019_review/audit_mobile.py")
+mobile_audit = importlib.util.module_from_spec(mobile_spec)
+mobile_spec.loader.exec_module(mobile_audit)
+live_spec = importlib.util.spec_from_file_location("map019_live_audit", ROOT / "tools/map_019_review/audit_live.py")
+live_audit = importlib.util.module_from_spec(live_spec)
+live_spec.loader.exec_module(live_audit)
 
 
 class MatrixChecks(unittest.TestCase):
@@ -18,9 +24,12 @@ class MatrixChecks(unittest.TestCase):
         env["LWBRIDGE_MAP015_PAIRED_TRUCK"]="1"
         self.assertEqual(runner.managed_deadline_seconds("direct-full",env),2100)
 
-    def test_default_review_has_nine_singles_and_two_mixed_two_pairs(self):
+    def test_default_review_has_all_ten_singles_and_current_combined_workloads(self):
         plan=runner.review_plan("benchmark-review",{})
-        self.assertEqual(plan["measurements"],44)
+        self.assertEqual(plan["measurements"],48)
+        self.assertIn("other",plan["workloads"])
+        self.assertIn("all-ten",plan["workloads"])
+        self.assertNotIn("all-nine",plan["workloads"])
         self.assertEqual(plan["methods"],("direct","camera"))
         self.assertEqual(plan["roundsPerWorkload"],4)
         self.assertEqual(plan["deadlineSeconds"],10800)
@@ -55,6 +64,23 @@ class MatrixChecks(unittest.TestCase):
         plan=runner.review_plan("benchmark-review",{"LWBRIDGE_MAP019_METHODS":"direct,coarse-boss,coarse-boss,direct",
             "LWBRIDGE_MAP019_WORKLOADS":"zombie_boss"})
         self.assertEqual(plan["methods"],("direct","coarse-boss","coarse-boss","direct"))
+
+    def test_mobile_auditor_can_bind_server_from_camera_first_plan(self):
+        self.assertEqual(mobile_audit.bind_server(None, 2212), 2212)
+        self.assertEqual(mobile_audit.bind_server(2212, 2212), 2212)
+        with self.assertRaises(ValueError):
+            mobile_audit.bind_server(2212, 2211)
+
+    def test_sanitized_auditors_redact_local_paths_and_private_ids(self):
+        for helper in (mobile_audit.redacted, live_audit.redacted):
+            with self.subTest(helper=helper.__module__):
+                path_value = helper("OSError('C:\\Users\\private\\secret.txt')")
+                self.assertNotIn("C:\\Users\\private", path_value)
+                self.assertIn("[local-path]", path_value)
+                id_value = helper("failure 1234567890123 token 0123456789abcdef0123456789abcdef")
+                self.assertNotIn("1234567890123", id_value)
+                self.assertNotIn("0123456789abcdef0123456789abcdef", id_value)
+                self.assertEqual(id_value.count("[private-id]"), 2)
 
 
 if __name__=="__main__": unittest.main()

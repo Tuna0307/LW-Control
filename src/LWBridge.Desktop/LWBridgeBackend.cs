@@ -781,11 +781,18 @@ internal sealed class LWBridgeBackend
 
     private object CreateStatus()
     {
+        bool commandReady = bridgeReadyProvider?.Invoke() ?? overviewLifecycle?.IsReady ?? false;
+        bool presentationOnline = bridgeReadyProvider is not null
+            ? commandReady
+            : overviewLifecycle?.IsPresentationReady ?? false;
         return new
         {
-            // OVL-02: only the current owned Overview session's fresh, exact
-            // game-side heartbeat is authoritative bridge readiness.
-            xluaOnline = bridgeReadyProvider?.Invoke() ?? overviewLifecycle?.IsReady ?? false,
+            // Keep the recovered xluaOnline contract strict: it is also the UI's
+            // command-admission gate. Presentation may independently retain a
+            // previously validated exact heartbeat for a bounded grace while the
+            // exact process and authenticated route stay live.
+            xluaOnline = commandReady,
+            presentationOnline,
             pending = bridgeHostState?.PendingCallCount,
             config = new
             {

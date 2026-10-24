@@ -533,7 +533,7 @@ if (scenario == "shape-review")
 }
 if (benchmarking)
 {
-    string[] reviewDefaults = ["city","resource","monster","zombie_boss","dispatch","ghost","treasure","railway","truck","city-resource","all-nine"];
+    string[] reviewDefaults = ["city","resource","monster","zombie_boss","dispatch","ghost","treasure","railway","truck","other","city-resource","all-ten"];
     string[] workloads = reviewMatrix ? (Environment.GetEnvironmentVariable("LWBRIDGE_MAP019_WORKLOADS") ?? string.Join(',', reviewDefaults))
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) : [scenario["benchmark-".Length..]];
     if (workloads.Length == 0 || workloads.Distinct(StringComparer.Ordinal).Count() != workloads.Length)
@@ -541,6 +541,7 @@ if (benchmarking)
     string[] Kinds(string selectedWorkload) => selectedWorkload switch {
         "mixed" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost"],
         "all-nine" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost","treasure"],
+        "all-ten" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost","treasure","other"],
         "all-nonboss" => ["city","resource","monster","truck","railway","dispatch","ghost","treasure"],
         "city-resource" => ["city","resource"],
         "all-nontruck" => ["city","resource","monster","zombie_boss","railway","dispatch","ghost","treasure"],
@@ -567,12 +568,12 @@ if (benchmarking)
             return JsonSerializer.SerializeToElement(new { available = false, error = error.Message, fpsMeasured = false });
         }
     }
-    bool CompleteTrainReceipt(JsonElement receipt)
+    bool CompleteTrainReceipt(JsonElement receipt, int expectedFenceSize)
     {
         bool IntIs(string name, int expected) => receipt.TryGetProperty(name, out var value) && value.TryGetInt32(out int actual) && actual == expected;
         return receipt.TryGetProperty("state", out var state) && state.GetString() == "proven" &&
             IntIs("initialRequestsSent",625) && IntIs("rectanglesCompleted",625) && IntIs("unprovenRectangles",0) &&
-            IntIs("responseFenceSize",25) && IntIs("requestsPerSecond",20) &&
+            IntIs("responseFenceSize",expectedFenceSize) && IntIs("requestsPerSecond",20) &&
             receipt.TryGetProperty("responseAttribution",out var attribution) && attribution.GetString()=="bounded_sequential_fences" &&
             receipt.TryGetProperty("requestsSent",out var sentValue) && sentValue.TryGetInt32(out int sent) && sent is >=625 and <=1875 &&
             receipt.TryGetProperty("repairPasses",out var passValue) && passValue.TryGetInt32(out int passes) && passes is >=0 and <=2 &&
@@ -644,6 +645,8 @@ if (benchmarking)
         // file left over from an earlier scan is never a qualifying receipt.
         string metricsPath = Path.Combine(probe,"map-fullworld-probe-metrics.json");
         if(File.Exists(metricsPath)) File.Delete(metricsPath);
+        string stageMetricsPath = Path.Combine(probe,"map-engine-stage-metrics.json");
+        if(File.Exists(stageMetricsPath)) File.Delete(stageMetricsPath);
         string frameTelemetryPath = Path.Combine(probe,"map019-frame-telemetry.json");
         void CopyFrameTelemetry(string edge)
         {
@@ -730,17 +733,33 @@ if (benchmarking)
             if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),cameraAfter.GetProperty("cameraSnapshot")))
                 throw new InvalidDataException("Independent benchmark camera checkpoint differs after full scan.");
             var summary=await Call("map_summary",new{});
+            JsonElement? stageMetrics = null;
+            if(File.Exists(stageMetricsPath))
+            {
+                using var stageDocument = JsonDocument.Parse(File.ReadAllText(stageMetricsPath));
+                JsonElement stage = stageDocument.RootElement;
+                if(stage.GetProperty("runId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
+                    stage.GetProperty("serverId").GetInt32()!=terminal.GetProperty("serverId").GetInt32())
+                    throw new InvalidDataException("Map engine stage metrics do not belong to this exact completed benchmark run");
+                stageMetrics=stage.Clone();
+                File.Copy(stageMetricsPath,Path.Combine(root,$"benchmark-{measurementOrdinal}-stage-metrics.json"),true);
+            }
+            else throw new InvalidDataException("Completed Map317 benchmark omitted engine stage metrics");
             bool nativeFastMobile = sourceMethod == "direct" && kinds.All(kind => kind is "truck" or "railway");
             if (!nativeFastMobile && sourceMethod != "coarse-boss")
             {
                 if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
                 using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
                 JsonElement provenance = nativeMetrics.RootElement.GetProperty("identity");
+                string expectedNativeTypesKey = string.Join("\u001f", kinds
+                    .Select(kind => kind == "other" ? "treasure" : kind)
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(kind => kind, StringComparer.Ordinal));
                 if (nativeMetrics.RootElement.GetProperty("phase").GetString() != "prepared" ||
                     nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000 ||
                     provenance.GetProperty("RunId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
                     provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
-                    provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
+                    provenance.GetProperty("SelectedTypesKey").GetString()!=expectedNativeTypesKey)
                     throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
                 File.Copy(metricsPath,Path.Combine(root,$"benchmark-{measurementOrdinal}-probe-metrics.json"));
             }
@@ -795,7 +814,7 @@ if (benchmarking)
             }
             if (nativeFastMobile && (effectiveMethod != "direct" ||
                 directEvidence is not JsonElement truckReceipt ||
-                !CompleteTrainReceipt(truckReceipt)))
+                !CompleteTrainReceipt(truckReceipt, 25)))
                 throw new InvalidDataException("Benchmark did not qualify genuine complete native fast mobile acquisition with bounded repairs.");
             if (effectiveMethod == "direct" && nativeFastMobile)
                 effectiveMethod = kinds.Contains("truck") ? "direct-fast-truck" : "direct-fast-railway";
@@ -815,6 +834,7 @@ if (benchmarking)
                 scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,
                 processIdleBefore,processBefore,processAfter,processCpuSeconds,
                 sampledPeakWorkingSetBytes,sampledPeakPrivateBytes,memorySamples,memorySamplingIntervalSeconds=1,
+                stageMetrics,
                 fallbackEvidence,coarseEvidence,coarseEvidenceBinding=sourceMethod=="coarse-boss" ? "owner+capture-window; native validator correlates requestId; bulk schema omits scanRunId/serverId" : null,
                 averageMachineCpuPercent=processCpuSeconds is double cpu ? (double?)(100*cpu/timer.Elapsed.TotalSeconds/Environment.ProcessorCount) : null,
                 fpsMeasured=false,terminal,summary,cameraBefore,cameraAfter});

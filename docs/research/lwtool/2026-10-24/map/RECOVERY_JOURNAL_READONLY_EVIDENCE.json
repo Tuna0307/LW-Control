@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "dateUtc": "2026-10-24",
+  "scope": "read-only current installation/recovery ownership audit; no journal, backup or script mutation",
+  "journal": {
+    "location": "%LOCALAPPDATA%/LWBridgeRebuild/overview-bridge/recovery.json",
+    "sha256": "b4f95aada3b3270421fafd6bf080fe0badbebbafa470d1c88b59ca1fc7680ddb",
+    "schemaVersion": 1,
+    "stage": "active_ready_deferred_restore",
+    "lastUpdatedUtc": "2026-10-23T04:24:09Z",
+    "historicPid": 44164,
+    "historicPidCurrentlyPresent": false,
+    "matchesCurrentConfigProfile": true,
+    "retainedHelperStartMatchesJournal": true,
+    "retainedHostStartMatchesJournal": true,
+    "sameSessionHelperStopReceiptPresent": false,
+    "sameSessionHostStopReceiptPresent": false,
+    "sameSessionRestoreManifestPresent": false,
+    "operationOwnerRecordPresent": false,
+    "globalJournalPreserved": true
+  },
+  "backup": {
+    "manifestState": "backup_ready",
+    "manifestStateIsRestored": false,
+    "originalFileCount": 3,
+    "installedHashesMatchBackupAndJournalOriginals": true,
+    "injectedCandidateStillInstalled": false,
+    "sourceOriginalHashesSha256": {
+      "LWScripts.data": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+      "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
+      "version.txt": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf"
+    }
+  },
+  "currentInstallation": {
+    "currentClientCheckOnlyPassed": true,
+    "checkOnlyInstalledFilesChanged": false,
+    "currentClientPackageSha256": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+    "currentGameOrLwToolProcessesPresentAfterReview": false
+  },
+  "recovery": {
+    "mutatingRecoveryHelperInvoked": false,
+    "journalRemoved": false,
+    "backupOrInstalledFilesModifiedByThisReview": false,
+    "independentlyProvenOriginalRestorationActor": false,
+    "originalSessionStopReceiptAvailable": false,
+    "packageLiveAdmissionPermitted": false,
+    "missingEvidence": "independent authorized journal owner reconciliation and same-owner Stop/restoration proof or reviewed supported recovery closeout"
+  }
+}

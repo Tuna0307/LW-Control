@@ -105,7 +105,8 @@ def build_report() -> tuple[dict, dict[str, list[Request]]]:
         "sources": [source_receipt("tools/current_live_resource_probe.lua", (
             "math.min(9999, s.nextAoi + 159)", "local cx, cy = n % 25, math.floor(n / 25)",
             "CS.System.Array.CreateInstance(typeof(CS.System.Int32), 1)",
-            "rate = values.rate == \"15\" and 15 or 20",
+            "local requested_rate = tonumber(values.rate)",
+            "local requested_fence = tonumber(values.fenceSize)",
             "The march push contains NO echoed rectangle coordinates/request ID.")),
             source_receipt("src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs", (
                 "CaptureFastTruckRowsAsync",)),

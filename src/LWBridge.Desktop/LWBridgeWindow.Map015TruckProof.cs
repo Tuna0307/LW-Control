@@ -35,7 +35,8 @@ internal sealed partial class LWBridgeWindow
                 receipt.GetProperty("requestsSent").GetInt32() - 625 ||
             receipt.GetProperty("repairPasses").GetInt32() is < 0 or > 2 ||
             receipt.GetProperty("responseAttribution").GetString() != "bounded_sequential_fences" ||
-            receipt.GetProperty("requestsPerSecond").GetInt32() is not (15 or 20))
+            receipt.GetProperty("requestsPerSecond").GetInt32() != 20 ||
+            receipt.GetProperty("responseFenceSize").GetInt32() != 25)
             throw new InvalidDataException("MAP015 packaged Truck scan did not complete 625 typed native pushes with restoration.");
         JsonElement records = receipt.GetProperty("trainRecords");
         if (records.ValueKind != JsonValueKind.Array || records.GetArrayLength() == 0 ||
@@ -86,6 +87,7 @@ internal sealed partial class LWBridgeWindow
                 throw new InvalidDataException("MAP015 packaged Truck fast-producer publication is empty.");
         }
         return new { nativePath = path, requestsPerSecond = receipt.GetProperty("requestsPerSecond").GetInt32(),
+            responseFenceSize = receipt.GetProperty("responseFenceSize").GetInt32(),
             pushes = 625, repairPasses = receipt.GetProperty("repairPasses").GetInt32(),
             repairRequests = receipt.GetProperty("repairRequestsSent").GetInt32(),
             trainRecordCount = records.GetArrayLength(), cameraStable = true, curViewRestored = true };

@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "workItem": "LWTOOL-HOME-CONNECTION-STABILITY",
+  "assignmentBase": "98af12e2b762a5e830b84d8088dc134332da950e",
+  "releasedBaseline": "45e151c8",
+  "previousImprovementCheckpoint": "0cdf4de8daa9d45f8b1db808c0081801044541cf",
+  "officialInstall": {
+    "lastWarSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "launcherSha256": "bf924a1b06348cb2c2c58eebac8a780eb3663e5b13957bcc9a83602ece7b41fb",
+    "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+    "scriptRestoreSha256": {
+      "LWScripts.data": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+      "LWScripts.txt": "32dbdf2762a8658a0c803713ca9856042938277c820288f419ebf546928d4095",
+      "version.txt": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf"
+    }
+  },
+  "baseline": {
+    "hostToHealthySeconds": 70.271,
+    "naturalSoak": {
+      "durationSeconds": 900,
+      "sampleCount": 901,
+      "naturalVisibleDisconnectObserved": false,
+      "heartbeatAgeP95Seconds": 0.798,
+      "heartbeatAgeMaxSeconds": 0.854,
+      "routeFalseSamples": 0,
+      "gameUnhealthySamples": 0,
+      "loginNetworkMarkerCount": 0,
+      "resources": {
+        "host": {
+          "cpuP50PercentAllLogical": 0.312,
+          "cpuP95PercentAllLogical": 0.703,
+          "workingSetStartMiB": 119.29,
+          "workingSetEndMiB": 119.89,
+          "privateStartMiB": 37.47,
+          "privateEndMiB": 42.85,
+          "readMiBTotal": 344.07,
+          "writeMiBTotal": 0.78
+        },
+        "game": {
+          "cpuP50PercentAllLogical": 9.922,
+          "cpuP95PercentAllLogical": 17.109,
+          "workingSetStartMiB": 1247.89,
+          "workingSetEndMiB": 882.92,
+          "privateStartMiB": 1824.22,
+          "privateEndMiB": 1894.79,
+          "readMiBTotal": 246.80,
+          "writeMiBTotal": 1.17
+        }
+      }
+    },
+    "heartbeatPublicationStall": {
+      "firstFailedLayer": "lua_heartbeat",
+      "heartbeatAgeMaxSeconds": 13.316,
+      "exactGameAlive": true,
+      "authenticatedRouteStayedPresent": true,
+      "managedAdapterStayedConnected": true,
+      "loginNetworkMarkerCount": 0
+    },
+    "sameGameRouteCycles": {
+      "cycles": 5,
+      "firstFailedLayer": "managed_adapter",
+      "sameExactGameAcrossAllCycles": true,
+      "recoveryMedianSeconds": 1.249,
+      "recoveryMaxSeconds": 1.273,
+      "gameServerBadSamples": 0,
+      "loginNetworkMarkerCount": 0
+    },
+    "exactProcessExitRecoverySeconds": 26.031
+  },
+  "candidate": {
+    "directTransport": {
+      "liveXluaQualified": true,
+      "adapterReadMode": "direct",
+      "fallbackRetained": true,
+      "maxFrameBytes": 8388608,
+      "queueItemCapacity": 4096,
+      "inboundByteBudget": 67108864,
+      "outboundByteBudget": 33554432,
+      "luaAuthoredHeartbeatRetained": true
+    },
+    "coldHostToHealthySeconds": [
+      62.295,
+      32.302,
+      33.594
+    ],
+    "warmStartToHealthySeconds": [
+      24.937,
+      24.516,
+      25.656
+    ],
+    "warmStartMedianSeconds": 24.937,
+    "connectedSoak": {
+      "durationSeconds": 1800,
+      "sampleCount": 1801,
+      "oneExactGamePid": true,
+      "directCapableSamples": 1801,
+      "directActiveSamples": 1801,
+      "maxInboundMailboxBacklog": 0,
+      "maxOutboundMailboxBacklog": 0,
+      "heartbeatAgeP95Seconds": 0.776,
+      "heartbeatAgeP99Seconds": 0.820,
+      "heartbeatAgeMaxSeconds": 1.127,
+      "freshMonitorRouteFalseSamples": 0,
+      "freshMonitorGameUnhealthySamples": 0,
+      "loginNetworkMarkerCount": 0,
+      "resources": {
+        "host": {
+          "cpuP50PercentAllLogical": 0.234,
+          "cpuP95PercentAllLogical": 0.625,
+          "workingSetStartMiB": 130.90,
+          "workingSetEndMiB": 118.71,
+          "privateStartMiB": 48.52,
+          "privateEndMiB": 43.34,
+          "readMiBTotal": 693.90,
+          "writeMiBTotal": 1.67
+        },
+        "game": {
+          "cpuP50PercentAllLogical": 13.203,
+          "cpuP95PercentAllLogical": 20.243,
+          "workingSetStartMiB": 1264.75,
+          "workingSetEndMiB": 1243.41,
+          "privateStartMiB": 1824.80,
+          "privateEndMiB": 2146.15,
+          "readMiBTotal": 622.76,
+          "writeMiBTotal": 4.01
+        },
+        "comparisonCaveat": "Baseline was 15 minutes and candidate was 30 minutes at different game phases. The measurements satisfy connected-idle observation requirements but are not attributed causally to the direct queue."
+      },
+      "naturalHeartbeatReadTransient": {
+        "observed": true,
+        "firstSampleElapsedSeconds": 1793.234,
+        "failedLayer": "lua_heartbeat",
+        "recoveredByNextOneSecondSample": true,
+        "claimedAsOwnerVisibleDisconnect": false
+      }
+    },
+    "sameGameRouteCycles": {
+      "cycles": 5,
+      "firstFailedLayer": "managed_adapter",
+      "sameExactGameAcrossAllCycles": true,
+      "recoverySeconds": [
+        1.272470,
+        1.230109,
+        1.256323,
+        1.279593,
+        1.258315
+      ],
+      "recoveryMedianSeconds": 1.258315,
+      "recoveryMaxSeconds": 1.279593,
+      "gameServerBadSamples": 0,
+      "loginNetworkMarkerCount": 0
+    },
+    "exactPause": {
+      "holdSeconds": 12,
+      "firstFailedLayer": "lua_heartbeat",
+      "heartbeatAgeMaxSeconds": 12.841,
+      "authenticatedRouteFalseSamples": 0,
+      "sameExactOwnerHealthyAfterResume": true,
+      "loginNetworkMarkerCount": 0
+    },
+    "exactProcessExitRecovery": {
+      "secondsToHealthySuccessor": 41.717,
+      "sessionChanged": true,
+      "processCreationChanged": true
+    },
+    "stopDuringReconnect": {
+      "atomicRetainedRouteDropAndProductionStop": true,
+      "exactOldHandleExited": true,
+      "desiredRunningCleared": true,
+      "noSuccessorDuringSettle": true,
+      "officialScriptsRestored": true
+    },
+    "lateReadiness": {
+      "suspendedBeforeReady": true,
+      "holdSeconds": 20,
+      "sameReportedPidPathStartSessionReachedHealthy": true
+    },
+    "hostOnlyReadOnlyRttMilliseconds": {
+      "warmups": 20,
+      "measuredCalls": 300,
+      "p50": 0.192,
+      "p95": 0.313,
+      "p99": 0.659,
+      "max": 1.105,
+      "scope": "authenticated Windows named-pipe host transport only; not live game-thread RTT"
+    }
+  },
+  "competitorLiveIdle": {
+    "performed": false,
+    "reason": "Supported AFK Stop is Premium-gated while recovered production behavior auto-starts AFK/chat and restarts AFK after self-heal; bypassing that paid gate is prohibited.",
+    "offlineAuthenticatedEvidenceRetained": true
+  },
+  "regression": {
+    "desktop": "HOME_FEATURE_DELIVERY_CHECKS_OK",
+    "luaSuitesPassed": 49,
+    "directQueueAndPipe": "PASS",
+    "isolatedPipeRecovery": "HOME004_R3_R1_ISOLATED_PIPE_RECOVERY_OK",
+    "uiFull": "PASS",
+    "releaseUi": {
+      "viewportLanguageVariants": 3,
+      "conditionalStates": 16,
+      "screenshots": 41,
+      "errors": 0
+    },
+    "ownedFaultHarnessTestsPassed": 6,
+    "packageBoundaryChecks": "PASS",
+    "diffCheck": "PASS"
+  },
+  "finalPackage": {
+    "sourceCommit": "eefa29e4571b28dfcb7a6f7300865b76d9672123",
+    "sourceGitTree": "0c75ea1a4fd7085b265817f704021ee0e8c63f88",
+    "sourceInputSha256": "ae4285db9064aafbc3ae186cd3d994e9792d56373fbe00a71dd527a8e414c45d",
+    "sourceInputFileCount": 718,
+    "relativePath": "artifacts/lwtool-home-stability-20261023/final-package-eefa29e4/LW-Control-lwtool-improvement-eefa29e4571b.zip",
+    "sha256": "84605da8b97d176c945ce3cfaec201e0bbcae365238c0c26988b0c8b7c7cae0b",
+    "bytes": 10360495,
+    "zipEntries": 105,
+    "bridgesVerified": 29,
+    "productionUiFingerprintVerified": true,
+    "privacyBoundaryVerified": true,
+    "cleanExtractHomeCapture": {
+      "passed": true,
+      "exitCode": 0,
+      "temporaryRootsRemaining": 0
+    },
+    "cleanExtractNormalRelease": {
+      "passed": true,
+      "registryStayedDisabled": true,
+      "newGameProcesses": 0
+    },
+    "liveHomeReplay": {
+      "productionStartPassed": true,
+      "startToHealthySeconds": 44.312,
+      "directTransportActive": true,
+      "numberedMailboxFilesObserved": 0,
+      "sameGameRouteCycles": 5,
+      "sameExactGameAcrossAllCycles": true,
+      "firstFailedLayer": "managed_adapter",
+      "routeRecoverySeconds": [
+        1.248597,
+        1.276668,
+        1.277956,
+        1.281073,
+        1.268071
+      ],
+      "routeRecoveryMedianSeconds": 1.276668,
+      "routeRecoveryMaxSeconds": 1.281073,
+      "gameUnhealthySamples": 0,
+      "loginNetworkMarkerCount": 0,
+      "atomicStopDuringReconnectPassed": true,
+      "noSuccessorDuringSettle": true,
+      "officialScriptsRestored": true
+    },
+    "status": "INDEPENDENT_REVIEW_REQUIRED"
+  },
+  "remainingUnknown": "The owner's original visible intermittent disconnect was not naturally reproduced. A single sub-second heartbeat read/publication transient was observed naturally, but it did not lose the route/game and is not promoted to the owner's symptom.",
+  "leadFinalAcceptance": {
+    "status": "ACCEPTED_FOR_OWNER_STRESS_TEST_SCOPE",
+    "date": "2026-10-24",
+    "productionSourceCommit": "ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb",
+    "report": "docs/reviews/2026-10-23-HOME-FINAL-ACCEPTANCE.md",
+    "originalSpontaneousCauseNotReproduced": true,
+    "mainMerged": false,
+    "publicRelease": false
+  }
+}

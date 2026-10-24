@@ -1341,6 +1341,25 @@ def await_registration_confirmation(
     raise OverviewBridgeError("launch report registration not confirmed before the bridge-connect deadline")
 
 
+def close_failed_start_game(
+    p: dict[str, Path], owned_game: dict[str, object],
+    session_id: str, challenge: str,
+) -> dict[str, object]:
+    # An explicit Stop/host-close cancellation has the same exact-owner
+    # termination authority as normal Stop. A pre-ready or hung child cannot
+    # necessarily service CloseMainWindow; never wait for Lua to cooperate.
+    # Other start failures keep their existing graceful-close policy.
+    if not start_cancel_matches(p, session_id, challenge):
+        return lr.close_owned_game_process_for_restore(p, owned_game)
+    close = lr.terminate_owned_game_process_for_stop(p, owned_game)
+    proof = close.get("exitProof")
+    if not isinstance(proof, dict) or proof.get("established") is not True:
+        raise OverviewBridgeError("cancelled start's exact game exit is unproven; restoration withheld")
+    if lr.selected_game_processes(p):
+        raise OverviewBridgeError("selected installation still running after cancelled start; restoration withheld")
+    return close
+
+
 def run_start(
     profile_id: str, session_id: str, challenge: str,
     timeout_seconds: int, game_root: str | Path | None,
@@ -1521,7 +1540,7 @@ def run_start(
                     try:
                         if any(item.get("pid") == owned_game.get("pid") for item in lr.selected_game_processes(p)):
                             lr.update_recovery_stage(p, recovery_state, "closing_failed_owned_game")
-                            lr.close_owned_game_process_for_restore(p, owned_game)
+                            close_failed_start_game(p, owned_game, session_id, challenge)
                     except Exception as exc:
                         close_error = exc
 
@@ -1543,7 +1562,7 @@ def run_start(
                     if first_restore_error is not None:
                         details.append(f"initial restore failed: {first_restore_error}")
                     if close_error is not None:
-                        details.append(f"exact-PID normal close failed: {close_error}")
+                        details.append(f"exact-PID close failed: {close_error}")
                     if retry_restore_error is not None:
                         details.append(f"restore retry failed: {retry_restore_error}")
                     raise OverviewBridgeError(

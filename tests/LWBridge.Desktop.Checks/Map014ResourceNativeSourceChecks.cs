@@ -173,16 +173,24 @@ internal static class Map014ResourceNativeSourceChecks
         RejectHydration("stale name key", Details(goodDetail with { SourceNameKey = "999999" }));
         RejectHydration("stale source capacity", Details(goodDetail with { SourceCapacity = 72000 }));
         RejectHydration("detail amount/config mismatch", Details(goodDetail with { FullAmount = 100001 }));
+        // Two different servers can share point IDs, *and* their Resource
+        // capacity/config/name may coincidentally match. The old comparison
+        // accepted that cached row despite no current-run reply. Real v27
+        // WorldPointDetailManager stores only pointId, with no reply nonce or
+        // connection generation, so even an exact metadata match must fail.
+        RejectHydration("cross-server stale native cache with identical source metadata",
+            good with { RequestCount = 0, CacheBeforeCount = 1 });
 
         // The real round-5 Lua receipt has 7,494 cached, received targets,
         // each with requestIssued=false/cacheBefore=true/sendFailed=false.
         // Independent per-row flags must reconcile their same-source totals;
         // spoofed aggregate header counters cannot establish received detail.
         JsonObject BaseDetailEnvelope() => JsonNode.Parse("""
-            {"targetCount":1,"requestCount":0,"cacheBeforeCount":1,
+            {"targetCount":1,"requestCount":1,"cacheBeforeCount":0,
              "sendFailureCount":0,"readyCount":1,"details":[
-               {"recordKey":"999001","received":true,"requestIssued":false,
-                "cacheBefore":true,"sendFailed":false,"resourceConfigId":20106,
+               {"recordKey":"999001","received":true,"requestIssued":true,
+                "cacheBefore":false,"sendFailed":false,"resourceConfigId":20106,
+                "expectedReplyId":123,"replyId":123,"replyScopeMatched":true,
                 "resourceNameKey":"100317","resourceMaxAmount":216000,
                 "detail":{"remainRes":100000,"initRes":216000}}
              ]}
@@ -217,10 +225,10 @@ internal static class Map014ResourceNativeSourceChecks
         }
         RejectProvenance("header says request issued when row says cached", doc =>
         {
-            doc["requestCount"] = 1; doc["cacheBeforeCount"] = 0;
+            doc["requestCount"] = 0; doc["cacheBeforeCount"] = 1;
         });
-        RejectProvenance("row claims no receipt origin", doc => doc["details"]![0]!["cacheBefore"] = false);
-        RejectProvenance("double-marked request and cache", doc => doc["details"]![0]!["requestIssued"] = true);
+        RejectProvenance("row claims no receipt origin", doc => doc["details"]![0]!["requestIssued"] = false);
+        RejectProvenance("double-marked request and cache", doc => doc["details"]![0]!["cacheBefore"] = true);
         RejectProvenance("send failure contradicts successful cache", doc => doc["details"]![0]!["sendFailed"] = true);
         RejectProvenance("ready count overstates received rows", doc => doc["details"]![0]!["received"] = false);
         RejectProvenance("missing native origin flag", doc => doc["details"]![0]!.AsObject().Remove("cacheBefore"));
@@ -237,10 +245,49 @@ internal static class Map014ResourceNativeSourceChecks
             doc["readyCount"] = 0;
             doc["details"]![0]!["received"] = false;
         });
+        RejectProvenance("old cache has no correlated native response", doc =>
+        {
+            doc["requestCount"] = 0; doc["cacheBeforeCount"] = 1;
+            doc["details"]![0]!["requestIssued"] = false;
+            doc["details"]![0]!["cacheBefore"] = true;
+        });
+        RejectProvenance("foreign request response for same point", doc => doc["details"]![0]!["replyId"] = 124);
+        RejectProvenance("connection epoch changed", doc => doc["details"]![0]!["replyScopeMatched"] = false);
+        RejectProvenance("native reply ID omitted", doc => doc["details"]![0]!.AsObject().Remove("replyId"));
+        RejectProvenance("two targets reuse one native reply", doc =>
+        {
+            doc["targetCount"] = 2; doc["requestCount"] = 2; doc["readyCount"] = 2;
+            var duplicate = doc["details"]![0]!.DeepClone(); duplicate["recordKey"] = "999002";
+            doc["details"]!.AsArray().Add(duplicate);
+        });
 
-        if (nativeInverses != 22 || hydrationInverses != 9 || provenanceInverses != 10 ||
+        if (nativeInverses != 22 || hydrationInverses != 10 || provenanceInverses != 15 ||
             snapshotInverses != 9 || censusTotalInverses != 4)
             throw new Exception("Incomplete Resource native source inverse coverage.");
+        JsonObject cancelAck = JsonNode.Parse("""
+            {"requestId":"request","scanRunId":"run","profileId":"profile",
+             "launchSessionId":"session","challenge":"challenge","gamePid":123,
+             "serverId":2212,"state":"cancelled","nativeLaneStopped":true}
+            """)!.AsObject();
+        bool CancelMatches(JsonObject node)
+        {
+            using JsonDocument doc = JsonDocument.Parse(node.ToJsonString());
+            return CurrentClientMapBlockSource.ResourceDetailCancellationMatches(
+                doc.RootElement, "request", "run", "profile", "session", "challenge", 123, 2212);
+        }
+        if (!CancelMatches(cancelAck)) throw new Exception("Exact Resource native cancellation rejected.");
+        foreach (string field in new[] { "requestId", "scanRunId", "profileId", "launchSessionId", "challenge", "state" })
+        {
+            JsonObject foreign = (JsonObject)cancelAck.DeepClone(); foreign[field] = "foreign";
+            if (CancelMatches(foreign)) throw new Exception("Foreign Resource cancellation admitted: " + field);
+        }
+        foreach (string field in new[] { "gamePid", "serverId" })
+        {
+            JsonObject foreign = (JsonObject)cancelAck.DeepClone(); foreign[field] = 999;
+            if (CancelMatches(foreign)) throw new Exception("Foreign Resource cancellation identity admitted.");
+        }
+        cancelAck["nativeLaneStopped"] = false;
+        if (CancelMatches(cancelAck)) throw new Exception("Unretired Resource lane acknowledged cancellation.");
         Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} firstCensusTotalInverses={censusTotalInverses} native=false");
     }
 

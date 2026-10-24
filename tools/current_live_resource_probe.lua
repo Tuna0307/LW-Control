@@ -2663,8 +2663,22 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
                          duplicateRetainedPointIndices = 0,
                          nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0,
                          supersededNativeCityCount = 0, nativeOwnerConflicts = 0,
-                         nativeCanonicalLookupFailures = 0 }
-    local retained_ids, retained_owners = {}, {}
+                         nativeCanonicalLookupFailures = 0,
+                         nativeNonMainBuildingCount = 0,
+                         nativeNonMainBuildingItems = {},
+                         -- Aggregate diagnostics only; never serialize a raw UID,
+                         -- point index, player name or unresolved native row.
+                         nativeIdentityDiagnostics = {
+                             inspected = 0, absentRetainedIndex = 0,
+                             nativeOwnerPresent = 0, ownerFromRetained = 0,
+                             ownerUnavailable = 0, retainedOwnerAtOtherIndex = 0,
+                             canonicalCallAttempted = 0, canonicalCallSucceeded = 0,
+                             canonicalCallFailed = 0, canonicalResultNil = 0,
+                             canonicalIndexInvalid = 0, canonicalTypeInvalid = 0,
+                             canonicalServerInvalid = 0, canonicalOwnerInvalid = 0,
+                             canonicalSameIndex = 0, canonicalDifferentIndex = 0,
+                         } }
+    local retained_ids, retained_owners, retained_owner_indices = {}, {}, {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
@@ -2708,6 +2722,7 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         end
         retained_ids[id] = true
         retained_owners[id] = tostring(owner_uid)
+        retained_owner_indices[tostring(owner_uid)] = id
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
@@ -2765,17 +2780,68 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         local cell_x, cell_y = math.floor(tile.x / block_size), math.floor(tile.y / block_size)
         if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count or
            selected_lookup[cell_y * block_count + cell_x] ~= true then return true end
+        -- WorldPointType 6 also contains non-primary buildings. The native
+        -- AddPointInfo/GetAllMainBaseList contract indexes only item 10100000
+        -- and 735000 in baseMainBuild. A known different item is outside this
+        -- main-base census; missing item metadata still requires the existing
+        -- strict canonical-owner check below.
+        local native_item = integer_field(info, { "itemId", "ItemId" })
+        if native_item ~= nil and native_item > 0 and native_item ~= 10100000 and native_item ~= 735000 then
+            accounting.nativeNonMainBuildingCount = accounting.nativeNonMainBuildingCount + 1
+            local item_key = tostring(native_item)
+            accounting.nativeNonMainBuildingItems[item_key] = (accounting.nativeNonMainBuildingItems[item_key] or 0) + 1
+            return true
+        end
         local native_owner = scalar_field(info,{"ownerUid","OwnerUid"})
-        local owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
-            and tostring(native_owner) or retained_owners[id]
+        local has_native_owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
+        local owner = has_native_owner and tostring(native_owner) or retained_owners[id]
         local ok_canonical, canonical = false, nil
         if owner ~= nil then ok_canonical, canonical = call(point_manager,"GetBaseMainInfoByOwnerUid",owner) end
         local canonical_id = canonical and integer_field(canonical,{"pointIndex","PointIndex"}) or nil
         local canonical_owner = canonical and scalar_field(canonical,{"ownerUid","OwnerUid"}) or nil
-        if ok_canonical and canonical_id ~= nil and canonical_id > 0 and
-           canonical_owner ~= nil and tostring(canonical_owner) == owner and
-           integer_field(canonical,{"pointType","PointType"}) == 6 and
-           integer_field(canonical,{"serverId","ServerId"}) == current_server_id() then
+        -- Observe only discrepancies and preserve the existing admission check.
+        -- A missing retained index plus canonical failure is ambiguous: the
+        -- native row may lack an owner entirely, the getter may throw/return
+        -- nil, or it may return an invalid/cross-server main base. These
+        -- bounded counters distinguish those cases on the next native receipt.
+        local native_unretained = retained_ids[id] ~= true
+        local canonical_valid = ok_canonical and canonical_id ~= nil and canonical_id > 0 and
+            canonical_owner ~= nil and tostring(canonical_owner) == owner and
+            integer_field(canonical,{"pointType","PointType"}) == 6 and
+            integer_field(canonical,{"serverId","ServerId"}) == current_server_id()
+        if native_unretained or not canonical_valid then
+            local diag = accounting.nativeIdentityDiagnostics
+            diag.inspected = diag.inspected + 1
+            if native_unretained then diag.absentRetainedIndex = diag.absentRetainedIndex + 1 end
+            if has_native_owner then diag.nativeOwnerPresent = diag.nativeOwnerPresent + 1
+            elseif retained_owners[id] ~= nil then diag.ownerFromRetained = diag.ownerFromRetained + 1 end
+            if owner == nil then diag.ownerUnavailable = diag.ownerUnavailable + 1 end
+            if owner ~= nil and retained_owner_indices[owner] ~= nil and retained_owner_indices[owner] ~= id then
+                diag.retainedOwnerAtOtherIndex = diag.retainedOwnerAtOtherIndex + 1
+            end
+            if owner ~= nil then
+                diag.canonicalCallAttempted = diag.canonicalCallAttempted + 1
+                if ok_canonical then diag.canonicalCallSucceeded = diag.canonicalCallSucceeded + 1
+                else diag.canonicalCallFailed = diag.canonicalCallFailed + 1 end
+                if ok_canonical and canonical == nil then diag.canonicalResultNil = diag.canonicalResultNil + 1 end
+            end
+            if canonical ~= nil then
+                if canonical_id == nil or canonical_id <= 0 then
+                    diag.canonicalIndexInvalid = diag.canonicalIndexInvalid + 1
+                elseif canonical_id == id then diag.canonicalSameIndex = diag.canonicalSameIndex + 1
+                else diag.canonicalDifferentIndex = diag.canonicalDifferentIndex + 1 end
+                if integer_field(canonical,{"pointType","PointType"}) ~= 6 then
+                    diag.canonicalTypeInvalid = diag.canonicalTypeInvalid + 1
+                end
+                if integer_field(canonical,{"serverId","ServerId"}) ~= current_server_id() then
+                    diag.canonicalServerInvalid = diag.canonicalServerInvalid + 1
+                end
+                if canonical_owner == nil or tostring(canonical_owner) ~= owner then
+                    diag.canonicalOwnerInvalid = diag.canonicalOwnerInvalid + 1
+                end
+            end
+        end
+        if canonical_valid then
             if canonical_id ~= id then
                 -- _pointInfos may still carry the prior location for the same
                 -- player. The game's own owner->main-base resolver identifies
@@ -3668,8 +3734,17 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
         local pair = safe_get(enumerator, "Current")
         local march = pair and (safe_get(pair, "Value") or pair) or nil
         local train = march and safe_get(march, "train") or nil
-        local train_type_hint = train and integer_field(train, { "type", "Type" }) or nil
-        if train ~= nil and train_type_hint == nil then
+        -- The fast mobile lane revisits the entire current march dictionary on
+        -- each Update. Captured UUIDs can no longer contribute a second row;
+        -- skip their type reflection as well as their position/reward reads.
+        -- With no seen set (camera/diagnostics), keep the original full path.
+        local march_id = nil
+        if train ~= nil and already_seen ~= nil then
+            march_id = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+        end
+        local inspect_train = train ~= nil and (already_seen == nil or not already_seen[march_id])
+        local train_type_hint = inspect_train and integer_field(train, { "type", "Type" }) or nil
+        if inspect_train and train_type_hint == nil then
             local hint = scalar_field(train, { "type", "Type" })
             if hint ~= nil then train_type_hint = tonumber(tostring(hint):match(":%s*(-?%d+)%s*$")) end
         end
@@ -3679,10 +3754,8 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
         -- position has moved into another rectangle).
         -- train.type is authoritative here: type 2 Railway remains on the
         -- Railway route, and must never be hydrated as a Truck candidate.
-        if train ~= nil and (already_seen == nil or train_type_hint == (capture_type or 1) or
-            (capture_type == 3 and (train_type_hint == 1 or train_type_hint == 2))) and
-            (already_seen == nil or not already_seen[
-            tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")]) then
+        if inspect_train and (already_seen == nil or train_type_hint == (capture_type or 1) or
+            (capture_type == 3 and (train_type_hint == 1 or train_type_hint == 2))) then
             local ok_index, position_index = call(march, "GetMarchCurPosIndex")
             local index = ok_index and tonumber(position_index) or nil
             if index == nil or index <= 0 then index = integer_field(march, { "targetPos", "TargetPos" }) end
@@ -3691,7 +3764,7 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                 local cell_x = math.floor(tile.x / block_size)
                 local cell_y = math.floor(tile.y / block_size)
                 local aoi_index = cell_y * block_count + cell_x
-                local march_id = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+                march_id = march_id or tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
                 if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and
                    selected_lookup[aoi_index] == true and (already_seen == nil or not already_seen[march_id]) then
                     local config = safe_get(train, "config")
@@ -3712,16 +3785,23 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                         end
                     end
                     if train_data == nil and raw_train_data ~= nil then train_data = raw_train_data end
-                    local train_type_raw = scalar_field(train, { "type", "Type" })
-                    local train_data_type_raw = train_data and scalar_field(train_data, { "type", "Type" }) or nil
-                    local train_type = integer_field(train, { "type", "Type" })
-                    if train_type == nil and train_type_raw ~= nil then
-                        train_type = tonumber(tostring(train_type_raw):match(":%s*(-?%d+)%s*$"))
+                    -- The same game-owned train.type already determined this
+                    -- row's lane. Reuse it; retain the original TrainData type
+                    -- fallback for camera callers without a usable hint.
+                    local train_type = train_type_hint
+                    if train_type == nil then
+                        local train_type_raw = scalar_field(train, { "type", "Type" })
+                        if train_type_raw ~= nil then
+                            train_type = tonumber(tostring(train_type_raw):match(":%s*(-?%d+)%s*$"))
+                        end
                     end
                     if train_type == nil and train_data ~= nil then
                         train_type = integer_field(train_data, { "type", "Type" })
-                        if train_type == nil and train_data_type_raw ~= nil then
-                            train_type = tonumber(tostring(train_data_type_raw):match(":%s*(-?%d+)%s*$"))
+                        if train_type == nil then
+                            local train_data_type_raw = scalar_field(train_data, { "type", "Type" })
+                            if train_data_type_raw ~= nil then
+                                train_type = tonumber(tostring(train_data_type_raw):match(":%s*(-?%d+)%s*$"))
+                            end
                         end
                     end
                     local train_data_json = nil
@@ -4648,24 +4728,124 @@ function resource_scan_detail_runtime.same_state(state, request)
         state.scanRunId == request.scanRunId
 end
 
-function resource_scan_detail_runtime.send(target)
+resource_scan_detail_runtime.cancelPath = root .. [[\resource-scan-detail-cancel.txt]]
+
+function resource_scan_detail_runtime.cancel_matches(cancel, request)
+    if cancel == nil or not request then return false end
+    cancel.gamePid, cancel.serverId = tonumber(cancel.gamePid), tonumber(cancel.serverId)
+    return cancel.requestId == request.requestId and resource_scan_detail_runtime.same_state(cancel, request)
+end
+
+function resource_scan_detail_runtime.network_scope()
+    local entry = CS and safe_get(CS, "GameEntry") or nil
+    local network = entry and safe_get(entry, "Network") or nil
+    if network == nil then return nil end
+    local ok, future = call(network, "getFutureManager")
+    local config = reflected_value(network, "_config")
+    local proxy = reflected_value(network, "m_proxy")
+    local counter = ok and future and tonumber(reflected_value(future, "_futureId")) or nil
+    if config == nil or proxy == nil or counter == nil or counter < 0 or
+       counter ~= math.floor(counter) or safe_get(network, "IsConnected") ~= true then return nil end
+    return { network = network, future = future, config = config, proxy = proxy, counter = counter }
+end
+
+function resource_scan_detail_runtime.scope_matches(a, b)
+    -- Connect creates a new _config before resetting native future IDs;
+    -- Reconnect delegates to Connect. A reused numeric ID in a new connection
+    -- therefore cannot be admitted by the old private pending table.
+    return a ~= nil and b ~= nil and a.network == b.network and a.future == b.future and
+        a.config == b.config and a.proxy == b.proxy and b.counter >= a.counter
+end
+
+function resource_scan_detail_runtime.reset()
+    local hook = resource_scan_detail_runtime.hook
+    if hook ~= nil and safe_get(hook.class, "HandleMessage") == hook.wrapper then
+        hook.class.HandleMessage = hook.original
+    end
+    resource_scan_detail_runtime.hook = nil
+    resource_scan_detail_runtime.state = nil
+    resource_scan_detail_runtime.request = nil
+    resource_scan_detail_runtime.startedAt = nil
+end
+
+function resource_scan_detail_runtime.observe(response)
+    local state = resource_scan_detail_runtime.state
+    if state == nil or not resource_scan_detail_runtime.scope_matches(state.scope,
+        resource_scan_detail_runtime.network_scope()) or current_server_id() ~= state.serverId then return end
+    local identity = active_overview_identity(tonumber(os.time()) or 0)
+    if identity == nil or identity.profileId ~= state.profileId or identity.sessionId ~= state.launchSessionId or
+       identity.challenge ~= state.challenge or identity.gamePid ~= state.gamePid then return end
+    local reply_id = tonumber(safe_get(response, "_id"))
+    local target = reply_id and state.byReplyId[reply_id] or nil
+    if target == nil or reply_id ~= target.expectedReplyId or target.detail ~= nil or safe_get(response, "errorCode") ~= nil or
+       tonumber(safe_get(response, "pointId")) ~= target.pointId then return end
+    local server = tonumber(safe_get(response, "scrServer") or safe_get(response, "serverId"))
+    if server ~= nil and server ~= 0 and server ~= target.serverId then return end
+    -- Read immediately after the original native handler applied this exact
+    -- correlated packet, and freeze scalar values in our private run state.
+    -- Subsequent foreign/stale updates to the game's pointId cache cannot
+    -- replace a captured detail. Never poll that cache as readiness evidence.
+    local detail = resource_detail_snapshot(resource_detail_manager(), target.pointId)
+    if detail == nil then return end
+    target.detail = detail
+    target.replyId = reply_id
+end
+
+function resource_scan_detail_runtime.install()
+    if resource_scan_detail_runtime.hook ~= nil then
+        local hook = resource_scan_detail_runtime.hook
+        return safe_get(hook.class, "HandleMessage") == hook.wrapper
+    end
+    local ok, class = pcall(require, "Net.Msgs.WorldGetDetailMessage")
+    local original = ok and class and safe_get(class, "HandleMessage") or nil
+    if type(original) ~= "function" then return false end
+    local wrapper = function(self, response, ...)
+        local results = table.pack(pcall(original, self, response, ...))
+        if not results[1] then error(results[2], 0) end
+        local observed, reason = pcall(resource_scan_detail_runtime.observe, response)
+        if not observed and resource_scan_detail_runtime.state ~= nil then
+            resource_scan_detail_runtime.state.error = "resource_reply_observer_failed"
+        end
+        return table.unpack(results, 2, results.n)
+    end
+    class.HandleMessage = wrapper
+    if safe_get(class, "HandleMessage") ~= wrapper then return false end
+    resource_scan_detail_runtime.hook = { class = class, original = original, wrapper = wrapper }
+    return true
+end
+
+function resource_scan_detail_runtime.send(target, state)
+    local before = resource_scan_detail_runtime.network_scope()
+    if not resource_scan_detail_runtime.scope_matches(state.scope, before) or
+       not resource_scan_detail_runtime.install() then return false end
     local sfs, defs = rawget(_G, "SFSNetwork"), rawget(_G, "MsgDefines")
     local message = defs and safe_get(defs, "WorldGetDetail") or nil
     local send = sfs and safe_get(sfs, "SendMessage") or nil
     if message == nil or type(send) ~= "function" then return false end
-    local ok = pcall(send, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid)
-    if not ok then ok = pcall(send, sfs, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid) end
-    return ok == true
+    -- The v27 OnCreate signature has five arguments after self. Native
+    -- SendLuaMessage assigns _id after ToBinary, so observe the counter on
+    -- either side of this synchronous, static Lua send without allocating IDs.
+    local ok = pcall(send, message, target.pointId, target.serverId, target.worldId, target.pointType, target.uid)
+    local after = resource_scan_detail_runtime.network_scope()
+    if not ok or not resource_scan_detail_runtime.scope_matches(before, after) or
+       after.counter ~= before.counter + 1 or state.byReplyId[after.counter] ~= nil then return false end
+    if target.expectedReplyId ~= nil then state.byReplyId[target.expectedReplyId] = nil end
+    target.expectedReplyId = after.counter
+    state.byReplyId[after.counter] = target
+    return true
 end
 
 function resource_scan_detail_runtime.queue(request, target)
     if request == nil or request.includeResourceDetails ~= true or target == nil or target.pointId == nil then return false end
     if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
+        resource_scan_detail_runtime.reset()
+        resource_scan_detail_runtime.lastTerminal = nil
         resource_scan_detail_runtime.state = {
             profileId = request.profileId, launchSessionId = request.launchSessionId,
             challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
             scanRunId = request.scanRunId, targets = {}, targetByKey = {},
             requestCount = 0, cacheBeforeCount = 0, sendFailureCount = 0,
+            byReplyId = {}, scope = resource_scan_detail_runtime.network_scope(), ignoredCacheCount = 0, retryRequestCount = 0,
         }
     end
     local state = resource_scan_detail_runtime.state
@@ -4676,11 +4856,9 @@ function resource_scan_detail_runtime.queue(request, target)
     state.targets[#state.targets + 1] = target
     local manager = resource_detail_manager()
     if resource_detail_snapshot(manager, target.pointId) ~= nil then
-        target.cacheBefore = true
-        state.cacheBeforeCount = state.cacheBeforeCount + 1
-        return true
+        state.ignoredCacheCount = state.ignoredCacheCount + 1
     end
-    if resource_scan_detail_runtime.send(target) then
+    if resource_scan_detail_runtime.send(target, state) then
         target.requestIssued = true
         state.requestCount = state.requestCount + 1
     else
@@ -4721,12 +4899,15 @@ function resource_scan_detail_runtime.read(now)
 end
 
 function resource_scan_detail_runtime.rows(state)
-    local manager = resource_detail_manager()
     local rows, ready = {}, 0
     if type(state) ~= "table" then return rows, ready end
+    local scope_valid = current_server_id() == state.serverId and
+        resource_scan_detail_runtime.scope_matches(state.scope, resource_scan_detail_runtime.network_scope())
+    local hook = resource_scan_detail_runtime.hook
+    scope_valid = scope_valid and hook ~= nil and safe_get(hook.class, "HandleMessage") == hook.wrapper
     for index = 1, #state.targets do
         local target = state.targets[index]
-        local detail = resource_detail_snapshot(manager, target.pointId)
+        local detail = scope_valid and target.detail or nil
         if detail ~= nil then ready = ready + 1 end
         rows[#rows + 1] = {
             recordKey = target.recordKey, received = detail ~= nil,
@@ -4734,6 +4915,8 @@ function resource_scan_detail_runtime.rows(state)
             resourceMaxAmount = target.resourceMaxAmount, detail = detail,
             requestIssued = target.requestIssued == true, cacheBefore = target.cacheBefore == true,
             sendFailed = target.sendFailed == true,
+            expectedReplyId = target.expectedReplyId, replyId = detail and target.replyId or nil,
+            replyScopeMatched = detail ~= nil,
         }
     end
     return rows, ready
@@ -4749,6 +4932,10 @@ function resource_scan_detail_runtime.write_result(request, error_text, state, r
         targetCount = type(state) == "table" and #state.targets or 0,
         requestCount = type(state) == "table" and state.requestCount or 0,
         cacheBeforeCount = type(state) == "table" and state.cacheBeforeCount or 0,
+        ignoredCacheCount = type(state) == "table" and state.ignoredCacheCount or 0,
+        retryRequestCount = type(state) == "table" and state.retryRequestCount or 0,
+        nativeReplyCorrelation = "future_id_connection_config_proxy",
+        nativeLaneStopped = result_state == "cancelled" and resource_scan_detail_runtime.state == nil,
         sendFailureCount = type(state) == "table" and state.sendFailureCount or 0,
         readyCount = ready, details = rows,
         elapsedSeconds = resource_scan_detail_runtime.startedAt and (runtime_clock() - resource_scan_detail_runtime.startedAt) or 0,
@@ -4757,33 +4944,60 @@ function resource_scan_detail_runtime.write_result(request, error_text, state, r
 end
 
 function resource_scan_detail_runtime.pump(now)
-    if resource_scan_detail_runtime.request == nil then
-        local request = resource_scan_detail_runtime.read(now)
-        if request == nil then return false end
-        resource_scan_detail_runtime.startedAt = runtime_clock()
-        if request.error ~= nil then
-            resource_scan_detail_runtime.write_result(request, request.error, nil)
-            resource_scan_detail_runtime.startedAt = nil
-            return true
-        end
-        if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
-            resource_scan_detail_runtime.write_result(request, "resource_scan_detail_runtime.state_unavailable", nil)
-            resource_scan_detail_runtime.startedAt = nil
-            return true
-        end
-        resource_scan_detail_runtime.request = request
-    end
-    local request = resource_scan_detail_runtime.request
-    local state = resource_scan_detail_runtime.state
-    local _, ready = resource_scan_detail_runtime.rows(state)
-    if ready == #state.targets then
-        resource_scan_detail_runtime.write_result(request, nil, state)
-        resource_scan_detail_runtime.request = nil; resource_scan_detail_runtime.startedAt = nil; resource_scan_detail_runtime.state = nil
+    local r = resource_scan_detail_runtime
+    local cancel = read_kv_file(r.cancelPath, 4096)
+    local pending = r.request or (r.state == nil and r.lastTerminal)
+    if r.cancel_matches(cancel, pending) then
+        -- Retire the observer before acknowledgement or any due repair.
+        r.reset()
+        r.lastTerminal = nil
+        pcall(os.remove, r.cancelPath)
+        r.write_result(pending, "cancelled", nil, "cancelled")
         return true
     end
-    if runtime_clock() - (resource_scan_detail_runtime.startedAt or runtime_clock()) >= 8 then
-        resource_scan_detail_runtime.write_result(request, "resource_scan_detail_partial_response", state)
-        resource_scan_detail_runtime.request = nil; resource_scan_detail_runtime.startedAt = nil; resource_scan_detail_runtime.state = nil
+    if r.request == nil then
+        local request = r.read(now)
+        if request == nil then return false end
+        r.startedAt = runtime_clock()
+        if request.error ~= nil or not r.same_state(r.state, request) then
+            r.write_result(request, request.error or "resource_scan_detail_state_unavailable", nil)
+            r.startedAt = nil
+            return true
+        end
+        r.request = request
+    end
+    local request = r.request
+    local state = r.state
+    local _, ready = r.rows(state)
+    if ready == #state.targets and state.error == nil then
+        r.write_result(request, nil, state)
+        r.reset()
+        r.lastTerminal = request
+        return true
+    end
+    if runtime_clock() - (r.startedAt or runtime_clock()) >= 8 then
+        -- A complete point sweep can leave a small number of genuinely lost
+        -- detail replies. Repair only missing targets, at most twice, using
+        -- new native IDs and removing the superseded pending ID. Never use a
+        -- delayed reply for the previous attempt or a cache hit as the repair.
+        if state.error == nil and (request.repairPass or 0) < 2 and
+           r.scope_matches(state.scope, r.network_scope()) then
+            request.repairPass = (request.repairPass or 0) + 1
+            for _, target in ipairs(state.targets) do
+                if target.requestIssued and target.detail == nil then
+                    if not r.send(target, state) then
+                        state.error = "resource_detail_repair_send_failed"
+                        break
+                    end
+                    state.retryRequestCount = state.retryRequestCount + 1
+                end
+            end
+            r.startedAt = runtime_clock()
+            return true
+        end
+        r.write_result(request, state.error or "resource_scan_detail_partial_response", state)
+        r.reset()
+        r.lastTerminal = request
         return true
     end
     return true
@@ -7275,7 +7489,7 @@ function M._map015FastTruck.finish(reason)
         pushesObserved = s.pushes, rectanglesCompleted = s.verified,
         initialRequestsSent = s.initialSent, repairRequestsSent = s.sent - s.initialSent,
         repairPasses = s.pass, unprovenRectangles = 625 - s.verified,
-        responseFenceSize = 25, responseAttribution = "bounded_sequential_fences",
+        responseFenceSize = s.fenceSize or 25, responseAttribution = "bounded_sequential_fences",
         trainRecords = proven and s.records or {}, trainRecordCount = #s.records,
         railwayRecords = proven and (s.railwayRecords or {}) or {},
         railwayRecordCount = #(s.railwayRecords or {}),
@@ -7304,7 +7518,8 @@ function M._map015FastTruck.pump(now)
         local current = manager and reflected_value(manager, "_curViewIndex")
         local marchManager = world and safe_get(world, "MarchDataManager")
         if world == nil or current == nil or marchManager == nil or server ~= current_server_id() then
-            return true -- the managed owner times out; never mutate an unready scene
+            -- The managed owner times out; never mutate an unready scene.
+            return true
         end
         local before = select(1, collection_int_values(current, 10001))
         local tile = safe_get(world, "CurTilePosClamped")
@@ -7313,6 +7528,15 @@ function M._map015FastTruck.pump(now)
         for _, index in ipairs(before) do original[index] = true end
         local whole_world = {}
         for index = 0, 9999 do whole_world[index] = true end
+        local requested_rate = tonumber(values.rate)
+        if requested_rate ~= 15 and requested_rate ~= 20 and
+           requested_rate ~= 25 and requested_rate ~= 30 then
+            requested_rate = 20
+        end
+        local requested_fence = tonumber(values.fenceSize)
+        if requested_fence ~= 5 and requested_fence ~= 10 and requested_fence ~= 25 then
+            requested_fence = 25
+        end
         s = {
             requestId = values.requestId, profileId = values.profileId,
             launchSessionId = values.launchSessionId, challenge = values.challenge,
@@ -7333,8 +7557,9 @@ function M._map015FastTruck.pump(now)
             pushes = 0, completed = {}, verified = 0, pass = 0,
             group = nil, unproven = {}, repair = {}, repairCursor = 1,
             startedAt = runtime_clock(), lastSend = -1,
-            rate = values.rate == "15" and 15 or 20,
-            interval = values.rate == "15" and 1 / 15 or 1 / 20,
+            rate = requested_rate,
+            interval = 1 / requested_rate,
+            fenceSize = requested_fence,
         }
         lane.active = s
         pcall(os.remove, lane.cancelPath)
@@ -7433,7 +7658,7 @@ function M._map015FastTruck.pump(now)
     if s.group == nil then
         local indices = {}
         if s.pass == 0 then
-            for n = s.next, math.min(624, s.next + 24) do
+            for n = s.next, math.min(624, s.next + (s.fenceSize or 25) - 1) do
                 indices[#indices + 1] = n
             end
             s.next = s.next + #indices
@@ -7503,6 +7728,7 @@ function M._map015CameraFree.finish(reason)
     local s = lane.active
     if s == nil then return end
     lane.active = nil
+    if reason ~= nil then resource_scan_detail_runtime.reset() end
     local restored = true
     if s.current ~= nil then
         for _, index in ipairs(s.added) do
@@ -8010,9 +8236,9 @@ function M.Pump()
         end
         if resource_scan_detail_runtime.request ~= nil then
             resource_scan_detail_runtime.write_result(resource_scan_detail_runtime.request, reason, nil, "failed")
-            resource_scan_detail_runtime.request = nil
-            resource_scan_detail_runtime.startedAt = nil
-            resource_scan_detail_runtime.state = nil
+        end
+        if resource_scan_detail_runtime.state ~= nil or resource_scan_detail_runtime.hook ~= nil then
+            resource_scan_detail_runtime.reset()
         end
         if resource_detail_request ~= nil then
             write_resource_detail_diagnostic_result(resource_detail_request, "failed", reason, {}, 0)

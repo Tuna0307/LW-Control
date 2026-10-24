@@ -19,7 +19,8 @@ local function safe_get(info,k) return info and info[k] end
 local function reflected_value(manager,k) return manager and manager[k] end
 local function call(manager,method,...)
     if manager and type(manager[method])=="function" then
-        return true, manager[method](...)
+        local ok, result = pcall(manager[method], ...)
+        return ok, ok and result or nil
     end
     return false, nil
 end
@@ -59,10 +60,10 @@ local function row(id,owner)
           playerName="controlled",serverId=2212,health=1}
 end
 local selected={[110]=true}
-local function run(retained,current)
+local function run(retained,current,canonical_resolver)
   return city_aoi_records({},{
      GetAllMainBaseList=function()return retained end,_pointInfos=current
-     ,GetBaseMainInfoByOwnerUid=function(uid)
+     ,GetBaseMainInfoByOwnerUid=canonical_resolver or function(uid)
         for _,r in ipairs(retained) do if r.ownerUid==uid then return r end end
       end
   },10,100,selected)
@@ -71,12 +72,18 @@ local both={row(101),row(102)}
 local records,err,diag=run(both,{row(101),row(102)})
 assert(err==nil and #records==2)
 assert(diag.nativeCurrentCityCount==2 and diag.missingNativeCurrentPointIndices==0)
+assert(diag.nativeIdentityDiagnostics.inspected==0)
 -- Critical count-only false positive: counts are equal but point 102 has
 -- been substituted with unrelated retained 103. Fail by identity.
 records,err,diag=run({row(101),row(103)},{row(101),row(102)})
 assert(records==nil and err=="city_native_candidate_identity_incomplete")
 assert(diag.accepted==2 and diag.nativeCurrentCityCount==2)
 assert(diag.missingNativeCurrentPointIndices==1)
+assert(diag.nativeIdentityDiagnostics.absentRetainedIndex==1)
+assert(diag.nativeIdentityDiagnostics.nativeOwnerPresent==1)
+assert(diag.nativeIdentityDiagnostics.canonicalCallAttempted==1)
+assert(diag.nativeIdentityDiagnostics.canonicalCallSucceeded==1)
+assert(diag.nativeIdentityDiagnostics.canonicalResultNil==1)
 records,err,diag=run({row(101),row(101)},{row(101)})
 assert(records==nil and diag.duplicateRetainedPointIndices==1)
 records,err,diag=run({row(101)},{row(101),row(102)})
@@ -92,11 +99,61 @@ assert(records==nil and diag.missingOwnerUid==1)
 records,err,diag=run({row(101),row(103,"moved-player")},{row(101),row(102,"moved-player")})
 assert(err==nil and #records==2 and diag.supersededNativeCityCount==1)
 assert(diag.nativeCurrentCityCount==1 and diag.missingNativeCurrentPointIndices==0)
+assert(diag.nativeIdentityDiagnostics.retainedOwnerAtOtherIndex==1)
+assert(diag.nativeIdentityDiagnostics.canonicalDifferentIndex==1)
+assert(diag.nativeIdentityDiagnostics.canonicalCallSucceeded==1)
 -- Unknown/malformed raw points are never discarded to manufacture success.
+local nonmain=row(102,"nonmain-owner");nonmain.itemId=10100001
+records,err,diag=run({row(101)},{row(101),nonmain})
+assert(err==nil and #records==1 and diag.nativeNonMainBuildingCount==1)
+assert(diag.nativeNonMainBuildingItems['10100001']==1)
+for _,mainItem in ipairs({10100000,735000}) do
+  local missing=row(102,"missing-main");missing.itemId=mainItem
+  records,err,diag=run({row(101)},{row(101),missing})
+  assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+end
 records,err,diag=run({row(101)},{row(101),row(102,"unknown-player")})
 assert(records==nil and diag.missingNativeCurrentPointIndices==1 and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.canonicalResultNil==1)
+records,err,diag=run({row(101)},{row(101),row(102,"")})
+assert(records==nil and diag.missingNativeCurrentPointIndices==1)
+assert(diag.nativeIdentityDiagnostics.ownerUnavailable==1)
+assert(diag.nativeIdentityDiagnostics.canonicalCallAttempted==0)
+assert(diag.nativeIdentityDiagnostics.canonicalResultNil==0)
+records,err,diag=run({row(101)},{row(101)},function(uid)error("fake unavailable getter")end)
+assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.canonicalCallFailed==1)
+assert(diag.nativeIdentityDiagnostics.canonicalCallSucceeded==0)
+records,err,diag=run({row(101)},{row(101,"")},function(uid)return nil end)
+assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.ownerFromRetained==1)
+records,err,diag=run({row(101)},{row(101)},function(uid)
+  return row(0,uid)
+end)
+assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.canonicalIndexInvalid==1)
+records,err,diag=run({row(101)},{row(101)},function(uid)
+  local value=row(101,uid);value.pointType=1;return value
+end)
+assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.canonicalTypeInvalid==1)
+records,err,diag=run({row(101)},{row(101)},function(uid)
+  local value=row(101,uid);value.serverId=2213;return value
+end)
+assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.canonicalServerInvalid==1)
+records,err,diag=run({row(101)},{row(101)},function(uid)
+  return row(101,"unrelated-owner")
+end)
+assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+assert(diag.nativeIdentityDiagnostics.canonicalOwnerInvalid==1)
 records,err,diag=run({row(101,"old-owner")},{row(101,"new-owner")})
 assert(records==nil and diag.nativeOwnerConflicts==1)
+-- The new failure payload contains aggregate numbers only, never a raw UID
+-- or a native point index (existing success superseded evidence is separate).
+for key,value in pairs(diag.nativeIdentityDiagnostics) do
+  assert(type(key)=="string" and type(value)=="number")
+end
 return true
 '''
 

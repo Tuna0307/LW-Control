@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "researchDate": "2026-10-23",
+  "productBaseline": "main@45e151c8",
+  "researchBase": "2231c4f0",
+  "target": {
+    "name": "LastWarPlugin.exe",
+    "bytes": 3330048,
+    "sha256": "3d90f6c2d12f8aecd2035406ecaaaef7c109b6fff8a8a48e12c1c0be002ac311"
+  },
+  "toolIdentity": {
+    "reverseEngineerAnythingVersion": "6.7.0",
+    "reverseEngineerAnythingSkillVersion": 42,
+    "note": "Whole-program Ghidra analysis was not repeated. Connection-specific native checks used bounded PE/Capstone inspection."
+  },
+  "lwControl": {
+    "integration": {
+      "method": "Pre-launch LWScripts package augmentation followed by the official LastWarLauncher.exe; the game loads the bridge through its own Lua/xLua runtime.",
+      "source": [
+        "src/LWBridge.Desktop/ProfileRuntimeOwner.cs:74-156",
+        "src/LWBridge.Desktop/LWBridge.Desktop.csproj:20-33",
+        "tools/run_overview_bridge.py:455-610",
+        "tools/run_overview_bridge.py:948-977",
+        "tools/current_overview_bridge.lua:4131-4172"
+      ]
+    },
+    "transport": {
+      "hostToGame": "Authenticated per-user named pipe with framed JSON.",
+      "luaAdapterBoundary": "The managed in-game adapter relays framed named-pipe traffic to/from sequence-numbered JSON mailbox files consumed by Lua.",
+      "activeFeatureTransport": "FEATURE018 also uses exact-owner request/response files with 50 ms result polling.",
+      "source": [
+        "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs:149-228",
+        "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs:292-337",
+        "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs:79-255",
+        "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs:332-399",
+        "tools/current_overview_bridge.lua:3608-3793",
+        "src/LWBridge.Desktop/Feature018OwnedGameExchange.cs:15-41",
+        "src/LWBridge.Desktop/Feature018OwnedGameExchange.cs:190-247"
+      ]
+    },
+    "identityAndReadiness": {
+      "requirements": [
+        "Exact game PID",
+        "Exact executable path",
+        "Exact process start time",
+        "Profile ID",
+        "Random launch session/instance ID",
+        "Random challenge",
+        "Per-launch pipe token",
+        "Expected bridge build ID",
+        "Expected named-pipe client executable image",
+        "Authenticated route generation",
+        "Fresh matching game heartbeat"
+      ],
+      "source": [
+        "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedHandshake.cs:83-150",
+        "src/LWBridge.Desktop/LWBridgeControlPipeRegistry.cs:39-75",
+        "src/LWBridge.Desktop/LWBridgeControlPipeRegistry.cs:117-191",
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:1861-1899",
+        "tools/run_overview_bridge.py:1250-1301"
+      ]
+    },
+    "cadenceAndLimits": {
+      "luaOverviewPump": "10 Hz maximum",
+      "gameHeartbeatFile": "0.75 s minimum spacing",
+      "pipeHeartbeat": "5 s",
+      "hostLeaseWrite": "1 s",
+      "managedPipeAdapterIdleLoop": "10 ms sleep when no frame/mailbox work is available",
+      "helperGameDiscoveryAndReadyPoll": "250 ms",
+      "recoveryMonitor": "2 s",
+      "feature018ResponsePoll": "50 ms while a request is outstanding",
+      "pipeCallTimeout": "200 ms",
+      "pipeIdleTimeout": "30 s",
+      "pipeWriteTimeout": "10 s",
+      "source": [
+        "tools/current_overview_bridge.lua:3839-3872",
+        "tools/current_overview_bridge.lua:3936-4030",
+        "tools/current_overview_bridge.lua:4102-4121",
+        "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs:184-233",
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:1938-1975",
+        "tools/run_overview_bridge.py:948-977",
+        "tools/run_overview_bridge.py:1250-1301",
+        "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs:18-20",
+        "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs:22-34",
+        "src/LWBridge.Desktop/LWBridgeControlPipeTransportLimits.cs:24-26",
+        "src/LWBridge.Desktop/Feature018OwnedGameExchange.cs:15-18"
+      ],
+      "interpretation": "These are source-backed schedules and safety limits, not a measured CPU or RAM benchmark."
+    },
+    "reconnect": {
+      "transportReconnect": "Same-session pipe transport can retry once per second, up to 90 attempts, after an authenticated session or initial host-unavailable state; authentication failures do not mint a new identity.",
+      "gameRecovery": "The native recovery monitor runs every 2 s and is enabled only when AutoReconnect and GameDesiredRunning are both true.",
+      "thresholds": {
+        "hangSeconds": 30,
+        "disconnectSeconds": 60,
+        "loginUnavailableSeconds": 180,
+        "stableVerificationSeconds": 15,
+        "normalRetrySeconds": [15, 30, 60, 120, 300],
+        "maintenanceRetrySeconds": [120, 300, 600]
+      },
+      "source": [
+        "tools/current_overview_bridge.lua:349-455",
+        "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs:99-117",
+        "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs:155-167",
+        "src/LWBridge.Desktop/OverviewRecoveryPolicy.cs:8-29"
+      ]
+    },
+    "cleanup": {
+      "behavior": "Stop invalidates recovery, targets the captured owner, requires exact process/session evidence, cancels the launch binding, stops the lease, clears only identity-matching runtime files, and restores the preserved official Lua package only after owned-process shutdown is proven.",
+      "source": [
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:1280-1400",
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:2151-2175",
+        "tools/run_overview_bridge.py:900-937",
+        "tools/run_overview_bridge.py:1580-1693"
+      ]
+    }
+  },
+  "lastWarPlugin": {
+    "applicationBootstrap": {
+      "classification": "Confirmed application payload decryptor; not evidence of the game attachment method.",
+      "bootstrapFileOffset": "0x21afd3",
+      "bootstrapBytes": 456,
+      "bootstrapXor": "0x5a",
+      "bootstrapSha256": "6372938bcbc80b500816d10ac164b2f6ebf56aca9521065a32441dd27d0b00ee",
+      "behavior": "Reads a 32-byte Local\\LwTool_MasterKey mapping, reads LWAPPENC, removes the encrypted file, AES-GCM decrypts using the first 12 bytes as nonce, optionally zlib-decompresses, then compiles and executes core.py.",
+      "nativeEvidence": [
+        "CreateFileMappingW call at VA 0x140020a7f",
+        "MapViewOfFile call at VA 0x140020aa8",
+        "OpenFileMappingW call at VA 0x1400290a9",
+        "core.py.enc literal at file offset 0x1b52fa",
+        "LWAPPENC literal at file offset 0x1b531a",
+        "Local\\LwTool_MasterKey literal at file offset 0x1b52a8"
+      ]
+    },
+    "launchCenterContract": {
+      "confirmedRendererBehavior": [
+        "Launch action posts profile and menu_mode to native IPC.",
+        "Renderer does not invent connecting state.",
+        "Native/core status is described by the shipped JavaScript as realtime mmap-derived live PID plus ACT state.",
+        "Native/core calls window.lwSetStatus(id, state, slot).",
+        "The launch button has a 90 s UI fallback."
+      ],
+      "source": [
+        "scripts/embedded-02-inline-01.js:36-67",
+        "scripts/embedded-02-inline-01.js:81-100"
+      ],
+      "shippedLiteralOffsets": {
+        "launch game profile=": "0x21ae72",
+        "menu_mode=": "0x21ae89",
+        "LastWarLauncher.exe": "0x21ae9f",
+        "LastWar.exe": "0x21aeb5",
+        "_accounts.json": "0x21af25",
+        "PROFILE_DELETE_FIRED uid=": "0x21af34",
+        "window.lwSetStatus": ["0x218d88", "0x21af67", "0x21af7d"],
+        "mmap": ["0x2139eb", "0x2189b4", "0x219686"],
+        "ACT": ["0x2189d0", "0x2196ac"]
+      }
+    },
+    "boundedNativeXrefs": {
+      "lastWarLauncherLiteral": {
+        "fileOffset": "0x21ae9f",
+        "xrefVA": "0x14000a89b",
+        "function": "0x140009ccd..0x14000bdbb",
+        "nearbyImports": [
+          "ole32.dll:CoInitializeEx",
+          "ole32.dll:CoCreateInstance",
+          "shell32.dll:SHCreateItemFromParsingName",
+          "ole32.dll:CoTaskMemFree",
+          "ole32.dll:CoUninitialize"
+        ],
+        "interpretation": "The resolved direct reference belongs to COM path selection, not a demonstrated game-launch or game-attachment call."
+      },
+      "selectedImports": [
+        {
+          "va": "0x140020a7f",
+          "import": "kernel32.dll:CreateFileMappingW",
+          "classification": "application master-key handoff"
+        },
+        {
+          "va": "0x140020aa8",
+          "import": "kernel32.dll:MapViewOfFile",
+          "classification": "application master-key handoff"
+        },
+        {
+          "va": "0x1400290a9",
+          "import": "kernel32.dll:OpenFileMappingW",
+          "classification": "application/bootstrap mapping access"
+        },
+        {
+          "va": "0x14014aef8",
+          "import": "kernel32.dll:CreateProcessW",
+          "classification": "present in outer executable; not linked by current evidence to the game launch chain"
+        },
+        {
+          "va": "0x14014fc73",
+          "import": "ntdll.dll:NtCreateNamedPipeFile",
+          "classification": "present in outer executable; not linked by current evidence to game communication"
+        }
+      ],
+      "directImportNegative": "The outer executable does not directly import the common remote-memory injection APIs checked: OpenProcess, ReadProcessMemory, WriteProcessMemory, VirtualAllocEx, CreateRemoteThread, or NtWriteVirtualMemory. This does not constrain the encrypted Python core or dynamically resolved APIs."
+    },
+    "actualGameConnection": {
+      "status": "UNKNOWN",
+      "reason": "The authenticated core.py and matching ui.html payload are absent and the owner has never authenticated. The Launch Center mmap/ACT comments establish a status contract but do not reveal how the core launches, attaches to, injects into, communicates with, monitors, reconnects, or cleans up the game.",
+      "missingEvidence": [
+        "A normal owner-authenticated core.py payload or a task-owned decrypted in-memory equivalent",
+        "Matching post-auth ui.html if connection controls are implemented there",
+        "A task-owned authenticated runtime observation linking game PID/session identity to concrete handles, mappings, pipes, sockets or loaded modules",
+        "Equivalent connected-idle CPU/RAM and start-to-connected timing"
+      ]
+    }
+  },
+  "measurements": {
+    "lastWarPluginUnauthenticatedWrapper": {
+      "state": "unauthenticated",
+      "sampleSeconds": 8,
+      "processCount": 7,
+      "processComposition": {
+        "LastWarPlugin": 1,
+        "WebView2Children": 6
+      },
+      "cpuSecondsDelta": 0.2969,
+      "aggregateCpuPercentOfOneLogicalCore": 3.71,
+      "workingSetMiB": 332.54,
+      "privateMiB": 158.89,
+      "taskOwnedProcessesRemainingAfterCleanup": 0,
+      "comparability": "Not comparable to a connected game session."
+    },
+    "connectedIdle": {
+      "lwControl": "NOT MEASURED in this research pass; no task-owned connected game was already running.",
+      "lastWarPlugin": "NOT MEASURABLE without authenticated core/game connection.",
+      "analysisToolMemoryExcluded": true
+    }
+  },
+  "conclusionBoundary": {
+    "reliability": "LW-Control is substantially better evidenced and currently safer to retain. Competitor reliability is unknown, not demonstrated weaker.",
+    "efficiency": "No fair winner can be established. LW-Control has identifiable polling/file-I/O optimization headroom; LastWarPlugin connected-state cost is unavailable.",
+    "attachment": "LW-Control's method is known: in-process game scripting loaded through the official game runtime after pre-launch package augmentation. LastWarPlugin's actual game attachment method remains unknown.",
+    "profileIsolation": "LW-Control has proven retained per-profile controller/session identity but currently serializes real game ownership because the installed Lua package is shared per Windows user. LastWarPlugin advertises multi-open/sandbox concepts, but their isolation and cleanup implementation remain hidden in the missing core."
+  }
+}

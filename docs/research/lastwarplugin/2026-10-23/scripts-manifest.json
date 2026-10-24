@@ -1,0 +1,14 @@
+[
+  {
+    "file": "scripts/embedded-01-inline-01.js",
+    "parent": "embedded-01.html",
+    "parent_offset": 8062,
+    "bytes": 14932
+  },
+  {
+    "file": "scripts/embedded-02-inline-01.js",
+    "parent": "embedded-02.html",
+    "parent_offset": 12813,
+    "bytes": 16492
+  }
+]

@@ -10,9 +10,69 @@ import sqlite3
 import tempfile
 import time
 import unittest
+from unittest import mock
 import importlib.util
+import zipfile
 
 import map_015_package_ui as package_ui
+
+
+class ProgrammePackageCompatibilityTests(unittest.TestCase):
+    def test_owned_runner_disables_python_bytecode_without_weakening_package_gate(self):
+        with mock.patch.dict(os.environ, {"SENTINEL_TEST_ONLY": "keep"}):
+            result = package_ui.owned_runner_environment("C:/package/LWBridge.Desktop.exe", True)
+        self.assertEqual(result["PYTHONDONTWRITEBYTECODE"], "1")
+        self.assertEqual(result["LWBRIDGE_MAP014_UI_EXE"], "C:/package/LWBridge.Desktop.exe")
+        self.assertEqual(result["LWBRIDGE_MAP014_NEW_KINDS_UI"], "1")
+        self.assertEqual(result["SENTINEL_TEST_ONLY"], "keep")
+        self.assertNotIn("SENTINEL_TEST_ONLY", os.environ)
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="map015-programme-package-", dir=package_ui.ARTIFACTS)
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.commit = "a" * 40
+        self.extracted = self.root / package_ui.APP_FOLDER
+        (self.extracted / "ProductionUi").mkdir(parents=True)
+        payloads = {
+            "LWBridge.Desktop.exe": b"exe",
+            "LWBridge.Desktop.dll": b"dll",
+            "ProductionUi/index.html": b"<html></html>",
+            "SOURCE-COMMIT.txt": (self.commit + "\n").encode("ascii"),
+        }
+        for name, data in payloads.items():
+            path = self.extracted / Path(name)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        self.manifest = {
+            "sourceCommit": self.commit,
+            "files": {
+                f"{package_ui.APP_FOLDER}/{name}": {
+                    "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)
+                } for name, data in payloads.items()
+            },
+        }
+        self.archive = self.root / f"LW-Control-lwtool-improvement-{self.commit[:12]}.zip"
+        self.write_archive()
+
+    def write_archive(self):
+        with zipfile.ZipFile(self.archive, "w") as archive:
+            for path in sorted(self.extracted.rglob("*")):
+                if path.is_file():
+                    archive.write(path, (Path(package_ui.APP_FOLDER) / path.relative_to(self.extracted)).as_posix())
+            archive.writestr(package_ui.PROGRAMME_MANIFEST, json.dumps(self.manifest))
+
+    def test_programme_root_manifest_is_validated_and_allowed(self):
+        result = package_ui.verify_package(self.archive, self.extracted, self.commit)
+        self.assertEqual(result["sourceCommit"], self.commit)
+        self.assertEqual(result["fileCount"], 4)
+
+    def test_programme_root_manifest_source_mismatch_fails_closed(self):
+        self.manifest["sourceCommit"] = "b" * 40
+        self.archive.unlink()
+        self.write_archive()
+        with self.assertRaisesRegex(ValueError, "manifest source commit"):
+            package_ui.verify_package(self.archive, self.extracted, self.commit)
 
 
 class PackagedCityCameraFreeTests(unittest.TestCase):
@@ -217,6 +277,40 @@ class PackagedCityCameraFreeTests(unittest.TestCase):
                 witness.clear()
                 witness.update(original)
 
+    def test_all_ten_keeps_public_other_but_metrics_use_shared_treasure_census(self):
+        selected = package_ui.MODES["all-ten"]["selected"]
+        native_selected = sorted({"treasure" if kind == "other" else kind for kind in selected})
+        results = [dict(kind=kind, serverId=self.server,
+                        firstPageRows=0, total=0,
+                        nativeSearchRequestId="real-source-request-" + kind,
+                        positiveGhostRewardRendering=None)
+                   for kind in selected]
+        self.proof.update(selection="all-ten", selectedTypes=selected,
+                          proof="actual_packaged_ui_all_ten_fullworld_scan_and_results",
+                          browse=dict(ghostNativeRewardDisplayProven=False,
+                                      scanRunId=self.run, serverId=self.server, selectedKinds=selected,
+                                      cameraFree=dict(source="direct", completedAois=10000,
+                                                      repliesCaptured=63, batchesCaptured=63,
+                                                      requestsSent=63, cameraStable=True,
+                                                      curViewRestored=True, metricsPhase="prepared"),
+                                      results=results))
+        self.proof["completedStatus"]["selectedTypes"] = selected
+        self.metrics["identity"]["SelectedTypesKey"] = "\x1f".join(native_selected)
+        with closing(sqlite3.connect(self.db_path)) as database:
+            database.execute("UPDATE scan_runs SET selected_types=? WHERE id=?",
+                             (json.dumps(selected, separators=(",", ":")), self.run))
+            database.commit()
+        self.save_receipts()
+        receipt = package_ui.audit_city_camera_free(self.root, self.proof, self.restoration, "all-ten")
+        self.assertEqual(receipt["runId"], self.run)
+        self.assertIn("other", selected)
+        self.assertNotIn("other", native_selected)
+
+        self.metrics["identity"]["SelectedTypesKey"] = "\x1f".join(sorted(selected))
+        self.save_receipts()
+        with self.assertRaisesRegex(ValueError, "prepared metrics"):
+            package_ui.audit_city_camera_free(self.root, self.proof, self.restoration, "all-ten")
+
     def test_mixed_eight_truck_filter_requires_fresh_matching_rows(self):
         selected = package_ui.MODES["mixed-eight"]["selected"]
         uuid = "native-truck-witness"
@@ -299,6 +393,17 @@ class PackagedPublishedFastTruckSourceTests(unittest.TestCase):
                 self.put(dict(captureProtocol="current_fast_truck_625_v1", arriveTs=arrived))
                 with self.assertRaisesRegex(ValueError, "already arrived"):
                     package_ui.audit_published_fast_truck_rows(self.database, self.server)
+
+    def test_qualified_fast_truck_proof_requires_exact_20_per_second_fence25(self):
+        proof = dict(pushes=625, requestsPerSecond=20, responseFenceSize=25,
+                     cameraStable=True, curViewRestored=True, trainRecordCount=3)
+        package_ui.require_qualified_fast_truck_proof(proof)
+        for key, value in (("requestsPerSecond", 15), ("responseFenceSize", 10)):
+            with self.subTest(key=key, value=value):
+                mutated = proof.copy()
+                mutated[key] = value
+                with self.assertRaisesRegex(ValueError, "20/s fence25"):
+                    package_ui.require_qualified_fast_truck_proof(mutated)
 
 
 class PackagedRailwaySourceTests(unittest.TestCase):
@@ -572,19 +677,23 @@ class PackagedAutoAllNineProofTests(unittest.TestCase):
     write = PackagedCityCameraFreeTests.write
     save_receipts = PackagedCityCameraFreeTests.save_receipts
 
-    def make_auto(self):
-        kinds = package_ui.MODES["auto-all-nine"]["selected"]
-        self.assertTrue(package_ui.MODES["auto-all-nine"]["remote"])
-        self.assertEqual(package_ui.MODES["auto-all-nine"]["args"], ["auto-all-nine"])
-        self.assertIn('LWBRIDGE_MAP016_AUTO_ALL_NINE="1" if mode == "auto-all-nine"',
-                      (package_ui.ROOT / "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8"))
+    def make_auto(self, mode="auto-all-nine"):
+        kinds = package_ui.MODES[mode]["selected"]
+        self.assertTrue(package_ui.MODES[mode]["remote"])
+        self.assertEqual(package_ui.MODES[mode]["args"], [mode])
+        runner = (package_ui.ROOT / "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8")
+        env_name = "LWBRIDGE_MAP016_AUTO_ALL_TEN" if mode == "auto-all-ten" else "LWBRIDGE_MAP016_AUTO_ALL_NINE"
+        self.assertIn(f'{env_name}="1" if mode == "{mode}"', runner)
         t = int(time.time() * 1000)
         metrics = dict(runId=self.run, serverId=2211, scanMode="fast",
                        sourceCaptureMilliseconds=150000,
                        checkpointMilliseconds=7000, publicationMilliseconds=2000,
                        wholeEngineMilliseconds=159000)
-        self.proof = dict(state="proven", selection="auto-all-nine",
-                          proof="actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results",
+        proof_name = ("actual_packaged_ui_auto_all_ten_run_now_fullworld_scan_and_results"
+                      if mode == "auto-all-ten" else
+                      "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results")
+        self.proof = dict(state="proven", selection=mode,
+                          proof=proof_name,
                           genuineGame=True, controlledProvider=False,
                           profileId=self.profile, gamePid=self.pid,
                           selectedTypes=kinds, serverId=2211,
@@ -615,8 +724,8 @@ class PackagedAutoAllNineProofTests(unittest.TestCase):
                 nativeSearchRequestId="native-" + kind, screenshotPath=str(screenshot)))
         self.write("live-resource/map-engine-stage-metrics.json", metrics)
 
-    def audit_auto(self):
-        return package_ui.audit_auto_all_nine(self.root, self.proof, self.restoration)
+    def audit_auto(self, mode="auto-all-nine"):
+        return package_ui.audit_auto_all_nine(self.root, self.proof, self.restoration, mode)
 
     def test_exact_one_auto_run_and_time_admission(self):
         self.make_auto()
@@ -625,6 +734,16 @@ class PackagedAutoAllNineProofTests(unittest.TestCase):
         self.assertEqual(result["restoredServerId"], 2212)
         self.assertEqual(result["scanRunId"], self.run)
         self.assertEqual(result["timings"]["wholeEngineMilliseconds"], 159000)
+
+    def test_all_ten_auto_includes_other_and_fails_closed(self):
+        self.make_auto("auto-all-ten")
+        self.assertEqual(self.proof["selectedTypes"], package_ui.KIND_ORDER)
+        self.assertIn("other", self.proof["selectedTypes"])
+        result = self.audit_auto("auto-all-ten")
+        self.assertEqual(result["scanRunId"], self.run)
+        self.proof["auto"]["selectedTypes"] = [kind for kind in package_ui.KIND_ORDER if kind != "other"]
+        with self.assertRaises(ValueError):
+            self.audit_auto("auto-all-ten")
 
     def test_auto_cannot_substitute_interval_manual_or_foreign_owner(self):
         mutations = [
@@ -686,7 +805,18 @@ class PackagedSavedClearReopenProofTests(unittest.TestCase):
                           homeServer=2212, remoteServer=2213,
                           stages=[
                               dict(stage="preserved_home", serverId=2212, count=3,
-                                   priorRemote=0, beforeServers=[2212]),
+                                   priorRemote=0, beforeServers=[2212],
+                                   initialHomeRows=0, initialSavedServers=[],
+                                   acquisition="same_owned_session_genuine_manual_resource_after_r18_startup_clear",
+                                   homeScanRunId="fresh-home-resource-run", homeDurableStatus="completed",
+                                   homeScan=dict(scanRunId="fresh-home-resource-run",serverId=2212,
+                                                 serverIdSource="live",selectedTypes=["resource"],
+                                                 scanMode="fast",phase="completed",isReading=False,
+                                                 totalBlocks=2500,completedBlocks=2500,readBlocks=2500,
+                                                 failedBlocks=0,nativeDroppedRecords=0,nativePendingRecords=0),
+                                   nativeAois=10000,nativeReplies=63,
+                                   homeNativeReceipt="map016-home-native-resource-receipt.json",
+                                   homeNativeMetrics="map016-home-native-resource-metrics.json"),
                               dict(stage="two_server_auto_published",
                                    requestedAt=datetime.fromtimestamp((now-1000)/1000, timezone.utc).isoformat(),
                                    scan=dict(outcome="completed", lastError=None,
@@ -709,6 +839,15 @@ class PackagedSavedClearReopenProofTests(unittest.TestCase):
         self.metrics["uniqueRecordKeys"]["resource"] = 5
         self.metrics["source"] = "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync"
         self.metrics.update(phase="prepared", validatedProbeResponses=63, uniqueCoveredAois=10000)
+        home_native = dict(self.native, probeVersion="lwbridge-live-resource-probe-2",
+                           requestId="direct-home", scanRunId="fresh-home-resource-run",
+                           serverId=2212)
+        home_metrics = dict(self.metrics,
+                            identity=dict(self.metrics["identity"],RunId="fresh-home-resource-run",
+                                          ServerId=2212,SelectedTypesKey="resource",ScanMode="fast"),
+                            acquisitionPolicy="direct")
+        self.write("map016-home-native-resource-receipt.json", home_native)
+        self.write("map016-home-native-resource-metrics.json", home_metrics)
         self.stage = dict(runId=self.run, serverId=2213, scanMode="fast",
                           sourceCaptureMilliseconds=31000, checkpointMilliseconds=250,
                           publicationMilliseconds=150, wholeEngineMilliseconds=31400)
@@ -765,6 +904,11 @@ class PackagedSavedClearReopenProofTests(unittest.TestCase):
             ("no Resource provenance", lambda: self.metrics["identity"].update(SelectedTypesKey="city")),
             ("missing screenshot", lambda: (self.root/"map016-saved-after-clear.png").unlink()),
             ("wrong sqlite retained", lambda: self.remove_resource_rows()),
+            ("old startup data", lambda: self.saved["stages"][0].update(initialHomeRows=3)),
+            ("missing new home run", lambda: self.saved["stages"][0].update(homeScanRunId="")),
+            ("wrong home run phase", lambda: self.saved["stages"][0]["homeScan"].update(phase="failed")),
+            ("old row reinjection", lambda: self.saved["stages"][0].update(acquisition="source_clone")),
+            ("home aliases remote", lambda: self.saved["stages"][0].update(homeScanRunId=self.run)),
         ]
         for label, mutate in cases:
             with self.subTest(label=label):
@@ -822,10 +966,47 @@ class OfficialSettleNoUpdaterAdmissionTests(unittest.TestCase):
         copied = self.copy()
         self.assertEqual(copied.read_bytes(), self.marker.read_bytes())
         self.assertEqual(self.runner.NO_UPDATER_MODES,
-                         {"all-nine", "truck", "railway",
-                          "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
+                         {"all-nine", "all-ten", "truck", "railway",
+                          "auto-all-nine", "auto-all-ten", "saved-clear-reopen", "auto-interval-20m",
                           "boss-first", "boss-after-resource", "picker-empty", "once-two-server",
                           "feature018-tabs"})
+
+    def test_current_version_official_marker_audit_preserves_proven_source(self):
+        """An officially updated v27 marker must not be compared to stale v26 bytes."""
+        self.hashes = self.runner.EXPECTED_27_CURRENT.copy()
+        self.put_marker()
+        copied = self.copy()
+        evidence = copied.parent
+        (evidence / "map016-official-settle-admission.json").write_text(json.dumps(dict(
+            schemaVersion=1, state="settled_reuse_allowed", gameRoot=str(self.game),
+            packageSha256=self.hashes["LWScripts.data"], forceOfficialSettle=False,
+            officialLauncherStartedByThisAdmission=False,
+            updaterActionAuthorized=False)), encoding="utf-8")
+        original = dict(capturedOriginalHashes=self.hashes)
+        # The real runner chooses its exact trusted v27 proof from the admitted
+        # original triplet. A local synthetic selector makes the auditor's
+        # byte-for-byte and previous-owned-exit gates independently testable.
+        selector = self.root / "owned-runner-selector.py"
+        selector.write_text("from pathlib import Path\n"
+                            f"def trusted_settled_proof(hashes):\n"
+                            f"    return Path({str(self.proof)!r}) if "
+                            f"hashes.get('LWScripts.data') == "
+                            f"{self.hashes['LWScripts.data']!r} else None\n", encoding="utf-8")
+        with mock.patch.object(package_ui, "RUNNER", selector):
+            result = package_ui.audit_no_official_updater(self.root / "new", original)
+            self.assertTrue(result["reusedExistingSettlement"])
+            self.assertFalse(result["updaterAuthorized"])
+            self.assertEqual(result["originalPackageSha256"], self.hashes["LWScripts.data"])
+
+            copied.write_text(self.marker.read_text(encoding="utf-8").replace(
+                self.hashes["LWScripts.data"], self.runner.EXPECTED_26_CURRENT["LWScripts.data"]),
+                encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "changed or invented"):
+                package_ui.audit_no_official_updater(self.root / "new", original)
+            copied.write_bytes(self.marker.read_bytes())
+            self.put_modified_exit(proof=False)
+            with self.assertRaisesRegex(ValueError, "independently proven"):
+                package_ui.audit_no_official_updater(self.root / "new", original)
 
     def test_mismatch_and_untrusted_marker_fail_before_app_launch(self):
         for name, action in [

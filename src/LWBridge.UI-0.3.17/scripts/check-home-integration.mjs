@@ -154,10 +154,12 @@ function deliver(fixture, message) {
 {
   const connectedStatus = { xluaOnline: true };
   const disconnectedStatus = { xluaOnline: false };
+  const publicationGraceStatus = { xluaOnline: false, presentationOnline: true };
   const runningProxy = { gameRunning: true };
   assert.equal(connectionState(connectedStatus, runningProxy, "native", true), "connected");
   assert.equal(connectionState(connectedStatus, runningProxy, "native", false), "checking", "read start/deferred pair must invalidate stale connected availability");
   assert.equal(connectionState(connectedStatus, runningProxy, "native", false, "STATUS_READ_FAILED"), "unavailable", "rejected paired read must remain unavailable even with stale connected values");
+  assert.equal(connectionState(publicationGraceStatus, runningProxy, "native", true), "disconnected", "presentation grace must not alter the shared strict connection/command state");
   assert.equal(connectionState(disconnectedStatus, runningProxy, "native", true), "disconnected");
   assert.equal(connectionState(connectedStatus, runningProxy, "native", true), "connected", "fresh paired status must restore connected availability");
 }
@@ -236,6 +238,18 @@ function deliver(fixture, message) {
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
+assert.match(appSource,
+  /const readStatusSnapshot = useCallback\(async \(canAcknowledge = \(\) => true, includeConfig = true\)/,
+  "status watchdog must make persisted-config rereads optional");
+assert.match(appSource,
+  /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\), false\)/,
+  "periodic status watchdog must skip redundant local_config_get");
+assert.match(appSource,
+  /const autoLaunchConfigPollGeneration = includeConfig[\s\S]*if \(includeConfig\) autoLaunchConfigPollGenerationRef\.current = autoLaunchConfigPollGeneration/,
+  "status-only watchdog must not retire an overlapping config-bearing read generation");
+assert.match(appSource,
+  /!online \|\| !backendBridge\.available \|\| activeRoute !== "map-data"/,
+  "hidden retained Map route must not keep polling aggregate summary");
 {
   const enabledBody = appSource.slice(appSource.indexOf("const setNativeProfileEnabled ="),
     appSource.indexOf("const reorderNativeProfiles ="));
@@ -523,6 +537,11 @@ assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
     assert.equal(homeFn(lookup, "RECOVERY_RECORD_COMMIT_FAILED"), expected,
       `${language}: session-save failure must not disappear into generic action failure`);
     assert.equal(sidebarFn(lookup, new Error("RECOVERY_RECORD_COMMIT_FAILED")), expected);
+    const cleanup = HOME_LAUNCH_FEEDBACK[language]["error.GAME_EXITED_RESTORE_REQUIRED"];
+    assert.ok(cleanup && cleanup !== "GAME_EXITED_RESTORE_REQUIRED",
+      `${language}: exited exact-owner restoration must have localized actionable feedback`);
+    assert.equal(homeFn(lookup, "GAME_EXITED_RESTORE_REQUIRED"), cleanup);
+    assert.equal(sidebarFn(lookup, new Error("GAME_EXITED_RESTORE_REQUIRED")), cleanup);
   }
 }
 {
@@ -567,6 +586,17 @@ assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
       originalKr({rootResolved, rootValid, gameRunning, needsRepair, recovering, busy, launching}),
       `H-02/H-18/H-45 original Kr conditional Home gate parity flags=${flags}`,
     );
+    const retainedOwner = actual({
+      ...state,
+      proxyStatus: { ...state.proxyStatus, runtimeManaged: true },
+    }, activeStates, provider, provider, provider);
+    assert.equal(retainedOwner.canStart, false,
+      `retained exact ownership must block successor Start flags=${flags}`);
+    assert.equal(retainedOwner.canStop, rootResolved && rootValid && !busy && !launching,
+      `retained exact owner must remain eligible for confirmed native cleanup flags=${flags}`);
+    assert.equal(retainedOwner.repairOnClose,
+      originalKr({rootResolved, rootValid, gameRunning, needsRepair, recovering, busy, launching}).repairOnClose,
+      "retained ownership cannot change the normal repair/update routing");
     if (rootResolved && rootValid) {
       const pickingRoot = { ...state, busy: "gameRoot" };
       const choosing = actual(pickingRoot, activeStates, provider, provider, provider);
@@ -678,7 +708,8 @@ assert.ok(periodicStatusIndex >= 0, "recurring status refresh must use its own g
 const periodicStatusBody = appSource.slice(appSource.lastIndexOf("useEffect(() => {", periodicStatusIndex), appSource.indexOf("useEffect(() => {", periodicStatusIndex + 1));
 assert.match(periodicStatusBody, /let inFlight = false/, "recurring status refresh must own an in-flight fence");
 assert.match(periodicStatusBody, /if \(inFlight\) return/, "overlapping periodic status reads must be suppressed");
-assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\)\)/, "periodic acknowledgements must remain owned by the live profile generation");
+assert.match(periodicStatusBody, /readStatusSnapshot\(\(\) => !closed && isCurrentProfileOwner\(owner\), false\)/,
+  "periodic acknowledgements must remain owned by the live profile generation while skipping redundant persisted-config reads");
 assert.match(periodicStatusBody, /statusReadRevisionRef\.current \+= 1;[\s\S]*acknowledgeRuntimeStatus\(status/,
   "a newer bridge status event must retire any older in-flight paired status read before applying runtime state");
 assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring status refresh must clear its timer with the effect");
@@ -701,6 +732,12 @@ assert.doesNotMatch(statusReadBody, /writeAutoLaunchGamePreference|setAutoLaunch
 assert.match(statusReadBody, /autoLaunchNativeCommittedByOwnerRef\.current\.set\([\s\S]*profileOwnerKey\(owner\)/,
   "native Auto Launch acknowledgement must remain cached under the exact profile generation owner");
 assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatus,[\s\S]*backendBridge\.mode,[\s\S]*statusPairReady,[\s\S]*connectionError,[\s\S]*\)/, "connected availability must consume paired-status freshness and rejection state");
+assert.match(appSource, /const online = bridgeState === "connected";/,
+  "presentation-only checking state must keep live/mutating UI commands disabled");
+assert.match(appSource, /const presentationOnline = online \|\| \([\s\S]*statusPairReady[\s\S]*runtimeStatus\?\.presentationOnline === true[\s\S]*\);/,
+  "App must derive presentation-only Home state separately from strict online command admission");
+assert.match(appSource, /homeState:\s*\{[\s\S]*?online,\s*presentationOnline,/,
+  "Home must receive the separate corroborated presentation signal");
 
 {
   const deferred = () => {
@@ -823,6 +860,11 @@ assert.match(appSource, /<Activity key=\{route\.key\} mode=\{route\.key === acti
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
 assert.doesNotMatch(pagesSource, /launchAdmitted|gameLaunchStatus/, "clone-only launch diagnostic must not gate original Home Start");
 assert.match(pagesSource, /const canStart = lifecycleProviderAvailable && rootResolved && rootValid/, "Home Start follows original root and busy state gates");
+assert.match(
+  pagesSource,
+  /state\.online \? "status\.gameRunning"[\s\S]*state\.presentationOnline \? "status\.checking"[\s\S]*"setup\.bridgeDisconnected"/,
+  "Home must show checking during corroborated presentation grace instead of a false bridge-disconnected message",
+);
 assert.doesNotMatch(appSource, /invoke\("local_game_launch_status"/, "original Home root status must not depend on clone-only launch diagnostics");
 assert.match(appSource, /const HOME_LIFECYCLE_TIMEOUT_MS = null/, "original Home lifecycle requests must not impose an extra frontend deadline");
 assert.match(

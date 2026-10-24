@@ -91,8 +91,16 @@ local pipe_runtime = {
     adapterRead = nil,
     adapterReadInvoke = nil,
     adapterReadMode = nil,
+    adapterEnableDirect = nil,
+    adapterState = nil,
+    adapterDequeue = nil,
+    adapterPublish = nil,
+    adapterRetire = nil,
     adapterPath = nil,
     adapterActive = false,
+    directCapable = false,
+    directActive = false,
+    adapterGeneration = nil,
     sessionId = nil,
     state = "idle",
     error = nil,
@@ -179,6 +187,8 @@ local function pipe_transport_capabilities()
         adapterLoaded = pipe_runtime.adapterLoaded == true,
         adapterActive = pipe_runtime.adapterActive == true,
         adapterReadMode = pipe_runtime.adapterReadMode,
+        directCapable = pipe_runtime.directCapable == true,
+        directActive = pipe_runtime.directActive == true,
     }
 end
 
@@ -242,7 +252,15 @@ local function write_pipe_transport_diagnostic()
 end
 
 local function close_pipe_runtime()
+    if pipe_runtime.directActive and pipe_runtime.adapterRetire ~= nil and
+       pipe_runtime.adapterGeneration ~= nil and pipe_runtime.sessionId ~= nil then
+        local retire_payload = tostring(pipe_runtime.adapterGeneration) .. "\n" ..
+            tostring(pipe_runtime.sessionId)
+        pcall(function() return pipe_runtime.adapterRetire(retire_payload) end)
+    end
     pipe_runtime.adapterActive = false
+    pipe_runtime.directActive = false
+    pipe_runtime.adapterGeneration = nil
     pipe_runtime.sessionId = nil
     pipe_runtime.inboundSequence = 0
     pipe_runtime.outboundSequence = 0
@@ -290,9 +308,24 @@ local function load_pipe_adapter(path)
         local read_type = safe_get(read_field, "FieldType")
         local read_invoke = read_type and read_type:GetMethod("Invoke") or nil
         if read_invoke == nil then error("pipe_adapter_runtime_read_invoke_method_unavailable") end
+        local function optional_delegate(name)
+            local optional_field = adapter_type:GetField(name, 24)
+            return optional_field and optional_field:GetValue(nil) or nil
+        end
         pipe_runtime.adapterConnectInvoke = connect_invoke
         pipe_runtime.adapterRead = read
         pipe_runtime.adapterReadInvoke = read_invoke
+        pipe_runtime.adapterEnableDirect = optional_delegate("EnableDirectTransport")
+        pipe_runtime.adapterState = optional_delegate("ReadTransportState")
+        pipe_runtime.adapterDequeue = optional_delegate("TryDequeueInbound")
+        pipe_runtime.adapterPublish = optional_delegate("PublishOutbound")
+        pipe_runtime.adapterRetire = optional_delegate("Retire")
+        pipe_runtime.directCapable =
+            pipe_runtime.adapterEnableDirect ~= nil and
+            pipe_runtime.adapterState ~= nil and
+            pipe_runtime.adapterDequeue ~= nil and
+            pipe_runtime.adapterPublish ~= nil and
+            pipe_runtime.adapterRetire ~= nil
         return connect
     end)
     if not ok_load or connect_or_error == nil then
@@ -305,10 +338,32 @@ local function load_pipe_adapter(path)
 end
 
 local function refresh_pipe_adapter_state()
-    local file = io.open(pipe_adapter_state_path, "rb")
-    if file == nil then return end
-    local value = file:read("*a") or ""
-    file:close()
+    local value = nil
+    if pipe_runtime.directActive and pipe_runtime.adapterState ~= nil and
+       pipe_runtime.sessionId ~= nil then
+        local ok_state, direct_state = pcall(function()
+            return pipe_runtime.adapterState(pipe_runtime.sessionId)
+        end)
+        if not ok_state or type(direct_state) ~= "string" then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_direct_state_failed"
+            return
+        end
+        local generation_text, state_text = string.match(direct_state, "^ok\n([0-9]+)\n([^\n]*)$")
+        local generation = tonumber(generation_text)
+        if generation == nil or generation < 1 or state_text == nil then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_direct_state_invalid"
+            return
+        end
+        pipe_runtime.adapterGeneration = generation
+        value = state_text
+    else
+        local file = io.open(pipe_adapter_state_path, "rb")
+        if file == nil then return end
+        value = file:read("*a") or ""
+        file:close()
+    end
     if value == "connected" then
         pipe_runtime.clientConnected = true
         pipe_runtime.state = "connected"
@@ -355,6 +410,9 @@ local function ensure_pipe_hello(control)
         local state_error = pipe_runtime.error or ""
         local transport_lost = pipe_runtime.state == "closed" or
             state_error == "host_lease_stale" or
+            state_error == "direct_inbound_overflow" or
+            state_error == "direct_outbound_overflow" or
+            state_error == "frame_length_invalid" or
             string.find(state_error, "PeekNamedPipe", 1, true) ~= nil or
             string.find(state_error, "WaitNamedPipeW", 1, true) ~= nil or
             string.find(state_error, "CreateFileW", 1, true) ~= nil or
@@ -370,6 +428,8 @@ local function ensure_pipe_hello(control)
         end
         pipe_runtime.reconnectAttempts = (pipe_runtime.reconnectAttempts or 0) + 1
         pipe_runtime.adapterActive = false
+        pipe_runtime.directActive = false
+        pipe_runtime.adapterGeneration = nil
         pipe_runtime.clientConnected = false
         pipe_runtime.retryAt = runtime_clock() + 1.0
         return false, "pipe_reconnect_wait"
@@ -427,6 +487,14 @@ local function ensure_pipe_hello(control)
         },
     })
     local connect = pipe_runtime.adapterConnect
+    pipe_runtime.directActive = false
+    pipe_runtime.adapterGeneration = nil
+    if pipe_runtime.directCapable and pipe_runtime.adapterEnableDirect ~= nil then
+        local enabled_ok, enabled_result = pcall(function()
+            return pipe_runtime.adapterEnableDirect(control.sessionId)
+        end)
+        pipe_runtime.directActive = enabled_ok and enabled_result == "ok"
+    end
     -- CURRENT-CLIENT FIX: xLua returns the Action field as callable userdata.
     -- MethodInfo.Invoke returned without entering the native adapter in a
     -- real game; call the delegate once, and do not retry on void/nil results.
@@ -3635,11 +3703,6 @@ local function pipe_json_number(text, name)
 end
 
 local function write_pipe_result(control, request_id, result)
-    pipe_runtime.outboundSequence =
-        (pipe_runtime.outboundSequence or 0) + 1
-    local sequence = pipe_runtime.outboundSequence
-    local final_path = pipe_mailbox_path("outbound", sequence)
-    local temp_path = final_path .. ".tmp"
     local envelope = {
         version = 1,
         type = "result",
@@ -3653,6 +3716,29 @@ local function write_pipe_result(control, request_id, result)
             result = result,
         },
     }
+    if pipe_runtime.directActive and pipe_runtime.adapterPublish ~= nil then
+        if pipe_runtime.adapterGeneration == nil then refresh_pipe_adapter_state() end
+        if pipe_runtime.adapterGeneration == nil then
+            pipe_runtime.error = "pipe_direct_generation_unavailable"
+            return false
+        end
+        local publish_payload = tostring(pipe_runtime.adapterGeneration) .. "\n" ..
+            tostring(control.sessionId) .. "\n" .. json_encode(envelope)
+        local publish_ok, publish_result = pcall(function()
+            return pipe_runtime.adapterPublish(publish_payload)
+        end)
+        if not publish_ok or publish_result ~= "ok" then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_direct_publish_failed:" .. tostring(publish_result)
+            return false
+        end
+        return true
+    end
+    pipe_runtime.outboundSequence =
+        (pipe_runtime.outboundSequence or 0) + 1
+    local sequence = pipe_runtime.outboundSequence
+    local final_path = pipe_mailbox_path("outbound", sequence)
+    local temp_path = final_path .. ".tmp"
     if not write_json(temp_path, envelope) then
         pipe_runtime.error = "pipe_result_write_failed"
         return false
@@ -3682,11 +3768,6 @@ local function write_pipe_heartbeat(control)
     local clock = runtime_clock()
     if clock - last_pipe_heartbeat_clock < 5.0 then return true end
 
-    pipe_runtime.outboundSequence =
-        (pipe_runtime.outboundSequence or 0) + 1
-    local sequence = pipe_runtime.outboundSequence
-    local final_path = pipe_mailbox_path("outbound", sequence)
-    local temp_path = final_path .. ".tmp"
     local now_ms = (tonumber(os.time()) or 0) * 1000
     local envelope = {
         version = 1,
@@ -3699,6 +3780,30 @@ local function write_pipe_heartbeat(control)
             time = now_ms,
         },
     }
+    if pipe_runtime.directActive and pipe_runtime.adapterPublish ~= nil then
+        if pipe_runtime.adapterGeneration == nil then refresh_pipe_adapter_state() end
+        if pipe_runtime.adapterGeneration == nil then
+            pipe_runtime.error = "pipe_direct_generation_unavailable"
+            return false
+        end
+        local publish_payload = tostring(pipe_runtime.adapterGeneration) .. "\n" ..
+            tostring(control.sessionId) .. "\n" .. json_encode(envelope)
+        local publish_ok, publish_result = pcall(function()
+            return pipe_runtime.adapterPublish(publish_payload)
+        end)
+        if not publish_ok or publish_result ~= "ok" then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_direct_heartbeat_publish_failed:" .. tostring(publish_result)
+            return false
+        end
+        last_pipe_heartbeat_clock = clock
+        return true
+    end
+    pipe_runtime.outboundSequence =
+        (pipe_runtime.outboundSequence or 0) + 1
+    local sequence = pipe_runtime.outboundSequence
+    local final_path = pipe_mailbox_path("outbound", sequence)
+    local temp_path = final_path .. ".tmp"
     if not write_json(temp_path, envelope) then
         pipe_runtime.error = "pipe_heartbeat_write_failed"
         return false
@@ -3717,13 +3822,42 @@ end
 
 local function process_pipe_inbound(control)
     if not pipe_runtime.adapterActive then return end
+    local direct_processed = 0
     while true do
-        local sequence = (pipe_runtime.inboundSequence or 0) + 1
-        local path = pipe_mailbox_path("inbound", sequence)
-        local text = read_pipe_mailbox(path)
-        if text == nil then return end
-        pcall(os.remove, path)
-        pipe_runtime.inboundSequence = sequence
+        local text = nil
+        if pipe_runtime.directActive and pipe_runtime.adapterDequeue ~= nil then
+            local dequeue_ok, dequeue_result = pcall(function()
+                return pipe_runtime.adapterDequeue(control.sessionId)
+            end)
+            if not dequeue_ok or type(dequeue_result) ~= "string" then
+                pipe_runtime.state = "error"
+                pipe_runtime.error = "pipe_direct_dequeue_failed"
+                return
+            end
+            local empty_generation = string.match(dequeue_result, "^empty\n([0-9]+)$")
+            if empty_generation ~= nil then
+                pipe_runtime.adapterGeneration = tonumber(empty_generation)
+                return
+            end
+            local generation_text, frame_text = string.match(
+                dequeue_result, "^frame\n([0-9]+)\n(.*)$")
+            local generation = tonumber(generation_text)
+            if generation == nil or generation < 1 or frame_text == nil then
+                pipe_runtime.state = "error"
+                pipe_runtime.error = "pipe_direct_dequeue_invalid"
+                return
+            end
+            pipe_runtime.adapterGeneration = generation
+            text = frame_text
+            direct_processed = direct_processed + 1
+        else
+            local sequence = (pipe_runtime.inboundSequence or 0) + 1
+            local path = pipe_mailbox_path("inbound", sequence)
+            text = read_pipe_mailbox(path)
+            if text == nil then return end
+            pcall(os.remove, path)
+            pipe_runtime.inboundSequence = sequence
+        end
 
         local version = pipe_json_number(text, "version")
         local message_type = pipe_json_string(text, "type")
@@ -3790,6 +3924,7 @@ local function process_pipe_inbound(control)
             pipe_runtime.error = "pipe_inbound_type_unsupported"
             return
         end
+        if pipe_runtime.directActive and direct_processed >= 16 then return end
     end
 end
 
@@ -4134,6 +4269,9 @@ function M.Register()
     -- one-shot LuaEntry lifecycle methods stop firing. Poll FEATURE018's
     -- mailbox and asynchronous City/Sheep jobs on that same owned callback.
     update_callback = function()
+        -- Direct transport only moves raw JSON across threads. Its consumer
+        -- stays inside pump_overview, after that pump has revalidated current
+        -- control + lease identity; no adapter worker ever invokes Lua/game APIs.
         M.TryPump()
         if feature018_periodic_tick ~= nil then
             pcall(feature018_periodic_tick)

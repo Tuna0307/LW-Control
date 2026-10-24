@@ -13,10 +13,10 @@ Build after the previous task-owned native host and game have stopped:
 dotnet build tools/map_014_lead_native/Native.csproj -c Release --no-restore
 ```
 
-Nine individual kinds, two current-method observations each, one owned session:
+All ten individual kinds, two current-method observations each, one owned session:
 
 ```powershell
-$env:LWBRIDGE_MAP019_WORKLOADS='city,resource,monster,zombie_boss,dispatch,ghost,treasure,railway,truck'
+$env:LWBRIDGE_MAP019_WORKLOADS='city,resource,monster,zombie_boss,dispatch,ghost,treasure,other,railway,truck'
 $env:LWBRIDGE_MAP019_METHODS='direct,direct'
 $env:LWBRIDGE_MAP019_ROUNDS='2'
 $env:LWBRIDGE_MAP019_MAX_MINUTES='60'
@@ -24,10 +24,10 @@ $env:LWBRIDGE_MAP019_TELEMETRY='1'
 python tools/map_014_lead_native/run_owned.py benchmark-review
 ```
 
-Typical mixed and all-nine selections, same-session current/camera/camera/current:
+Typical mixed and all-ten selections, same-session current/camera/camera/current:
 
 ```powershell
-$env:LWBRIDGE_MAP019_WORKLOADS='city-resource,all-nine'
+$env:LWBRIDGE_MAP019_WORKLOADS='city-resource,all-ten'
 $env:LWBRIDGE_MAP019_METHODS='direct,camera,camera,direct'
 $env:LWBRIDGE_MAP019_ROUNDS='4'
 $env:LWBRIDGE_MAP019_MAX_MINUTES='180'
@@ -74,9 +74,9 @@ digests are saved with the session. No larger-than-160 variant is generated.
 The matrix alone allows a 1–180 minute bound; the runner rejects larger values
 before native startup. Existing scenarios retain historical deadlines and
 without matrix environment variables retain historical workload/method behavior.
-`benchmark-all-nine` and `benchmark-city-resource` are also individual scenarios.
+`benchmark-all-ten` and `benchmark-city-resource` are also individual scenarios. `benchmark-all-nine` remains accepted only so historical nine-kind evidence can be reproduced; current qualification uses all ten kinds including `other`.
 Round ordinals are global across workloads so databases and receipts are unique.
-The default review is 11 workloads × 4 alternating direct/camera rounds. Configure
+The default review is 12 workloads × 4 alternating direct/camera rounds: all ten current kinds plus City+Resource and all-ten. Configure
 only a bounded workload subset for the intended experiment.
 
 `benchmark.json` records requested/effective method, workload, round, global

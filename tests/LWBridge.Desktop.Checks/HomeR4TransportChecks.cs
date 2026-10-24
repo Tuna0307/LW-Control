@@ -62,6 +62,16 @@ internal static class HomeR4TransportChecks
         Require(registry.RemoveConnected("session-A", generationA) &&
             registry.Resolve("session-B")?.Route == routeB,
             "A route retirement does not disturb B's accepted route");
+        object routeA2 = new();
+        Require(registry.TryAdmit("profile-A", "session-A", a.PipeToken,
+                now + 120_000, routeA2, out ulong generationA2) &&
+            generationA2 != generationA && registry.Resolve("session-A")?.Route == routeA2,
+            "a claimed exact-session registration can re-admit the same token after ordinary route loss even beyond its startup-only expiry");
+        Require(!registry.RemoveConnected("session-A", generationA) &&
+            registry.Resolve("session-A")?.Route == routeA2,
+            "a stale route generation cannot retire its reconnected successor");
+        Require(registry.RemoveConnected("session-A", generationA2),
+            "the current reconnect generation retires exactly itself");
         host.CancelLaunchBinding("session-A");
         Require(registry.ExpectedClientPathForAuthenticatedHello(
                 "profile-A", "session-A", a.PipeToken, now) is null &&
