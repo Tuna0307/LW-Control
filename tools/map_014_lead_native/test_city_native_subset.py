@@ -103,6 +103,15 @@ assert(diag.nativeIdentityDiagnostics.retainedOwnerAtOtherIndex==1)
 assert(diag.nativeIdentityDiagnostics.canonicalDifferentIndex==1)
 assert(diag.nativeIdentityDiagnostics.canonicalCallSucceeded==1)
 -- Unknown/malformed raw points are never discarded to manufacture success.
+local nonmain=row(102,"nonmain-owner");nonmain.itemId=10100001
+records,err,diag=run({row(101)},{row(101),nonmain})
+assert(err==nil and #records==1 and diag.nativeNonMainBuildingCount==1)
+assert(diag.nativeNonMainBuildingItems['10100001']==1)
+for _,mainItem in ipairs({10100000,735000}) do
+  local missing=row(102,"missing-main");missing.itemId=mainItem
+  records,err,diag=run({row(101)},{row(101),missing})
+  assert(records==nil and diag.nativeCanonicalLookupFailures==1)
+end
 records,err,diag=run({row(101)},{row(101),row(102,"unknown-player")})
 assert(records==nil and diag.missingNativeCurrentPointIndices==1 and diag.nativeCanonicalLookupFailures==1)
 assert(diag.nativeIdentityDiagnostics.canonicalResultNil==1)

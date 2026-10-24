@@ -1723,10 +1723,9 @@ internal sealed partial class CurrentClientMapBlockSource
         // (serverId, pointId). The same point on another world can therefore
         // return an earlier server's detail without a native reply. Even a
         // matching amount/config does not establish the current owner: those
-        // fields can coincide by chance. The shipped WorldGetDetail handler
-        // does not expose a run/connection-bound acknowledgment or a proven
-        // safe per-server eviction API. Refuse this untrusted cache source
-        // rather than silently publishing a cross-server false positive.
+        // fields can coincide by chance. Only the separately qualified native
+        // _id/connection-config/proxy observer may supply received rows; legacy
+        // pointId-cache hits remain untrusted and must not be admitted.
         if (observation.CacheBeforeCount != 0)
             throw new InvalidDataException(
                 "Resource native pointId-only cache contains unverified detail from a possibly different server; current-run identity cannot be proven.");
@@ -1786,6 +1785,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesString(root, "state", "completed"))
             throw new InvalidDataException("Resource detail enrichment result did not match the active owned scan.");
         RequireFreshCaptureTime(root, startedAt);
+        if (!MatchesString(root, "nativeReplyCorrelation", "future_id_connection_config_proxy"))
+            throw new InvalidDataException("Resource detail enrichment has no native request/connection correlation.");
         int targetCount = RequireNonNegativeInt(root, "targetCount");
         int requestCount = RequireNonNegativeInt(root, "requestCount");
         int cacheBeforeCount = RequireNonNegativeInt(root, "cacheBeforeCount");
@@ -1846,6 +1847,7 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Resource detail native target rows are inconsistent.");
 
         int issued = 0, cached = 0, failed = 0, receivedCount = 0;
+        var nativeReplies = new HashSet<int>();
         foreach (JsonElement row in rows.EnumerateArray())
         {
             if (row.ValueKind != JsonValueKind.Object ||
@@ -1862,6 +1864,11 @@ internal sealed partial class CurrentClientMapBlockSource
             bool wasCached = cachedValue.GetBoolean();
             bool sendFailed = failedValue.GetBoolean();
             bool received = receivedValue.GetBoolean();
+            if (received && (!wasIssued || wasCached ||
+                !row.TryGetProperty("expectedReplyId", out var expectedId) || !expectedId.TryGetInt32(out int expected) || expected <= 0 ||
+                !row.TryGetProperty("replyId", out var replyId) || !replyId.TryGetInt32(out int actual) || actual != expected ||
+                !MatchesBool(row, "replyScopeMatched", true) || !nativeReplies.Add(actual)))
+                throw new InvalidDataException("Resource detail target has no unique native request/connection-bound reply.");
             if ((wasIssued ? 1 : 0) + (wasCached ? 1 : 0) + (sendFailed ? 1 : 0) != 1 ||
                 sendFailed && received ||
                 !received && row.TryGetProperty("detail", out JsonElement rawDetail) &&

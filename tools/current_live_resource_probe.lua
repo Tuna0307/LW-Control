@@ -2664,6 +2664,8 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
                          nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0,
                          supersededNativeCityCount = 0, nativeOwnerConflicts = 0,
                          nativeCanonicalLookupFailures = 0,
+                         nativeNonMainBuildingCount = 0,
+                         nativeNonMainBuildingItems = {},
                          -- Aggregate diagnostics only; never serialize a raw UID,
                          -- point index, player name or unresolved native row.
                          nativeIdentityDiagnostics = {
@@ -2778,6 +2780,18 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         local cell_x, cell_y = math.floor(tile.x / block_size), math.floor(tile.y / block_size)
         if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count or
            selected_lookup[cell_y * block_count + cell_x] ~= true then return true end
+        -- WorldPointType 6 also contains non-primary buildings. The native
+        -- AddPointInfo/GetAllMainBaseList contract indexes only item 10100000
+        -- and 735000 in baseMainBuild. A known different item is outside this
+        -- main-base census; missing item metadata still requires the existing
+        -- strict canonical-owner check below.
+        local native_item = integer_field(info, { "itemId", "ItemId" })
+        if native_item ~= nil and native_item > 0 and native_item ~= 10100000 and native_item ~= 735000 then
+            accounting.nativeNonMainBuildingCount = accounting.nativeNonMainBuildingCount + 1
+            local item_key = tostring(native_item)
+            accounting.nativeNonMainBuildingItems[item_key] = (accounting.nativeNonMainBuildingItems[item_key] or 0) + 1
+            return true
+        end
         local native_owner = scalar_field(info,{"ownerUid","OwnerUid"})
         local has_native_owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
         local owner = has_native_owner and tostring(native_owner) or retained_owners[id]
@@ -4714,24 +4728,114 @@ function resource_scan_detail_runtime.same_state(state, request)
         state.scanRunId == request.scanRunId
 end
 
-function resource_scan_detail_runtime.send(target)
+function resource_scan_detail_runtime.network_scope()
+    local entry = CS and safe_get(CS, "GameEntry") or nil
+    local network = entry and safe_get(entry, "Network") or nil
+    if network == nil then return nil end
+    local ok, future = call(network, "getFutureManager")
+    local config = reflected_value(network, "_config")
+    local proxy = reflected_value(network, "m_proxy")
+    local counter = ok and future and tonumber(reflected_value(future, "_futureId")) or nil
+    if config == nil or proxy == nil or counter == nil or counter < 0 or
+       counter ~= math.floor(counter) or safe_get(network, "IsConnected") ~= true then return nil end
+    return { network = network, future = future, config = config, proxy = proxy, counter = counter }
+end
+
+function resource_scan_detail_runtime.scope_matches(a, b)
+    -- Connect creates a new _config before resetting native future IDs;
+    -- Reconnect delegates to Connect. A reused numeric ID in a new connection
+    -- therefore cannot be admitted by the old private pending table.
+    return a ~= nil and b ~= nil and a.network == b.network and a.future == b.future and
+        a.config == b.config and a.proxy == b.proxy and b.counter >= a.counter
+end
+
+function resource_scan_detail_runtime.reset()
+    local hook = resource_scan_detail_runtime.hook
+    if hook ~= nil and safe_get(hook.class, "HandleMessage") == hook.wrapper then
+        hook.class.HandleMessage = hook.original
+    end
+    resource_scan_detail_runtime.hook = nil
+    resource_scan_detail_runtime.state = nil
+    resource_scan_detail_runtime.request = nil
+    resource_scan_detail_runtime.startedAt = nil
+end
+
+function resource_scan_detail_runtime.observe(response)
+    local state = resource_scan_detail_runtime.state
+    if state == nil or not resource_scan_detail_runtime.scope_matches(state.scope,
+        resource_scan_detail_runtime.network_scope()) or current_server_id() ~= state.serverId then return end
+    local identity = active_overview_identity(tonumber(os.time()) or 0)
+    if identity == nil or identity.profileId ~= state.profileId or identity.sessionId ~= state.launchSessionId or
+       identity.challenge ~= state.challenge or identity.gamePid ~= state.gamePid then return end
+    local reply_id = tonumber(safe_get(response, "_id"))
+    local target = reply_id and state.byReplyId[reply_id] or nil
+    if target == nil or target.detail ~= nil or safe_get(response, "errorCode") ~= nil or
+       tonumber(safe_get(response, "pointId")) ~= target.pointId then return end
+    local server = tonumber(safe_get(response, "scrServer") or safe_get(response, "serverId"))
+    if server ~= nil and server ~= 0 and server ~= target.serverId then return end
+    -- Read immediately after the original native handler applied this exact
+    -- correlated packet, and freeze scalar values in our private run state.
+    -- Subsequent foreign/stale updates to the game's pointId cache cannot
+    -- replace a captured detail. Never poll that cache as readiness evidence.
+    local detail = resource_detail_snapshot(resource_detail_manager(), target.pointId)
+    if detail == nil then return end
+    target.detail = detail
+    target.replyId = reply_id
+end
+
+function resource_scan_detail_runtime.install()
+    if resource_scan_detail_runtime.hook ~= nil then
+        local hook = resource_scan_detail_runtime.hook
+        return safe_get(hook.class, "HandleMessage") == hook.wrapper
+    end
+    local ok, class = pcall(require, "Net.Msgs.WorldGetDetailMessage")
+    local original = ok and class and safe_get(class, "HandleMessage") or nil
+    if type(original) ~= "function" then return false end
+    local wrapper = function(self, response, ...)
+        local results = table.pack(pcall(original, self, response, ...))
+        if not results[1] then error(results[2], 0) end
+        local observed, reason = pcall(resource_scan_detail_runtime.observe, response)
+        if not observed and resource_scan_detail_runtime.state ~= nil then
+            resource_scan_detail_runtime.state.error = "resource_reply_observer_failed"
+        end
+        return table.unpack(results, 2, results.n)
+    end
+    class.HandleMessage = wrapper
+    if safe_get(class, "HandleMessage") ~= wrapper then return false end
+    resource_scan_detail_runtime.hook = { class = class, original = original, wrapper = wrapper }
+    return true
+end
+
+function resource_scan_detail_runtime.send(target, state)
+    local before = resource_scan_detail_runtime.network_scope()
+    if not resource_scan_detail_runtime.scope_matches(state.scope, before) or
+       not resource_scan_detail_runtime.install() then return false end
     local sfs, defs = rawget(_G, "SFSNetwork"), rawget(_G, "MsgDefines")
     local message = defs and safe_get(defs, "WorldGetDetail") or nil
     local send = sfs and safe_get(sfs, "SendMessage") or nil
     if message == nil or type(send) ~= "function" then return false end
-    local ok = pcall(send, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid)
-    if not ok then ok = pcall(send, sfs, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid) end
-    return ok == true
+    -- The v27 OnCreate signature has five arguments after self. Native
+    -- SendLuaMessage assigns _id after ToBinary, so observe the counter on
+    -- either side of this synchronous, static Lua send without allocating IDs.
+    local ok = pcall(send, message, target.pointId, target.serverId, target.worldId, target.pointType, target.uid)
+    local after = resource_scan_detail_runtime.network_scope()
+    if not ok or not resource_scan_detail_runtime.scope_matches(before, after) or
+       after.counter ~= before.counter + 1 or state.byReplyId[after.counter] ~= nil then return false end
+    target.expectedReplyId = after.counter
+    state.byReplyId[after.counter] = target
+    return true
 end
 
 function resource_scan_detail_runtime.queue(request, target)
     if request == nil or request.includeResourceDetails ~= true or target == nil or target.pointId == nil then return false end
     if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
+        resource_scan_detail_runtime.reset()
         resource_scan_detail_runtime.state = {
             profileId = request.profileId, launchSessionId = request.launchSessionId,
             challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
             scanRunId = request.scanRunId, targets = {}, targetByKey = {},
             requestCount = 0, cacheBeforeCount = 0, sendFailureCount = 0,
+            byReplyId = {}, scope = resource_scan_detail_runtime.network_scope(), ignoredCacheCount = 0,
         }
     end
     local state = resource_scan_detail_runtime.state
@@ -4742,11 +4846,9 @@ function resource_scan_detail_runtime.queue(request, target)
     state.targets[#state.targets + 1] = target
     local manager = resource_detail_manager()
     if resource_detail_snapshot(manager, target.pointId) ~= nil then
-        target.cacheBefore = true
-        state.cacheBeforeCount = state.cacheBeforeCount + 1
-        return true
+        state.ignoredCacheCount = state.ignoredCacheCount + 1
     end
-    if resource_scan_detail_runtime.send(target) then
+    if resource_scan_detail_runtime.send(target, state) then
         target.requestIssued = true
         state.requestCount = state.requestCount + 1
     else
@@ -4787,12 +4889,15 @@ function resource_scan_detail_runtime.read(now)
 end
 
 function resource_scan_detail_runtime.rows(state)
-    local manager = resource_detail_manager()
     local rows, ready = {}, 0
     if type(state) ~= "table" then return rows, ready end
+    local scope_valid = current_server_id() == state.serverId and
+        resource_scan_detail_runtime.scope_matches(state.scope, resource_scan_detail_runtime.network_scope())
+    local hook = resource_scan_detail_runtime.hook
+    scope_valid = scope_valid and hook ~= nil and safe_get(hook.class, "HandleMessage") == hook.wrapper
     for index = 1, #state.targets do
         local target = state.targets[index]
-        local detail = resource_detail_snapshot(manager, target.pointId)
+        local detail = scope_valid and target.detail or nil
         if detail ~= nil then ready = ready + 1 end
         rows[#rows + 1] = {
             recordKey = target.recordKey, received = detail ~= nil,
@@ -4800,6 +4905,8 @@ function resource_scan_detail_runtime.rows(state)
             resourceMaxAmount = target.resourceMaxAmount, detail = detail,
             requestIssued = target.requestIssued == true, cacheBefore = target.cacheBefore == true,
             sendFailed = target.sendFailed == true,
+            expectedReplyId = target.expectedReplyId, replyId = detail and target.replyId or nil,
+            replyScopeMatched = detail ~= nil,
         }
     end
     return rows, ready
@@ -4815,6 +4922,8 @@ function resource_scan_detail_runtime.write_result(request, error_text, state, r
         targetCount = type(state) == "table" and #state.targets or 0,
         requestCount = type(state) == "table" and state.requestCount or 0,
         cacheBeforeCount = type(state) == "table" and state.cacheBeforeCount or 0,
+        ignoredCacheCount = type(state) == "table" and state.ignoredCacheCount or 0,
+        nativeReplyCorrelation = "future_id_connection_config_proxy",
         sendFailureCount = type(state) == "table" and state.sendFailureCount or 0,
         readyCount = ready, details = rows,
         elapsedSeconds = resource_scan_detail_runtime.startedAt and (runtime_clock() - resource_scan_detail_runtime.startedAt) or 0,
@@ -4842,14 +4951,14 @@ function resource_scan_detail_runtime.pump(now)
     local request = resource_scan_detail_runtime.request
     local state = resource_scan_detail_runtime.state
     local _, ready = resource_scan_detail_runtime.rows(state)
-    if ready == #state.targets then
+    if ready == #state.targets and state.error == nil then
         resource_scan_detail_runtime.write_result(request, nil, state)
-        resource_scan_detail_runtime.request = nil; resource_scan_detail_runtime.startedAt = nil; resource_scan_detail_runtime.state = nil
+        resource_scan_detail_runtime.reset()
         return true
     end
     if runtime_clock() - (resource_scan_detail_runtime.startedAt or runtime_clock()) >= 8 then
-        resource_scan_detail_runtime.write_result(request, "resource_scan_detail_partial_response", state)
-        resource_scan_detail_runtime.request = nil; resource_scan_detail_runtime.startedAt = nil; resource_scan_detail_runtime.state = nil
+        resource_scan_detail_runtime.write_result(request, state.error or "resource_scan_detail_partial_response", state)
+        resource_scan_detail_runtime.reset()
         return true
     end
     return true
@@ -7579,6 +7688,7 @@ function M._map015CameraFree.finish(reason)
     local s = lane.active
     if s == nil then return end
     lane.active = nil
+    if reason ~= nil then resource_scan_detail_runtime.reset() end
     local restored = true
     if s.current ~= nil then
         for _, index in ipairs(s.added) do
@@ -8086,9 +8196,9 @@ function M.Pump()
         end
         if resource_scan_detail_runtime.request ~= nil then
             resource_scan_detail_runtime.write_result(resource_scan_detail_runtime.request, reason, nil, "failed")
-            resource_scan_detail_runtime.request = nil
-            resource_scan_detail_runtime.startedAt = nil
-            resource_scan_detail_runtime.state = nil
+        end
+        if resource_scan_detail_runtime.state ~= nil or resource_scan_detail_runtime.hook ~= nil then
+            resource_scan_detail_runtime.reset()
         end
         if resource_detail_request ~= nil then
             write_resource_detail_diagnostic_result(resource_detail_request, "failed", reason, {}, 0)

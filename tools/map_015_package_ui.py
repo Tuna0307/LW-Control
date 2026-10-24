@@ -16,6 +16,7 @@ import argparse
 from contextlib import closing
 from datetime import datetime
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -1054,13 +1055,42 @@ def audit_saved_clear_reopen(destination: Path, proof: dict, restoration: dict) 
 
 
 def audit_no_official_updater(destination: Path, restoration: dict) -> dict:
-    """The game lifecycle must explicitly refuse any unauthorized updater."""
+    """Require an exact, *current-version* pre-proven settlement, never an updater.
+
+    The game upgraded from v26 to v27 after the first archived MAP016 proof.
+    A fixed 2026-10-16 v26 marker is not the source that the owned runner
+    actually selected for the current v27 installation. Reuse its exact,
+    fail-closed trusted-settlement selector, and still compare raw bytes with
+    the pre-existing, independently proven original; never generate a marker.
+    """
     evidence = destination / "overview-evidence"
-    source = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451/overview-evidence/official-settled-client.json"
+    source_spec = importlib.util.spec_from_file_location(
+        "map014_trusted_official_settlement_for_audit", RUNNER)
+    if source_spec is None or source_spec.loader is None:
+        raise ValueError("MAP016 packaged trusted settlement selector is unavailable")
+    owned_runner = importlib.util.module_from_spec(source_spec)
+    source_spec.loader.exec_module(owned_runner)
+    originals = restoration.get("capturedOriginalHashes", {})
+    trusted_proof = owned_runner.trusted_settled_proof(originals)
+    if trusted_proof is None:
+        raise ValueError("MAP016 no independently admitted official settlement for this package")
+    source = trusted_proof / "overview-evidence/official-settled-client.json"
+    prior_exit_path = trusted_proof / "owned-exit.json"
     installed = evidence / "official-settled-client.json"
     admission = json.loads((evidence / "map016-official-settle-admission.json").read_text(encoding="utf-8"))
-    if not source.is_file() or not installed.is_file() or source.read_bytes() != installed.read_bytes():
+    if (not source.is_file() or not prior_exit_path.is_file() or not installed.is_file() or
+            source.read_bytes() != installed.read_bytes()):
         raise ValueError("MAP016 isolated proof changed or invented its officially settled marker")
+    prior_exit = json.loads(prior_exit_path.read_text(encoding="utf-8"))
+    prior_restoration = prior_exit.get("restorationAudit", {})
+    if (prior_exit.get("exitCode") != 0 or prior_exit.get("proof") is not True or
+            prior_exit.get("error") is not None or
+            prior_exit.get("recoveryJournalPresent") is not False or
+            prior_restoration.get("state") != "proven" or
+            prior_restoration.get("diagnosticResultSucceeded") is not True or
+            prior_restoration.get("capturedOriginalHashes") != originals or
+            prior_restoration.get("installedHashes") != originals):
+        raise ValueError("MAP016 official settlement source lacks independently proven original restoration")
     marker = json.loads(installed.read_text(encoding="utf-8"))
     if (marker.get("schemaVersion") != 1 or
             marker.get("gameRoot") != admission.get("gameRoot") or

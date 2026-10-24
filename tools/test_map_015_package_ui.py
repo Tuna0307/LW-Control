@@ -971,6 +971,43 @@ class OfficialSettleNoUpdaterAdmissionTests(unittest.TestCase):
                           "boss-first", "boss-after-resource", "picker-empty", "once-two-server",
                           "feature018-tabs"})
 
+    def test_current_version_official_marker_audit_preserves_proven_source(self):
+        """An officially updated v27 marker must not be compared to stale v26 bytes."""
+        self.hashes = self.runner.EXPECTED_27_CURRENT.copy()
+        self.put_marker()
+        copied = self.copy()
+        evidence = copied.parent
+        (evidence / "map016-official-settle-admission.json").write_text(json.dumps(dict(
+            schemaVersion=1, state="settled_reuse_allowed", gameRoot=str(self.game),
+            packageSha256=self.hashes["LWScripts.data"], forceOfficialSettle=False,
+            officialLauncherStartedByThisAdmission=False,
+            updaterActionAuthorized=False)), encoding="utf-8")
+        original = dict(capturedOriginalHashes=self.hashes)
+        # The real runner chooses its exact trusted v27 proof from the admitted
+        # original triplet. A local synthetic selector makes the auditor's
+        # byte-for-byte and previous-owned-exit gates independently testable.
+        selector = self.root / "owned-runner-selector.py"
+        selector.write_text("from pathlib import Path\n"
+                            f"def trusted_settled_proof(hashes):\n"
+                            f"    return Path({str(self.proof)!r}) if "
+                            f"hashes.get('LWScripts.data') == "
+                            f"{self.hashes['LWScripts.data']!r} else None\n", encoding="utf-8")
+        with mock.patch.object(package_ui, "RUNNER", selector):
+            result = package_ui.audit_no_official_updater(self.root / "new", original)
+            self.assertTrue(result["reusedExistingSettlement"])
+            self.assertFalse(result["updaterAuthorized"])
+            self.assertEqual(result["originalPackageSha256"], self.hashes["LWScripts.data"])
+
+            copied.write_text(self.marker.read_text(encoding="utf-8").replace(
+                self.hashes["LWScripts.data"], self.runner.EXPECTED_26_CURRENT["LWScripts.data"]),
+                encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "changed or invented"):
+                package_ui.audit_no_official_updater(self.root / "new", original)
+            copied.write_bytes(self.marker.read_bytes())
+            self.put_modified_exit(proof=False)
+            with self.assertRaisesRegex(ValueError, "independently proven"):
+                package_ui.audit_no_official_updater(self.root / "new", original)
+
     def test_mismatch_and_untrusted_marker_fail_before_app_launch(self):
         for name, action in [
             ("package mismatch", lambda: self.put_modified_marker(packageSha256="0"*64)),
