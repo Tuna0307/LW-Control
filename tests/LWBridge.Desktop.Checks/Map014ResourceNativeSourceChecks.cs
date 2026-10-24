@@ -173,6 +173,13 @@ internal static class Map014ResourceNativeSourceChecks
         RejectHydration("stale name key", Details(goodDetail with { SourceNameKey = "999999" }));
         RejectHydration("stale source capacity", Details(goodDetail with { SourceCapacity = 72000 }));
         RejectHydration("detail amount/config mismatch", Details(goodDetail with { FullAmount = 100001 }));
+        // Two different servers can share point IDs, *and* their Resource
+        // capacity/config/name may coincidentally match. The old comparison
+        // accepted that cached row despite no current-run reply. Real v27
+        // WorldPointDetailManager stores only pointId, with no reply nonce or
+        // connection generation, so even an exact metadata match must fail.
+        RejectHydration("cross-server stale native cache with identical source metadata",
+            good with { RequestCount = 0, CacheBeforeCount = 1 });
 
         // The real round-5 Lua receipt has 7,494 cached, received targets,
         // each with requestIssued=false/cacheBefore=true/sendFailed=false.
@@ -238,7 +245,7 @@ internal static class Map014ResourceNativeSourceChecks
             doc["details"]![0]!["received"] = false;
         });
 
-        if (nativeInverses != 22 || hydrationInverses != 9 || provenanceInverses != 10 ||
+        if (nativeInverses != 22 || hydrationInverses != 10 || provenanceInverses != 10 ||
             snapshotInverses != 9 || censusTotalInverses != 4)
             throw new Exception("Incomplete Resource native source inverse coverage.");
         Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} firstCensusTotalInverses={censusTotalInverses} native=false");

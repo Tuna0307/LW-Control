@@ -45,9 +45,12 @@ def static_startup_contract(root: Path = REPO) -> dict:
         "profile Map317 database enumerated": 'Path.Combine(profile, "map-data", "map-data.db")' in cleanup,
         "legacy and current MapStore cleanup": "store.ClearAllScanData();" in cleanup,
         "full published map data removed": ("DELETE FROM scan_records; DELETE FROM scan_blocks; DELETE FROM scan_runs; DELETE FROM map_records; DELETE FROM treasure_claim_states;" in store),
-        "proof demands saved home before owned remote scan": (
+        "proof requires newly acquired same-session home before remote scan": (
+            "int initialHome = await ResourceTotal(home);" in proof and
+            "initialHome != 0 || priorRemote != 0 || beforeServers.Length != 0" in proof and
+            '"map_scan_start"' in proof and
             "int original = await ResourceTotal(home);" in proof and
-            "if (original <= 0 || priorRemote != 0 || !beforeServers.Contains(home) ||" in proof and
+            'homeNativeReceipt = "map016-home-native-resource-receipt.json"' in proof and
             "await mapAutoScanService.RunNowAsync(token);" in proof),
         "runner clones source database before app start": (
             "readonly.backup(snapshot)" in runner and
@@ -59,6 +62,7 @@ def static_startup_contract(root: Path = REPO) -> dict:
                          ", ".join(name for name, ok in required.items() if not ok))
     return {"normalStartupClearsMapRows": True,
             "savedClearRequiresHomeRowsBeforeOwnedRemoteScan": True,
+            "savedClearRequiresNewSameSessionHomeScan": True,
             "historicalCloneAloneCanSatisfyProof": False}
 
 

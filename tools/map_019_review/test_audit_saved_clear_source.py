@@ -88,6 +88,7 @@ class SavedClearSourceChecks(unittest.TestCase):
     def test_actual_production_startup_contract_prevents_clone_only_proof(self):
         contract = audit.static_startup_contract()
         self.assertTrue(contract["normalStartupClearsMapRows"])
+        self.assertTrue(contract["savedClearRequiresNewSameSessionHomeScan"])
         self.assertFalse(contract["historicalCloneAloneCanSatisfyProof"])
         clone = self.root / "simulated-owned-app" / "map-data.db"
         clone.parent.mkdir(parents=True)

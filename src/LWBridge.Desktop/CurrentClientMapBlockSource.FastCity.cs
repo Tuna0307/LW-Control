@@ -1719,6 +1719,17 @@ internal sealed partial class CurrentClientMapBlockSource
         string[] idleKeys = resources.Where(pair => IsKnownIdleResource(pair.Value.Record))
             .Select(pair => pair.Key).ToArray();
         if (idleKeys.Length == 0) return;
+        // The game's WorldPointDetailManager is keyed only by pointId, NOT
+        // (serverId, pointId). The same point on another world can therefore
+        // return an earlier server's detail without a native reply. Even a
+        // matching amount/config does not establish the current owner: those
+        // fields can coincide by chance. The shipped WorldGetDetail handler
+        // does not expose a run/connection-bound acknowledgment or a proven
+        // safe per-server eviction API. Refuse this untrusted cache source
+        // rather than silently publishing a cross-server false positive.
+        if (observation.CacheBeforeCount != 0)
+            throw new InvalidDataException(
+                "Resource native pointId-only cache contains unverified detail from a possibly different server; current-run identity cannot be proven.");
         if (!string.IsNullOrWhiteSpace(observation.Error) ||
             observation.TargetCount < idleKeys.Length ||
             observation.TargetCount != observation.Details.Count ||

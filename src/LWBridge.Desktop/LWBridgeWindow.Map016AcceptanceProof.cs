@@ -87,6 +87,7 @@ internal sealed partial class LWBridgeWindow
 
         var stages = new List<object>();
         string receipt = Path.Combine(directory, "map016-saved-clear-reopen.json");
+        string? homeRunId = null;
         async Task Save() =>
             await File.WriteAllTextAsync(receipt, JsonSerializer.Serialize(new
             {
@@ -97,6 +98,83 @@ internal sealed partial class LWBridgeWindow
                 owner.ProfileId, owner.SessionId, owner.GamePid, owner.GameStartedAtUtc,
                 homeServer = home, remoteServer = remote, stages,
             }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), CancellationToken.None);
+
+        // Never persist a native error's unbounded text, paths, target details,
+        // challenge or request payload in this packaged acceptance receipt.
+        // Preserve only a stable code derived from known product failure types.
+        static string FailureCategory(string? error)
+        {
+            if (string.IsNullOrWhiteSpace(error)) return "missing_error_detail";
+            if (error.Contains("Resource source hydration identity/configuration changed during acquisition.",
+                    StringComparison.Ordinal))
+                return "resource_hydration_source_identity_or_configuration_mismatch";
+            if (error.Contains("Full-world Resource hydration validation failed:", StringComparison.Ordinal))
+                return "resource_hydration_validation_failed";
+            if (error.StartsWith("MAP_AUTO_SCAN_NOT_PUBLISHED:", StringComparison.Ordinal))
+                return "remote_map_scan_not_published";
+            if (error.StartsWith("MAP_AUTO_SCAN_OWNER_MISMATCH:", StringComparison.Ordinal))
+                return "remote_map_scan_owner_mismatch";
+            return "unclassified_auto_failure";
+        }
+
+        // The native writer already retains a first-failure receipt for this
+        // exact scan. Report only bounded numeric provenance, never raw reply
+        // content or fields such as rawReceiptLocator, challenge or error text.
+        (string? ScanRunId, string? Status, object? Hydration) RemoteFailureEvidence()
+        {
+            if (!overviewLifecycleService.MatchesOwnedMapScanSession(owner))
+                return (null, null, null);
+            Map317.MapScanState recent = (Map317.MapScanState)map317CommandService.CreateStatus();
+            string? runId = recent.ScanRunId;
+            if (!Guid.TryParseExact(runId, "N", out _) ||
+                string.Equals(runId, homeRunId, StringComparison.Ordinal))
+                return (null, null, null);
+            Map317.MapScanRun? persisted = map317CommandService.ReadPersistedScanRunForProof(runId);
+            if (persisted is null || persisted.ServerId != remote ||
+                persisted.SelectedTypes.Count != 1 || persisted.SelectedTypes[0] != "resource")
+                return (null, null, null);
+            string path = Path.Combine(overviewLifecycleService.LiveResourceRuntimeRoot,
+                "resource-hydration-receipts", runId!, "first-failure.json");
+            try
+            {
+                var file = new FileInfo(path);
+                if (!file.Exists || file.Length is <= 0 or > 16_384)
+                    return (runId, persisted.Status, null);
+                using var document = JsonDocument.Parse(File.ReadAllBytes(path));
+                JsonElement row = document.RootElement;
+                if (row.GetProperty("schemaVersion").GetInt32() != 1 ||
+                    row.GetProperty("scanRunId").GetString() != runId ||
+                    row.GetProperty("serverId").GetInt32() != remote ||
+                    row.GetProperty("phase").GetString() !=
+                        "fullworld_resource_hydration_validation_failed")
+                    return (runId, persisted.Status, null);
+                static int? Count(JsonElement source, string field) =>
+                    source.TryGetProperty(field, out JsonElement value) &&
+                    value.ValueKind == JsonValueKind.Number &&
+                    value.TryGetInt32(out int count) && count >= 0
+                        ? count : null;
+                return (runId, persisted.Status, new
+                {
+                    sourcePhase = "fullworld_resource_hydration_validation_failed",
+                    nativeTargetCount = Count(row, "nativeTargetCount"),
+                    nativeReadyCount = Count(row, "nativeReadyCount"),
+                    nativeDetailCount = Count(row, "nativeDetailCount"),
+                    currentIdleCount = Count(row, "currentIdleCount"),
+                    observationTargetCount = Count(row, "observationTargetCount"),
+                    observationReadyCount = Count(row, "observationReadyCount"),
+                    observationDetailCount = Count(row, "observationDetailCount"),
+                    observationHasError = row.TryGetProperty("observationError", out var nativeError) &&
+                        nativeError.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined),
+                });
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException
+                or JsonException or InvalidOperationException or KeyNotFoundException)
+            {
+                // An unreadable/partial sidecar is not scan evidence. Do not
+                // replace the original Auto failure with a diagnostic failure.
+                return (runId, persisted.Status, null);
+            }
+        }
 
         int? live = overviewLifecycleService.GetLiveServerId();
         await Wait(() => Task.FromResult(overviewLifecycleService.GetLiveServerId() == home),
@@ -114,7 +192,8 @@ internal sealed partial class LWBridgeWindow
         if (initialHome != 0 || priorRemote != 0 || beforeServers.Length != 0 ||
             map317CommandService.IsScanActive)
             throw new InvalidDataException("Saved Clear needs R18-cleared Map data, idle Manual scan and no saved servers before acquiring home 2212.");
-        string? homeRunId = null;
+        string activePhase = "home_resource_acquisition";
+        MapAutoScanSnapshot? observedAuto = null;
         try
         {
             RequireOwner();
@@ -218,6 +297,7 @@ internal sealed partial class LWBridgeWindow
                 config.Config.SelectedTypes[0] != "resource" ||
                 !config.Config.ReturnToOriginalServer)
                 throw new InvalidDataException("Auto Resource-only 2213 configuration did not settle idle.");
+            activePhase = "remote_auto_scan";
             DateTimeOffset requestedAt = DateTimeOffset.UtcNow;
             await mapAutoScanService.RunNowAsync(token);
             bool seenRunning = mapAutoScanService.IsCycleBusy, seenRemote = false;
@@ -226,8 +306,39 @@ internal sealed partial class LWBridgeWindow
             {
                 RequireOwner();
                 cycle = await mapAutoScanService.GetSnapshotAsync(token);
+                observedAuto = cycle;
                 seenRunning |= cycle.Running || mapAutoScanService.IsCycleBusy;
                 seenRemote |= overviewLifecycleService.GetLiveServerId() == remote;
+                // A completed native/Auto failure is terminal, not something
+                // to keep polling until the unrelated outer 8-minute UI proof
+                // CTS fires. Distinguish this source failure in the receipt.
+                if (!cycle.Running && !mapAutoScanService.IsCycleBusy &&
+                    cycle.LastCycle is { } terminal &&
+                    terminal.StartedAt >= requestedAt.ToUnixTimeMilliseconds() - 2000 &&
+                    terminal.OriginalServerId == home &&
+                    terminal.TargetServerIds.SequenceEqual([remote]) &&
+                    terminal.Outcome != "completed")
+                {
+                    var source = RemoteFailureEvidence();
+                    string category = FailureCategory(terminal.LastError ?? cycle.LastError);
+                    stages.Add(new
+                    {
+                        stage = "remote_auto_terminal_failure",
+                        outcome = terminal.Outcome,
+                        errorCategory = category,
+                        autoStartedAt = terminal.StartedAt,
+                        autoCompletedAt = terminal.CompletedAt,
+                        originalServerId = terminal.OriginalServerId,
+                        targetServerIds = terminal.TargetServerIds,
+                        completedServerIds = terminal.CompletedServerIds,
+                        remoteScanRunId = source.ScanRunId,
+                        remoteDurableStatus = source.Status,
+                        hydration = source.Hydration,
+                    });
+                    await Save();
+                    throw new InvalidDataException(
+                        "MAP016 Saved Clear remote Auto ended before publication: " + category);
+                }
                 if (seenRunning && !cycle.Running && !mapAutoScanService.IsCycleBusy &&
                     cycle.LastCycle is { Outcome: "completed" } &&
                     cycle.LastCycle.StartedAt >= requestedAt.ToUnixTimeMilliseconds() - 2000 &&
@@ -260,6 +371,7 @@ internal sealed partial class LWBridgeWindow
             });
             await Save();
 
+            activePhase = "remote_clear_and_webview_reopen";
             if (!await Dom("(()=>{const b=document.querySelectorAll('.map-scan-tabs button')[1];if(!b)return false;b.click();return true;})()"))
                 throw new InvalidDataException("Actual packaged Auto tab is unavailable.");
             await Wait(() => Dom("!!document.querySelector('.map-auto-scan-card')"),
@@ -329,6 +441,28 @@ internal sealed partial class LWBridgeWindow
                 reloadType = "same_exact_owned_app_webview",
             });
             await Save();
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            // The containing normal-UI proof uses one outer operation token,
+            // typically eight minutes including initial login and home scan.
+            // Its cancellation is not proof that the native source timed out.
+            // Do not swallow cancellation or confuse it with an Auto success.
+            var source = activePhase == "remote_auto_scan" ? RemoteFailureEvidence() : default;
+            stages.Add(new
+            {
+                stage = "proof_operation_cancelled",
+                activePhase,
+                cancellationCategory = "outer_operation_token_cancelled",
+                lastObservedAutoOutcome = observedAuto?.LastCycle?.Outcome,
+                lastObservedAutoErrorCategory =
+                    FailureCategory(observedAuto?.LastCycle?.LastError ?? observedAuto?.LastError),
+                remoteScanRunId = source.ScanRunId,
+                remoteDurableStatus = source.Status,
+                hydration = source.Hydration,
+            });
+            await Save();
+            throw;
         }
         finally
         {
