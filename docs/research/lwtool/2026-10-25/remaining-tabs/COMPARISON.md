@@ -115,3 +115,25 @@ commands retain their original immediate-fail policy; City behavior is unchanged
 Distinguishing controlled cases cover gaps before/after publication, changed
 owner, changed account, persistent missing authority, late readiness, cancellation
 and the unchanged mutation policy. Fresh package qualification remains required.
+
+## Retained second-package refusal and correction
+
+Candidate `a3f28f50` reached attach and cross-hero drag, then its drag-back
+confirmation encountered a native precondition refusal. The gear had moved,
+but that alone did not complete the original native transaction. A restore was
+refused by its existing pending-operation guard; no restore RPC was dispatched.
+The original edit ID was recovered by a bounded read-only diagnostic of our
+exact task-owned host. Query-only requests confirmed the original transaction
+without replay. The saved restoration then completed; all 20 equipped slots and
+25 inventory wearers matched the initial snapshot. Normal owned Stop verified
+all three original script files restored and no recovery journal remained.
+
+The live UI now tolerates a precondition refusal during confirmation by querying
+the same frozen operation within its existing deadline. A persistent refusal
+keeps its fence and exposes Resume; it never permits another edit or retries the
+mutation. Separate native-confirmed completion from a later failed snapshot:
+confirmed changes use neutral refresh-pending feedback, recover success after a
+fresh read, and leave controls disabled if that read remains unavailable. This
+second distinction is independently controlled-tested, not claimed as the cause
+of this native refusal. The read-only R28 observer also retries transient
+snapshots within its bound, rechecking the original owner and account.

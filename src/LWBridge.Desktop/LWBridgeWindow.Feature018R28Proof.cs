@@ -43,6 +43,7 @@ internal sealed partial class LWBridgeWindow
             string alert = await core.ExecuteScriptAsync("document.querySelector('[data-native-equipment] [role=alert]')?.textContent||''");
             throw new InvalidDataException("R28 Equipment WebView did not settle: " + stage + "; tab error=" + alert);
         }
+        int observationRetries = 0;
         async Task<JsonElement> Snapshot()
         {
             // This independent observer is read-only. A heartbeat write can
@@ -67,7 +68,13 @@ internal sealed partial class LWBridgeWindow
                             throw new InvalidDataException("R28 Equipment native snapshot was unavailable.");
                         if (IsOwner()) return json.Clone();
                     }
-                    catch (BridgeCommandException error) when (error.Code == "GAME_ACCOUNT_NOT_AUTHORIZED") { }
+                    // Retry only this independent read. Native pushes can
+                    // briefly leave slot/inventory reads inconsistent too.
+                    // Every iteration rechecks the original exact owner and
+                    // account; no edit/apply envelope is repeated here.
+                    catch (BridgeCommandException error) when (error.Code is
+                        "GAME_ACCOUNT_NOT_AUTHORIZED" or "GAME_CONNECTION_UNAVAILABLE" or "GAME_PRECONDITION_FAILED")
+                    { observationRetries++; }
                 }
                 await Task.Delay(100, token);
             }
@@ -253,7 +260,7 @@ internal sealed partial class LWBridgeWindow
             await Save(new { state = "proven", proof = "r28_mailbox_lock_live_drag_levels_presets_single_refresh", mailboxLockRecovered = true, dragBetweenHeroes = true,
                 game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
                 actualNativeGearLevel = gearLevel, presetSaveLeftGameUnchanged = true, allFourHotkeyOrdinalsEquippedExactSavedGear = true,
-                presetRenameNameOnly = true, physicalKeyboardNotUsed = true, oneRefresh = true, exactRestore, checkpoints, finishedAtUtc = DateTimeOffset.UtcNow });
+                presetRenameNameOnly = true, observationRetries, physicalKeyboardNotUsed = true, oneRefresh = true, exactRestore, checkpoints, finishedAtUtc = DateTimeOffset.UtcNow });
         }
         catch (Exception error)
         {

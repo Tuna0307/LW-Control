@@ -46,12 +46,22 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
         // for this operation (or rejects it before dispatch). A failed local
         // mailbox publication can therefore be released without replaying it.
         if (error.code === "EQUIPMENT_EDIT_REJECTED") setPending(null);
-        if (!interrupted(error)) throw error;
+        // After dispatch, native slot and wearer pushes can briefly disagree
+        // even when the request is valid. Keep querying the frozen operation;
+        // never release its fence or retransmit because an observation failed.
+        if (!interrupted(error) && error.code !== "GAME_PRECONDITION_FAILED") throw error;
       }
     }
     // Completion is already authenticated. A subsequent read failure must not
     // leave an equipment transaction fenced forever; normal sync can retry it.
-    setPending(null); return snapshot();
+    setPending(null);
+    try { return await snapshot(); }
+    catch (error) {
+      // The native transaction already confirmed completion. A later read
+      // failure must not reclassify it as a rejected or uncertain mutation.
+      error.equipmentConfirmed = true;
+      throw error;
+    }
   };
   return {
     snapshot, assertOwner,

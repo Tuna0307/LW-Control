@@ -33,7 +33,9 @@
     "queued Hotkeys/Mini Games edit generation fencing",
     "FPS/ping edit capture before first async yield and generation-safe rollback",
     "atomic saved equipment preset rename without recapture",
-    "500 ms fresh-authority wait for read-only equipment snapshots; exact owner/account and no-replay retained"
+    "500 ms fresh-authority wait for read-only equipment snapshots; exact owner/account and no-replay retained",
+    "bounded query-only continuation after transient native equipment precondition observations",
+    "confirmed equipment change distinguished from failed follow-up snapshot; neutral refresh-pending feedback"
   ],
   "ownerDecisions": {
     "marchSpeedups": "compare-only-keep-removed-explicit-2026-10-25",
@@ -60,6 +62,18 @@
       "taskSessionClosed": true,
       "runtimeArtifact": "artifacts/map014-takeover/native-ui-20261024-220254",
       "receiptSha256": "d993b642f132f223c2d2458531b5069016901dfc218d2a439e6428fa7a3be2c6"
+    },
+    {
+      "candidateSource": "a3f28f50c1691a170cd30b68b32749dc9551b040",
+      "case": "Equipment WebView drag-back confirmation",
+      "reason": "Native precondition observation ended UI confirmation polling; original edit remained pending. Restore refused without dispatch. Original operation identity recovered by bounded read-only own-host diagnostic; query-only confirmation settled it without replay.",
+      "exactEquipmentRestored": true,
+      "originalScriptsRestored": true,
+      "taskSessionClosed": true,
+      "equippedSlotsVerified": 20,
+      "inventoryWearersVerified": 25,
+      "runtimeArtifact": "artifacts/map014-takeover/native-ui-20261024-221935",
+      "receiptSha256": "1b751fc3eb29eee7fae11ac6bee4f0fc8a3aeeefe9bee453ef82912e8a0b90f9"
     }
   ]
 }

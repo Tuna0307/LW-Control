@@ -48,7 +48,18 @@ const renameMessages = {
     "Predefinição {number} renomeada. Equipamento guardado inalterado."
   ]
 };
-keys.push("livePresetRename", "livePresetRenamed");
-for (const [language, values] of Object.entries(messages)) values.push(...renameMessages[language]);
+const confirmedRefreshMessages = {
+  "en": "Equipment change confirmed. Refreshing game state…",
+  "zh-CN": "已确认装备更改，正在刷新游戏状态…",
+  "zh-TW": "已確認裝備變更，正在重新整理遊戲狀態…",
+  "ja": "装備の変更を確認しました。ゲームの状態を更新中…",
+  "ko": "장비 변경이 확인되었습니다. 게임 상태를 새로 고치는 중…",
+  "vi": "Đã xác nhận thay đổi trang bị. Đang làm mới trạng thái trò chơi…",
+  "id": "Perubahan perlengkapan dikonfirmasi. Memperbarui status permainan…",
+  "ru": "Изменение снаряжения подтверждено. Обновление состояния игры…",
+  "pt": "Alteração de equipamento confirmada. A atualizar o estado do jogo…"
+};
+keys.push("livePresetRename", "livePresetRenamed", "liveEquipmentConfirmedRefreshPending");
+for (const [language, values] of Object.entries(messages)) values.push(...renameMessages[language], confirmedRefreshMessages[language]);
 export const equipmentPresetTexts = Object.fromEntries(Object.entries(messages).map(([language, values]) => [language, Object.fromEntries(keys.map((key, index) => [`squad.${key}`, values[index]]))]));
 export const withEquipmentPresetTexts = (language, catalog) => ({ ...catalog, ...equipmentPresetTexts[language] });
