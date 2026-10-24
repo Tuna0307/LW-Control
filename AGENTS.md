@@ -1,3 +1,11 @@
+Latest owner remaining-tabs assignment, 2026-10-25: compare Equipment, City Layout, Hotkeys, Mini Games
+and Settings side by side with LwTool; implement and qualify useful improvements. Use new branch
+codex/lwtool-remaining-tabs from main@122d1989 and read docs/work-items/LWTOOL-REMAINING-TABS-2026-10-25.md.
+Owner reports sub-account login and authorizes task app/game operation and feature actions there;
+freshly verify exact UID/server before mutations. Preserve accepted Home/Map, exact ownership and
+restoration; no real-money purchase, Unlock Land Cell, anti-cheat interference, main merge or release.
+Event/entitlement gaps stay explicit. Earlier no-worker-task and old Equipment/Mini deferrals are history.
+
 Latest lead release, 2026-10-25: lead audited PR #16 (all suites pass independently; own live Map smoke passes),
 merged codex/lwtool-full-improvement into main (f7fa931d) and published release lw-control-v1.1-2026-10-25.
 Home and Map done for owner scope. Known minor follow-ups: intermittent HomeR2 controlled assertion; retired-pipe
