@@ -12,6 +12,8 @@ local bridge,array,owner,events,ledger_owner
 local configs,queue,seen,replies={},{},{},{}
 local listener={ready=false,observedMessages=0,eventMessages=0,retainedMessages=0}
 local services={}
+local response_hooks={}
+local cross={nextAt=0,cursor=1,allowed={},dirty={},batches=0,requestedRooms=0,eligibleRooms=0}
 local last_scan=0
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
 local function call(o,k,...)local f=get(o,k);if type(f)~='function'then return false end;return pcall(f,o,...)end
@@ -56,6 +58,30 @@ local function post(msg,key)
     local expected=get(rawget(_G,'PostType'),key)
     return expected~=nil and get(msg,'post')==expected
 end
+local function reward_config(job)
+    local config=configs[job.kind]or {}
+    if job.kind=='goldEgg'and config.legacyCombined==true then return configs[job.route]or {} end
+    return config
+end
+local function packet_family(data)
+    local packet=int(data.packetId)
+    local ok,template=call(center('RedPacketTemplateManager'),'GetTemplate',packet)
+    if not ok or not template then return nil end
+    local special,kind,goods=int(get(template,'special_type')),int(get(template,'type')),int(get(template,'goodsId'))
+    -- Native v27 packet catalog: government tax, trade/magatama, lucky
+    -- packets and birthday gifts. Diamond/birthday goods use the same
+    -- source-qualified OpenRedPacket route and its normal template checks.
+    if goods==670001 or (special==5 and kind==5)then return 'birthday' end
+    if goods==653052 then return 'diamond'end
+    if special==2 and kind==1 then return 'tax'end
+    if special==3 and kind==3 then return 'trade'end
+    if special==4 and kind==2 then return 'lucky'end
+end
+local function firework_type(data)
+    local config=int(data.configId)
+    local ok,value=invoke({get=rawget(_G,'GetTableData')},'get',get(rawget(_G,'TableName'),'Firework'),config,'type',0)
+    return config and ok and int(value)or nil
+end
 local function expire(msg,data,kind)
     local n=tonumber(data.expiredTime)
     if n and n>0 then return n end
@@ -67,19 +93,28 @@ local function expire(msg,data,kind)
 end
 local function describe(msg)
     local data=decode(msg);if not data then return nil end
-    local kind
-    if post(msg,'RedPackge_New')then kind='redPacket'
-    elseif post(msg,'FIREWORK_GIFT_REWARD')then kind='fireworks'
+    local kind,route,family
+    if post(msg,'RedPackge_New')then
+        kind='redPacket';route=kind;family=packet_family(data)
+        if family and configs.goldEgg then kind='goldEgg'end
+    elseif post(msg,'FIREWORK_GIFT_REWARD')then
+        kind='fireworks';route=kind
+        if configs.goldEgg and firework_type(data)==1 then kind='goldEgg';family='boss'end
+    elseif post(msg,'S0_ALLIANCE_BOSS_GIFT_REWARD')and configs.goldEgg and configs.goldEgg.legacyCombined~=true then
+        kind='goldEgg';route='fireworks';family='boss'
     elseif post(msg,'Detect_Treasure_Fin_Info')or post(msg,'Detect_Treasure_Reward_Fin_Info')or
         post(msg,'DetectEventGetDoubleTreasure')then kind='treasure'end
     if not kind then return nil end
     local uuid=data.uuid
     if uuid==nil or tostring(uuid)==''or #tostring(uuid)>128 then return nil end
-    if kind~='redPacket'and not id(uuid)then return nil end
+    route=route or kind
+    if route~='redPacket'and not id(uuid)then return nil end
     local server=int(data.targetServer or data.serverId)
     if server and server<0 then return nil end
-    local key=kind..'/'..tostring(server or 0)..'/'..tostring(uuid)
-    return {kind=kind,uuid=tostring(uuid),data=data,message=msg,key=key,expires=expire(msg,data,kind),
+    -- The ledger follows the actual native route, not the visible card. A
+    -- settings migration or a second announcement cannot send this reward twice.
+    local key=route..'/'..tostring(server or 0)..'/'..tostring(uuid)
+    return {kind=kind,route=route,family=family,uuid=tostring(uuid),data=data,message=msg,key=key,expires=expire(msg,data,route),
         roomId=get(msg,'roomId'),seqId=get(msg,'seqId'),server=server}
 end
 -- Owner 2026-10-22: optional active hours per Chat service (this computer's clock), e.g. 08:00-02:00
@@ -97,6 +132,24 @@ local function in_hours(config)
     return now>=a or now<b
 end
 local function active(config)return type(config)=='table'and config.enabled==true and in_hours(config)end
+local function gold_allowed(job,config)
+    if job.kind~='goldEgg'or configs.goldEgg.legacyCombined==true then return true end
+    if job.family=='boss'then
+        local ok,home=call(get(rawget(_G,'LuaEntry'),'Player'),'IsInSelfServer')
+        if not ok or home~=true then return false,'Native boss gifts require the home server'end
+    end
+    if job.family=='birthday'and config.ignoreBirthday==true then return false,'Birthday gifts are excluded'end
+    local home=owner.account:match('/(%d+)$')
+    if job.server and job.server>0 and tostring(job.server)~=home then
+        if config.crossServerEnabled~=true then return false,'Cross-server Gold Egg is disabled'end
+        if job.route=='redPacket'then
+            local ok,template=call(center('RedPacketTemplateManager'),'GetTemplate',int(job.data.packetId))
+            local allowed,value=call(ok and template,'IsCanCrossServer')
+            if not allowed or value~=true then return false,'Native packet cross-server conditions refused'end
+        end
+    end
+    return true
+end
 M._InHours=in_hours
 local function delay(range)
     range=type(range)=='table'and range or {0,0}
@@ -384,17 +437,106 @@ local function observe(msg,from_event,force)
     end
     if active(configs.treasure)then T.Share(msg)end
     local job=describe(msg);if not job then return end
-    local config=configs[job.kind]or {}
+    local config=reward_config(job)
+    if not gold_allowed(job,config)then return end
     if not force and not active(config)then return end
     if job.expires and job.expires<=clock()then return end
-    if queue[job.key]then queue[job.key].message=msg;queue[job.key].data=job.data;return end
+    if queue[job.key]then
+        local old=queue[job.key];old.message=msg;old.data=job.data
+        if old.state=='queued'and not old.sendCount and old.kind~=job.kind then
+            old.kind=job.kind;old.family=job.family;old.due=clock()+delay(config.claimDelaySeconds)
+        end
+        return
+    end
     local count=0;for _ in pairs(queue)do count=count+1 end
     if count>=512 then service(job.kind).error='Chat claim queue is full';return end
-    job.due=clock()+(job.kind=='treasure'and T.Delay(config)or delay(config.claimDelaySeconds));job.state='queued';job.force=force
+    job.createdAt=clock();job.due=clock()+(job.kind=='treasure'and T.Delay(config)or delay(config.claimDelaySeconds));job.state='queued';job.force=force
     queue[job.key]=job
 end
 local function chat_manager()
     local ok,mgr=call(rawget(_G,'ChatManager2'),'GetInstance');return ok and mgr
+end
+local function native_season_servers()
+    local manager=center('SeasonDataManager')
+    local ok,values=call(manager,'GetServerListInt')
+    if not ok then
+        local meta=manager and getmetatable(manager);local index=get(meta,'__index')
+        local method=get(index,'GetServerListInt')
+        if type(method)=='function'then ok,values=pcall(method,manager)end
+    end
+    local servers={}
+    if ok then each(values,function(value)local n=int(value);if n and n>0 then servers[n]=true end end)end
+    return servers
+end
+local function cross_rooms(home_server)
+    local manager=chat_manager();local room_manager=get(manager,'Room')
+    local ok,rooms=call(room_manager,'GetGameServerRoomList')
+    local servers=native_season_servers();local home=tonumber(home_server)or(owner and tonumber(owner.account:match('/(%d+)$')))
+    local selected,seen,budget={},{},0
+    local function collect(value,depth)
+        budget=budget+1;if budget>512 or depth>3 then return end
+        if type(value)=='string'and #value<=128 then
+            local server=tonumber(value:match('country_(%d+)'))
+            if not server or server==home or not servers[server]or seen[value]then return end
+            local available,room=call(room_manager,'GetRoomData',value)
+            if available and room and tostring(get(room,'roomId'))==value and
+                type(get(room,'GetUnblockedChatDatas'))=='function'and #selected<32 then
+                selected[#selected+1]=value;seen[value]=true
+            end
+        elseif type(value)=='table'then
+            for _,child in pairs(value)do if budget>=512 then break end;collect(child,depth+1)end
+        elseif value~=nil then each(value,function(child)collect(child,depth+1)end)end
+    end
+    if ok then collect(rooms,0)end
+    table.sort(selected)
+    return selected,seen,room_manager
+end
+local function cross_enabled()
+    local config=configs.goldEgg
+    return active(config)and config.crossServerEnabled==true and config.legacyCombined~=true
+end
+local function mark_history(data)
+    if not owned()or not cross_enabled()then return end
+    local room=get(data,'roomId')
+    if type(room)=='string'and cross.allowed[room]then cross.dirty[room]=true end
+end
+local function pump_cross()
+    if not cross_enabled()then cross.allowed={};cross.dirty={};cross.eligibleRooms=0;return end
+    if clock()>=cross.nextAt then
+        cross.nextAt=clock()+15000
+        local rooms,allowed,manager=cross_rooms()
+        cross.eligibleRooms=#rooms;cross.allowed=allowed
+        if #rooms>0 and type(get(manager,'requestMultiRoomLatestMsg'))=='function'and owned()then
+            local batch={}
+            for _=1,math.min(8,#rooms)do
+                if cross.cursor>#rooms then cross.cursor=1 end
+                batch[#batch+1]=rooms[cross.cursor];cross.cursor=cross.cursor+1
+            end
+            -- Fresh copies of native permission-supplied IDs go through the
+            -- game's own pending-request fence. No guessed IDs, room joins,
+            -- external feed or reward request are used for discovery.
+            local ok,accepted=call(manager,'requestMultiRoomLatestMsg',batch)
+            if ok and accepted==true and #batch>0 then
+                cross.batches=cross.batches+1;cross.requestedRooms=cross.requestedRooms+#batch
+                cross.lastRequestAt=clock()
+            end
+        end
+    end
+    -- Coalesce history callbacks and inspect one completed room per tick.
+    local room_id=next(cross.dirty)
+    if room_id then
+        cross.dirty[room_id]=nil
+        local _,allowed,manager=cross_rooms()
+        if allowed[room_id]and owned()then
+            local ok,room=call(manager,'GetRoomData',room_id)
+            local valid,messages=call(ok and room,'GetUnblockedChatDatas')
+            local count=0
+            if valid then each(messages,function(msg)
+                if count<200 and owned()then count=count+1;observe(msg,true)end
+            end)end
+            cross.lastReadAt=clock()
+        end
+    end
 end
 local function scan(force_kind)
     local mgr=chat_manager();local room=get(mgr,'Room')
@@ -413,13 +555,24 @@ local function scan(force_kind)
 end
 local function ack(kind,uuid,data)
     if not owned()or uuid==nil then return end
+    local matches={}
     for _,job in pairs(queue)do
-        if job.kind==kind and job.uuid==tostring(uuid)and job.state=='sent'then
+        if (job.route or job.kind)==kind and job.uuid==tostring(uuid)and job.state=='sent'then
+            local server=type(data)=='table'and int(data.targetServer or data.serverId)
+            if not server or not job.server or server==job.server then matches[#matches+1]=job end
+        end
+    end
+    -- The protocol has no per-attempt nonce. Never credit two different
+    -- server-qualified targets from one UUID-only observation.
+    if #matches~=1 then return end
+    for _,job in ipairs(matches)do
+        if job.state=='sent'then
             job.state='success';job.confirmedAt=clock()
-            local s=service(kind);s.claimed=s.claimed+1;s.lastResult='success';s.state='success';s.lastRunAt=clock()
-            s.receipts[#s.receipts+1]={uuid=job.uuid,state='success',at=clock(),nativePostState=true}
+            local s=service(job.kind);s.claimed=s.claimed+1;s.lastResult='success';s.state='success';s.lastRunAt=clock();s.error=nil
+            if job.unconfirmed then s.unconfirmed=math.max(0,(s.unconfirmed or 0)-1);job.unconfirmed=nil end
+            s.receipts[#s.receipts+1]={uuid=job.uuid,state='success',at=clock(),nativePostState=true,newRewardConfirmed=true}
             if #s.receipts>30 then table.remove(s.receipts,1)end
-            local config=configs[kind]or {}
+            local config=reward_config(job)
             if config.replyEnabled and job.roomId and type(config.replies)=='table'and #config.replies>0 then
                 replies[#replies+1]={job=job,at=clock()+delay(config.replyDelaySeconds),
                     phrase=config.replies[math.random(1,#config.replies)]}
@@ -428,10 +581,70 @@ local function ack(kind,uuid,data)
     end
 end
 T.ack=ack
+local function outcome(job,state,reason)
+    if job.state~='sent'and job.state~='queued'then return end
+    local s=service(job.kind)
+    if state=='unconfirmed'then
+        if not job.unconfirmed then s.unconfirmed=(s.unconfirmed or 0)+1;job.unconfirmed=true end
+        -- Retain the original sent tombstone and accept a later genuine
+        -- response. Unknown is never permission to retransmit.
+    else
+        if job.unconfirmed then s.unconfirmed=math.max(0,(s.unconfirmed or 0)-1);job.unconfirmed=nil end
+        job.state=state
+        local field=state=='already_claimed'and 'alreadyClaimed'or state
+        s[field]=(s[field]or 0)+1
+        if state=='refused'or state=='exhausted'or state=='expired'then s.failed=s.failed+1 end
+    end
+    s.lastResult=state;s.state=state;s.error=reason;s.lastRunAt=clock()
+    if not job.recordedOutcome or job.recordedOutcome~=state then
+        s.receipts[#s.receipts+1]={uuid=job.uuid,state=state,at=clock(),newRewardConfirmed=false}
+        if #s.receipts>30 then table.remove(s.receipts,1)end
+        job.recordedOutcome=state
+    end
+end
+local function response(kind,data)
+    if not owned()or type(data)~='table'then return end
+    local packet=get(data,'redPacket')
+    local uuid=kind=='redPacket'and get(packet,'uuid')or get(data,'uuid')
+    uuid=uuid or get(data,'uuid')
+    if uuid==nil then return end -- Unidentified errors cannot be assigned to a pending job.
+    local error_code=get(data,'errorCode')
+    if error_code==nil then ack(kind,uuid,data);return end
+    local matches={}
+    for _,job in pairs(queue)do
+        if (job.route or job.kind)==kind and job.uuid==tostring(uuid)and job.state=='sent'then
+            local server=int(data.targetServer or data.serverId)
+            if not server or not job.server or server==job.server then matches[#matches+1]=job end
+        end
+    end
+    if #matches~=1 then return end
+    local states={firework_tips_1016='already_claimed',firework_tips_1015='exhausted',firework_tips_1014='expired'}
+    outcome(matches[1],states[tostring(error_code)]or 'refused',tostring(error_code))
+end
+local function attach_response_hooks()
+    for _,spec in ipairs({{'fireworks','Net.Msgs.GetFireworksGiftMessage'}, {'redPacket','Net.Msgs.OpenRedPacketMessage'}})do
+        local ok,class=pcall(require,spec[2])
+        local original=ok and get(class,'HandleMessage')
+        if type(original)=='function'and not response_hooks[spec[2]]then
+            local kind=spec[1]
+            local wrapper=function(self,data,...)
+                local values=table.pack(pcall(original,self,data,...))
+                if values[1]then pcall(response,kind,data)end
+                if not values[1]then error(values[2],0)end
+                return table.unpack(values,2,values.n)
+            end
+            local installed=pcall(function()class.HandleMessage=wrapper end)
+            if installed and get(class,'HandleMessage')==wrapper then
+                response_hooks[spec[2]]={class=class,original=original,wrapper=wrapper}
+            end
+        end
+    end
+    local n=0;for _ in pairs(response_hooks)do n=n+1 end;listener.responseObserverCount=n
+end
 local function subscribe()
     local ok,manager=call(rawget(_G,'EventManager'),'GetInstance')
     if not ok or not manager then return end
-    if events and events.manager==manager then return end
+    if events and events.manager==manager then attach_response_hooks();return end
     M.Detach()
     events={manager=manager,rows={}}
     local function add(event,callback)
@@ -441,21 +654,29 @@ local function subscribe()
     end
     add(get(rawget(_G,'ChatEventEnum'),'CHAT_RECIEVE_ROOM_MSG'),function(msg)observe(msg,true)end)
     add(get(rawget(_G,'ChatEventEnum'),'CHAT_ROOM_ONEMSG_UPDATA'),function(msg)observe(msg,true)end)
+    add(get(rawget(_G,'ChatEventEnum'),'CHAT_ROOM_HISTORYMSG_UPDATA'),mark_history)
     add(get(rawget(_G,'EventId'),'RedPacketOpen'),function(data)
         local packet=get(data,'redPacket');ack('redPacket',get(packet,'uuid'),data)
     end)
     add(get(rawget(_G,'EventId'),'FireworkGiftGotUpdate'),function(data)ack('fireworks',get(data,'uuid'),data)end)
     listener.eventListenerCount=#events.rows
+    attach_response_hooks()
 end
 function M.Detach()
     if events then for _,r in ipairs(events.rows)do call(events.manager,'RemoveListener',r[1],r[2])end end
     events=nil;listener.eventListenerCount=0
+    for key,hook in pairs(response_hooks)do
+        -- Never overwrite a newer game/extension wrapper during cleanup.
+        if get(hook.class,'HandleMessage')==hook.wrapper then pcall(function()hook.class.HandleMessage=hook.original end)end
+        response_hooks[key]=nil
+    end
+    listener.responseObserverCount=0
 end
 local function claimed(job)
     local p=get(rawget(_G,'LuaEntry'),'Player');local uid=id(get(p,'uid'))
     local data=decode(job.message)or job.data
     for _,u in ipairs(data.uids or {})do if tostring(u)==uid then return true end end
-    if job.kind=='fireworks'then
+    if job.route=='fireworks'then
         local ok,v=call(center('LWFireworkGiftManager'),'IsThisGiftUuidGot',tonumber(job.uuid));if ok and v then return true end
     elseif job.kind=='treasure'then
         local world=get(get(rawget(_G,'CS'),'SceneManager'),'World')
@@ -468,10 +689,12 @@ local function claimed(job)
 end
 local function claim(job)
     local data=decode(job.message)or job.data
+    local permitted,reason=gold_allowed(job,reward_config(job))
+    if not permitted then return false,reason end
     local mgr=chat_manager()
     local route=rawget(_G,'MsgDefines');local network=rawget(_G,'SFSNetwork')
     if type(get(network,'SendMessage'))~='function'then return false,'Native game message sender unavailable'end
-    if job.kind=='redPacket'then
+    if job.route=='redPacket'then
         local ok,blocked=call(mgr,'CanNotPickRedPacket',data)
         if not ok or blocked then return false,'Native Red Packet eligibility refused'end
         local packet=int(data.packetId)
@@ -488,9 +711,28 @@ local function claim(job)
         if not owned()then return false,'Chat owner lease changed'end
         job.state='sent';job.sentAt=clock();job.sendCount=1
         return invoke(network,'SendMessage',get(route,'OpenRedPacket'),job.uuid,packet,channel,job.server or 0)
-    elseif job.kind=='fireworks'then
+    elseif job.route=='fireworks'then
         local config=int(data.configId);local yes,kind=invoke({get=rawget(_G,'GetTableData')},'get',get(rawget(_G,'TableName'),'Firework'),config,'type',0)
         if not config or not yes or not int(kind)or not id(data.ownerUid)or not get(route,'GetFireworksGift')then return false,'Native Fireworks / Egg gift type unavailable'end
+        if job.kind=='goldEgg'and configs.goldEgg.legacyCombined~=true then
+            -- Boss announcements are location links in the native UI. Do not
+            -- turn one into a claim until the game's own gift object exists
+            -- for this exact UUID/owner/config and permits receiving it.
+            local ok,q=call(center('LWFireworkGiftManager'),'GetGiftQueueByPlayerUid',tostring(data.ownerUid))
+            local list,items=call(ok and q,'ToArray');local found
+            if list then each(items,function(item)
+                if tostring(get(item,'uuid'))==job.uuid and tostring(get(item,'ownerUid'))==tostring(data.ownerUid)and
+                    int(get(item,'configId'))==config and int(get(item,'type'))==1 then found=item end
+            end)end
+            if not found then
+                if clock()-(job.createdAt or clock())<2000 then return false,'Waiting for native gift eligibility',true end
+                return false,'The announcement has no matching eligible native gift'
+            end
+            local checked=call(found,'CheckIsAvailable');local measured,full=call(found,'IsReachLimit')
+            if not checked or get(found,'isAvailable')~=true or not measured or full~=false then
+                return false,'Native gift ownership, alliance, expiry or remaining-count conditions refused'
+            end
+        end
         if not owned()then return false,'Chat owner lease changed'end
         job.state='sent';job.sentAt=clock();job.sendCount=1
         return invoke(network,'SendMessage',get(route,'GetFireworksGift'),{uuid=tonumber(job.uuid),ownerUid=tostring(data.ownerUid),type=kind})
@@ -516,10 +758,16 @@ function M.Pump()
     if not has_chat_work()then return end
     if not owned()then return end
     subscribe()
+    pump_cross()
     if clock()-last_scan>=RESCAN_MS then last_scan=clock();scan()end
     for _,job in pairs(queue)do
-        local s=service(job.kind);local config=configs[job.kind]or {}
-        if job.state=='sent'and claimed(job)then ack(job.kind,job.uuid)end
+        local s=service(job.kind);local config=reward_config(job)
+        -- The got-cache also changes on an "already claimed" refusal. Only a
+        -- genuine native success event/identified success response credits a
+        -- new reward; a cache-only change after send remains unconfirmed.
+        if job.state=='sent'and job.kind~='treasure'and claimed(job)then
+            outcome(job,'unconfirmed','Native got-cache alone does not confirm a new reward')
+        elseif job.state=='sent'and job.kind=='treasure'and claimed(job)then ack(job.kind,job.uuid)end
         if job.state=='queued'and job.kind=='treasure'and not T.Joined(job.uuid)then
             -- Owner 2026-10-22: never claim a dig our squad did not join.
             job.state='not_joined';T.stats.notJoined=T.stats.notJoined+1
@@ -528,24 +776,25 @@ function M.Pump()
         -- AUDIT-04: active hours are checked again at the send. Treasure claims are only queued for digs
         -- our squad joined, and those finish after the stop time (owner 2026-10-22).
         elseif job.state=='queued'and (job.force or (job.kind=='treasure'and config.enabled==true)or active(config))and job.due<=clock()then
-            if job.expires and job.expires<=clock()then job.state='expired'
-            elseif claimed(job)then job.state='already_claimed'
+            if job.expires and job.expires<=clock()then outcome(job,'expired')
+            elseif claimed(job)then outcome(job,'already_claimed')
             else
-                local yes,error=claim(job)
-                if job.kind=='treasure'and (job.retries or 0)>0 then -- a brief retry after a refused claim
-                elseif job.sendCount==1 then s.submitted=s.submitted+1;s.lastResult='submitted';s.state='waiting_ack'
-                else job.state='refused';s.failed=s.failed+1;s.lastResult='failed';s.error=error end
-                if not yes and job.sendCount==1 then job.uncertain=true;s.error='Claim submission is uncertain; this target will not be replayed'end
+                local yes,error,deferred=claim(job)
+                if deferred and not job.sendCount then job.due=clock()+100
+                elseif job.kind=='treasure'and (job.retries or 0)>0 then -- a brief retry after a refused claim
+                elseif job.sendCount==1 then s.submitted=s.submitted+1;if job.state=='sent'then s.lastResult='submitted';s.state='waiting_ack'end
+                else outcome(job,'refused',error)end
+                if not yes and job.sendCount==1 and job.state=='sent'then job.uncertain=true;s.error='Claim submission is uncertain; this target will not be replayed'end
             end
         elseif job.state=='sent'and clock()-job.sentAt>15000 then
-            s.state='waiting_ack';s.error='Waiting for native claim confirmation; this target will not be replayed'
+            outcome(job,'unconfirmed','Waiting for native claim confirmation; this target will not be replayed')
         end
     end
     for i=#replies,1,-1 do
         local reply=replies[i]
         if reply.at<=clock()then
             table.remove(replies,i)
-            local config=configs[reply.job.kind]or {}
+            local config=reward_config(reply.job)
             if config.replyEnabled and active(config)and owned()then
                 local mgr=chat_manager();local ok,allowed=call(mgr,'CheckRoomSend',reply.job.roomId)
                 if ok and allowed then call(mgr,'SendChatMsg',{roomId=reply.job.roomId,msg=reply.phrase,
@@ -584,9 +833,15 @@ function M.Run(request)
     scan(request.kind);M.Pump();return M.Status()
 end
 function M.Status()
-    for _,kind in ipairs({'redPacket','fireworks','treasure'})do
+    for _,kind in ipairs({'redPacket','fireworks','goldEgg','treasure'})do
         local s=service(kind);local config=configs[kind]or {}
         s.enabled=config.enabled==true;s.running=owned()and s.enabled;s.pendingCount=0
+        s.legacyCombined=kind=='goldEgg'and config.legacyCombined==true or nil
+        if kind=='goldEgg'then
+            s.crossServer={enabled=cross_enabled(),eligibleRooms=cross.eligibleRooms,
+                historyBatches=cross.batches,requestedRooms=cross.requestedRooms,lastReadAt=cross.lastReadAt}
+            s.eventEggClaimsSupported=false
+        end
         s.replyPendingCount=0
         for _,r in ipairs(replies)do if r.job.kind==kind then s.replyPendingCount=s.replyPendingCount+1 end end
         for _,job in pairs(queue)do if job.kind==kind and (job.state=='queued'or job.state=='sent')then s.pendingCount=s.pendingCount+1 end end
@@ -610,8 +865,53 @@ function M.Read(request)
     local configured=M.Configure(request);if configured.state~='confirmed'then return configured end
     return M.Status()
 end
+-- Read-only native options for reward taxonomy and cross-server eligibility.
+-- Configuration templates contain no player messages/rewards and this path
+-- neither installs listeners nor joins a room or submits a claim.
+function M.Catalog(request)
+    local signature=account();local uid=signature and signature:match('^([^/]+)/')
+    if not uid or request.authorizedUid~=uid or not bridge or not bridge.Feature018OwnerToken()then
+        return fail('Chat account admission absent')
+    end
+    local packets,firework_rows={},{}
+    local function scalar(value)
+        if type(value)=='number'or type(value)=='boolean'then return value end
+        if type(value)=='string'and #value<=250 then return value end
+    end
+    local ok,templates=call(center('RedPacketTemplateManager'),'GetAllRedPackTemplate')
+    if ok then each(templates,function(template)
+        if #packets>=512 then return end
+        local row={}
+        for _,key in ipairs({'id','type','goodsId','gift_type','special_type','para1','pic','item_pic','chat_icon'})do row[key]=scalar(get(template,key))end
+        local named,name=call(template,'GetName');if named then row.name=scalar(name)end
+        packets[#packets+1]=row
+    end)end
+    local yes,controller=call(rawget(_G,'LocalController'),'instance')
+    if yes then call(controller,'visitTable',get(rawget(_G,'TableName'),'Firework'),function(key,row)
+        row=row or key
+        if type(get(row,'getValue'))~='function'then return end
+        if #firework_rows>=512 then return end
+        local out={}
+        for _,key in ipairs({'id','type','goods','name','gift_type','reward'})do
+            local valid,value=call(row,'getValue',key);if valid then out[key]=scalar(value)end
+        end
+        firework_rows[#firework_rows+1]=out
+    end)end
+    local home=signature:match('/(%d+)$')
+    local rooms,_,room_manager=cross_rooms(home)
+    local servers=native_season_servers();local server_count=0
+    for _ in pairs(servers)do server_count=server_count+1 end
+    if array then array(packets);array(firework_rows)end
+    return result({readOnly=true,requestDispatched=false,observation='native_chat_reward_configuration',
+        packets=packets,fireworks=firework_rows,boundedAt=512,
+        crossServer={seasonServerCount=server_count,eligibleKnownRemoteRooms=#rooms,
+            nativeRoomListAvailable=type(get(room_manager,'GetGameServerRoomList'))=='function',
+            nativeHistoryAvailable=type(get(room_manager,'requestMultiRoomLatestMsg'))=='function',
+            historyRequested=false,roomJoined=false}})
+end
 function M.CleanupAfterLeaseLoss()
     M.Detach();T.Release();configs={};replies={};owner=nil;listener.ready=false
+    cross={nextAt=0,cursor=1,allowed={},dirty={},batches=0,requestedRooms=0,eligibleRooms=0}
 end
 -- Owner 2026-10-21: read-only game emoji list for the Auto Reply picker. No send, no subscription.
 -- ChatInterface.GetOldEmojiStr 926-935: a game emoji travels in text as <lwEmoji:ID:>.
@@ -701,6 +1001,7 @@ function M.Register(feature,overview)
     feature.RegisterHandler('feature018_chat_configure',M.Configure)
     feature.RegisterHandler('feature018_chat_run',M.Run)
     feature.RegisterHandler('feature018_chat_status',M.Read)
+    feature.RegisterHandler('feature018_chat_catalog',M.Catalog)
     feature.RegisterHandler('feature018_chat_emoji_list',M.EmojiList)
     feature.RegisterHandler('feature018_chat_emoji_image',M.EmojiImage)
 end

@@ -6,7 +6,7 @@ namespace LWBridge.Desktop;
 /// <summary>Recovered 0.3.17 Chat settings, persisted per profile. No game actions.</summary>
 internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigStore store) : INativeAsyncCommandService
 {
-    internal static readonly string[] Kinds = ["redPacket", "fireworks", "treasure"];
+    internal static readonly string[] Kinds = ["redPacket", "fireworks", "goldEgg", "treasure"];
     public bool CanHandle(string command) => command is "feature018_chat_config_get" or "feature018_chat_config_save";
 
     internal static JsonObject Default(string kind) => new()
@@ -19,6 +19,7 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
         ["claimSchedule"] = DefaultSchedule(),
         // Owner 2026-10-22: optional active hours (this computer's clock); may cross midnight.
         ["activeHours"] = new JsonObject { ["enabled"] = false, ["start"] = "08:00", ["end"] = "02:00" },
+        ["crossServerEnabled"] = false, ["ignoreBirthday"] = false,
     };
 
     // Owner 2026-10-22: Treasure claim delay by time of day (computer clock), random within each row.
@@ -37,6 +38,29 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
         return kind;
     }
 
+    // Existing combined controls keep their original per-route enable/delay/
+    // reply rules until the owner explicitly saves the separate Gold Egg card.
+    // The legacy marker is produced only here, never accepted in client saves.
+    internal static JsonObject ReadEffective(JsonObject tasks, string kind, bool nativeWire = false)
+    {
+        if (tasks[kind] is JsonNode saved)
+            return Validate(kind, JsonSerializer.SerializeToElement(saved));
+        if (kind != "goldEgg") return Validate(kind, JsonSerializer.SerializeToElement(Default(kind)));
+        if (tasks["redPacket"] is null && tasks["fireworks"] is null)
+            return Validate("goldEgg", JsonSerializer.SerializeToElement(Default("goldEgg")));
+        JsonObject red = ReadEffective(tasks, "redPacket"), fire = ReadEffective(tasks, "fireworks");
+        bool enabled = red["enabled"]!.GetValue<bool>() || fire["enabled"]!.GetValue<bool>();
+        if (nativeWire)
+            return new JsonObject { ["enabled"] = enabled, ["legacyCombined"] = true };
+        JsonObject basis = (fire["enabled"]!.GetValue<bool>() ? fire : red).DeepClone().AsObject();
+        basis["enabled"] = enabled;
+        basis["crossServerEnabled"] = false; // Added discovery always requires an explicit opt-in.
+        basis["ignoreBirthday"] = false;
+        JsonObject gold = Validate("goldEgg", JsonSerializer.SerializeToElement(basis));
+        gold["legacyCombined"] = true;
+        return gold;
+    }
+
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -46,7 +70,7 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
         if (payload.EnumerateObject().Any(p => !permitted.Contains(p.Name, StringComparer.Ordinal)))
             throw Invalid("Chat configuration contains unexpected fields.");
         if (command == "feature018_chat_config_get")
-            return Task.FromResult<object?>(store.ReadTasksSnapshot()[kind]?.DeepClone() ?? Default(kind));
+            return Task.FromResult<object?>(ReadEffective(store.ReadTasksSnapshot(), kind));
         if (!payload.TryGetProperty("config", out JsonElement input)) throw Invalid("Chat config is required.");
         JsonObject config = Validate(kind, input);
         return Task.FromResult<object?>(store.SaveResourceAutomationConfig(kind, config));
@@ -56,11 +80,11 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
     {
         if (input.ValueKind != JsonValueKind.Object) throw Invalid("Chat config must be an object.");
         var allowed = new HashSet<string>(["enabled", "claimDelaySeconds", "replyEnabled", "replyDelaySeconds", "replies",
-            "searchEnabled", "dispatchEnabled", "dispatchDelaySeconds", "dispatchSquadPriority", "dispatchRetrySeconds", "claimSchedule", "activeHours"], StringComparer.Ordinal);
+            "searchEnabled", "dispatchEnabled", "dispatchDelaySeconds", "dispatchSquadPriority", "dispatchRetrySeconds", "claimSchedule", "activeHours", "crossServerEnabled", "ignoreBirthday"], StringComparer.Ordinal);
         if (input.EnumerateObject().Any(p => !allowed.Contains(p.Name))) throw Invalid("Unexpected Chat setting.");
         var config = Default(kind);
         foreach (JsonProperty property in input.EnumerateObject()) config[property.Name] = JsonNode.Parse(property.Value.GetRawText());
-        foreach (string name in new[] { "enabled", "replyEnabled", "searchEnabled", "dispatchEnabled" })
+        foreach (string name in new[] { "enabled", "replyEnabled", "searchEnabled", "dispatchEnabled", "crossServerEnabled", "ignoreBirthday" })
             if (config[name] is not JsonValue boolean || !boolean.TryGetValue<bool>(out _)) throw Invalid($"Invalid {name}.");
         Range(config, "claimDelaySeconds", 0, kind == "treasure" ? 600 : 60);
         Range(config, "replyDelaySeconds", 0.1, 600);
@@ -84,6 +108,7 @@ internal sealed class ChatAutomationConfigCommandService(ProfileRuntimeConfigSto
             throw Invalid("Active hours need a different start and end time (HH:MM).");
         if (kind != "treasure")
             foreach (string name in new[] { "searchEnabled", "dispatchEnabled", "dispatchDelaySeconds", "dispatchSquadPriority", "dispatchRetrySeconds", "claimSchedule" }) config.Remove(name);
+        if (kind != "goldEgg") { config.Remove("crossServerEnabled");config.Remove("ignoreBirthday"); }
         return config;
     }
 

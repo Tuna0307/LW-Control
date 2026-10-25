@@ -42,7 +42,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "mini_chest_position" or "mini_chest_mark" or "mini_chest_unmark" or
         "mini_frontline_status" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
-        "feature018_chat_configure" or "feature018_chat_run" or "feature018_chat_status" or "feature018_chat_emoji_list" or "feature018_chat_emoji_image" or
+        "feature018_chat_configure" or "feature018_chat_run" or "feature018_chat_status" or "feature018_chat_catalog" or "feature018_chat_emoji_list" or "feature018_chat_emoji_image" or
         "feature018_automation_configure" or "feature018_automation_run" or "feature018_automation_status" or "feature018_automation_stop" or "feature018_automation_observe" or
         "feature018_input_focus" or
         "feature018_relocation_preflight" or
@@ -80,9 +80,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             var trusted = new JsonObject();
             foreach (string kind in ChatAutomationConfigCommandService.Kinds)
             {
-                JsonNode config = tasks[kind] ?? ChatAutomationConfigCommandService.Default(kind);
-                trusted[kind] = ChatAutomationConfigCommandService.Validate(kind,
-                    JsonSerializer.SerializeToElement(config));
+                trusted[kind] = ChatAutomationConfigCommandService.ReadEffective(tasks, kind, nativeWire: true);
             }
             fields["confirmedChatConfig"] = trusted.ToJsonString();
             if (fields["confirmedChatConfig"].Length > 14000)
@@ -227,6 +225,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 break;
             }
             case "feature018_chat_status":
+            case "feature018_chat_catalog":
             case "feature018_chat_emoji_list":
                 if (payload.EnumerateObject().Any(p => p.Name != "profileId"))
                     throw new BridgeCommandException("INVALID_REQUEST", "Chat status accepts only profile routing.");

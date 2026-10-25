@@ -1,3 +1,9 @@
+Latest owner Chat reward implementation approval, 2026-10-25: proceed with the recommended outcome
+counter fix, separate Gold Egg handling, source-qualified coverage and independent cross-server discovery
+investigation, then measurement. Read docs/work-items/LWTOOL-CHAT-REWARDS-IMPROVEMENT-2026-10-25.md.
+Continue codex/lwtool-remaining-tabs / draft PR #17; preserve prior tabs and exact ownership/restoration.
+This supersedes report-only scope below. No LwTool service dependency, main merge or release.
+
 Latest owner Chat reward comparison, 2026-10-25: Red Packet, Fireworks, Gold Egg and cross-server Gold Egg
 research is in docs/research/lwtool/2026-10-25/chat-rewards/COMPARISON.md and EVIDENCE.json. Documentation
 and inert comparison only; no product/game/service action. Current classifier handles 611/693, not 695/710;

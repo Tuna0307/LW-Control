@@ -9,7 +9,7 @@ export function initialAutomationDraft(title, previewState = "") {
   if (title === "Alliance Gathering Dispatch") return { enabled: false, allianceGatherSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1, 2] };
   if (title === "Secret Task") return { enabled: previewState === "automation-runtime-running", collectRewards: false, delayMinutes: "3", weeklyQualities: ["none", "ur", "none", "none", "none", "ur", "none"] };
   if (title === "Dispatch Assist") return { autoHelp: previewState === "automation-assist-auto", qualities: ["ssr", "ur"], delaySeconds: ["0", "0"], intervalSeconds: "30" };
-  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return { enabled: false, claimMin: "0", claimMax: "0", replyEnabled: false, replyMin: "2", replyMax: "5", replies: "", ...(title === "Treasure" ? { treasureSearchEnabled: false, treasureDispatchEnabled: previewState === "automation-squads-34", dispatchMin: "2", dispatchMax: "5", dispatchRetry: "30", dispatchSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1] } : {}) };
+  if (["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"].includes(title)) return { enabled: false, claimMin: "0", claimMax: "0", replyEnabled: false, replyMin: "2", replyMax: "5", replies: "", ...(title === "Treasure" ? { treasureSearchEnabled: false, treasureDispatchEnabled: previewState === "automation-squads-34", dispatchMin: "2", dispatchMax: "5", dispatchRetry: "30", dispatchSquads: previewState === "automation-squads-34" ? [3] : previewState === "automation-squads-empty" ? [] : [1] } : {}) };
   return { enabled: false };
 }
 
@@ -27,7 +27,7 @@ export function automationDraftError(title, draft, maximumBuilders = 20) {
     }
   }
   if (title === "Automatic Official Application" && ![0, 10002, 10003, 10004, 10005, 10006, 10007].includes(Number(draft.positionId ?? 0))) return "automation.positionError";
-  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) {
+  if (["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"].includes(title)) {
     const pairValid = (minKey, maxKey, defaults, limitMin, limitMax) => {
       const min = String(draft[minKey] ?? defaults[0]), max = String(draft[maxKey] ?? defaults[1]);
       return min.trim() !== "" && max.trim() !== "" && Number.isFinite(Number(min)) && Number.isFinite(Number(max)) && Number(min) >= limitMin && Number(max) <= limitMax && Number(min) <= Number(max);

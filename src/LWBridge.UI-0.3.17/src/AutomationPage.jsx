@@ -48,6 +48,7 @@ const automationCards = {
   chat: [
     ["Red Packet", "Listen for chat messages and automatically claim Red Packet."],
     ["Fireworks / Egg", "Listen for chat messages and automatically claim Fireworks / Egg."],
+    ["Gold Egg", "Claim eligible tax, trade, lucky and birthday eggs."],
     ["Treasure", "Listen for chat messages and automatically claim Treasure."],
   ],
 };
@@ -89,7 +90,7 @@ export function AutomationConfigPreview({ title, enabled, previewState = "", con
 
 function sourceVisibleDraftError(title, draft, maximumBuilders) {
   const error = automationDraftError(title, draft, maximumBuilders);
-  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) return error;
+  if (["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"].includes(title)) return error;
   if (["Automatic Treatment", "Automatic Official Application", "Alliance Gifts", "Excavation Stronghold Resources", "Alliance Center Resources"].includes(title)) return error;
   if (["Secret Task"].includes(title) && error === "automation.dailyDelayError") return error;
   return "";
@@ -131,6 +132,7 @@ function automationRuntimePresentation(title, runtime, enabled, configDraft, t, 
       return { status: rows(["automation.allianceGatherAvailable", text(runtime.available ?? 0)], ["automation.dispatched", text(runtime.dispatched ?? 0)], ["automation.lastRun", previewTime(runtime.lastRunAt, language)]) };
     case "Red Packet":
     case "Fireworks / Egg":
+    case "Gold Egg":
       return { summary: rows(["automation.pendingClaims", text(runtime.pendingCount)], ["automation.latestResult", t(runtime.lastResult === "success" ? "common.success" : runtime.lastResult === "failed" ? "common.failed" : "common.waiting")]) };
     case "Treasure":
       return { summary: rows(["automation.pendingClaims", text(runtime.pendingCount)], ["automation.treasureDispatchPending", text(runtime.dispatchPendingCount)]) };
@@ -212,7 +214,7 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
   if (title === "Automatic Official Application") {
     return <div className="automation-actions"><label>{t("automation.targetPosition")}<select value={config.draft.positionId ?? "0"} onChange={(event) => setNow("positionId", event.target.value)} disabled={!enabled}><option value="0">{t("automation.position.none")}</option><option value="10002">{t("automation.position.vicePresident")}</option><option value="10003">{t("automation.position.strategyMinister")}</option><option value="10004">{t("automation.position.defenseMinister")}</option><option value="10005">{t("automation.position.constructionMinister")}</option><option value="10006">{t("automation.position.scienceMinister")}</option><option value="10007">{t("automation.position.internalAffairsMinister")}</option></select></label></div>;
   }
-  if (["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)) {
+  if (["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"].includes(title)) {
     const treasure = title === "Treasure";
     const selectedDispatchSquads = config.draft.dispatchSquads ?? [];
     const dispatchSquads = [...selectedDispatchSquads, ...availableSquads.filter((index) => !selectedDispatchSquads.includes(index))];
@@ -318,7 +320,7 @@ function AutomationCard({ title, description, online = false, previewEnabled, pr
     if (title === "Alliance Gathering Dispatch" && value && !(config.draft.allianceGatherSquads ?? [1, 2]).length) { setFieldError("automation.allianceGatherSquadRequired"); return; }
     setFieldError("");
     const nextDraft = (draft) => ({ ...draft, enabled: value });
-    if (["Red Packet", "Fireworks / Egg", "Treasure", "Secret Task"].includes(title)) {
+    if (["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure", "Secret Task"].includes(title)) {
       config.store.edit(nextDraft, false);
       config.store.flush().catch(() => {});
     } else config.store.edit(nextDraft);
@@ -338,7 +340,7 @@ function AutomationCard({ title, description, online = false, previewEnabled, pr
       <div className="automation-card-header">
         <div className="automation-card-title-group">
           <h3>{english(title)}</h3>
-          {description ? <p>{["Red Packet", "Fireworks / Egg", "Treasure"].includes(title) ? t("automation.chatClaimDescription", { type: english(title) }) : english(description)}</p> : null}
+          {description ? <p>{["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"].includes(title) ? t("automation.chatClaimDescription", { type: english(title) }) : english(description)}</p> : null}
         </div>
         <div className="automation-card-header-actions">
           <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled || actionBusy || (title === "Automatic Official Application" && Number(config.draft.positionId ?? 0) === 0)} aria-label={`${t(toggleLabel)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
@@ -550,7 +552,7 @@ export function AutomationPage({ previewState = "", profileId = "", online = fal
   useEffect(() => {
     if (previewEnabled && discoveredSquads.length > 0) setAvailableSquads(discoveredSquads);
   }, [previewEnabled, previewState, discoveredSquads.join(",")]);
-  const renderCards = (cards) => cards.map(([title, description]) => !previewEnabled && ["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)
+  const renderCards = (cards) => cards.map(([title, description]) => !previewEnabled && ["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"].includes(title)
     ? <AutomationCardBoundary key={`${profileId}:${title}`} name={title} title={english(title)} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeChatAutomationCard title={title} description={description} online={online} profileId={profileId} availableSquads={[1, 2, 3, 4]} /></AutomationCardBoundary>
     : !previewEnabled && AUTOMATION_TASKS[title] ? <AutomationCardBoundary key={`${profileId}:${title}`} name={AUTOMATION_TASKS[title]} title={english(title)} message={t("common.actionFailed")} retryLabel={t("common.retry")}><NativeAutomationCard title={title} description={description} profileId={profileId} online={online} /></AutomationCardBoundary>
     : !previewEnabled ? <article key={title} className="automation-card"><h3>{english(title)}</h3><p>{english(description)}</p><p role="status">{t("common.notChecked")}</p></article>

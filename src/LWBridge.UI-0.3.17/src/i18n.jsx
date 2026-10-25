@@ -8,7 +8,8 @@ import { withHomeLaunchFeedback } from "./locales/home-launch-feedback.js";
 import { withMapScanControlTexts } from "./locales/map017-scan-controls.js";
 import { withFrontlineCountTexts } from "./locales/feature018-g-count.js";
 import { withAfkRuntimeTexts } from "./locales/feature018-afk-runtime.js";
-import { withR23Feedback } from "./locales/feature018-r23-feedback.js";
+import { withR23Feedback as withR23FeedbackBase } from "./locales/feature018-r23-feedback.js";
+import { chatRewardOutcomes, withChatRewardOutcomes } from "./locales/chat-reward-outcomes.js";
 import { withLiveEquipmentTexts } from "./locales/feature018-equipment-live.js";
 
 export const LANGUAGES = Object.freeze([
@@ -23,6 +24,7 @@ export const LANGUAGES = Object.freeze([
   { code: "pt", name: "Português" },
 ]);
 
+const withR23Feedback = (language, catalog) => withChatRewardOutcomes(language, withR23FeedbackBase(language, catalog));
 const withMapExtras = (language, catalog) => withR23Feedback(language, withAfkRuntimeTexts(language,withFrontlineCountTexts(language, withMapScanControlTexts(language, withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog)))))))));
 const LOADERS = {
   en: () => Promise.resolve(withLiveEquipmentTexts("en", withMapExtras("en", englishMessages))),
@@ -39,7 +41,7 @@ const LOADERS = {
 const LANGUAGE_KEY = "lwbridge.language";
 const I18nContext = createContext(null);
 const ENGLISH_KEY_BY_VALUE = new Map();
-for (const [key, value] of Object.entries(englishMessages)) {
+for (const [key, value] of Object.entries({ ...englishMessages, ...chatRewardOutcomes.en })) {
   if (typeof value === "string" && !ENGLISH_KEY_BY_VALUE.has(value)) ENGLISH_KEY_BY_VALUE.set(value, key);
 }
 

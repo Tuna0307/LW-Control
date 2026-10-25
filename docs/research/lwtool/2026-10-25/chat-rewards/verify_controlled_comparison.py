@@ -4,7 +4,7 @@ Requires the exact retained private core and existing Lupa fixture runtime.
 Never downloads, launches, alters installed files, contacts a server or sends
 real game commands. Only two hash-locked, reviewed pure core functions execute.
 """
-import ast,json,hashlib,sys
+import ast,json,hashlib,sys,subprocess
 from pathlib import Path
 ROOT=Path.cwd();OUT=ROOT/'artifacts/lwtool-chat-comparison-20261025';sys.stdout.reconfigure(encoding='utf-8')
 OUT.mkdir(parents=True,exist_ok=True)
@@ -29,11 +29,13 @@ fixture=ast.parse((ROOT/'tools/feature018_chat_engine_checks.py').read_text('utf
 main=next(n for n in fixture.body if isinstance(n,ast.FunctionDef) and n.name=='main')
 setup=next(n for n in main.body if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Attribute) and n.value.func.attr=='execute').value.args[0].value
 sys.path.insert(0,str(ROOT/'artifacts/map-013-lua-site'));from lupa.lua53 import LuaRuntime
+baseline='a1f9137267315356b341f2dcaea4568652edd3b3'
+engine_source=subprocess.check_output(['git','show',baseline+':tools/feature018_chat_engine.lua'],cwd=ROOT).decode('utf-8')
 rows=[]
 for post in [611,693,694,695,710]:
  vm=LuaRuntime(unpack_returned_tuples=True);vm.execute(setup)
  vm.execute('PostType.FIREWORK_GIFT_REWARD_DOUBLE=694;PostType.S0_ALLIANCE_BOSS_GIFT_REWARD=695;PostType.EasterEggChat=710')
- vm.globals().engine=vm.execute((ROOT/'tools/feature018_chat_engine.lua').read_text('utf-8'))
+ vm.globals().engine=vm.execute(engine_source)
  vm.execute("engine.Register(feature,overview);engine.Configure(request);state.messages={msg("+str(post)+",'5001',1)};state.now=state.now+16001;engine.Pump()")
  row={'post':post,'mockPackets':len(vm.globals().state.sent),'redPacketSubmitted':vm.eval('engine.Status().data.services.redPacket.submitted'),'fireworksSubmitted':vm.eval('engine.Status().data.services.fireworks.submitted')}
  # Red Packet has a 2 s claim delay in the fixture.
@@ -43,9 +45,9 @@ for post in [611,693,694,695,710]:
 assert rows[0]['redPacketSubmitted']==1 and rows[1]['fireworksSubmitted']==1
 assert all(r['mockPackets']==0 for r in rows[2:])
 vm=LuaRuntime(unpack_returned_tuples=True);vm.execute(setup)
-vm.globals().engine=vm.execute((ROOT/'tools/feature018_chat_engine.lua').read_text('utf-8'))
+vm.globals().engine=vm.execute(engine_source)
 vm.execute("engine.Register(feature,overview);engine.Configure(request);state.messages={msg(693,'6001',1)};state.now=state.now+16001;engine.Pump();assert(engine.Status().data.services.fireworks.claimed==0);state.got=6001;engine.Pump()")
 counter={'mockPackets':len(vm.globals().state.sent),'newRewardEventDelivered':False,'cacheGotAfterSend':True,'reportedClaimed':vm.eval('engine.Status().data.services.fireworks.claimed')}
 assert counter['reportedClaimed']==1
-v={'scope':'controlled replay of exact recovered pure host functions and current production Lua with mocked game; not live gameplay or speed measurement','lwtCoreSha256':hashlib.sha256(core.read_bytes()).hexdigest(),'lwControlChatEngineSha256':hashlib.sha256((ROOT/'tools/feature018_chat_engine.lua').read_bytes()).hexdigest(),'lwtFastChatGates':gates,'ourMessageCoverage':rows,'alreadyClaimedCacheCounterexample':counter,'liveNetworkCalls':0,'liveGameActions':0}
+v={'scope':'controlled replay of exact recovered pure host functions and pinned historical production Lua with mocked game; not live gameplay or speed measurement','lwControlBaseline':baseline,'lwtCoreSha256':hashlib.sha256(core.read_bytes()).hexdigest(),'lwControlChatEngineSha256':hashlib.sha256(engine_source.encode('utf-8')).hexdigest(),'lwtFastChatGates':gates,'ourMessageCoverage':rows,'alreadyClaimedCacheCounterexample':counter,'liveNetworkCalls':0,'liveGameActions':0}
 (OUT/'controlled-comparison.json').write_text(json.dumps(v,indent=2)+'\n');print('CONTROLLED_CHAT_COMPARISON_PASS',json.dumps(rows))

@@ -1,5 +1,11 @@
 using LWBridge.Desktop.Checks;
 
+if (args.Length == 1 && args[0] == "--chat-rewards")
+{
+    await ChatRewardConfigChecks.RunAsync();
+    return;
+}
+
 if (args.Length == 1 && args[0] == "--adapter-lease")
 {
     GamePipeAdapterLeaseChecks.Run();
@@ -47,6 +53,7 @@ await Feature018RetiredTasksChecks.RunAsync();
 await Feature018OwnedGameExchangeChecks.RunAsync();
 await Feature018AfkRuntimeChecks.RunAsync();
 await Feature018AutomationChecks.RunAsync();
+await ChatRewardConfigChecks.RunAsync();
 await Feature018HotkeyCaptureChecks.RunAsync();
 Feature018KeyProofCorrelationChecks.Run();
 Feature018ProofOwnerGraceChecks.Run();

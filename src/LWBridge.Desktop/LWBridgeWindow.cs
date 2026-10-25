@@ -1656,8 +1656,12 @@ internal sealed partial class LWBridgeWindow : Form
             if (ownerFixNativeProof && !ownerFixRemoteProof &&
                 Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1")
             {
-                await RunFeature018PackagedUiProofAsync(core, fullOutputPath, directory,
-                    ownedMapSession, operationCts.Token);
+                if (Environment.GetEnvironmentVariable("LWBRIDGE_CHAT_CATALOG_READ_ONLY") == "1")
+                    await RunReadOnlyChatCatalogProofAsync(core, fullOutputPath, directory,
+                        ownedMapSession, operationCts.Token);
+                else
+                    await RunFeature018PackagedUiProofAsync(core, fullOutputPath, directory,
+                        ownedMapSession, operationCts.Token);
                 return;
             }
             if (ownerFixNativeProof && !ownerFixRemoteProof &&

@@ -611,7 +611,7 @@ internal sealed partial class LWBridgeWindow
                     "(()=>{const b=document.querySelector('[data-automation-category=chat]');if(!b)return false;b.click();return true;})()") != "true")
                 throw new InvalidDataException("R23 Chat proof could not open Chat category.");
             await WaitDom(
-                "(()=>{const cards=[...document.querySelectorAll('[data-native-chat]')];if(cards.length!==3||!cards.every(c=>c.querySelector('.automation-card-meta-row')&&!c.querySelector('[role=alert]')))return false;return ['redPacket','fireworks'].every(k=>{const s=document.querySelector(`[data-native-chat=${k}] button[role=switch]`);return s&&!s.disabled})})()",
+                "(()=>{const cards=[...document.querySelectorAll('[data-native-chat]')];if(cards.length!==4||!cards.every(c=>c.querySelector('.automation-card-meta-row')&&!c.querySelector('[role=alert]')))return false;return ['redPacket','fireworks'].every(k=>{const s=document.querySelector(`[data-native-chat=${k}] button[role=switch]`);return s&&!s.disabled})})()",
                 "native Chat cards");
 
             using JsonDocument dom = JsonDocument.Parse(await core.ExecuteScriptAsync(

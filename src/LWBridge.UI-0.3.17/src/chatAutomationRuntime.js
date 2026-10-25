@@ -1,8 +1,10 @@
 import { assertBridgeProfileOwner } from "./profileConfigDraft.js";
 
-export const CHAT_KINDS = { "Red Packet": "redPacket", "Fireworks / Egg": "fireworks", Treasure: "treasure" };
+export const CHAT_KINDS = { "Red Packet": "redPacket", "Fireworks / Egg": "fireworks", "Gold Egg": "goldEgg", Treasure: "treasure" };
 export function chatDraft(value = {}) {
-  return { enabled: value.enabled === true, claimMin: value.claimDelaySeconds?.[0] ?? 0,
+  return { enabled: value.enabled === true, crossServerEnabled: value.crossServerEnabled === true,
+    ignoreBirthday: value.ignoreBirthday === true, legacyCombined: value.legacyCombined === true,
+    claimMin: value.claimDelaySeconds?.[0] ?? 0,
     claimMax: value.claimDelaySeconds?.[1] ?? 0, replyEnabled: value.replyEnabled === true,
     replyMin: value.replyDelaySeconds?.[0] ?? 2, replyMax: value.replyDelaySeconds?.[1] ?? 5,
     replies: (value.replies ?? []).join("\n"), treasureSearchEnabled: value.searchEnabled === true,
@@ -23,7 +25,8 @@ export function settleChatDelayPairs(draft) {
   return next;
 }
 export function chatConfig(draft) {
-  return { enabled: draft.enabled, claimDelaySeconds: [Number(draft.claimMin), Number(draft.claimMax)],
+  return { enabled: draft.enabled, crossServerEnabled: draft.crossServerEnabled === true,
+    ignoreBirthday: draft.ignoreBirthday === true, claimDelaySeconds: [Number(draft.claimMin), Number(draft.claimMax)],
     replyEnabled: draft.replyEnabled, replyDelaySeconds: [Number(draft.replyMin), Number(draft.replyMax)],
     replies: draft.replies.split(/\r?\n/).map(line => line.trim()).filter(Boolean),
     searchEnabled: draft.treasureSearchEnabled, dispatchEnabled: draft.treasureDispatchEnabled,
