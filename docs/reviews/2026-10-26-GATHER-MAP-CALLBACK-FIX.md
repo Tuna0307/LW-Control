@@ -76,3 +76,36 @@ checks, full UI suite, full Desktop delivery suite, and 31 package-auditor
 tests. No new Drill event or live join positive is established by these
 gathering tests. Fresh final-package evidence is recorded separately after
 source pinning; independent lead review remains open.
+
+## Final package qualification
+
+Product/package source: `552c1a8a779135e2f197cf0fffeb8ee95294ef8f`.
+Package: `artifacts/owner-gather-recall-20261026/package-final/LW-Control-lwtool-improvement-552c1a8a7791.zip`.
+ZIP SHA-256: `b24f378b8d54895373eca64df3722da16e973b75c66ddda67342bb20233fece1`.
+All 105 archive entries, 752 source inputs, 29 bridge files and the exact
+extraction passed verification. Full Desktop checks passed again after the
+Hotkeys source correction. The UI source was unchanged after its full pass.
+
+The extracted final package, native root `20261025-171621`, confirmed two
+fresh gathers and exactly two recalls after a 45-second hold with an active
+Resource Map scan. The detail callback was displaced but known; owner and
+chain checks passed. Off was disabled with no error, and both exact native
+marches were `BACK_HOME` afterward. This proves recall acceptance/returning,
+not that both had already reached home. Normal exit restored all original
+files and removed the recovery journal. No task app/game processes remain.
+
+The first packaged attempt (`20261025-171444`) only tried manual cleanup of
+the exactly reidentified squad-1 trip from the negative control. The Hotkey
+route returned `Native return-home send outcome is uncertain; observe prior
+intent without resending`. It was not repeated or counted as success; that
+isolated session exited/restored normally. The later fresh two-squad test
+preserved the earlier trip, which remained collecting in the final snapshot.
+No new gathering engine adopted it. **That earlier trip still needs manual
+owner cleanup.** A live Hotkey recall positive is not established here.
+
+Sanitized counts, callback snapshots, receipt hashes, package identity and
+remaining limits: `docs/proof/GATHER-MAP-CALLBACK-FIX-2026-10-26.json`.
+The owner-reported recurring callback failure is corrected and the scoped
+automatic recall flow has genuine final-package evidence. Independent lead
+review remains open; the fourth squad and patched live Drill join remain
+unqualified. No main merge or release occurred.

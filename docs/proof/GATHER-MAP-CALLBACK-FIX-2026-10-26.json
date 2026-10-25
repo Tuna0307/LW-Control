@@ -1,0 +1,354 @@
+{
+  "scope": "Gathering recall on approved sub-account; no main-account gameplay expansion",
+  "productCommit": "552c1a8a779135e2f197cf0fffeb8ee95294ef8f",
+  "runs": [
+    {
+      "label": "prior-single",
+      "localEvidenceRoot": "artifacts/map014-takeover/native-ui-20261025-164200",
+      "receiptSha256": "99e83cb513371d847677260b89017dcd0dae1bb4989f421d6695e39e6fdc3cc4",
+      "success": true,
+      "cleanupConfirmed": true,
+      "uiConfirmed": true,
+      "stopped": true,
+      "gatherConfirmed": 1,
+      "recallSubmitted": 1,
+      "recallConfirmed": 1,
+      "originalScriptsRestored": {
+        "LWScripts.data": true,
+        "LWScripts.txt": true,
+        "version.txt": true
+      },
+      "recoveryJournalPresent": false
+    },
+    {
+      "label": "prior-three-after-60s",
+      "localEvidenceRoot": "artifacts/map014-takeover/native-ui-20261025-164719",
+      "receiptSha256": "512050c475cf6bf454725ff3dfb9d3ac2539d85471d0fd2cbd65a7e8531edb12",
+      "success": true,
+      "cleanupConfirmed": true,
+      "uiConfirmed": true,
+      "stopped": true,
+      "gatherConfirmed": 3,
+      "recallSubmitted": 3,
+      "recallConfirmed": 3,
+      "originalScriptsRestored": {
+        "LWScripts.data": true,
+        "LWScripts.txt": true,
+        "version.txt": true
+      },
+      "recoveryJournalPresent": false,
+      "ownerMatchesBeforeStop": true,
+      "observerChainReadyBeforeStop": true,
+      "observerRowsBeforeStop": [
+        {
+          "direct": true,
+          "index": 1,
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage"
+        },
+        {
+          "direct": true,
+          "index": 2,
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage"
+        },
+        {
+          "direct": true,
+          "index": 3,
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "OnCreate"
+        },
+        {
+          "direct": true,
+          "index": 4,
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage"
+        },
+        {
+          "direct": true,
+          "index": 5,
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage"
+        },
+        {
+          "direct": true,
+          "index": 6,
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "SendMessage"
+        }
+      ]
+    },
+    {
+      "label": "prior-map-negative",
+      "localEvidenceRoot": "artifacts/map014-takeover/native-ui-20261025-165859",
+      "receiptSha256": "d50bb56d0f2b85f79ca1ca9f42b9e2ad11b5b3efc822e32245ec95a0f34cfec5",
+      "success": false,
+      "cleanupConfirmed": false,
+      "uiConfirmed": false,
+      "stopped": true,
+      "gatherConfirmed": 1,
+      "recallSubmitted": 0,
+      "recallConfirmed": 0,
+      "originalScriptsRestored": {
+        "LWScripts.data": true,
+        "LWScripts.txt": true,
+        "version.txt": true
+      },
+      "recoveryJournalPresent": false,
+      "ownerMatchesBeforeStop": true,
+      "observerChainReadyBeforeStop": false,
+      "observerRowsBeforeStop": [
+        {
+          "knownChain": true,
+          "index": 1,
+          "currentType": "function",
+          "direct": true,
+          "enabled": true,
+          "key": "HandleMessage"
+        },
+        {
+          "knownChain": false,
+          "index": 2,
+          "currentType": "function",
+          "direct": false,
+          "enabled": true,
+          "key": "HandleMessage"
+        },
+        {
+          "knownChain": true,
+          "index": 3,
+          "currentType": "function",
+          "direct": true,
+          "enabled": true,
+          "key": "OnCreate"
+        },
+        {
+          "knownChain": true,
+          "index": 4,
+          "currentType": "function",
+          "direct": true,
+          "enabled": true,
+          "key": "HandleMessage"
+        },
+        {
+          "knownChain": true,
+          "index": 5,
+          "currentType": "function",
+          "direct": true,
+          "enabled": true,
+          "key": "HandleMessage"
+        },
+        {
+          "knownChain": true,
+          "index": 6,
+          "currentType": "function",
+          "direct": true,
+          "enabled": true,
+          "key": "SendMessage"
+        }
+      ],
+      "mapBeforeStop": {
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ]
+      }
+    },
+    {
+      "label": "fixed-two-active-map",
+      "localEvidenceRoot": "artifacts/map014-takeover/native-ui-20261025-170755",
+      "receiptSha256": "f75953223be4fe3980bdf44c3431f481c8c5de633b76c825bcd2058306436cc1",
+      "success": true,
+      "cleanupConfirmed": true,
+      "uiConfirmed": true,
+      "stopped": true,
+      "gatherConfirmed": 2,
+      "recallSubmitted": 2,
+      "recallConfirmed": 2,
+      "originalScriptsRestored": {
+        "LWScripts.data": true,
+        "LWScripts.txt": true,
+        "version.txt": true
+      },
+      "recoveryJournalPresent": false,
+      "ownerMatchesBeforeStop": true,
+      "observerChainReadyBeforeStop": true,
+      "observerRowsBeforeStop": [
+        {
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage",
+          "direct": true,
+          "index": 1
+        },
+        {
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage",
+          "direct": false,
+          "index": 2
+        },
+        {
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "OnCreate",
+          "direct": true,
+          "index": 3
+        },
+        {
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage",
+          "direct": true,
+          "index": 4
+        },
+        {
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "HandleMessage",
+          "direct": true,
+          "index": 5
+        },
+        {
+          "enabled": true,
+          "currentType": "function",
+          "knownChain": true,
+          "key": "SendMessage",
+          "direct": true,
+          "index": 6
+        }
+      ],
+      "mapBeforeStop": {
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ]
+      }
+    },
+    {
+      "label": "final-package-two-active-map",
+      "localEvidenceRoot": "artifacts/map014-takeover/native-ui-20261025-171621",
+      "receiptSha256": "94e0f6242fa43a9bafd367a5e4d3fcd543fa97b7681c1d0ebc51294b76372466",
+      "success": true,
+      "cleanupConfirmed": true,
+      "uiConfirmed": true,
+      "stopped": true,
+      "gatherConfirmed": 2,
+      "recallSubmitted": 2,
+      "recallConfirmed": 2,
+      "originalScriptsRestored": {
+        "LWScripts.data": true,
+        "LWScripts.txt": true,
+        "version.txt": true
+      },
+      "recoveryJournalPresent": false,
+      "ownerMatchesBeforeStop": true,
+      "observerChainReadyBeforeStop": true,
+      "observerRowsBeforeStop": [
+        {
+          "index": 1,
+          "enabled": true,
+          "direct": true,
+          "key": "HandleMessage",
+          "currentType": "function",
+          "knownChain": true
+        },
+        {
+          "index": 2,
+          "enabled": true,
+          "direct": false,
+          "key": "HandleMessage",
+          "currentType": "function",
+          "knownChain": true
+        },
+        {
+          "index": 3,
+          "enabled": true,
+          "direct": true,
+          "key": "OnCreate",
+          "currentType": "function",
+          "knownChain": true
+        },
+        {
+          "index": 4,
+          "enabled": true,
+          "direct": true,
+          "key": "HandleMessage",
+          "currentType": "function",
+          "knownChain": true
+        },
+        {
+          "index": 5,
+          "enabled": true,
+          "direct": true,
+          "key": "HandleMessage",
+          "currentType": "function",
+          "knownChain": true
+        },
+        {
+          "index": 6,
+          "enabled": true,
+          "direct": true,
+          "key": "SendMessage",
+          "currentType": "function",
+          "knownChain": true
+        }
+      ],
+      "mapBeforeStop": {
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ]
+      }
+    }
+  ],
+  "package": {
+    "sha256": "b24f378b8d54895373eca64df3722da16e973b75c66ddda67342bb20233fece1",
+    "bytes": 10392400,
+    "zipEntries": 105,
+    "sourceCommit": "552c1a8a779135e2f197cf0fffeb8ee95294ef8f",
+    "sourceGitTree": "6b0bf6f1ece055d6ec34ec44fbf1737b616fcd4e",
+    "sourceInputSha256": "a94a37199c0bee9b2d775149810d84fc62395e0a279e6e2a0386ab42f5267f17",
+    "sourceInputFileCount": 752,
+    "bridgesVerified": 29,
+    "status": "INDEPENDENT_REVIEW_REQUIRED"
+  },
+  "checks": {
+    "gatherMapBothOrders": "pass; old Map source fails exact-recall assertion",
+    "resourceReplyCases": 12,
+    "currentProbeAstLiteralAndLencRoundtrip": "pass",
+    "probeLencBytes": 64573,
+    "hotkeyKnownSuccessorAndUnknownRefusal": "pass",
+    "fullDesktop": "pass",
+    "fullUi": "pass",
+    "packageAuditorCases": 31
+  },
+  "limits": [
+    "Three unlocked squads; no fourth-squad live test",
+    "Negative Map run also had a preceding search error; not a clean timing comparison",
+    "Final package tests fresh squads 2/3 and preserves the earlier negative-control trip",
+    "Manual cleanup control in native-ui-20261025-171444 returned an uncertain send result; not repeated and not counted as recall success",
+    "No current patched Drill auto-join positive",
+    "Independent lead review, owner acceptance and merge/release remain open"
+  ]
+}

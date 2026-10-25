@@ -1,3 +1,14 @@
+Latest worker gathering continuation, 2026-10-26: product/package 552c1a8a779135e2f197cf0fffeb8ee95294ef8f,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-GATHER-MAP-CALLBACK-FIX.md and
+docs/proof/GATHER-MAP-CALLBACK-FIX-2026-10-26.json. Map detail and Hotkey recall observers now register
+explicit links; unknown wrappers remain refused. Old Map source fails the isolated collision test.
+Final ZIP confirms two new gathers/two exact recalls while Map scans; both native marches BACK_HOME,
+all original scripts restored, no task processes. Earlier one-/three-squad standalone tests pass.
+The negative-control squad-1 trip remains collecting: a manual Hotkey cleanup returned uncertain and
+was NOT retried; do not adopt it into a new gather session or claim a live Hotkey positive. Owner cleanup
+is still needed. No fourth-squad/live patched Drill positive, independent acceptance, merge or release.
+Reuse the source-pinned ZIP for documentation-only follow-ups; rebuild if product inputs change.
+
 Latest owner gathering continuation, 2026-10-26: owner switched to the approved test sub-account and
 explicitly authorized testing and task-owned game startup. Exact UID/server admission remains mandatory;
 the account has three unlocked squads. Read docs/reviews/2026-10-26-GATHER-MAP-CALLBACK-FIX.md.
