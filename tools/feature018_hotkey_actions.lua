@@ -34,6 +34,8 @@ local M = {VERSION = "feature018-hotkey-actions-1"}
 local outstanding = {}
 local owner_token = nil
 local MAX_PENDING_SECONDS = 45
+local links_ok, observer_links = pcall(require, "DataCenter.Global.LWBridgeFeature018AttackActions")
+if not links_ok then observer_links = nil end
 
 local function member(object, key)
     if object == nil then return nil end
@@ -227,7 +229,8 @@ end
 local recall_reply_class, recall_reply_handler
 local function recall_observer_intact()
     return recall_reply_class ~= nil and
-        member(recall_reply_class,"HandleMessage") == recall_reply_handler
+        (member(recall_reply_class,"HandleMessage") == recall_reply_handler or
+        observer_links ~= nil and observer_links.ObserverContains(recall_reply_class,"HandleMessage",recall_reply_handler))
 end
 
 local function pending_recall_owner(pending)
@@ -315,6 +318,7 @@ local function observe_recall_replies()
         return table.unpack(returned,2,returned.n)
     end
     class.HandleMessage = wrapper
+    if observer_links ~= nil then observer_links.RegisterObserverLink(class,"HandleMessage",wrapper,original) end
     recall_reply_class, recall_reply_handler = class, wrapper
     return recall_observer_intact()
 end

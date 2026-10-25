@@ -126,9 +126,12 @@ def require(condition, message):
         raise AssertionError("FEATURE018_HOTKEY_ACTIONS: " + message)
 
 
-def scenario():
+def scenario(shared_observers=False):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.execute(GAME)
+    if shared_observers:
+        lua.globals().observer_api = lua.execute(SOURCE.with_name('feature018_attack_actions.lua').read_text('utf-8'))
+        lua.execute("package.loaded['DataCenter.Global.LWBridgeFeature018AttackActions']=observer_api")
     module = lua.execute(SOURCE.read_text(encoding="utf-8"))
     wrapped = module.Wrap(lua.globals().frozen)
     state = lua.globals().state
@@ -861,7 +864,28 @@ def test_recall_reply_observer_preserves_original_and_owner():
                 "original module loader changed owner/text focus before recall: " + mutation)
 
 
+def test_recall_known_successor():
+    lua, _, _, state, call = scenario(shared_observers=True)
+    lua.execute('nativeRecallBase=recallReplyClass.HandleMessage')
+    require(call()['state'] == 'accepted', 'shared observer recall did not dispatch')
+    lua.execute('''
+      assert(observer_api.ObserverContains(recallReplyClass,'HandleMessage',nativeRecallBase),
+        'Hotkey must register its own wrapper for an underlying gathering observer')
+      local previous=recallReplyClass.HandleMessage
+      local wrapper=function(...)return previous(...)end
+      recallReplyClass.HandleMessage=wrapper
+      assert(observer_api.RegisterObserverLink(recallReplyClass,'HandleMessage',wrapper,previous))
+      assert(observer_api.ObserverContains(recallReplyClass,'HandleMessage',previous))
+    ''')
+    return_reply(lua, state)
+    state['target'] = 77
+    outcome = call(query_only=True)
+    require(outcome['state'] == 'confirmed' and state['dispatches'] == 1,
+            'known successor blocked exact original recall or replayed it')
+
+
 def main():
+    test_recall_known_successor()
     test_recall_original_reply_and_queued_poststate()
     test_recall_reply_observer_preserves_original_and_owner()
     test_recall_pending_uid_server_snapshot()

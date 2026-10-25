@@ -1,5 +1,16 @@
 # Owner gathering recall and Alliance Drill defects
 
+26 October continuation: after asking the agent to wait, the owner explicitly
+switched to the test sub-account and authorized On/gather/Off testing and
+task-owned game startup. Admit the exact approved account, not server alone.
+Create gathering trips only on verified empty ordinary resource tiles; automatic
+cleanup remains limited to that engine session's exact owned marches. A manual
+cleanup control may recall a specifically reidentified trip created by this
+test; it must not adopt that trip into the new gathering engine or replay an
+uncertain recall. Preserve unrelated marches. The main-account limits below
+remain unchanged. The sub-account has three unlocked squads; no fourth-squad
+live positive may be claimed. Read the 26 October callback-fix review.
+
 Owner reports recall-on-disable failing and Auto Alliance Drill remaining at
 Joining without joining. Continue `codex/lwtool-remaining-tabs` / draft PR #17.
 Preserve prior Home/Map/Chat/remaining-tab changes and exact session ownership.

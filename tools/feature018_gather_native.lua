@@ -8,6 +8,7 @@ local GATHER_TYPES={metal='Metal',food='Food',gold='Wood'}
 local bridge,owner,settings,search,active,stopping,detailJob,lastDetailReply
 local cursor=1
 local hooks,slots,known={},{},{}
+local lastObserverFailure,lastStopObservers
 local observer_ok,observers=pcall(require,'DataCenter.Global.LWBridgeFeature018AttackActions')
 if not observer_ok then observers={}end
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
@@ -60,6 +61,16 @@ local function intact()
     end
     return #hooks>0
 end
+local function observer_snapshot()
+    local out={hookCount=#hooks,rows={}}
+    for i,h in ipairs(hooks)do
+        local current=get(h.object,h.key)
+        out.rows[#out.rows+1]={index=i,key=h.key,enabled=h.enabled==true,direct=current==h.wrapper,
+            currentType=type(current),knownChain=type(observers.ObserverContains)=='function'and
+                observers.ObserverContains(h.object,h.key,h.wrapper)==true or false}
+    end
+    return out
+end
 local function safe_point(pointId,squad,radius)
     local w=world();local p=call(w,'GetPointInfo',pointId);local r=call(w,'GetResourcePointInfoByIndex',pointId)
     if not p or not r then return nil,'Resource point is not loaded' end
@@ -107,7 +118,7 @@ local function fresh_record(rec)
 end
 local function guard(job)
     if not owned()then return false,'Gathering game account/session changed'end
-    if not intact()then return false,'Gathering native observer is missing or was replaced by an unknown observer'end
+    if not intact()then lastObserverFailure=observer_snapshot();return false,'Gathering native observer is missing or was replaced by an unknown observer'end
     if stopping and job.phase~='recall'then return false,'Gathering has been stopped'end
     if job.phase=='recall'then
         if known[job.record.slot]~=job.record or job.record.recallAttempted and job.record.recallJob~=job then return false,'Gathering recall was already attempted or ownership record retired'end
@@ -387,6 +398,7 @@ function M.Verify(kind,job)
 end
 function M.Stop(kind)
     if not M.Supports(kind)then return end
+    lastStopObservers=observer_snapshot()
     stopping=true;search=nil
     for _,v in pairs(slots)do v.search=nil end
     local out={cleanupJobs={}}
@@ -408,7 +420,8 @@ function M.FinishStop(kind)if M.Supports(kind)then detach();stopping=true end en
 function M.Observe(kind)
     if not M.Supports(kind)then return {state='unsupported'}end
     local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000,
-        observerOwnerMatches=owned()==true,observerChainReady=intact()==true}
+        observerOwnerMatches=owned()==true,observerChainReady=intact()==true,
+        observers=observer_snapshot(),lastStopObservers=lastStopObservers,lastObserverFailure=lastObserverFailure}
     for slot=1,4 do
         local f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
         if id(get(f,'uuid'))and tostring(get(f,'ownerUid'))==a.uid then

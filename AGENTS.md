@@ -1,3 +1,10 @@
+Latest owner gathering continuation, 2026-10-26: owner switched to the approved test sub-account and
+explicitly authorized testing and task-owned game startup. Exact UID/server admission remains mandatory;
+the account has three unlocked squads. Read docs/reviews/2026-10-26-GATHER-MAP-CALLBACK-FIX.md.
+Continue codex/lwtool-remaining-tabs / draft PR #17. Reproduce On/gather/Off, including concurrent Map
+callbacks, and qualify a fresh source-pinned package. No automatic adoption of old/unrelated marches,
+uncertain-send replay, main-account action expansion, merge or release. Preserve prior tabs/restoration.
+
 Latest worker gathering/Drill handback, 2026-10-25: source 44be59d892ad9faf0d09f8342f31a99b273d5c1a,
 codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-25-GATHER-DRILL-OWNER-FIX.md and
 docs/proof/GATHER-DRILL-OWNER-FIX-2026-10-25.json. Idle join used a formation UUID as an existing march;

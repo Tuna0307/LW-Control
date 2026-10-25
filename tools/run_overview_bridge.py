@@ -235,7 +235,10 @@ def packaged_resource_probe_source() -> bytes:
         for line in lines
         if line.strip() and not line.lstrip().startswith("--")
     ]
-    return ("\n".join(packaged) + "\n").encode("utf-8")
+    # Separate statements with spaces. The probe has no inline comments or
+    # multiline string bodies; the current-source AST/string regression checks
+    # this invariant. This saves ~1 KiB of compressed loader capacity.
+    return (" ".join(packaged) + "\n").encode("utf-8")
 
 
 def wrapper_source() -> bytes:
