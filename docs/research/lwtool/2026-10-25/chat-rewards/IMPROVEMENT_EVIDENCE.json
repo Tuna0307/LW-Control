@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "productSource": "6d9c107166e92dbbf204d5c611ecd2a4d497625d",
+  "branch": "codex/lwtool-remaining-tabs",
+  "draftPr": 17,
+  "status": "IMPLEMENTED_CONTROLLED_AND_READ_ONLY_NATIVE_QUALIFIED_INDEPENDENT_REVIEW_REQUIRED",
+  "mainMerged": false,
+  "released": false,
+  "liveRewardClaims": 0,
+  "liveChatReplies": 0,
+  "liveCrossServerHistoryRequests": 0,
+  "lwtoolPrivateServiceUsed": false,
+  "outcomeStates": [
+    "new-success",
+    "already_claimed",
+    "exhausted",
+    "expired",
+    "refused",
+    "unconfirmed"
+  ],
+  "nativeConfiguration": {
+    "packetTemplateCount": 37,
+    "fireworkConfigCount": 10,
+    "crossServer": {
+      "historyRequested": false,
+      "nativeHistoryAvailable": true,
+      "eligibleKnownRemoteRooms": 0,
+      "roomJoined": false,
+      "seasonServerCount": 8,
+      "nativeRoomListAvailable": true
+    },
+    "packetFamilies": [
+      {
+        "id": 1,
+        "type": 1,
+        "specialType": 1,
+        "goodsId": 653052
+      },
+      {
+        "id": 2,
+        "type": 1,
+        "specialType": null,
+        "goodsId": 653053
+      },
+      {
+        "id": 3,
+        "type": 1,
+        "specialType": null,
+        "goodsId": 653070
+      },
+      {
+        "id": 4,
+        "type": 1,
+        "specialType": null,
+        "goodsId": 653072
+      },
+      {
+        "id": 5,
+        "type": 1,
+        "specialType": null,
+        "goodsId": 653073
+      },
+      {
+        "id": 401,
+        "type": 5,
+        "specialType": 5,
+        "goodsId": 670001
+      },
+      {
+        "id": 321,
+        "type": 2,
+        "specialType": 4,
+        "goodsId": 650074
+      },
+      {
+        "id": 341,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650083
+      },
+      {
+        "id": 342,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650084
+      },
+      {
+        "id": 100,
+        "type": 1,
+        "specialType": 2,
+        "goodsId": 653074
+      },
+      {
+        "id": 101,
+        "type": 1,
+        "specialType": 2,
+        "goodsId": 653075
+      },
+      {
+        "id": 343,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650085
+      },
+      {
+        "id": 601,
+        "type": 1,
+        "specialType": 1,
+        "goodsId": 666801
+      },
+      {
+        "id": 311,
+        "type": 2,
+        "specialType": 4,
+        "goodsId": 650073
+      },
+      {
+        "id": 201,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650045
+      },
+      {
+        "id": 202,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650046
+      },
+      {
+        "id": 203,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650047
+      },
+      {
+        "id": 204,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650048
+      },
+      {
+        "id": 205,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650049
+      },
+      {
+        "id": 206,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650075
+      },
+      {
+        "id": 207,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650076
+      },
+      {
+        "id": 208,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650077
+      },
+      {
+        "id": 209,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650078
+      },
+      {
+        "id": 210,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650049
+      },
+      {
+        "id": 211,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650079
+      },
+      {
+        "id": 212,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650080
+      },
+      {
+        "id": 213,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650081
+      },
+      {
+        "id": 214,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650082
+      },
+      {
+        "id": 215,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650049
+      },
+      {
+        "id": 344,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 650086
+      },
+      {
+        "id": 345,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 660100
+      },
+      {
+        "id": 346,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 660101
+      },
+      {
+        "id": 347,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 660102
+      },
+      {
+        "id": 348,
+        "type": 3,
+        "specialType": 3,
+        "goodsId": 660103
+      },
+      {
+        "id": 502,
+        "type": 7,
+        "specialType": 3,
+        "goodsId": 995002
+      },
+      {
+        "id": 501,
+        "type": 6,
+        "specialType": 3,
+        "goodsId": 995001
+      },
+      {
+        "id": 301,
+        "type": 2,
+        "specialType": 4,
+        "goodsId": 650072
+      }
+    ],
+    "fireworkTypes": [
+      {
+        "id": "654242",
+        "type": 0
+      },
+      {
+        "id": "681001",
+        "type": 0
+      },
+      {
+        "id": "671005",
+        "type": 1
+      },
+      {
+        "id": "671001",
+        "type": 1
+      },
+      {
+        "id": "671002",
+        "type": 1
+      },
+      {
+        "id": "671003",
+        "type": 1
+      },
+      {
+        "id": "671004",
+        "type": 1
+      },
+      {
+        "id": "661501",
+        "type": 0
+      },
+      {
+        "id": "661502",
+        "type": 0
+      },
+      {
+        "id": "661503",
+        "type": 0
+      }
+    ]
+  },
+  "finalPackagedReadOnlyProof": {
+    "path": "artifacts/map014-takeover/native-ui-20261025-072958",
+    "exitCode": 0,
+    "proof": true,
+    "readOnly": true,
+    "originalScriptsRestored": {
+      "LWScripts.data": true,
+      "LWScripts.txt": true,
+      "version.txt": true
+    },
+    "recoveryJournalPresent": false
+  },
+  "negativeAttempt": {
+    "path": "artifacts/map014-takeover/native-ui-20261025-063437",
+    "result": "Gameplay proof refused unapproved current main account before any feature command; normal owned exit and exact restoration passed"
+  },
+  "controlledChecks": [
+    "full UI including mounted Gold/outcomes and status hub",
+    "full Desktop delivery including Home/Map regressions",
+    "native-shaped Chat baseline, outcome, Gold and cross-room Lua fixtures",
+    "31 package-auditor tests",
+    "8 R30 package boundary tests",
+    "2 programme package boundary tests",
+    "3 R28 release boundary tests"
+  ],
+  "efficiency": {
+    "measurement": "controlled status consumer/call count; source baseline comparison",
+    "beforeCallsPerTwoSecondsFourCards": 4,
+    "afterCallsPerTwoSecondsFourCards": 1,
+    "statusReadReductionPercent": 75,
+    "nominalEngineTickMsUnchanged": 50,
+    "liveClaimRttMeasured": false,
+    "connectedCpuMeasured": false
+  },
+  "remaining": [
+    "Random live claim/refusal confirmation on approved sub-account",
+    "Live remote-room discovery and claim with native permission",
+    "Special activity 710 exact claim attribution unsupported",
+    "Matched LwTool versus LW-Control latency CPU and RAM"
+  ],
+  "package": {
+    "zip": "artifacts/lwtool-chat-improvement-20261025/package-final/LW-Control-lwtool-improvement-6d9c107166e9.zip",
+    "sha256": "e0c460dd7b0711931876bc087a704da4480682874aabdddd90dce6fd0ba7ae36",
+    "bytes": 10389396,
+    "zipEntries": 105,
+    "sourceCommit": "6d9c107166e92dbbf204d5c611ecd2a4d497625d",
+    "sourceGitTree": "291d1980268fa8a56b02daa56f0dfa2d525b6dbf",
+    "sourceInputSha256": "f52482aebd7a32201d3abea33fc2d10311eab82aa63664fe1a9481c5195ed0fc",
+    "sourceInputFileCount": 749,
+    "bridgesVerified": 29,
+    "status": "INDEPENDENT_REVIEW_REQUIRED"
+  },
+  "sourceAnchors": [
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 66,
+      "contains": "local function packet_family"
+    },
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 135,
+      "contains": "local function gold_allowed"
+    },
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 471,
+      "contains": "local function cross_rooms"
+    },
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 503,
+      "contains": "local function pump_cross"
+    },
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 584,
+      "contains": "local function outcome"
+    },
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 624,
+      "contains": "local function attach_response_hooks"
+    },
+    {
+      "path": "tools/feature018_chat_engine.lua",
+      "line": 871,
+      "contains": "function M.Catalog"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ChatAutomationConfigCommandService.cs",
+      "line": 44,
+      "contains": "internal static JsonObject ReadEffective"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.ChatCatalogProof.cs",
+      "line": 10,
+      "contains": "private async Task RunReadOnlyChatCatalogProofAsync"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/chatStatusHub.js",
+      "line": 5,
+      "contains": "export function createChatStatusSubscription"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/NativeChatAutomationCard.jsx",
+      "line": 71,
+      "contains": "chatRewards.remoteRooms"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/NativeChatAutomationCard.jsx",
+      "line": 77,
+      "contains": "data-chat-separate-gold"
+    }
+  ],
+  "retainedEvidence": [
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/desktop-full.log",
+      "sha256": "9bedd50c92cb1a88712a83242f97796f6d52a893e4d409d237c193932c114402"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/ui-final.log",
+      "sha256": "90b15496ab943311b2cd1a1fdd341fb6108d2a02f389d889850efc754984e8a5"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/package-auditor-final.log",
+      "sha256": "b655afce20c0a52bb0a9f7d8c3ffd2b3c6c4381b5aeb5591df29d3b58e532805"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/package-boundary.log",
+      "sha256": "e5c4461cd64a8a685abd119d8d414b6c42cc5f06e10504c3c98b9d5c077546bb"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/publish-final.log",
+      "sha256": "16a90b02fc3df1ee14782f597e3ea3410c0b3211599e39b1bbbbb5622f141fdf"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/package-final/package-receipt.json",
+      "sha256": "f32821850b98804047fff3dbc6f6f94d1ad2da538bdd0cdfc69fbb38158002f1"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/package-final/extraction-verification.json",
+      "sha256": "5db293f777dc6666367f2578f3745a40a885754a9f955a2d8d2b3ef5513afac8"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/package-final/post-live-extraction-verification.json",
+      "sha256": "5db293f777dc6666367f2578f3745a40a885754a9f955a2d8d2b3ef5513afac8"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/catalog-packaged-private.json",
+      "sha256": "e3e07ddbed2bf40467a420dda9b0323b78c417d2c9d875c4bf562614b60d6270"
+    },
+    {
+      "path": "artifacts/map014-takeover/native-ui-20261025-072958/owned-exit.json",
+      "sha256": "80a1066f41a65cc3050470177286dbec63f27f760de50ceb28c2b35d31028eef"
+    },
+    {
+      "path": "artifacts/lwtool-chat-improvement-20261025/catalog-native-inspection-private.json",
+      "sha256": "233debbf7a8f40dcb59296a114373e438a62594ae1e9671214d399b78b9571a4"
+    }
+  ]
+}

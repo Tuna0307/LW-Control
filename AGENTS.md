@@ -1,3 +1,13 @@
+Latest worker Chat reward checkpoint, 2026-10-25: product 6d9c107166e92dbbf204d5c611ecd2a4d497625d,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/research/lwtool/2026-10-25/chat-rewards/IMPROVEMENTS.md
+and IMPROVEMENT_EVIDENCE.json. Counter ambiguity fixed, separate Gold controls/migration and bounded native
+room discovery implemented; controlled/UI/Desktop checks pass. Exact packaged read-only main-account
+catalog and original-script restoration pass. No live claim/reply or remote history request: eight native
+season servers but zero eligible known remote rooms. Special activity 710 remains unsupported. Do not
+claim full cross-server parity, live reward success or a speed winner. Main remains read-only; actual
+claims require the approved sub-account and natural opportunities. Independent review remains open;
+no merge/release. Reuse the pinned package for documentation-only follow-ups; rebuild for product changes.
+
 Latest owner Chat reward implementation approval, 2026-10-25: proceed with the recommended outcome
 counter fix, separate Gold Egg handling, source-qualified coverage and independent cross-server discovery
 investigation, then measurement. Read docs/work-items/LWTOOL-CHAT-REWARDS-IMPROVEMENT-2026-10-25.md.
