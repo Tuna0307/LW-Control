@@ -1,3 +1,10 @@
+Latest owner bug assignment, 2026-10-25: fix gathering recall-on-disable and Alliance Drill not joining.
+Continue codex/lwtool-remaining-tabs / draft PR #17. Read docs/work-items/OWNER-GATHER-DRILL-FIX-2026-10-25.md.
+Owner explicitly permits ONLY these two live tests on the current main account: recalling tool-owned
+gathering squads and joining the current Drill rally. Other main gameplay remains read-only; do not
+expand this to fresh gathering dispatches, items, chat, purchases or unrelated marches. Preserve exact
+ownership/no replay and prior tabs. Capture random/event availability honestly. No merge or release.
+
 Latest worker Chat reward checkpoint, 2026-10-25: product 6d9c107166e92dbbf204d5c611ecd2a4d497625d,
 codex/lwtool-remaining-tabs / draft PR #17. Read docs/research/lwtool/2026-10-25/chat-rewards/IMPROVEMENTS.md
 and IMPROVEMENT_EVIDENCE.json. Counter ambiguity fixed, separate Gold controls/migration and bounded native

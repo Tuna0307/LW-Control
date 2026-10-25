@@ -77,7 +77,13 @@ def main():
       drill.Pump();drill.Pump()
       for _,s in ipairs(sends)do assert(not(s.slot==4 and s.role=='member'),'Launch-only squad never joins')end
     ''')
-    print('FEATURE018_DRILL_ENGINE_CHECKS_OK: event lifecycle, priority, Stop, limits, stamina/account pause, monster-only joins, per-squad launch/join roles')
+    vm.execute('''
+      drill.Fail('native join unconfirmed')
+      local status=drill.Status()
+      assert(not status.running and status.state=='failed'and status.step=='failed'and #status.rows==0,
+        'A failed Drill must clear stale joining rows without clearing uncertain native reservations')
+    ''')
+    print('FEATURE018_DRILL_ENGINE_CHECKS_OK: event lifecycle, priority, Stop, limits, stamina/account pause, monster-only joins, per-squad launch/join roles, failed-step')
 
 
 if __name__ == '__main__':

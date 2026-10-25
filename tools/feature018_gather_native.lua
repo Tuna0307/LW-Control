@@ -8,6 +8,8 @@ local GATHER_TYPES={metal='Metal',food='Food',gold='Wood'}
 local bridge,owner,settings,search,active,stopping,detailJob,lastDetailReply
 local cursor=1
 local hooks,slots,known={},{},{}
+local observer_ok,observers=pcall(require,'DataCenter.Global.LWBridgeFeature018AttackActions')
+if not observer_ok then observers={}end
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
 local function call(o,k,...)local f=get(o,k);if type(f)~='function'then error('Native '..k..' is unavailable')end;return f(o,...)end
 local function id(v)local s=tostring(v);if s:match('^[1-9]%d*$')then return s end end
@@ -39,14 +41,25 @@ local function form(slot)
 end
 local function march(f)return call(center('WorldMarchDataManager'),'GetOwnerFormationMarch',get(player(),'uid'),get(f,'uuid'),get(player(),'allianceId'))end
 local function detach()
-    for i=#hooks,1,-1 do local h=hooks[i];if get(h.object,h.key)==h.wrapper then h.object[h.key]=h.previous end end
+    for i=#hooks,1,-1 do local h=hooks[i];h.enabled=false;if get(h.object,h.key)==h.wrapper then h.object[h.key]=h.previous end end
     hooks={};search=nil;active=nil;detailJob=nil
 end
 local function hook(object,key,make)
     local previous=get(object,key);if type(previous)~='function'then error('Native '..key..' observer unavailable')end
-    local wrapper=make(previous);object[key]=wrapper;hooks[#hooks+1]={object=object,key=key,wrapper=wrapper,previous=previous}
+    local h={object=object,key=key,previous=previous,enabled=true}
+    local inner=make(previous)
+    local wrapper=function(...)if not h.enabled then return previous(...)end;return inner(...)end
+    h.wrapper=wrapper;object[key]=wrapper;hooks[#hooks+1]=h
+    if type(observers.RegisterObserverLink)=='function'then observers.RegisterObserverLink(object,key,wrapper,previous)end
 end
-local function intact()for _,h in ipairs(hooks)do if get(h.object,h.key)~=h.wrapper then return false end end;return #hooks>0 end
+local function intact()
+    for _,h in ipairs(hooks)do
+        local present=get(h.object,h.key)==h.wrapper
+        if not present and type(observers.ObserverContains)=='function'then present=observers.ObserverContains(h.object,h.key,h.wrapper)end
+        if not h.enabled or not present then return false end
+    end
+    return #hooks>0
+end
 local function safe_point(pointId,squad,radius)
     local w=world();local p=call(w,'GetPointInfo',pointId);local r=call(w,'GetResourcePointInfoByIndex',pointId)
     if not p or not r then return nil,'Resource point is not loaded' end
@@ -93,7 +106,8 @@ local function fresh_record(rec)
     return m
 end
 local function guard(job)
-    if not owned()or not intact()then return false,'Gathering game account/session or native observer changed'end
+    if not owned()then return false,'Gathering game account/session changed'end
+    if not intact()then return false,'Gathering native observer is missing or was replaced by an unknown observer'end
     if stopping and job.phase~='recall'then return false,'Gathering has been stopped'end
     if job.phase=='recall'then
         if known[job.record.slot]~=job.record or job.record.recallAttempted and job.record.recallJob~=job then return false,'Gathering recall was already attempted or ownership record retired'end
@@ -117,7 +131,7 @@ local function recall_job(rec,slot,reason)
     local job={phase='recall',route='MarchUtil.OnBackHome',record=rec,slot=slot,stopping=reason==nil,wireCount=0,reason=reason}
     job.execute=function()
         if job.executionStarted then error('Gathering recall was already attempted; no replay')end
-        local ok,why=guard(job);if not ok then error(why)end
+        local ok,why=guard(job);if not ok then error(why,0)end
         job.executionStarted=true;rec.recallAttempted=true;rec.recallJob=job;active=job;job.executing=true
         local result=table.pack(pcall(enum('MarchUtil','OnBackHome'),tonumber(rec.uuid)))
         job.executing=false
@@ -393,7 +407,8 @@ end
 function M.FinishStop(kind)if M.Supports(kind)then detach();stopping=true end end
 function M.Observe(kind)
     if not M.Supports(kind)then return {state='unsupported'}end
-    local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000}
+    local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000,
+        observerOwnerMatches=owned()==true,observerChainReady=intact()==true}
     for slot=1,4 do
         local f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
         if id(get(f,'uuid'))and tostring(get(f,'ownerUid'))==a.uid then

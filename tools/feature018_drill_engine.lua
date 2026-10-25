@@ -53,7 +53,7 @@ function M.Stop()
     for slot,job in pairs(run.pending)do if api.CancelUnsent(job)then run.pending[slot]=nil end end
 end
 function M.Fail(error)
-    M.Stop();if run then run.state='failed';run.lastError=tostring(error)end
+    M.Stop();if run then run.state='failed';run.step='failed';run.rows={};run.lastError=tostring(error)end
 end
 function M.Status()
     if not run then return {running=false,state='idle',active=false,rows={},receipts={},confirmedSends=0}end
@@ -73,7 +73,7 @@ function M.Pump()
         if (not same_target or not run.running) and api.CancelUnsent(job)then run.pending[slot]=nil
         else
             local observation=api.Observe(job,same_target and run.running)
-            if observation.failed then run.running=false;run.state='failed';run.lastError=observation.error;return end
+            if observation.failed then run.running=false;run.state='failed';run.step='failed';run.rows={};run.lastError=observation.error;return end
             if (observation.acknowledged or observation.completed) and not job.acknowledged then
                 job.acknowledged=true;run.confirmedSends=run.confirmedSends+1
                 run.receipts[#run.receipts+1]=copy(observation.receipt)

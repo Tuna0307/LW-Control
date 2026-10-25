@@ -6,9 +6,11 @@ suite separately owns the scheduler's off/account/uncertain-send behavior.
 from feature018_automation_engine_checks import ROOT, runtime
 
 
-def gathering():
+def gathering(source=None):
     vm=runtime()
-    vm.globals().gather=vm.execute((ROOT/'tools/feature018_gather_native.lua').read_text())
+    vm.globals().observer_api=vm.execute((ROOT/'tools/feature018_attack_actions.lua').read_text('utf-8'))
+    vm.execute("package.loaded['DataCenter.Global.LWBridgeFeature018AttackActions']=observer_api")
+    vm.globals().gather=vm.execute(source or (ROOT/'tools/feature018_gather_native.lua').read_text())
     vm.execute('''
       state.forms={};state.marches={};state.createToken='01234567-89ab-cdef-0123-456789abcdef'
       state.config={resourceGather={enabled=true,scanRadius=200,manualResumeDelaySeconds=120,recallOnDisable=false,
@@ -315,7 +317,24 @@ def main():
       state.throw=true;assert(not dispatch(r));assert(not dispatch(r),'Exact recall job cannot replay')
       assert(#gather.Stop('resourceGather').cleanupJobs==0 and #state.sends==4,'Repeated Stop cannot replay an uncertain recall')
     ''')
-    print('FEATURE018_R30_GATHER_LUA_PASS actual-module search-detail-guid occupied-never twice-fenced manual-delay owned-recall stop account lease uncertain')
+    vm=gathering()
+    vm.execute('''
+      hydrate();assert(dispatch(job));native_result();assert(verify(job));state.config.resourceGather.recallOnDisable=true
+      local previous=SFSNetwork.SendMessage
+      local cooperating=function(...)return previous(...)end
+      SFSNetwork.SendMessage=cooperating
+      assert(observer_api.RegisterObserverLink(SFSNetwork,'SendMessage',cooperating,previous))
+      local recall=gather.Stop('resourceGather').cleanupJobs[1]
+      assert(recall and dispatch(recall),'A known cooperating observer must not block exact owned recall')
+      state.marches[41].targetType=9;state.marches[41].clientCreateGuid=''
+      assert(verify(recall));gather.FinishStop('resourceGather')
+      assert(SFSNetwork.SendMessage==cooperating,'Stop preserves the newer cooperating observer')
+      state.marches[41]=nil;state.now=state.now+15000
+      state.detail=nil;hydrate();assert(dispatch(job),'Retired underlying wrapper must not double-count a later gathering send')
+      native_result();assert(verify(job))
+      assert(observer_api.ObserverContains(SFSNetwork,'SendMessage',cooperating))
+    ''')
+    print('FEATURE018_R30_GATHER_LUA_PASS actual-module search-detail-guid occupied-never twice-fenced manual-delay owned-recall stop account lease uncertain cooperating-observers')
 
 
 if __name__=='__main__':main()
