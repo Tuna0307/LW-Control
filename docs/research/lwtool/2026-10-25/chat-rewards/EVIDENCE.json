@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "status": "comparison-complete-with-explicit-native-engine-and-live-performance-gaps",
+  "repoBaseline": "a1f9137267315356b341f2dcaea4568652edd3b3",
+  "scope": [
+    "Red Packet",
+    "Fireworks",
+    "Gold Egg",
+    "cross-server Gold Egg"
+  ],
+  "productionChanged": false,
+  "liveGameStarted": false,
+  "liveClaimOrReplySent": false,
+  "externalServiceContacted": false,
+  "recoveredClient": {
+    "coreSha256": "f9f910e2f42ea5215fce1391ac7c6685ff4f16b7926200aa203265875c4b0ec3",
+    "uiSha256": "5de6a7c1c9a83fdd2e141989e5998535f0a1f0e64778c8dcc2e44d9493ff05b8",
+    "source": "retained normal owner-authenticated 25 October recovery; no new download in this pass"
+  },
+  "currentGameEvidence": {
+    "originalPackageSha256": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+    "originalContentVersion": 27,
+    "originalEntryCount": 18744,
+    "originalSource": "exact retained original backup",
+    "currentInstalledContainerSha256": "6f28b60f9d9bc4833efb14203c807d58c88b83629e95a1d6f301468f921b0869",
+    "currentInstalledContentVersion": 27,
+    "wholeContainerSame": false,
+    "selectedModuleCount": 95,
+    "selectedEncodedModulesIdenticalToOriginal": 95,
+    "selectedOriginalModules": [
+      {
+        "module": "Chat/Constant/PostType.luac",
+        "encodedSha256": "1b57dc0471688dd747e05642cddaef5c490f3bac71f0b82f0cbdd0d20f2f87e2",
+        "decodedSha256": "b7458f9803a16c90a5d040b8815f4b5328c0d1fb03f8eb606266690a9d268c22",
+        "methods": {},
+        "currentInstalledModuleIdentical": true,
+        "output": "Chat_Constant_PostType.luac.txt"
+      },
+      {
+        "module": "DataCenter/LWFirework/LWFireworkGiftManager.luac",
+        "encodedSha256": "e25ec5065be2c549d14f9ae520c3bfb34d594c11699767cd2a92a02d385bc1c2",
+        "decodedSha256": "41c3e44045acf6d24dd737a26f2c0ec5da605760d63f1d56c31a9b4cce99948a",
+        "methods": {
+          "__init": "root/0",
+          "__delete": "root/2",
+          "Startup": "root/3",
+          "AddListener": "root/4",
+          "CheckGiftPrefsTime": "root/5",
+          "IsThisGiftUuidGot": "root/6",
+          "SetGiftUuidGot": "root/7",
+          "GetGiftQueueByPlayerUid": "root/8",
+          "UpdateFireworkGiftQueueByUserUidCsData": "root/9",
+          "IsHasAvailableBoxForMeByUid": "root/10",
+          "IsHasAvailableBoxByUid": "root/11",
+          "OnSelfGetFireworksGift": "root/12",
+          "OnGetFireworksGift": "root/13",
+          "SetNewFireworkGiftInChat": "root/14",
+          "IsAlreadyHasChat": "root/15",
+          "SetBubbleTipViewedPrefs": "root/16",
+          "DeleteAllBubbleTipViewedPrefs": "root/17",
+          "IsThisChatViewed": "root/18",
+          "OnChatRoomSelect": "root/19",
+          "GetRandomAvailableFireworkBoxPlayerUid": "root/20",
+          "OnUpdateSec": "root/21"
+        },
+        "currentInstalledModuleIdentical": true,
+        "output": "DataCenter_LWFirework_LWFireworkGiftManager.luac.txt"
+      },
+      {
+        "module": "Net/Msgs/EasterEggPickUpMessage.luac",
+        "encodedSha256": "2a01ddecc46fcc04ce9e5ecdf3daeea7515b884d1e9d9fbb0d07dd1891b7e048",
+        "decodedSha256": "1d900a45c72f955ee71c297d3e36080f90c84ba15338cd0f2be11be15c06c3c4",
+        "methods": {
+          "OnCreate": "root/0",
+          "HandleMessage": "root/1"
+        },
+        "currentInstalledModuleIdentical": true,
+        "output": "Net_Msgs_EasterEggPickUpMessage.luac.txt"
+      },
+      {
+        "module": "Net/Msgs/GetFireworksGiftMessage.luac",
+        "encodedSha256": "a02a536616066def40378d1d83af223b44e9949f137040ce66450d97f1cbacbe",
+        "decodedSha256": "5a016e864deb7c617aad9a788bf2ea30ff2cd7ab77b541e0bfad0edae564c9ed",
+        "methods": {
+          "OnCreate": "root/0",
+          "HandleMessage": "root/1"
+        },
+        "currentInstalledModuleIdentical": true,
+        "output": "Net_Msgs_GetFireworksGiftMessage.luac.txt"
+      },
+      {
+        "module": "Net/Msgs/OpenRedPacketMessage.luac",
+        "encodedSha256": "b214018c2b2ff9e7a544fc4577c3082e9878f5fcd07e411f7188eca543b6624e",
+        "decodedSha256": "747a8ddc0f90307987667c597ef934ca239c69c589dfcb947d0948883ecbcaaa",
+        "methods": {
+          "OnCreate": "root/0",
+          "HandleMessage": "root/1"
+        },
+        "currentInstalledModuleIdentical": true,
+        "output": "Net_Msgs_OpenRedPacketMessage.luac.txt"
+      }
+    ],
+    "fullPrivateIndexSha256": "4617120f86d2a4e9927ff17969bbf1e8c906c02052639c98de0bf89df07c35d1"
+  },
+  "sourceAnchors": {
+    "recoveredCore": [
+      {
+        "symbol": "_mw_start_feature_loops",
+        "startLine": 6251,
+        "endLine": 6292
+      },
+      {
+        "symbol": "_chat_nhanh_bat",
+        "startLine": 12862,
+        "endLine": 12878
+      },
+      {
+        "symbol": "_cn_post_theo_cfg",
+        "startLine": 12881,
+        "endLine": 12893
+      },
+      {
+        "symbol": "_chat_nhanh_co",
+        "startLine": 12913,
+        "endLine": 12927
+      },
+      {
+        "symbol": "_chat_nhanh_loop",
+        "startLine": 12930,
+        "endLine": 13053
+      },
+      {
+        "symbol": "_chat_nhanh_tin",
+        "startLine": 13056,
+        "endLine": 13084
+      },
+      {
+        "symbol": "_settings_for",
+        "startLine": 15208,
+        "endLine": 15246
+      },
+      {
+        "symbol": "_mask_settings_for_free",
+        "startLine": 15987,
+        "endLine": 15997
+      },
+      {
+        "symbol": "_cfg_payload",
+        "startLine": 15313,
+        "endLine": 15386
+      },
+      {
+        "symbol": "_aa_cfg_push",
+        "startLine": 15288,
+        "endLine": 15310
+      },
+      {
+        "symbol": "_user_logs_adapter",
+        "startLine": 28121,
+        "endLine": 28249
+      },
+      {
+        "symbol": "_CN_POST_LUA",
+        "startLine": 12839,
+        "endLine": 12839
+      }
+    ],
+    "recoveredUi": [
+      {
+        "symbol": "Red Packet toggle/delay",
+        "line": 2813
+      },
+      {
+        "symbol": "Fireworks toggle/delay",
+        "line": 2914
+      },
+      {
+        "symbol": "Gold Egg/cross/birthday controls",
+        "line": 2918
+      },
+      {
+        "symbol": "independent auto-reply kinds",
+        "line": 3100
+      }
+    ],
+    "lwControl": [
+      {
+        "path": "tools/feature018_chat_engine.lua",
+        "symbol": "describe",
+        "startLine": 68
+      },
+      {
+        "path": "tools/feature018_chat_engine.lua",
+        "symbol": "observe",
+        "startLine": 376
+      },
+      {
+        "path": "tools/feature018_chat_engine.lua",
+        "symbol": "ack",
+        "startLine": 414
+      },
+      {
+        "path": "tools/feature018_chat_engine.lua",
+        "symbol": "claimed",
+        "startLine": 454
+      },
+      {
+        "path": "tools/feature018_chat_engine.lua",
+        "symbol": "claim",
+        "startLine": 469
+      },
+      {
+        "path": "tools/feature018_chat_engine.lua",
+        "symbol": "Pump",
+        "startLine": 515
+      },
+      {
+        "path": "src/LWBridge.Desktop/ChatAutomationConfigCommandService.cs",
+        "symbol": "Kinds",
+        "startLine": 9
+      },
+      {
+        "path": "tools/current_overview_bridge.lua",
+        "symbol": "FEATURE_INTERVAL",
+        "startLine": 4244
+      },
+      {
+        "path": "tools/run_overview_bridge.py",
+        "symbol": "feature018_periodic",
+        "startLine": 432
+      }
+    ]
+  },
+  "controlled": {
+    "scope": "controlled replay of exact recovered pure host functions and current production Lua with mocked game; not live gameplay or speed measurement",
+    "lwtCoreSha256": "f9f910e2f42ea5215fce1391ac7c6685ff4f16b7926200aa203265875c4b0ec3",
+    "lwControlChatEngineSha256": "daf2740ff366a55f8a5695381d8a3c2b3e527942ae0ba4a55e428d8429e4897d",
+    "lwtFastChatGates": [
+      {
+        "config": {
+          "goldEgg": true,
+          "goldEggCross": false,
+          "vipCheck": true,
+          "crossServerScan": false
+        },
+        "fastRequested": false,
+        "selectedPostTypes": []
+      },
+      {
+        "config": {
+          "goldEgg": true,
+          "goldEggCross": true,
+          "vipCheck": false,
+          "crossServerScan": false
+        },
+        "fastRequested": false,
+        "selectedPostTypes": [
+          611,
+          693,
+          695,
+          710
+        ]
+      },
+      {
+        "config": {
+          "goldEgg": true,
+          "goldEggCross": true,
+          "vipCheck": true,
+          "crossServerScan": false
+        },
+        "fastRequested": true,
+        "selectedPostTypes": [
+          611,
+          693,
+          695,
+          710
+        ]
+      },
+      {
+        "config": {
+          "goldEgg": false,
+          "goldEggCross": true,
+          "vipCheck": true,
+          "crossServerScan": false
+        },
+        "fastRequested": false,
+        "selectedPostTypes": []
+      },
+      {
+        "config": {
+          "goldEgg": false,
+          "goldEggCross": false,
+          "vipCheck": true,
+          "crossServerScan": true
+        },
+        "fastRequested": true,
+        "selectedPostTypes": [
+          662
+        ]
+      }
+    ],
+    "ourMessageCoverage": [
+      {
+        "post": 611,
+        "mockPackets": 1,
+        "redPacketSubmitted": 1,
+        "fireworksSubmitted": 0
+      },
+      {
+        "post": 693,
+        "mockPackets": 1,
+        "redPacketSubmitted": 0,
+        "fireworksSubmitted": 1
+      },
+      {
+        "post": 694,
+        "mockPackets": 0,
+        "redPacketSubmitted": 0,
+        "fireworksSubmitted": 0
+      },
+      {
+        "post": 695,
+        "mockPackets": 0,
+        "redPacketSubmitted": 0,
+        "fireworksSubmitted": 0
+      },
+      {
+        "post": 710,
+        "mockPackets": 0,
+        "redPacketSubmitted": 0,
+        "fireworksSubmitted": 0
+      }
+    ],
+    "alreadyClaimedCacheCounterexample": {
+      "mockPackets": 1,
+      "newRewardEventDelivered": false,
+      "cacheGotAfterSend": true,
+      "reportedClaimed": 1
+    },
+    "liveNetworkCalls": 0,
+    "liveGameActions": 0
+  },
+  "existingChatEngineChecks": "pass",
+  "existingChatEngineCheckLogSha256": "07e1fa5dd8d94ad91e9cdf65bef2fe40d25fcb9f5de578296dd80f14cbf37971",
+  "rea": {
+    "operation": "analyze_javascript_application",
+    "parentEvidenceId": "ev_16cc3e1641fb33264da0642e4d363426067cdb33f8d73b26f1edc1f8b0d2cba6",
+    "summaryEvidenceId": "ev_41d28b7dc81d9dc0000cff4e0224437e3867ec000c9c4d6feef8a63c43bd57da",
+    "selectedSourcePaths": [
+      "script-2.js"
+    ],
+    "unselectedScriptFiles": 9,
+    "semanticGraphPartial": true,
+    "semanticUnknowns": 11351,
+    "scriptIndexSha256": "625ff25b0f726ceab75c57569e47b2f52ef6aec00f3be0188b517789eb5e53db",
+    "summaryRetainedPrivately": true,
+    "limitations": "Inert partial static graph; focused manual source/AST anchors and controlled replay support the feature findings. No graph completeness or runtime assertion."
+  },
+  "findings": [
+    {
+      "id": "CHAT-COMP-01",
+      "finding": "Gold Egg UI/config/discovery parity is not established; no separate Gold Egg kind in ours",
+      "classification": "source and controlled"
+    },
+    {
+      "id": "CHAT-COMP-02",
+      "finding": "Our classifier ignores 695/710; recovered LwTool fast-feed post filter selects both",
+      "classification": "controlled; does not establish live claiming"
+    },
+    {
+      "id": "CHAT-COMP-03",
+      "finding": "Got-cache after already-claimed response can increment our claimed counter without a new reward event",
+      "classification": "current native bytecode plus controlled counterexample; no live frequency measurement"
+    }
+  ],
+  "unknowns": [
+    "LwTool separately downloaded native Lua claimant/deduplication/correlation implementation",
+    "precise overlap of Golden Egg marketing subtypes with our generic 611/693 routes",
+    "live cross-server feed availability and matched discovery coverage",
+    "same-opportunity claim latency, success rate, CPU and memory comparison"
+  ],
+  "privateEvidenceRoot": "artifacts/lwtool-chat-comparison-20261025",
+  "publicReproduction": "docs/research/lwtool/2026-10-25/chat-rewards/verify_controlled_comparison.py",
+  "noMergeOrRelease": true
+}

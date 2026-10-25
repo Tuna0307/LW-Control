@@ -1,3 +1,10 @@
+Latest owner Chat reward comparison, 2026-10-25: Red Packet, Fireworks, Gold Egg and cross-server Gold Egg
+research is in docs/research/lwtool/2026-10-25/chat-rewards/COMPARISON.md and EVIDENCE.json. Documentation
+and inert comparison only; no product/game/service action. Current classifier handles 611/693, not 695/710;
+LwTool exposes separate Gold Egg controls and a broader optional cross-server feed, but its separate
+native claimant remains unavailable. CHAT-COMP-03 reproduces a got-cache/already-claimed success-counter
+ambiguity in ours. Proposed fixes are not implemented. No speed winner, merge or release is established.
+
 Latest worker remaining-tabs handback, 2026-10-25: source 4565147a9adf38ae0e21e535c584c2efaaf4aceb,
 codex/lwtool-remaining-tabs / draft PR #17. Read docs/research/lwtool/2026-10-25/remaining-tabs/FINAL_QUALIFICATION.md
 and EVIDENCE.json. Final-package Equipment, City and Settings checks/restoration pass; full UI/Desktop
