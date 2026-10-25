@@ -1,3 +1,14 @@
+Latest worker gathering/Drill handback, 2026-10-25: source 44be59d892ad9faf0d09f8342f31a99b273d5c1a,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-25-GATHER-DRILL-OWNER-FIX.md and
+docs/proof/GATHER-DRILL-OWNER-FIX-2026-10-25.json. Idle join used a formation UUID as an existing march;
+corrected native create path now has exact send/GUID/target confirmation. Gathering/attack observers
+cooperate through explicit bounded links; unknown replacements remain refused. Failed Drill UI is fixed.
+Paired old/new recall regression, Lua/UI/Desktop suites, fresh publish and exact package integrity pass.
+Patched live recall/join remain open: original event ended. One manual native Dispatch control is not an
+exact correlated positive; no agent recall packet sent. Owner's original app/game are left running on the
+old package; no active script replacement/restoration occurred. New tests need the new package/fresh
+ownership; do not adopt earlier gathering trips. No merge/release; independent review remains open.
+
 Latest owner bug assignment, 2026-10-25: fix gathering recall-on-disable and Alliance Drill not joining.
 Continue codex/lwtool-remaining-tabs / draft PR #17. Read docs/work-items/OWNER-GATHER-DRILL-FIX-2026-10-25.md.
 Owner explicitly permits ONLY these two live tests on the current main account: recalling tool-owned
