@@ -486,12 +486,14 @@ function M.Start(request)
 end
 function M.Stop()engine.Stop();return M.Status()end
 function M.Configure(request)
+    local a=account();local token=bridge and bridge.Feature018OwnerToken()
+    if not a or request.authorizedUid~=a.uid or not token then return failed('AFK configuration account changed')end
+    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedAfkConfig or '{}')
+    if not ok or type(config)~='table' then return failed('Confirmed AFK configuration unavailable')end
+    if not config.enabled then return M.Stop()end
     local status=engine.Status()
     if status.state=='idle' or status.state=='stopped' then return M.Start(request)end
     if not owner or not owned(owner) or request.authorizedUid~=owner.uid then return failed('AFK configuration account changed')end
-    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedAfkConfig or '{}')
-    if not ok then return failed('Confirmed AFK configuration unavailable')end
-    if not config.enabled then return M.Stop()end
     local configured,error=engine.Configure(config)
     if not configured then return failed(error)end
     return M.Status()

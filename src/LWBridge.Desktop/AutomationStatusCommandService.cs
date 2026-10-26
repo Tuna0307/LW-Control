@@ -48,6 +48,9 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
     private int chatPolling;
     private readonly object chatGate = new();
     private JsonNode? chatStatus;
+    private Feature018RuntimeStartup? runtimeStartup;
+
+    internal void SetRuntimeStartup(Feature018RuntimeStartup startup) => runtimeStartup ??= startup;
 
     // This callback captures the profile's own command service/lifecycle, never
     // the window's currently selected profile. Lua separately fences its UID,
@@ -63,7 +66,10 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         if (chatShutdown.IsCancellationRequested || Interlocked.Exchange(ref chatPolling, 1) != 0) return;
         try
         {
-            JsonNode? observed = await nativeChatStatusReader!(chatShutdown.Token).ConfigureAwait(false);
+            if (runtimeStartup is not null)
+                await runtimeStartup.SynchronizeAsync(chatShutdown.Token).ConfigureAwait(false);
+            JsonNode? observed = runtimeStartup is not null ? runtimeStartup.ChatSnapshot :
+                await nativeChatStatusReader!(chatShutdown.Token).ConfigureAwait(false);
             lock (chatGate) chatStatus = observed?.DeepClone();
         }
         catch (Exception) { lock (chatGate) chatStatus = null; }
@@ -94,6 +100,7 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         }
 
         JsonNode status = CreateStatus();
+        status["startup"] = runtimeStartup?.Snapshot;
         JsonNode? chat;
         lock (chatGate) chat = chatStatus?.DeepClone();
         var services = new JsonObject();

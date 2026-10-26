@@ -1,5 +1,11 @@
 using LWBridge.Desktop.Checks;
 
+if (args.Length == 1 && args[0] == "--startup")
+{
+    await Feature018RuntimeStartupChecks.RunAsync();
+    return;
+}
+
 if (args.Length == 1 && args[0] == "--chat-rewards")
 {
     await ChatRewardConfigChecks.RunAsync();
@@ -40,6 +46,7 @@ if (args.Length == 3 && args[0] == "--map006-audit")
 }
 
 // Small delivery suite. The research branch retains the wider campaign suites.
+await Feature018RuntimeStartupChecks.RunAsync();
 await GameRootSelectChecks.RunAsync();
 await HomeAutomationParityChecks.RunAsync();
 await HomeFunctionalProfileCrudChecks.RunAsync();

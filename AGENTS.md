@@ -1,3 +1,11 @@
+Latest owner startup assignment, 2026-10-26: fix saved features requiring visits to every tab/category
+after launching. Continue codex/lwtool-remaining-tabs / draft PR #17; read
+docs/reviews/2026-10-26-STARTUP-SYNCHRONIZATION.md. Initialize saved background configuration through
+retained per-profile runtime ownership, preserve strict session/account/no-replay and prior recall
+fixes, and qualify while Home remains the only visited page. Use the existing narrow approved main
+gather/recall scope for the optional single-squad regression; other main gameplay stays excluded.
+No main merge or release; rebuild for product-input changes and retain unsuccessful proof receipts.
+
 Latest worker repeated-recall handback, 2026-10-26: product/package 31523249098c00a60a44a5cfa6dd033272d4ebbe,
 codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-GATHER-RECALL-RETENTION.md and
 docs/proof/GATHER-RECALL-RETENTION-2026-10-26.json. Exact gathering records survive temporary authority

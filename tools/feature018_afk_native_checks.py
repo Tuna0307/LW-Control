@@ -171,6 +171,9 @@ def main():
     vm.globals().native = native
     vm.execute('''
       native.Register(transport,overview)
+      fields.confirmedAfkConfig='{}'
+      assert(native.Configure(fields).state=='confirmed' and not native.Status().data.running,
+        'Disabled saved AFK settings must not start a fresh engine during initialization')
       local s=native.Status().data
       assert(getmetatable(s.rows).__feature018_array and getmetatable(s.receipts).__feature018_array,
         'The feature transport, not the Overview owner, must tag empty JSON arrays')

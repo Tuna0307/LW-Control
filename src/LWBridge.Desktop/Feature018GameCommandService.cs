@@ -61,7 +61,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (!CanHandle(command))
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Unsupported FEATURE018 command.");
         Dictionary<string, string> fields = ReadFields(command, payload);
-        if (command is "feature018_automation_configure" or "feature018_automation_run" or "feature018_automation_status" or "feature018_automation_observe")
+        if (command is "feature018_automation_configure" or "feature018_automation_run" or "feature018_automation_status" or "feature018_automation_observe" or "feature018_automation_stop")
         {
             JsonObject tasks = runtimeConfig?.ReadTasksSnapshot() ??
                 throw new BridgeCommandException("STATE_UNAVAILABLE", "Confirmed profile Automation settings are unavailable.");
