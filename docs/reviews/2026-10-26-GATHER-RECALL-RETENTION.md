@@ -110,3 +110,13 @@ The full UI/Desktop suites, existing Lua suites, twelve Resource reply cases,
 current-probe AST/LENC checks, default/explicit gathering-scope checks and
 31 package-auditor cases passed. The final package is rebuilt from the source
 checkpoint containing this correction; final all-home proof follows separately.
+
+The first extracted-package attempt, native root `20261026-110929`, is not an
+accepted automatic-recall positive. Four records survived its real authority
+gap, but the saved recall option was **false**, so zero recalls were correctly
+submitted. Its scripted setup had used fixed delays and could click a checkbox
+while a preceding save disabled the fieldset. The proof now waits for enabled
+controls between edits and requires both a checked checkbox and a persisted
+true value before any gather dispatch. This is a test-precondition correction,
+not evidence that a user-selected true value was overwritten by the product.
+The failed run and its normal script-restoration receipt are retained.

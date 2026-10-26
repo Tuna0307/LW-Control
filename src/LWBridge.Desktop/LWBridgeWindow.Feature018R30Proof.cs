@@ -99,6 +99,7 @@ internal sealed partial class LWBridgeWindow
                     : "!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
             foreach (string step in setup)
             {
+                if (kind == "resourceGather") await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
                 Owned();await core.ExecuteScriptAsync(step);await Task.Delay(900, token);
             }
             if (kind == "resourceGather")
@@ -110,6 +111,7 @@ internal sealed partial class LWBridgeWindow
                 for (int slot = 0; slot < 4; slot++)
                 {
                     Owned();
+                    await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
                     if (slot < first - 1 || slot >= first - 1 + count)
                     {
                         await core.ExecuteScriptAsync("(()=>{const c=document.querySelectorAll('[data-native-automation=resourceGather] .automation-resource-gather-squad')[" + slot + "]?.querySelector('input[type=checkbox]');if(c?.checked)c.click();})()");
@@ -122,6 +124,11 @@ internal sealed partial class LWBridgeWindow
                     await core.ExecuteScriptAsync("(()=>{const g=document.querySelectorAll('[data-native-automation=resourceGather] .automation-resource-gather-squad')[" + slot + "];const s=g.querySelectorAll('select');s[0].value='" + (Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_RESOURCE") ?? "food") + "';s[0].dispatchEvent(new Event('change',{bubbles:true}));s[1].value='" + (Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_LEVEL") ?? "1") + "';s[1].dispatchEvent(new Event('change',{bubbles:true}));})()");
                     await Task.Delay(900, token);
                 }
+                await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
+                bool recallChecked = await core.ExecuteScriptAsync("document.querySelector('" + selector + " .automation-form-grid input[type=checkbox]')?.checked===true") == "true";
+                bool recallSaved = profileRuntimeConfigStore!.ReadTasksSnapshot()[kind]?["recallOnDisable"]?.GetValue<bool>() == true;
+                await File.WriteAllTextAsync(Path.Combine(directory, "r30-gather-recall-precondition.json"), JsonSerializer.Serialize(new { recallChecked, recallSaved }, JsonOptions.Default), token);
+                if (!recallChecked || !recallSaved) throw new InvalidDataException("Gather recall option must be checked and persisted before any gathering test.");
             }
             if (kind == "officialPosition")
             {
