@@ -1,3 +1,14 @@
+Latest worker repeated-recall handback, 2026-10-26: product/package 31523249098c00a60a44a5cfa6dd033272d4ebbe,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-GATHER-RECALL-RETENTION.md and
+docs/proof/GATHER-RECALL-RETENTION-2026-10-26.json. Exact gathering records survive temporary authority
+loss in the same VM/session; changed ownership and uncertain sends remain refused. Stop honors current
+trusted checkbox settings and reports missing tracking. The final extracted ZIP confirmed four new
+gathers/four recalls after a real 12-second host-only pause with Map scanning, then witnessed all four
+home. All original files restored, no task app/game processes. First package attempt had recall saved
+false because scripted setup clicked disabled controls; retained as a failed positive, proof now checks
+persisted preconditions. No arbitrary-duration guarantee, live Drill positive, independent acceptance,
+merge or release. Reuse the pinned ZIP for documentation-only work; rebuild for product-input changes.
+
 Latest owner gathering retest authority, 2026-10-26: owner explicitly selected "Allow fresh gathering
 tests on main" after the repeated recall failure. Fresh sends and exact recalls of up to four squads
 on verified empty ordinary resource tiles are authorized on the current main account for this test.

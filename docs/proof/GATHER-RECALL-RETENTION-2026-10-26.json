@@ -1,0 +1,154 @@
+{
+  "productCommit": "31523249098c00a60a44a5cfa6dd033272d4ebbe",
+  "authority": "Owner explicitly approved fresh empty-resource gathering and exact recall tests on main; no other main actions authorized",
+  "oldOwnerObservation": {
+    "sentConfirmed": 6,
+    "collectingSquads": 4,
+    "successfulReceiptUuidAndPointMatches": 4,
+    "creationGuidCleared": 4,
+    "recallSubmitted": 0,
+    "errorVisible": false,
+    "lastStopHookCount": 0,
+    "historicalLeaseTrigger": "not recorded; matching causal failure reproduced separately"
+  },
+  "controlled": {
+    "priorSourceSameSessionLeaseRetention": "fails exact recall assertion",
+    "fixedSameSessionLeaseRetention": "pass",
+    "noSendsWithoutAuthority": "pass",
+    "changedAccountTokenFormationMarch": "refused",
+    "uncertainRecallReplay": "refused",
+    "latestCheckedUncheckedOption": "pass",
+    "untrackedAndInterruptedErrors": "visible",
+    "gatherOnlyScopeInverses": 2,
+    "resourceCorrelationCases": 12,
+    "currentProbeAstAndLenc": "pass",
+    "fullUi": "pass",
+    "fullDesktop": "pass",
+    "packageAuditorCases": 31
+  },
+  "diagnostic": {
+    "localRun": "artifacts/map014-takeover/native-ui-20261026-110050",
+    "proofSha256": "5a0e99e9f1c5cf672ccf1a0a0138cb1bd1ba54770ff6eb20aca786e6919c7a68",
+    "success": true,
+    "uiOffConfirmed": true,
+    "disabled": true,
+    "gatherConfirmed": 4,
+    "recallSubmitted": 4,
+    "recallConfirmed": 4,
+    "error": null,
+    "ownerMatchesBeforeOff": true,
+    "chainReadyBeforeOff": true,
+    "suspensions": 1,
+    "trackedBeforeOff": [
+      {
+        "recordMatches": true,
+        "squadIndex": 1,
+        "recallAttempted": false
+      },
+      {
+        "recordMatches": true,
+        "squadIndex": 2,
+        "recallAttempted": false
+      },
+      {
+        "recordMatches": true,
+        "squadIndex": 3,
+        "recallAttempted": false
+      },
+      {
+        "recordMatches": true,
+        "squadIndex": 4,
+        "recallAttempted": false
+      }
+    ],
+    "restored": {
+      "LWScripts.data": true,
+      "LWScripts.txt": true,
+      "version.txt": true
+    },
+    "recoveryJournalPresent": false
+  },
+  "finalPackage": {
+    "localRun": "artifacts/map014-takeover/native-ui-20261026-112313",
+    "proofSha256": "2bfbf6ef7557f85d7b94ebd0a5a9e46d059b256b75bef9ba1413684ddbb95991",
+    "success": true,
+    "uiOffConfirmed": true,
+    "disabled": true,
+    "gatherConfirmed": 4,
+    "recallSubmitted": 4,
+    "recallConfirmed": 4,
+    "error": null,
+    "ownerMatchesBeforeOff": true,
+    "chainReadyBeforeOff": true,
+    "suspensions": 1,
+    "trackedBeforeOff": [
+      {
+        "recordMatches": true,
+        "recallAttempted": false,
+        "squadIndex": 1
+      },
+      {
+        "recordMatches": true,
+        "recallAttempted": false,
+        "squadIndex": 2
+      },
+      {
+        "recordMatches": true,
+        "recallAttempted": false,
+        "squadIndex": 3
+      },
+      {
+        "recordMatches": true,
+        "recallAttempted": false,
+        "squadIndex": 4
+      }
+    ],
+    "restored": {
+      "LWScripts.data": true,
+      "LWScripts.txt": true,
+      "version.txt": true
+    },
+    "recoveryJournalPresent": false
+  },
+  "fault": {
+    "exactIsolatedHostPausedSeconds": 12,
+    "gamePaused": false,
+    "fakeLeaseUsed": false,
+    "hostResumedInFinally": true
+  },
+  "invalidFirstPackageAttempt": {
+    "localRun": "artifacts/map014-takeover/native-ui-20261026-110929",
+    "fourRecordsRetained": true,
+    "recallSaved": false,
+    "recallSubmitted": 0,
+    "acceptedAsPositive": false,
+    "reason": "Scripted setup did not wait for disabled settings controls"
+  },
+  "recallPrecondition": {
+    "recallChecked": true,
+    "recallSaved": true
+  },
+  "finalHome": {
+    "unlockedSquads": 4,
+    "idleSquads": 4,
+    "activeMarches": 0,
+    "collectingSquads": 0
+  },
+  "package": {
+    "sha256": "6e35240a8bf253e1283db806354dab18f9a51c05f18297f0dfa230b2c9263c2f",
+    "bytes": 10393920,
+    "zipEntries": 105,
+    "sourceCommit": "31523249098c00a60a44a5cfa6dd033272d4ebbe",
+    "sourceGitTree": "01526bffc2236d4715535d710d49c1d7726bc276",
+    "sourceInputSha256": "0311f8aa863451cd8febe377508ec17d95113d86dec09d94cf8355bef8512cde",
+    "sourceInputFileCount": 754,
+    "bridgesVerified": 29,
+    "status": "INDEPENDENT_REVIEW_REQUIRED"
+  },
+  "limits": [
+    "No exact historical trace proving the screenshot was caused by a specific authority gap",
+    "Finite fault test does not prove every arbitrary-duration or unrelated disconnect scenario",
+    "No patched live Drill join proof or independent lead acceptance",
+    "No main merge or public release"
+  ]
+}

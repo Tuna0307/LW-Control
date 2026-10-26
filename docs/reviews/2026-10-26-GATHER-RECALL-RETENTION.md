@@ -120,3 +120,41 @@ controls between edits and requires both a checked checkbox and a persisted
 true value before any gather dispatch. This is a test-precondition correction,
 not evidence that a user-selected true value was overwritten by the product.
 The failed run and its normal script-restoration receipt are retained.
+
+## Final accepted test result (independent review still open)
+
+The corrected extracted package completed the exact main-account four-squad
+test in `artifacts/map014-takeover/native-ui-20261026-112313`:
+
+- Checked and persisted recall preconditions were both true before dispatch.
+- Four new gathers were confirmed. The exact test app was paused for 12 seconds
+  and resumed; the game was not paused. One native suspension and four matching
+  retained records were observed before Off, with the original owner and known
+  callback chain intact. A Resource Map scan was active.
+- Real UI Off produced exactly four recall submissions and four confirmed
+  native returning marches, Disabled and no error.
+- Read-only follow-ups waited for **all four formations to have no active
+  march**. The test ended with all four home, not merely in BACK_HOME travel.
+- Owned exit restored all original files and removed the recovery journal.
+  No task app/game processes remain. The prior test trips were manually cleaned
+  up before fresh dispatch; no old record was adopted by the new engine.
+
+Product/package commit: `31523249098c00a60a44a5cfa6dd033272d4ebbe`.
+The final source-pinned package contains 105 archive entries, 754 source inputs
+and 29 verified bridges. Extraction and every payload file still match after
+live execution. ZIP SHA-256:
+`6e35240a8bf253e1283db806354dab18f9a51c05f18297f0dfa230b2c9263c2f`.
+
+Local ZIP:
+`artifacts/owner-gather-repeat-20261026/package-qualified/LW-Control-lwtool-improvement-31523249098c.zip`.
+Sanitized evidence: `docs/proof/GATHER-RECALL-RETENTION-2026-10-26.json`.
+Retain the unsuccessful package attempt; it is explicitly excluded as a
+positive. A read-only preparation run (`20261026-112008`) also exited/restored
+after a transient account-read failure during base/world transition; no fresh
+gather was dispatched in that run. The corrected controller only retries such
+read-only unavailability briefly and keeps exact account/session admission.
+
+This completes the scoped recall correction and finite fault test, not a proof
+of every arbitrary-duration disconnect or a patched live Alliance Drill join.
+The historical screenshot's exact trigger remains unrecorded. Independent
+lead review/owner acceptance remain separate. No main merge or release.
