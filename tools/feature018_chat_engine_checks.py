@@ -142,14 +142,14 @@ def main():
       -- The game's ping (400 ms here) is subtracted from the scheduled 1 s delay.
       CS.GameEntry={Network={m_proxy={GetPing=function()return 400 end}}}
       assert(engine.Configure(request).state=='confirmed')
-      -- World chat shares are ignored; the alliance share points at the empty tile beside the dig.
+      -- World and alliance shares of the empty tile beside the dig both count; the dig is sent to once.
       state.callbacks[1]({post=50,seqId=90,roomId='w',group=1,attachmentId={pos=share,sid=123}})
       state.callbacks[1]({post=50,seqId=91,roomId='a',group=2,attachmentId={pos=share,sid=123}})
       state.now=state.now+100;engine.Pump();state.now=state.now+100;engine.Pump()
       assert(state.dispatchedSquad==502,'First idle squad in priority order is sent to the real dig 2 tiles away')
       state.now=state.now+100;engine.Pump()
       local t=engine.Status().data.services.treasure
-      assert(t.sharesSeen==1 and t.digsFound==1 and t.dispatched==1)
+      assert(t.sharesSeen==2 and t.digsFound==1 and t.dispatched==1)
       -- A different finished dig (not joined) is never claimed; ours is claimed after the 1 s schedule delay.
       local before=#state.sent
       state.callbacks[1](msg(600,'8888',92));state.callbacks[1](msg(600,'9001',93))
@@ -231,7 +231,79 @@ def main():
       local f=engine.Status().data.services.fireworks;assert(f.offHours==true and f.activeFrom=='08:00')
       os.date=realDate
     ''')
-    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure share->dig->claim (alliance only, 3-tile search, joined-only, schedule), delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan, active hours, audit 01-04')
+    # Owner 2026-10-26 (LwTool parity): both point-share post types in alliance or world chat, x/y or
+    # pos payloads, every alliance dig within 15 tiles queued nearest first, a 4x4-block area request,
+    # and a busy shared map lock waits up to 15 s before using what is already loaded.
+    vm.execute('''
+      local T=engine._Treasure;engine.CleanupAfterLeaseLoss()
+      LuaEntry.Player.uid='1001';LuaEntry.Player.allianceId='77';request.authorizedUid='1001';state.token='owner'
+      PostType.Text_PointShare=13;PostType.Text_PointShare_Alliance=50
+      local forms={};for i=1,4 do forms[i]={uuid=800+i,index=i,ownerUid='1001'}end
+      DataCenter.ArmyFormationDataManager={GetOneArmyInfoByIndex=function(self,i)return forms[i]end}
+      state.marches={};state.sentTo={}
+      MarchUtil.SendCreateMarchMessage=function(f,kind,point,uuid)
+        state.sentTo[#state.sentTo+1]=uuid;state.marches[f]={targetUuid=uuid,GetMarchTargetType=function()return 40 end}end
+      local function dig(uuid,index,alliance)
+        return {pointType=21,mainIndex=index,serverId=123,uuid=uuid,allianceId=alliance or '77',expireTime=0,
+          GetType=function()return {FullName='TreasurePointInfo'}end,IsComplete=function()return false end,
+          IsHaveGetReward=function()return false end,IsHaveWorking=function()return false end,IsReceiveAllReward=function()return false end}
+      end
+      local x,y=400,600;local spot=y*1000+x+1
+      local points={[spot+14]=dig(7001,spot+14),[spot+3000]=dig(7002,spot+3000),[spot+16]=dig(7003,spot+16),
+        [spot-5]=dig(7004,spot-5,'88')}
+      CS.SceneManager.World.GetPointInfo=function(self,index)return points[index]end
+      CS.SceneManager.World.PointManager=nil
+      state.config={redPacket={enabled=false},fireworks={enabled=false},treasure={enabled=true,claimDelaySeconds={0,0},
+        dispatchEnabled=true,dispatchDelaySeconds={0,0},dispatchSquadPriority={1,2,3,4},dispatchRetrySeconds=5}}
+      assert(engine.Configure(request).state=='confirmed')
+      T.digs={};T.lookups={};T.shareSeen={};T.stats.sharesSeen=0;T.stats.digsFound=0
+      -- Ignored: an ordinary text post, a season-room share, another server's share.
+      state.callbacks[1]({post=0,seqId=700,roomId='w',group=1,attachmentId={x=x,y=y,sid=123}})
+      state.callbacks[1]({post=13,seqId=701,roomId='s',group=3,attachmentId={x=x,y=y,sid=123}})
+      state.callbacks[1]({post=13,seqId=702,roomId='w',group=1,attachmentId={x=x,y=y,sid=999}})
+      state.now=state.now+100;engine.Pump()
+      assert(T.stats.sharesSeen==0 and #state.sentTo==0,'Only point shares of this server in alliance/world chat count')
+      -- A world-chat Text_PointShare carrying x/y (as ShareDecode reads it).
+      state.callbacks[1]({post=13,seqId=703,roomId='w',group=1,attachmentId={x=x,y=y,sid=123}})
+      state.now=state.now+100;engine.Pump()
+      assert(T.stats.sharesSeen==1 and T.digs['7001']and T.digs['7002'],'Digs 14 tiles east and 3 tiles north are found')
+      assert(not T.digs['7003'],'A dig 16 tiles away is outside the search')
+      assert(not T.digs['7004'],'Another alliance dig is never queued')
+      local near=T.Nearby(spot);assert(#near==2 and near[1].uuid=='7002'and near[2].uuid=='7001','Nearest first')
+      for _=1,3 do state.now=state.now+100;engine.Pump()end
+      assert(#state.sentTo==2,'An idle squad is sent to each found dig: '..#state.sentTo)
+      -- A nested param payload with pos is also read; a share with no dig nearby queues nothing.
+      state.callbacks[1]({post=50,seqId=704,roomId='a',group=2,attachmentId={param={pos=100*1000+100+1,sid=123}}})
+      state.now=state.now+100;engine.Pump()
+      assert(T.stats.sharesSeen==2 and #T.lookups==0 and #state.sentTo==2)
+      -- Area request covers 15 tiles each way: up to 4x4 blocks, clipped at the map edge.
+      local a,b,c,d=T.AoiBlocks(500*1000+505+1);assert(a==49 and b==52 and c==48 and d==51)
+      a,b,c,d=T.AoiBlocks(3*1000+3+1);assert(a==0 and b==1 and c==0 and d==1)
+      local view={}
+      local current={Contains=function(self,n)return view[n]==true end,Add=function(self,n)view[n]=true;return true end,
+        Remove=function(self,n)view[n]=nil end}
+      CS.SceneManager.World.PointManager={_curViewIndex=current,isRecvViewPoints=true}
+      CS.System={Int32={Parse=function(s)return tonumber(s)end},Array={CreateInstance=function(_,n)
+        local arr={n=n,values={}};arr.SetValue=function(self,v,k)self.values[k+1]=v end;return arr end}}
+      typeof=function(t)return t end
+      CS.WorldGetBlockMessage={Request=function()return {}end,Instance={Send=function(self,r)state.block=r end}}
+      -- The shared map lock is held by another service: wait, then after 15 s use what is loaded.
+      rawset(_G,'__lwbridgeAoiOwner',{})
+      state.callbacks[1]({post=13,seqId=705,roomId='w',group=1,attachmentId={x=x,y=y,sid=123}})
+      state.now=state.now+1000;engine.Pump()
+      assert(T.lookups[1]and T.lookups[1].state=='new'and state.block==nil,'A busy lock waits')
+      state.now=state.now+15000;engine.Pump();assert(#T.lookups==0,'After 15 s the loaded area is used')
+      rawset(_G,'__lwbridgeAoiOwner',nil)
+      state.callbacks[1]({post=13,seqId=706,roomId='w',group=1,attachmentId={x=x,y=y,sid=123}})
+      state.now=state.now+100;engine.Pump()
+      assert(state.block and state.block.index.n==16 and #state.block.index.values==16,'4x4 blocks requested')
+      assert(state.block.x==x and state.block.y==y and state.block.leftBottom==580*1000+380+1 and state.block.rightTop==620*1000+420+1)
+      assert(T.aoi and T.aoi.lookup.state=='loading')
+      state.now=state.now+100;engine.Pump()
+      assert(T.aoi==nil and rawget(_G,'__lwbridgeAoiOwner')==nil and next(view)==nil,'Reply consumed, view restored')
+      CS.SceneManager.World.PointManager=nil
+    ''')
+    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure share->dig->claim (alliance/world point shares, 15-tile search, joined-only, schedule), delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan, active hours, audit 01-04')
 
 
 if __name__ == '__main__':

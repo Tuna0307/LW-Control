@@ -156,14 +156,15 @@ local function delay(range)
     local a,b=tonumber(range[1])or 0,tonumber(range[2])or 0
     return (a+math.random()*(b-a))*1000
 end
--- Owner 2026-10-22 Treasure: watch alliance chat for shared locations, find the real dig within
--- 3 tiles (people often share an empty tile next to it), send an idle squad to help dig
+-- Owner 2026-10-22 Treasure: watch alliance and world chat for shared locations, find our alliance's
+-- digs within 15 tiles (people often share an empty tile next to it), send an idle squad to help dig
 -- (MarchUtil.SendCreateMarchMessage DETECT_TREASURE, the game's own route), and claim with the
 -- game's own request (UIUtil 4467: DetectEventClaimTreasure(uuid, serverId)) only for digs our
 -- squad joined, after the time-of-day delay. Reply-confirmed; a refused claim is retried briefly.
 local T={lookups={},digs={},shareSeen={},aoi=nil,hook=nil,
     stats={sharesSeen=0,digsFound=0,dispatched=0,claimsSent=0,claimed=0,notJoined=0}}
-local SEARCH_RADIUS=3
+-- Owner 2026-10-26: search 15 tiles each way like LwTool's 30x30 hunt (was 3).
+local SEARCH_RADIUS=15
 local function world()return get(get(rawget(_G,'CS'),'SceneManager'),'World')end
 local function reflect(o,k)
     local direct=get(o,k);if direct~=nil then return direct end
@@ -216,23 +217,43 @@ function T.Native(info)
     return {uuid=uuid,pointIndex=point,server=server,complete=c1 and complete==true,claimed=c2 and got==true,
         working=c3 and working==true,full=c4 and full==true,expires=tonumber(get(info,'expireTime'))}
 end
-function T.Near(pos)
-    local w=world();if not w then return nil end
-    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local best,bestDist
+-- Every dig of our alliance within SEARCH_RADIUS of pos, nearest first.
+function T.Nearby(pos)
+    local w=world();if not w then return {}end
+    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local found={}
     for dy=-SEARCH_RADIUS,SEARCH_RADIUS do for dx=-SEARCH_RADIUS,SEARCH_RADIUS do
         local nx,ny=x+dx,y+dy
         if nx>=0 and nx<1000 and ny>=0 and ny<1000 then
             local ok,info=call(w,'GetPointInfo',ny*1000+nx+1);local t=ok and T.Native(info)
-            local d=math.abs(dx)+math.abs(dy)
-            if t and (not best or d<bestDist)then best,bestDist=t,d end
+            if t then t.distance=math.abs(dx)+math.abs(dy);found[#found+1]=t end
         end
     end end
-    return best
+    table.sort(found,function(a,b)return a.distance<b.distance end)
+    return found
+end
+-- Owner 2026-10-26: the game shares a dig as Text_PointShare (13) or Text_PointShare_Alliance (404)
+-- (UIUtil 4473/4494), and the share window can post to world as well as alliance chat.
+local SHARE_POSTS={'Text_PointShare','Text_PointShare_Alliance'}
+local SHARE_GROUPS={'GROUP_ALLIANCE','GROUP_COUNTRY'}
+local function one_of(value,names,source)
+    if value==nil then return false end
+    for _,name in ipairs(names)do local v=get(source,name);if v~=nil and v==value then return true end end
+    return false
+end
+-- The tile index from a share: `pos` as the game's share builder sets it, or `x`/`y` as ShareDecode reads it.
+local function share_pos(data)
+    if type(data)~='table'then return nil end
+    local pos=int(data.pos)
+    if not pos then
+        local x,y=int(data.x),int(data.y)
+        if x and y and x>=0 and x<1000 and y>=0 and y<1000 then pos=y*1000+x+1 end
+    end
+    if not pos and type(data.param)=='table'then return share_pos(data.param)end
+    return pos
 end
 function T.Share(msg)
-    if get(msg,'post')~=get(rawget(_G,'PostType'),'Text_PointShare_Alliance')then return end
-    local groups=rawget(_G,'ChatGroupType')
-    if get(groups,'GROUP_ALLIANCE')==nil or get(msg,'group')~=get(groups,'GROUP_ALLIANCE')then return end
+    if not one_of(get(msg,'post'),SHARE_POSTS,rawget(_G,'PostType'))then return end
+    if not one_of(get(msg,'group'),SHARE_GROUPS,rawget(_G,'ChatGroupType'))then return end
     local key=tostring(get(msg,'roomId'))..'/'..tostring(get(msg,'seqId'))
     if T.shareSeen[key]then return end;T.shareSeen[key]=clock()
     local raw=get(msg,'attachmentId');local data
@@ -240,10 +261,10 @@ function T.Share(msg)
     elseif type(raw)=='string'and #raw<20000 then
         local ok,json=pcall(require,'rapidjson');if ok then local yes,v=pcall(json.decode,raw);if yes then data=v end end
     end
-    if type(data)~='table'then data=decode(msg)end
-    local pos=type(data)=='table'and int(data.pos)
+    local pos=share_pos(data)or share_pos(decode(msg))
     if not pos or pos<1 or pos>1000000 then return end
-    local sid=int(data.sid);local p=get(rawget(_G,'LuaEntry'),'Player');local ok,cur=call(p,'GetCurServerId')
+    if type(data)~='table'then data=decode(msg)or {}end
+    local sid=int(data.sid)or(type(data.param)=='table'and int(data.param.sid))or nil;local p=get(rawget(_G,'LuaEntry'),'Player');local ok,cur=call(p,'GetCurServerId')
     if sid and ok and int(cur)and sid~=int(cur)then return end
     T.stats.sharesSeen=T.stats.sharesSeen+1
     T.lookups[#T.lookups+1]={pos=pos,at=clock(),state='new'}
@@ -255,25 +276,31 @@ function T.AoiCleanup()
     if rawget(_G,'__lwbridgeAoiOwner')==a then rawset(_G,'__lwbridgeAoiOwner',nil)end
     T.aoi=nil
 end
--- Ask the server for the 3x3 map blocks around a shared spot without moving the camera.
+-- Ask the server for the map blocks covering SEARCH_RADIUS around a shared spot without moving the
+-- camera (up to 4x4 blocks of 10 tiles). Returns false,'busy' while another service holds the lock.
+function T.AoiBlocks(pos)
+    local i=pos-1;local x,y=i%1000,math.floor(i/1000)
+    return math.max(0,math.floor((x-SEARCH_RADIUS)/10)),math.min(99,math.floor((x+SEARCH_RADIUS)/10)),
+        math.max(0,math.floor((y-SEARCH_RADIUS)/10)),math.min(99,math.floor((y+SEARCH_RADIUS)/10))
+end
 function T.AoiRequest(pos)
     local w=world();local manager=reflect(w,'PointManager');local current=reflect(manager,'_curViewIndex')
     local cs=rawget(_G,'CS');if not w or not manager or not current or not cs then return false end
     -- One camera-free map request at a time across services (Alliance Gathering also uses this).
-    if rawget(_G,'__lwbridgeAoiOwner')~=nil then return false end
-    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local cx,cy=math.floor(x/10),math.floor(y/10)
+    if rawget(_G,'__lwbridgeAoiOwner')~=nil then return false,'busy'end
+    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local bx0,bx1,by0,by1=T.AoiBlocks(pos)
     local a={manager=manager,current=current,added={},int32=get(get(cs,'System'),'Int32'),
         replyFlag=reflect(manager,'isRecvViewPoints'),started=clock()}
     T.aoi=a;rawset(_G,'__lwbridgeAoiOwner',a)
     local ok=pcall(function()
         local indices={}
-        for ay=math.max(0,cy-1),math.min(99,cy+1)do for ax=math.max(0,cx-1),math.min(99,cx+1)do indices[#indices+1]=ay*100+ax end end
+        for ay=by0,by1 do for ax=bx0,bx1 do indices[#indices+1]=ay*100+ax end end
         local r=cs.WorldGetBlockMessage.Request()
         local p=get(rawget(_G,'LuaEntry'),'Player');local server=int(select(2,call(p,'GetCurServerId')))
         r.bigMap,r.x,r.y,r.serverId,r.worldId,r.type,r.lod=0,x,y,server,0,0,0
         r.blockSize,r.firstTime,r.battleFieldFirst=10,false,false
-        r.leftBottom=math.max(0,(cy-1)*10)*1000+math.max(0,(cx-1)*10)+1
-        r.rightTop=math.min(999,(cy+2)*10)*1000+math.min(999,(cx+2)*10)+1
+        r.leftBottom=by0*10*1000+bx0*10+1
+        r.rightTop=math.min(999,(by1+1)*10)*1000+math.min(999,(bx1+1)*10)+1
         local arr=cs.System.Array.CreateInstance(typeof(cs.System.Int32),#indices)
         for k,n in ipairs(indices)do
             local number=a.int32.Parse(tostring(n));arr:SetValue(number,k-1)
@@ -388,21 +415,23 @@ function T.Pump(config)
         for _,l in ipairs(T.lookups)do if l.state=='loading'then l.state='new'end end
         return
     end
-    -- 1. Shared spots: find the real dig within 3 tiles, loading the area once if needed.
+    -- 1. Shared spots: load the area around each one (camera-free), then queue every dig of our
+    -- alliance within SEARCH_RADIUS, nearest first (LwTool also helps digs nobody shared).
+    local function resolve(l)
+        local found=T.Nearby(l.pos)
+        for _,t in ipairs(found)do T.AddDig(t,config)end
+        if #found>0 then l.state='found'else l.state='no_dig';T.lastReason='No dig within '..SEARCH_RADIUS..' tiles of a shared spot'end
+    end
     if T.aoi and (reflect(T.aoi.manager,'isRecvViewPoints')==true or clock()-T.aoi.started>3000)then
-        local l=T.aoi.lookup;local t=l and T.Near(l.pos);T.AoiCleanup()
-        if l then
-            if t then T.AddDig(t,config);l.state='found'else l.state='no_dig';T.lastReason='No dig within 3 tiles of a shared spot'end
-        end
+        local l=T.aoi.lookup;T.AoiCleanup()
+        if l then resolve(l)end
     end
     for _,l in ipairs(T.lookups)do
-        if l.state=='new'then
-            local t=T.Near(l.pos)
-            if t then T.AddDig(t,config);l.state='found'
-            elseif not T.aoi then
-                if T.AoiRequest(l.pos)then T.aoi.lookup=l;l.state='loading'
-                elseif rawget(_G,'__lwbridgeAoiOwner')==nil or clock()-l.at>15000 then l.state='no_dig'end
-            end
+        if l.state=='new'and not T.aoi then
+            local ok,why=T.AoiRequest(l.pos)
+            if ok then T.aoi.lookup=l;l.state='loading'
+            -- The shared lock is busy: wait up to 15 s, then use what is already loaded.
+            elseif why~='busy'or clock()-l.at>15000 then resolve(l)end
         end
     end
     for i=#T.lookups,1,-1 do local st=T.lookups[i].state;if st~='new'and st~='loading'then table.remove(T.lookups,i)end end
