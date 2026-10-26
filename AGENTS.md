@@ -1,3 +1,11 @@
+Latest owner gathering retest authority, 2026-10-26: owner explicitly selected "Allow fresh gathering
+tests on main" after the repeated recall failure. Fresh sends and exact recalls of up to four squads
+on verified empty ordinary resource tiles are authorized on the current main account for this test.
+This narrowly supersedes earlier recall-only/no-fresh-main restrictions. No purchases, items, chat,
+unrelated marches, other main-account actions, merge or release. Exact process/account/session ownership,
+no uncertain-send replay and script restoration still apply. Preserve existing live evidence first;
+qualify the same-session authority-gap and current-checkbox fixes with four real squads if available.
+
 Latest worker gathering continuation, 2026-10-26: product/package 552c1a8a779135e2f197cf0fffeb8ee95294ef8f,
 codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-GATHER-MAP-CALLBACK-FIX.md and
 docs/proof/GATHER-MAP-CALLBACK-FIX-2026-10-26.json. Map detail and Hotkey recall observers now register

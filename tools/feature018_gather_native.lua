@@ -9,6 +9,7 @@ local bridge,owner,settings,search,active,stopping,detailJob,lastDetailReply
 local cursor=1
 local hooks,slots,known={},{},{}
 local lastObserverFailure,lastStopObservers
+local suspensionCount=0
 local observer_ok,observers=pcall(require,'DataCenter.Global.LWBridgeFeature018AttackActions')
 if not observer_ok then observers={}end
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
@@ -105,9 +106,11 @@ end
 local function fresh_record(rec)
     if not owned()then return nil end
     local f=form(rec.slot);if not f or tostring(get(f,'uuid'))~=rec.formation then return nil end
-    -- Returning marches disappear from GetOwnerFormationMarch before arrival.
-    -- Re-read the exact captured UUID; retain every ownership/GUID fence.
-    local m=call(center('WorldMarchDataManager'),'GetMarch',tonumber(rec.uuid))
+    -- Prefer the current owned formation; returning marches may disappear
+    -- from that view, so fall back to the exact UUID. Both paths keep every
+    -- ownership/GUID fence below and never adopt another march in this slot.
+    local m=march(f)
+    if tostring(get(m,'uuid'))~=rec.uuid then m=call(center('WorldMarchDataManager'),'GetMarch',tonumber(rec.uuid))end
     -- Arrival/collecting updates clear the creation GUID too. This record was
     -- admitted with that GUID at creation; the exact UUID/owner/formation/server
     -- stays required throughout its life. A different nonempty GUID is refused.
@@ -247,6 +250,7 @@ function M.BeforeSend(kind,job)if not M.Supports(kind)then return true end;retur
 function M.Plan(kind,c,at)
     if not M.Supports(kind)then return nil end
     local current=account();if owner and not same_owner(owner,current)then detach();slots={};known={}end;owner=current;settings=c;stopping=false
+    if next(known)~=nil and #hooks==0 then install()end
     local radius=tonumber(c.scanRadius)or 200;local validRadius=false
     for _,v in ipairs({50,100,150,200,250,300,400,500})do if v==radius then validRadius=true end end
     local delay=tonumber(c.manualResumeDelaySeconds)or 120
@@ -396,18 +400,39 @@ function M.Verify(kind,job)
     end
     return false
 end
-function M.Stop(kind)
+function M.Suspend(kind)
+    if M.Supports(kind)then
+        suspensionCount=suspensionCount+1
+        detach();stopping=true
+    end
+end
+function M.Stop(kind,config)
     if not M.Supports(kind)then return end
     lastStopObservers=observer_snapshot()
     stopping=true;search=nil
     for _,v in pairs(slots)do v.search=nil end
     local out={cleanupJobs={}}
-    if not owned()then M.FinishStop(kind);known={};slots={};owner=nil;return out end
+    if type(config)=='table'then settings=config end
+    if not owned()then
+        if settings and settings.recallOnDisable==true then out.warning='No matching gathering owner is available in this session; no squads were recalled'end
+        M.FinishStop(kind);known={};slots={};owner=nil;return out
+    end
     if settings and settings.recallOnDisable==true then
+        -- A suspended session can be stopped before another Plan occurs.
+        -- Reinstall only after the original full owner token is fresh again.
+        if next(known)~=nil and #hooks==0 then install()end
         for slot,rec in pairs(known)do
             local m=fresh_record(rec)
             if not rec.recallAttempted and m and call(m,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and tonumber(get(m,'targetPos'))==rec.pointId then
                 out.cleanupJobs[#out.cleanupJobs+1]=recall_job(rec,slot)
+            end
+        end
+        for _,s in ipairs(settings.squads or {})do
+            local slot=tonumber(s.squadIndex);local f=s.enabled==true and slot and form(slot)
+            local m=f and march(f)
+            if m and call(m,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and
+               (known[slot]==nil or fresh_record(known[slot])==nil)then
+                out.warning='Some gathering squads have no matching ownership record in this session; they were not recalled'
             end
         end
     end
@@ -421,7 +446,13 @@ function M.Observe(kind)
     if not M.Supports(kind)then return {state='unsupported'}end
     local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000,
         observerOwnerMatches=owned()==true,observerChainReady=intact()==true,
-        observers=observer_snapshot(),lastStopObservers=lastStopObservers,lastObserverFailure=lastObserverFailure}
+        observers=observer_snapshot(),lastStopObservers=lastStopObservers,lastObserverFailure=lastObserverFailure,
+        suspensionCount=suspensionCount,trackedGatherSquads={}}
+    for slot,rec in pairs(known)do
+        local m=fresh_record(rec)
+        out.trackedGatherSquads[#out.trackedGatherSquads+1]={squadIndex=slot,recordMatches=m~=nil,
+            recallAttempted=rec.recallAttempted==true}
+    end
     for slot=1,4 do
         local f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
         if id(get(f,'uuid'))and tostring(get(f,'ownerUid'))==a.uid then

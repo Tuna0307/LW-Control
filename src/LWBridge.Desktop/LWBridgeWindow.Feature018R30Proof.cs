@@ -199,6 +199,7 @@ internal sealed partial class LWBridgeWindow
             if (kind == "resourceGather" && int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_HOLD_SECONDS"), out int hold))
             {
                 if (hold is < 0 or > 120) throw new InvalidDataException("Gather proof hold must be 0-120 seconds.");
+                await File.WriteAllTextAsync(Path.Combine(directory, "r30-gather-hold-start.json"), JsonSerializer.Serialize(terminal, JsonOptions.Default), token);
                 for (int i = 0; i < hold; i++) { Owned(); await Task.Delay(1000, token); }
                 if (Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_MAP_OVERLAP") == "1")
                 {
