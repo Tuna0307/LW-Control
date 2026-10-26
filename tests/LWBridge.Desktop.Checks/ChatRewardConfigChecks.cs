@@ -54,7 +54,25 @@ internal static class ChatRewardConfigChecks
             foreach (object forged in new object[] { new { authorizedUid = "123" }, new { kind = "goldEgg" },
                 new { command = "feature018_chat_run" }, new { confirmedChatConfig = "{}" } })
                 Reject(() => Feature018GameCommandService.ReadFields("feature018_chat_catalog", Element(forged)));
-            Console.WriteLine("CHAT_REWARD_CONFIG_CHECKS_PASS migration sparse-wire explicit-separation persistence typed-options catalog-schema");
+            // Owner 2026-10-26: Treasure starts from LwTool's Dig Treasure defaults; older saves keep their values.
+            var treasure = ChatAutomationConfigCommandService.ReadEffective(new JsonObject(), "treasure");
+            Require(treasure["huntEnabled"]!.GetValue<bool>() && !treasure["unsharedEnabled"]!.GetValue<bool>() &&
+                treasure["dispatchEnabled"]!.GetValue<bool>() && treasure["dispatchDelayMs"]!.GetValue<int>() == 300 &&
+                treasure["dispatchOrder"]!.GetValue<string>() == "weak" && treasure["redirectGathering"]!.GetValue<bool>() &&
+                treasure["skipOwnRadar"]!.GetValue<bool>() && !treasure["randomClaimEnabled"]!.GetValue<bool>() &&
+                treasure["clickBeforeMs"]!.GetValue<int>() == 0 && treasure["dispatchSquadPriority"]!.AsArray().Count == 4,
+                "Treasure defaults follow LwTool");
+            var older = ChatAutomationConfigCommandService.Validate("treasure", Element(new { enabled = true, dispatchEnabled = false, dispatchSquadPriority = new[] { 2 } }));
+            Require(!older["dispatchEnabled"]!.GetValue<bool>() && older["dispatchSquadPriority"]!.AsArray().Count == 1 &&
+                older["huntEnabled"]!.GetValue<bool>(), "an older Treasure save keeps its choices and gains the new defaults");
+            foreach (object input in new object[] { new { clickBeforeMs = 301 }, new { clickBeforeMs = -5001 }, new { dispatchDelayMs = -1 },
+                new { dispatchDelayMs = 60001 }, new { dispatchOrder = "random" }, new { unsharedEnabled = "yes" }, new { clickBeforeMs = 1.5 } })
+                Reject(() => ChatAutomationConfigCommandService.Validate("treasure", Element(input)));
+            Require(ChatAutomationConfigCommandService.Validate("treasure", Element(new { clickBeforeMs = -80, dispatchDelayMs = 500, dispatchOrder = "strong" }))
+                ["clickBeforeMs"]!.GetValue<int>() == -80, "LwTool's documented -80 ms click-before is accepted");
+            Require(ChatAutomationConfigCommandService.ReadEffective(new JsonObject(), "redPacket")["huntEnabled"] is null,
+                "Treasure-only settings stay off the other Chat services");
+            Console.WriteLine("CHAT_REWARD_CONFIG_CHECKS_PASS migration sparse-wire explicit-separation persistence typed-options catalog-schema treasure-lwtool-defaults");
         }
         finally { Directory.Delete(directory, recursive: true); }
     }

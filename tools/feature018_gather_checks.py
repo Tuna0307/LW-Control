@@ -296,6 +296,31 @@ def main():
       assert(j==nil and b.gatherSquads[1].step=='paused'and b.gatherSquads[1].manualResumeAt>state.now)
       state.now=state.now+120000;j,b=plan();assert(j.phase=='search','Resume only after saved manual delay')
     ''')
+    # Owner 2026-10-26: Treasure redirected this gathering squad to a dig (borrow mark). That is not a
+    # manual action: no manual-resume wait while it digs, and gathering resumes as soon as it is home.
+    vm=gathering()
+    vm.execute('''
+      hydrate();assert(dispatch(job));native_result();assert(verify(job))
+      rawset(_G,'__lwbridgeTreasureBorrow',{['41']=state.now})
+      -- Redirect keeps the march UUID: still ours, never recalled as a gather, no manual wait.
+      state.marches[41].targetPos=2022;state.marches[41].targetType=40
+      local j,b=plan();assert(j==nil and b.gatherSquads[1].step=='busy'and b.gatherSquads[1].pauseReason==nil)
+      state.config.resourceGather.recallOnDisable=true
+      assert(#gather.Stop('resourceGather',state.config.resourceGather).cleanupJobs==0,'A squad on a dig is not recalled as a gather')
+      state.config.resourceGather.recallOnDisable=false;gather.Plan('resourceGather',state.config.resourceGather,state.now)
+      -- A gathering march the engine did not send (e.g. the owner's), borrowed for a dig: not a manual wait.
+      state.marches[41].clientCreateGuid='manual'
+      j,b=plan();assert(j==nil and b.gatherSquads[1].step=='busy'and b.gatherSquads[1].pauseReason=='treasure',
+        'Borrowed squad on a dig is not a manual march')
+      state.marches[41]=nil;state.now=state.now+1000;j,b=plan()
+      assert(j and j.phase=='search','Gathering resumes right after the borrowed squad is home')
+      assert(rawget(_G,'__lwbridgeTreasureBorrow')['41']==nil,'Borrow mark is cleared once home')
+      -- A stale borrow (over 2 h) no longer skips the manual wait.
+      rawset(_G,'__lwbridgeTreasureBorrow',{['41']=state.now-7200001})
+      state.marches[41]={uuid=62,ownerUid='1001',ownerFormationUuid=41,serverId=123,clientCreateGuid='manual',targetPos=3033,
+        GetMarchTargetType=function(self)return 8 end}
+      j,b=plan();assert(b.gatherSquads[1].pauseReason=='manual_wait')
+    ''')
     vm=gathering()
     vm.execute('''
       hydrate();local replacement=function()end;SFSNetwork.SendMessage=replacement
@@ -334,7 +359,7 @@ def main():
       native_result();assert(verify(job))
       assert(observer_api.ObserverContains(SFSNetwork,'SendMessage',cooperating))
     ''')
-    print('FEATURE018_R30_GATHER_LUA_PASS actual-module search-detail-guid occupied-never twice-fenced manual-delay owned-recall stop account lease uncertain cooperating-observers')
+    print('FEATURE018_R30_GATHER_LUA_PASS actual-module search-detail-guid occupied-never twice-fenced manual-delay owned-recall stop account lease uncertain cooperating-observers treasure-borrow')
 
 
 if __name__=='__main__':main()

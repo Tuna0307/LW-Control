@@ -42,6 +42,10 @@ local function form(slot)
     return f
 end
 local function march(f)return call(center('WorldMarchDataManager'),'GetOwnerFormationMarch',get(player(),'uid'),get(f,'uuid'),get(player(),'allianceId'))end
+local function treasure_borrow(formation,at)
+    local b=rawget(_G,'__lwbridgeTreasureBorrow');local t=type(b)=='table'and tonumber(b[formation])or nil
+    return t~=nil and at-t<7200000
+end
 local function detach()
     for i=#hooks,1,-1 do local h=hooks[i];h.enabled=false;if get(h.object,h.key)==h.wrapper then h.object[h.key]=h.previous end end
     hooks={};search=nil;active=nil;detailJob=nil
@@ -268,9 +272,14 @@ function M.Plan(kind,c,at)
         if f then
             local v=slots[slot]or {};slots[slot]=v;v.formation=tostring(get(f,'uuid'));row.step='idle'
             local m=march(f)
+            -- Owner 2026-10-26: Treasure may redirect a gathering squad to a dig; that is not a manual
+            -- action, so gathering resumes as soon as the squad is home (borrow expires after 2 h).
+            local borrowed=treasure_borrow(v.formation,at)
+            if not m and borrowed then rawget(_G,'__lwbridgeTreasureBorrow')[v.formation]=nil;v.manualResumeAt=nil end
             if m then
                 local rec=known[slot];local mine=rec and fresh_record(rec);local ours=mine~=nil
-                if not ours then v.manualResumeAt=at+delay*1000;v.search=nil;row.pauseReason='manual_wait'end
+                if not ours and borrowed then v.manualResumeAt=nil;v.search=nil;row.pauseReason='treasure'
+                elseif not ours then v.manualResumeAt=at+delay*1000;v.search=nil;row.pauseReason='manual_wait'end
                 row.step='busy'
                 if ours and not rec.recallAttempted and call(mine,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and
                    tonumber(get(mine,'targetPos'))==rec.pointId then

@@ -39,6 +39,9 @@ export function automationDraftError(title, draft, maximumBuilders = 20) {
     if (draft.activeHoursEnabled && (!/^\d\d:\d\d$/.test(draft.activeStart ?? "") || !/^\d\d:\d\d$/.test(draft.activeEnd ?? "") || draft.activeStart === draft.activeEnd)) return "automation.activeHoursError";
     const retry = Number(draft.dispatchRetry ?? 30);
     if (title === "Treasure" && (!Number.isInteger(retry) || retry < 1 || retry > 300)) return "automation.treasureDispatchRetryError";
+    const clickBefore = Number(draft.clickBeforeMs ?? 0), digDelay = Number(draft.digDelayMs ?? 300);
+    if (title === "Treasure" && (String(draft.clickBeforeMs ?? 0).trim() === "" || !Number.isInteger(clickBefore) || clickBefore < -5000 || clickBefore > 300)) return "automation.treasureClickBeforeError";
+    if (title === "Treasure" && (String(draft.digDelayMs ?? 300).trim() === "" || !Number.isInteger(digDelay) || digDelay < 0 || digDelay > 60000)) return "automation.treasureDigDelayError";
   }
   if (title === "Dispatch Assist") {
     const min = Number(draft.delaySeconds?.[0] ?? 0), max = Number(draft.delaySeconds?.[1] ?? 0), interval = Number(draft.intervalSeconds ?? 30);
