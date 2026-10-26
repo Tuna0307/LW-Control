@@ -82,6 +82,29 @@ internal static class Feature018RuntimeStartupChecks
         await allOff.SynchronizeAsync(default);
         Require(calls.Count(x => x.Command == "automation_start") == 1,
             "A delayed saved-enabled snapshot must initialize without a page visit.");
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-startup-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            string kind = ChatAutomationConfigCommandService.Kinds[0];
+            var chatRuntime = new Feature018RuntimeStartup(() => current, () => new JsonObject(),
+                () => JsonSerializer.SerializeToElement(new { showFps = false, showPing = false }),
+                (_, _, _, _) => Task.FromResult<object?>(new JsonObject {
+                    ["services"] = new JsonObject { [kind] = new JsonObject { ["state"] = "running" } }
+                }));
+            await chatRuntime.SynchronizeAsync(default);
+            using var statusService = new AutomationStatusCommandService(
+                new ProfileRuntimeConfigStore(Path.Combine(root, "config.json")), Path.Combine(root, "status.json"));
+            statusService.SetRuntimeStartup(chatRuntime);
+            var live = JsonSerializer.SerializeToElement(await statusService.InvokeAsync("automation_status", default, default));
+            Require(live.GetProperty("services").GetProperty(kind).GetProperty("state").GetString() == "running",
+                "Published status must read the profile coordinator's current Chat snapshot.");
+            current = b;
+            var retired = JsonSerializer.SerializeToElement(await statusService.InvokeAsync("automation_status", default, default));
+            Require(retired.GetProperty("services").GetProperty(kind).GetProperty("state").GetString() == "disconnected",
+                "Status consumption must reject cached Chat immediately, before the next background poll.");
+        }
+        finally { Directory.Delete(root, recursive: true); }
         Console.WriteLine("FEATURE018_STARTUP_CHECKS_PASS headless enabled/off retry no-replay session-retirement saved-settings");
     }
 

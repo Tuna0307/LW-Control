@@ -102,7 +102,7 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         JsonNode status = CreateStatus();
         status["startup"] = runtimeStartup?.Snapshot;
         JsonNode? chat;
-        lock (chatGate) chat = chatStatus?.DeepClone();
+        lock (chatGate) chat = runtimeStartup is not null ? runtimeStartup.ChatSnapshot : chatStatus?.DeepClone();
         var services = new JsonObject();
         foreach (string kind in ChatAutomationConfigCommandService.Kinds)
             services[kind] = chat?["services"]?[kind]?.DeepClone() ?? new JsonObject

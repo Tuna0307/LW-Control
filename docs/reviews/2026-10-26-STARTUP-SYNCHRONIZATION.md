@@ -42,7 +42,10 @@ preventing stale startup work from starting an engine after a saved Off.
 no owner/no requests; all saved-enabled groups; all-off/no Start; isolated failure
 and retry; same-session interruption without duplicate Starts; completed AFK;
 owner retirement during an await; and a delayed saved-enabled snapshot. Existing
-native Stamina/Drill/AFK fixtures retain their pending/no-replay checks. Full UI
+native Stamina/Drill/AFK fixtures retain their pending/no-replay checks. Published
+Automation status reads the coordinator's fenced Chat snapshot at consumption,
+so an owner change hides it immediately before the next background poll; a
+distinguishing service-level test covers both the current and retired owner. Full UI
 and Desktop delivery suites and the Gather lease/callback regressions pass.
 
 ## Genuine Home-only diagnostic
