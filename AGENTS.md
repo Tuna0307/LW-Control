@@ -1,3 +1,13 @@
+Latest worker startup handback, 2026-10-26: product/package b6b49eafdbf646cb05f51acc6997d84d4ed299cd,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-STARTUP-SYNCHRONIZATION.md and
+docs/proof/STARTUP-SYNCHRONIZATION-2026-10-26.json. Saved background configuration synchronizes from
+retained profile runtime, with bounded independent retry and exact owner fencing, without tab mounts.
+Final extracted package passed Home-only initialization, saved one-squad Gather activation and exact
+recall/all-home observation; disabled controllers stayed disabled. Published Chat cache is fenced at
+consumption. Original files restored and task app/game processes closed. No live AFK attack, Stamina
+item use or Drill join in this pass; independent acceptance/merge/release remain open. Reuse pinned
+package for documentation-only follow-ups and rebuild for changed product inputs.
+
 Latest owner startup assignment, 2026-10-26: fix saved features requiring visits to every tab/category
 after launching. Continue codex/lwtool-remaining-tabs / draft PR #17; read
 docs/reviews/2026-10-26-STARTUP-SYNCHRONIZATION.md. Initialize saved background configuration through

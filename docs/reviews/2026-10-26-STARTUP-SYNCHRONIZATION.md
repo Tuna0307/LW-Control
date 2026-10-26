@@ -71,6 +71,33 @@ The Home-only proof is explicit isolated opt-in; it starts with every background
 task off and admits the exact account before the optional single gathering test.
 The normal production path contains no proof opt-in or fixed account number.
 
-Final package source, genuine packaged proof, integrity and remaining limits are
-recorded below after source pinning. Raw account/march/session receipts remain
-only in ignored local artifacts.
+Raw account/march/session receipts remain only in ignored local artifacts.
+
+## Final package qualification and limits
+
+Final product/package source is `b6b49eafdbf646cb05f51acc6997d84d4ed299cd`.
+ZIP `LW-Control-lwtool-improvement-b6b49eafdbf6.zip` has SHA-256
+`16e749846fea8a05a76b493bf0049bd6fa472920f49f1b7a942d09e982af0e49`.
+The clean pushed checkpoint was freshly published and packaged; all 105 archive
+entries, 104 extracted runtime files, 29 bridges and 756 source inputs verified.
+Exact extraction still matched after the live run. Later documentation-only
+commits retain this pinned package.
+
+Genuine final-package run `artifacts/map014-takeover/native-ui-20261026-123156`
+passed: Home only, all six initialization groups applied with no errors, one
+persisted Gathering enable automatically produced an exact tracked march, and
+Stop confirmed its recall followed by native observation of all squads home.
+Normal owned shutdown restored all three original game files, left no recovery
+journal, and no task app/game processes remained. An earlier package at
+`08bd8234` also passed this Home-only regression; the final package additionally
+contains the status-consumption fence and its distinguishing controlled check.
+
+Applied disabled AFK/Stamina/Drill groups mean no Start was needed, not that their
+gameplay was tested. Enabled startup paths have coordinator and existing native
+controller fixture coverage; this live proof performed no AFK attacks, Stamina
+item consumption, Drill join, claims or City/Equipment changes. Existing manual
+actions and Home launch preferences remain manual/configured as before. This is
+a finite startup regression, not qualification of every feature under every
+condition. Independent lead acceptance remains open; no main merge or release.
+
+Sanitized evidence: [STARTUP-SYNCHRONIZATION-2026-10-26.json](../proof/STARTUP-SYNCHRONIZATION-2026-10-26.json).
