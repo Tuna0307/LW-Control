@@ -9,22 +9,26 @@ from feature018_live_recall_cleanup import recover
 
 
 class ProofAccountChecks(unittest.TestCase):
-    def test_exact_pairs_and_no_default_fallthrough_to_temporary_account(self):
-        for uid,server in (('4799432499002212',2212),('1183884595002296',2296)):
-            with tempfile.TemporaryDirectory() as folder:
-                root=Path(folder)/'native-ui-inert';root.mkdir()
-                (root/'feature018-account-admission.json').write_text(json.dumps(
-                    dict(uid=uid,serverId=server,loggedIn=True,connected=True)))
-                (root/'owned-exit.json').write_text('{}')
-                expected={p.name:p.read_bytes()for p in root.iterdir()}
-                with self.assertRaisesRegex(ValueError,'Session already exited'):
-                    submit(root,{'kind':'command'},expected_uid=uid,expected_server=server)
-                for wrong_uid,wrong_server in ((uid,2212 if server==2296 else 2296),('owner-main',server)):
-                    with self.assertRaises(ValueError):
-                        submit(root,{'kind':'command'},expected_uid=wrong_uid,expected_server=wrong_server)
-                if server==2296:
-                    with self.assertRaisesRegex(ValueError,'Wrong game account admission'):submit(root,{'kind':'command'})
-                self.assertEqual(expected,{p.name:p.read_bytes()for p in root.iterdir()})
+    def test_exact_pair_and_retired_accounts_rejected(self):
+        uid,server='4799432499002212',2212
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)/'native-ui-inert';root.mkdir()
+            (root/'feature018-account-admission.json').write_text(json.dumps(
+                dict(uid=uid,serverId=server,loggedIn=True,connected=True)))
+            (root/'owned-exit.json').write_text('{}')
+            expected={p.name:p.read_bytes()for p in root.iterdir()}
+            with self.assertRaisesRegex(ValueError,'Session already exited'):
+                submit(root,{'kind':'command'},expected_uid=uid,expected_server=server)
+            for wrong_uid,wrong_server in ((uid,2296),('owner-main',server),('1183884595002296',2296)):
+                with self.assertRaises(ValueError):
+                    submit(root,{'kind':'command'},expected_uid=wrong_uid,expected_server=wrong_server)
+            self.assertEqual(expected,{p.name:p.read_bytes()for p in root.iterdir()})
+        # A retired test account's live session is never admitted by default.
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)/'native-ui-inert';root.mkdir()
+            (root/'feature018-account-admission.json').write_text(json.dumps(
+                dict(uid='1183884595002296',serverId=2296,loggedIn=True,connected=True)))
+            with self.assertRaisesRegex(ValueError,'Wrong game account admission'):submit(root,{'kind':'command'})
 
     def test_known_server_does_not_authorize_other_uid(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -40,18 +44,18 @@ class ProofAccountChecks(unittest.TestCase):
             proof=root/'performance-result.json'
             (root/'root.json').write_text(json.dumps({'root':str(prior)}))
             admission=prior/'feature018-account-admission.json'
-            admission.write_text(json.dumps({'uid':'1183884595002296','serverId':2296}))
+            admission.write_text(json.dumps({'uid':'4799432499002212','serverId':2212}))
             proof.write_text(json.dumps({'result':{'cleanup':{'services':{'resourceGather':{'after':{'squadIndex':1,'marchUuid':'61'}}}}}}))
             for collecting in (True,False):
                 reply={'state':'returned','result':{'gatherSquads':[{'squadIndex':1,'marchUuid':'61','collecting':collecting}]}}
                 with patch('feature018_live_recall_cleanup.submit',return_value=reply)as send:
-                    result=recover(root,output,'1183884595002296',2296,proof)
+                    result=recover(root,output,'4799432499002212',2212,proof)
                     self.assertEqual(not collecting,result['result']['success'])
                     self.assertEqual(1,send.call_count)
                     self.assertEqual('feature018_automation_observe',send.call_args.args[1]['command'])
-            admission.write_text(json.dumps({'uid':'owner-main','serverId':2296}))
+            admission.write_text(json.dumps({'uid':'owner-main','serverId':2212}))
             with patch('feature018_live_recall_cleanup.submit')as send:
-                with self.assertRaises(RuntimeError):recover(root,output,'1183884595002296',2296,proof)
+                with self.assertRaises(RuntimeError):recover(root,output,'4799432499002212',2212,proof)
                 send.assert_not_called()
 
 

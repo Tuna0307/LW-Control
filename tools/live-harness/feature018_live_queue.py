@@ -24,7 +24,7 @@ def submit(directory, operation, timeout=45, *, expected_uid="4799432499002212",
                 operation.get('payload', {}).get('kind', 'resourceGather') == 'resourceGather')
         if not allowed or not str(expected_uid).isdigit() or str(expected_uid).startswith('0') or expected_server <= 0:
             raise ValueError('Owner-authorized gathering proof scope exceeded')
-    if not gather_only and (expected_uid, expected_server) not in (("4799432499002212", 2212), ("1183884595002296", 2296)):
+    if not gather_only and (expected_uid, expected_server) != ("4799432499002212", 2212):
         raise ValueError("Account is outside the owner-authorized proof pairs")
     if (str(operation.get("command", "")).startswith("mini_land_") or
             operation.get("command") == "monopoly_cell_open"):

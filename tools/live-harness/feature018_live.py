@@ -17,14 +17,14 @@ def main():
     p.add_argument('--saved-db',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--kind',action='append',required=True)
-    p.add_argument('--uid',choices=('4799432499002212','1183884595002296'),default='4799432499002212',help='Explicit owner-authorized proof UID; never server-only')
+    p.add_argument('--uid',choices=('4799432499002212',),default='4799432499002212',help='Explicit owner-authorized proof UID (the test account); never server-only')
     p.add_argument('--recover-gather-proof',type=Path,help='Exact prior worker performance receipt, only for recover-gather cleanup')
     p.add_argument('--recover-observe-only',action='store_true',help='Read prior gather state only; never retry an uncertain recall')
     p.add_argument('--idle-seconds',type=int,default=20)
     p.add_argument('--op-timeout',type=int,default=150)
     p.add_argument('--keep-going',action='store_true',help='continue with the next independent service after a failure (never replays it)')
     args=p.parse_args()
-    server=2296 if args.uid=='1183884595002296'else 2212
+    server=2212
     args.output.mkdir(parents=True,exist_ok=False)
     exe=args.exe.resolve(strict=True);db=args.saved_db.resolve(strict=True)
     env=dict(os.environ,LWBRIDGE_FEATURE018_BACKGROUND_ONLY='1',LWBRIDGE_FEATURE018_STAGED_PROOF='1',
