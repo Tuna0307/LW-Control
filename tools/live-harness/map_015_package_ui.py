@@ -5,7 +5,7 @@ automation that the packaged EXE does not contain. Nothing is launched without
 --execute; the runner owns and audits its isolated game/app session.
 
 Example (all paths belong to the current checkout's artifacts directory):
-    python tools/map_015_package_ui.py --zip artifacts/.../candidate.zip \
+    python tools/live-harness/map_015_package_ui.py --zip artifacts/.../candidate.zip \
         --extracted artifacts/.../extracted/LW-Control-UI \
         --commit <40-character SHA> --mode city --execute
 """

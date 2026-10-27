@@ -1,6 +1,6 @@
 -- FEATURE-RECOVERY-018, source-pinned Season 4 Food House auto clear.
 -- Original admitted v26 modules, independently inspectable via
--- `python tools/feature018_mini_lua.py --entry <module> --method <method>`:
+-- `python tests/GameScripts.Checks/feature018_mini_lua.py --entry <module> --method <method>`:
 -- DataCenter/LWSheep/LWSheepCard.luac Bind:43-62, IsVisual:88-95,
 -- GetPosToServer:120-122; LWSheep.luac BuildCard:229-254,
 -- GetVisualCardByXYZ:539-566, CanClick:570-572, Click:684-725,

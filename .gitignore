@@ -1,31 +1,30 @@
+# Python
 __pycache__/
 *.py[cod]
 .venv/
-upload/
-analysis/
-*.exe
-*.dll
-*.zip
-*.log
-.env
+
+# Build output and dependencies
 **/bin/
 **/obj/
 **/node_modules/
 **/dist/
 .vs/
-.codex-live/
+*.exe
+*.dll
+*.zip
+*.log
 
-# Machine-local third-party MCP checkout, runtimes and preserved installation data.
-/Windows-MCP/
+# Local secrets
+.env
 
-# Local publish bundles and release ZIPs; do not import runtime artifacts into Git.
+# Local-only work: publish folders, release ZIPs, live-test receipts, analysis toolchains.
+# Never commit these; they may contain account data.
 /artifacts/
-
-# Local reverse-engineering/build scratch (never commit).
+upload/
+analysis/
+.codex-live/
+/Windows-MCP/
+/.scratch-lwb317/
 tmp*/
 tmp_*
 tmp-*
-
-# Preserved in PENDING-WIP-CLOSEOUT-001; these original local files are cache/empty placeholder.
-/.scratch-lwb317/
-/evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png

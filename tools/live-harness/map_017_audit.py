@@ -1,7 +1,7 @@
 """Read-only MAP017 packaged evidence auditor; never launches app/game.
 
-Single receipt: python tools/map_017_audit.py --root <session> --mode boss
-Aggregate: python tools/map_017_audit.py --aggregate --root <session> --root ...
+Single receipt: python tools/live-harness/map_017_audit.py --root <session> --mode boss
+Aggregate: python tools/live-harness/map_017_audit.py --aggregate --root <session> --root ...
 Zero boss sources are observations and cannot satisfy positive acceptance.
 """
 from __future__ import annotations
