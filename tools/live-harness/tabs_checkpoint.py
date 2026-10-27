@@ -167,7 +167,7 @@ def main():
             afk_changed=False
         if not args.skip_memory:
             phase_log=(args.output/'phase-sampler.log').open('w',encoding='utf-8')
-            phase_sampler=subprocess.Popen([sys.executable,str(ROOT/'tools/measure_phases.py'),
+            phase_sampler=subprocess.Popen([sys.executable,str(ROOT/'tools/live-harness/measure_phases.py'),
                 '--root',str(root),'--output',str(args.output/'phases')],cwd=ROOT,stdout=phase_log,stderr=subprocess.STDOUT)
             operation('r23Ui',surface='r29-memory')
             phase_sampler.wait(timeout=30)

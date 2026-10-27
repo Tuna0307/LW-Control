@@ -45,7 +45,7 @@ if (args.Length == 3 && args[0] == "--map006-audit")
     return;
 }
 
-// Small delivery suite. The research branch retains the wider campaign suites.
+// Delivery suite. Older campaign suites are in the archive/research-offline-controller tag.
 await Feature018RuntimeStartupChecks.RunAsync();
 await GameRootSelectChecks.RunAsync();
 await HomeAutomationParityChecks.RunAsync();
@@ -60,6 +60,7 @@ await Feature018RetiredTasksChecks.RunAsync();
 await Feature018OwnedGameExchangeChecks.RunAsync();
 await Feature018AfkRuntimeChecks.RunAsync();
 await Feature018AutomationChecks.RunAsync();
+Feature018MissionConfigChecks.Run();
 await ChatRewardConfigChecks.RunAsync();
 await Feature018HotkeyCaptureChecks.RunAsync();
 Feature018KeyProofCorrelationChecks.Run();
