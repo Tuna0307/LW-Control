@@ -9,26 +9,9 @@ namespace LWBridge.Desktop;
 internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
 {
     public const ulong InitialCommandCounter = 0;
-    public const int StoreMutexOffset = 0x100;
-    public const int MutexToCommandCounterOffset = 0x80;
-    public const int StoreCommandCounterOffset = 0x180;
-    public const int StoreCounterSeedConstantLoadRva = 0x3C3926;
-    public const int StoreCounterSeedWriteRva = 0x3C3AC3;
-    public const int CommandCounterIncrementRva = 0x3C4BE5;
-    public const int CommandIdLiteralRefRva = 0x3C4C16;
     public const string CommandIdPrefix = "cmd_";
-    public const string FirstCommandId = "cmd_1";
 
     public const int CallTimeoutMilliseconds = 200;
-    public const int CallTimeoutSeconds = 0;
-    public const int CallTimeoutNanoseconds = 200_000_000;
-
-    public const int CallTimeoutFutureRva = 0x0E537E;
-    public const int CallTimeoutInitRva = 0x0E53A1;
-    public const int CallTimeoutTimerCallRva = 0x0E53B4;
-    public const int CallTimeoutSourceRecordRva = 0x825418;
-    public const int RustNanosecondsPerSecond = 1_000_000_000;
-    public const int TimerNanosecondInvariantRva = 0x63B4B2;
 
     public static readonly TimeSpan CallTimeout =
         TimeSpan.FromMilliseconds(CallTimeoutMilliseconds);

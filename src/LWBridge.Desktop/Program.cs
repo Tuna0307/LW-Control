@@ -23,7 +23,6 @@ internal static class Program
         string? uiRootPath = ReadPathOption(args, "--ui-root");
         string? isolatedRootPath = ReadPathOption(args, "--isolated-root");
         string? map010NamesProofPath = ReadPathOption(args, "--map010-native-names-proof");
-        bool useLegacyUi = args.Contains("--legacy-ui", StringComparer.OrdinalIgnoreCase);
         if (map010NamesProofPath is not null)
         {
             if (isolatedRootPath is null || !string.Equals(initialViewOption(args), "map-data", StringComparison.Ordinal) ||
@@ -42,8 +41,6 @@ internal static class Program
             throw new ArgumentException("--ui-root is restricted to --map-ui-integration-proof.");
         if (mapUiIntegrationProofPath is not null && uiRootPath is null)
             throw new ArgumentException("--map-ui-integration-proof requires --ui-root.");
-        if (useLegacyUi && (uiRootPath is not null || mapUiIntegrationProofPath is not null || normalUiLiveMapProofPath is not null || homeMapCampaignProofPath is not null))
-            throw new ArgumentException("--legacy-ui cannot be combined with UI proof/override modes.");
         if (isolatedRootPath is not null &&
             new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath }.Any(path => path is not null))
         {
@@ -132,7 +129,7 @@ internal static class Program
         var window = new LWBridgeWindow(
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
             normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath, uiRootPath,
-            mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow, useLegacyUi,
+            mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow,
             isolatedRootPath, homeMapCampaignHomeOnly, map010NamesProofPath);
         if (hostProbePath is null)
         {

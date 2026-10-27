@@ -197,30 +197,6 @@ internal sealed class LWBridgeBackend
         }
     }
 
-    public GameRootStatus SaveGameRoot(string path)
-    {
-        try
-        {
-            GameRootStatus validated = installation.Validate(path, "selected");
-            if (!validated.Valid) return validated;
-            if (overviewLifecycle is null) return installation.SaveSelectedRoot(validated.Path);
-
-            GameRootStatus? saved = null;
-            overviewLifecycle.RebindGameRoot(validated.Path, () =>
-            {
-                saved = installation.SaveSelectedRoot(validated.Path);
-                if (!saved.Valid)
-                    throw new BridgeCommandException(saved.Error ?? "GAME_ROOT_INVALID",
-                        "The selected Last War installation became invalid before it could be saved.");
-            });
-            return saved ?? throw new InvalidOperationException("Game Root selection was not persisted.");
-        }
-        catch (LocalConfigStoreException ex)
-        {
-            throw new BridgeCommandException(ex.Code, ex.Message);
-        }
-    }
-
     public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -1289,11 +1265,4 @@ internal sealed class LWBridgeBackend
         return property.GetString()!;
     }
 
-    private static bool GetRequiredBoolean(JsonElement payload, string name)
-    {
-        if (payload.ValueKind != JsonValueKind.Object || !payload.TryGetProperty(name, out JsonElement property) ||
-            property.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
-            throw new BridgeCommandException("INVALID_PAYLOAD", $"{name} must be a boolean.");
-        return property.GetBoolean();
-    }
 }

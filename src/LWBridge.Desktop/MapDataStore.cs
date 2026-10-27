@@ -50,14 +50,6 @@ internal sealed record MapScanRunSeed(
     int? PlayerTileY = null,
     int MaxAttemptsPerBlock = 0);
 
-internal sealed record MapScanBlockCheckpoint(
-    int BlockIndex,
-    string PayloadJson,
-    string Status,
-    int Attempts,
-    string? Error,
-    long UpdatedAt);
-
 internal sealed record MapClearResult(int ServerId, int DeletedRuns, int DeletedRecords);
 
 internal sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total);
@@ -420,15 +412,6 @@ internal sealed partial class MapDataStore : IDisposable
         long nowUnixMilliseconds) =>
         ReadOptionAggregatesCore(source, nowUnixMilliseconds, afterFirstAggregateRead: null);
 
-    internal MapOptionAggregates ReadOptionAggregatesAtForSnapshotTest(
-        MapOptionSourceSelection source,
-        long nowUnixMilliseconds,
-        Action afterFirstAggregateRead) =>
-        ReadOptionAggregatesCore(
-            source,
-            nowUnixMilliseconds,
-            afterFirstAggregateRead ?? throw new ArgumentNullException(nameof(afterFirstAggregateRead)));
-
     private MapOptionAggregates ReadOptionAggregatesCore(
         MapOptionSourceSelection source,
         long nowUnixMilliseconds,
@@ -661,24 +644,6 @@ internal sealed partial class MapDataStore : IDisposable
 
     public MapSearchResult SearchIndexed(MapDataQueryOptions options) =>
         SearchIndexedCore(options, RecoveredWallClock.UnixTimeMilliseconds(), afterCountObserved: null);
-
-    internal MapSearchResult SearchIndexedWithMonsterNameKeys(
-        MapDataQueryOptions options,
-        IReadOnlyList<string> monsterNameKeys) =>
-        SearchIndexedCore(
-            options,
-            RecoveredWallClock.UnixTimeMilliseconds(),
-            afterCountObserved: null,
-            monsterNameKeys);
-
-    internal MapSearchResult SearchIndexedForSnapshotTest(MapDataQueryOptions options, Action afterCountObserved) =>
-        SearchIndexedCore(
-            options,
-            RecoveredWallClock.UnixTimeMilliseconds(),
-            afterCountObserved ?? throw new ArgumentNullException(nameof(afterCountObserved)));
-
-    internal MapSearchResult SearchIndexedAtForTest(MapDataQueryOptions options, long nowUnixMilliseconds) =>
-        SearchIndexedCore(options, nowUnixMilliseconds, afterCountObserved: null);
 
     internal MapSearchResult SearchCityPageForExport(MapDataQueryOptions options)
     {
@@ -1127,169 +1092,6 @@ internal sealed partial class MapDataStore : IDisposable
         }
     }
 
-    internal void UpsertScanBlockCheckpointForTest(
-        string runId,
-        MapScanBlockCheckpoint checkpoint)
-    {
-        if (string.IsNullOrWhiteSpace(runId))
-            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
-        if (checkpoint.BlockIndex < 0)
-            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block index cannot be negative.");
-        if (string.IsNullOrWhiteSpace(checkpoint.PayloadJson))
-            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block payload is required.");
-        if (string.IsNullOrWhiteSpace(checkpoint.Status))
-            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block status is required.");
-        if (checkpoint.Attempts < 0)
-            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block attempts cannot be negative.");
-
-        lock (gate)
-        {
-            // IMPLEMENTATION POLICY LWB-R6-028: this is restart/checkpoint
-            // infrastructure over the recovered scan_blocks schema. The original
-            // scheduling, acknowledgement, retry and status-transition rules remain
-            // UNKNOWN/BLOCKED, so no public scan command calls this helper.
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                INSERT INTO scan_blocks(run_id,block_index,payload_json,status,attempts,error,updated_at)
-                VALUES ($run,$block,$payload,$status,$attempts,$error,$updated)
-                ON CONFLICT(run_id,block_index) DO UPDATE SET
-                  payload_json=excluded.payload_json,status=excluded.status,
-                  attempts=excluded.attempts,error=excluded.error,updated_at=excluded.updated_at
-                """;
-            command.Parameters.AddWithValue("$run", runId);
-            command.Parameters.AddWithValue("$block", checkpoint.BlockIndex);
-            command.Parameters.AddWithValue("$payload", checkpoint.PayloadJson);
-            command.Parameters.AddWithValue("$status", checkpoint.Status);
-            command.Parameters.AddWithValue("$attempts", checkpoint.Attempts);
-            command.Parameters.AddWithValue("$error", (object?)checkpoint.Error ?? DBNull.Value);
-            command.Parameters.AddWithValue("$updated", checkpoint.UpdatedAt);
-            command.ExecuteNonQuery();
-        }
-    }
-
-    internal IReadOnlyList<MapScanBlockCheckpoint> ReadScanBlockCheckpointsForTest(string runId)
-    {
-        if (string.IsNullOrWhiteSpace(runId))
-            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
-
-        lock (gate)
-        {
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                SELECT block_index,payload_json,status,attempts,error,updated_at
-                FROM scan_blocks WHERE run_id=$run ORDER BY block_index
-                """;
-            command.Parameters.AddWithValue("$run", runId);
-            using SqliteDataReader reader = command.ExecuteReader();
-            var result = new List<MapScanBlockCheckpoint>();
-            while (reader.Read())
-                result.Add(new MapScanBlockCheckpoint(
-                    reader.GetInt32(0),
-                    reader.GetString(1),
-                    reader.GetString(2),
-                    reader.GetInt32(3),
-                    reader.IsDBNull(4) ? null : reader.GetString(4),
-                    reader.GetInt64(5)));
-            return result;
-        }
-    }
-
-    internal void StageRecordForPublishTest(string runId, MapStoredRecord record)
-    {
-        if (string.IsNullOrWhiteSpace(runId))
-            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
-        ValidateRecord(record);
-
-        lock (gate)
-        {
-            // IMPLEMENTATION POLICY LWB-R6-019: this is offline/test infrastructure for
-            // the recovered scan_records identity and publish transaction. It accepts an
-            // already-derived recordKey and does not recover native ingestion identity.
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                INSERT INTO scan_records(run_id,kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)
-                VALUES ($run,$kind,$server,$key,$point,$uuid,$name,$alliance,$level,$quality,$power,$distance,$shield,$updated,$json)
-                ON CONFLICT(run_id,kind,server_id,record_key) DO UPDATE SET
-                  point_index=excluded.point_index,uuid=excluded.uuid,name=excluded.name,
-                  alliance_name=excluded.alliance_name,level=excluded.level,
-                  quality=excluded.quality,power=excluded.power,distance=excluded.distance,
-                  shield_end_time=excluded.shield_end_time,updated_at=excluded.updated_at,
-                  data_json=excluded.data_json
-                """;
-            command.Parameters.AddWithValue("$run", runId);
-            AddRecordParameters(command, record);
-            command.ExecuteNonQuery();
-        }
-    }
-
-    internal int ReplacePublishedKindFromStagingForTest(
-        string runId,
-        string kind,
-        int serverId,
-        Action? afterDeleteBeforeCopy = null)
-    {
-        if (string.IsNullOrWhiteSpace(runId))
-            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
-        ValidateKind(kind);
-        ValidateServerId(serverId);
-
-        lock (gate)
-        {
-            // RECOVERED transaction slice: completed direct-scan publication deletes one
-            // kind/server from map_records and copies the matching scan_records rows.
-            // IMPLEMENTATION POLICY LWB-R6-019: this test-only helper deliberately does
-            // not decide whether a run is complete/eligible. The production completion
-            // gate remains UNKNOWN/BLOCKED and must execute before this transaction.
-            using SqliteTransaction transaction = connection.BeginTransaction();
-
-            using (SqliteCommand delete = connection.CreateCommand())
-            {
-                delete.Transaction = transaction;
-                delete.CommandText = "DELETE FROM map_records WHERE kind=$kind AND server_id=$server";
-                delete.Parameters.AddWithValue("$kind", kind);
-                delete.Parameters.AddWithValue("$server", serverId);
-                delete.ExecuteNonQuery();
-            }
-
-            // IMPLEMENTATION POLICY LWB-R6-020: deterministic test hook used only to
-            // prove the recovered delete/copy transaction rolls back as one unit when
-            // publication fails between its two statements. Production eligibility and
-            // failure classification remain separately unrecovered.
-            afterDeleteBeforeCopy?.Invoke();
-
-            int inserted;
-            using (SqliteCommand copy = connection.CreateCommand())
-            {
-                copy.Transaction = transaction;
-                copy.CommandText = """
-                    INSERT INTO map_records(kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)
-                    SELECT kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json
-                    FROM scan_records
-                    WHERE run_id=$run AND kind=$kind AND server_id=$server
-                    """;
-                copy.Parameters.AddWithValue("$run", runId);
-                copy.Parameters.AddWithValue("$kind", kind);
-                copy.Parameters.AddWithValue("$server", serverId);
-                inserted = copy.ExecuteNonQuery();
-            }
-
-            transaction.Commit();
-            return inserted;
-        }
-    }
-
-    public int CountScanRuns(int serverId)
-    {
-        ValidateServerId(serverId);
-        lock (gate)
-        {
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM scan_runs WHERE server_id=$server";
-            command.Parameters.AddWithValue("$server", serverId);
-            return Convert.ToInt32(command.ExecuteScalar());
-        }
-    }
-
     public void UpsertTreasureClaimStates(
         IReadOnlyList<MapTreasureClaimState> states,
         long nowUnixMilliseconds)
@@ -1344,40 +1146,6 @@ internal sealed partial class MapDataStore : IDisposable
         }
     }
 
-    internal MapTreasureClaimState? ReadTreasureClaimStateForTest(
-        int serverId,
-        string playerUid,
-        string treasureUuid)
-    {
-        ValidateServerId(serverId);
-        if (string.IsNullOrWhiteSpace(playerUid) || string.IsNullOrWhiteSpace(treasureUuid))
-            throw new BridgeCommandException(
-                "INVALID_TREASURE_STATE",
-                "treasure claim state requires serverId, playerUid and treasureUuid.");
-
-        lock (gate)
-        {
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                SELECT expire_time,updated_at,state_json
-                FROM treasure_claim_states
-                WHERE server_id=$server AND player_uid=$player AND treasure_uuid=$treasure
-                """;
-            command.Parameters.AddWithValue("$server", serverId);
-            command.Parameters.AddWithValue("$player", playerUid);
-            command.Parameters.AddWithValue("$treasure", treasureUuid);
-            using SqliteDataReader reader = command.ExecuteReader();
-            if (!reader.Read()) return null;
-            return new MapTreasureClaimState(
-                serverId,
-                playerUid,
-                treasureUuid,
-                reader.IsDBNull(0) ? null : reader.GetInt64(0),
-                reader.GetInt64(1),
-                reader.GetString(2));
-        }
-    }
-
     public void UpsertPlayerMark(MapPlayerMark mark)
     {
         ValidateServerId(mark.ServerId);
@@ -1404,33 +1172,6 @@ internal sealed partial class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$checked", (object?)mark.CheckedAt ?? DBNull.Value);
             command.Parameters.AddWithValue("$json", mark.PlayerJson);
             command.ExecuteNonQuery();
-        }
-    }
-
-    public MapPlayerMark? GetPlayerMark(int serverId, string ownerUid)
-    {
-        ValidateServerId(serverId);
-        if (string.IsNullOrWhiteSpace(ownerUid))
-            throw new BridgeCommandException("INVALID_PLAYER_MARK", "player mark requires serverId and ownerUid.");
-
-        lock (gate)
-        {
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                SELECT state,marked_at,checked_at,player_json
-                FROM player_marks WHERE server_id=$server AND owner_uid=$owner
-                """;
-            command.Parameters.AddWithValue("$server", serverId);
-            command.Parameters.AddWithValue("$owner", ownerUid);
-            using SqliteDataReader reader = command.ExecuteReader();
-            if (!reader.Read()) return null;
-            return new MapPlayerMark(
-                serverId,
-                ownerUid,
-                reader.GetString(0),
-                reader.GetInt64(1),
-                reader.IsDBNull(2) ? null : reader.GetInt64(2),
-                reader.GetString(3));
         }
     }
 

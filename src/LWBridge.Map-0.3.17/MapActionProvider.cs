@@ -2,8 +2,6 @@ using System.Text.Json;
 
 namespace LWBridge.Map317;
 
-public sealed record ServerJumpProviderResult(bool Changed, int PreviousServerId, int ServerId);
-
 public sealed record TreasureInspectionResult(
     string PlayerUid,
     string AllianceId,

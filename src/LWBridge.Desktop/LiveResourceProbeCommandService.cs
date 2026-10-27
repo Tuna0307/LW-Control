@@ -291,28 +291,6 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         }
     }
 
-    internal static FirstLiveResultImport ImportCorrelatedResult(
-        MapDataStore store,
-        string resultPath,
-        string requestId,
-        out int? acquisitionOrdinal,
-        Func<string, byte[]>? readAllBytes = null,
-        int? expectedServerId = null,
-        DateTimeOffset? operationStartedAtUtc = null,
-        DateTimeOffset? nowUtc = null,
-        string? expectedProfileId = null,
-        string? expectedLaunchSessionId = null,
-        int? expectedGamePid = null,
-        string mapKind = "resource")
-    {
-        ArgumentNullException.ThrowIfNull(store);
-        FirstLivePreparedResource prepared = PrepareCorrelatedResult(
-            resultPath, requestId, out acquisitionOrdinal, readAllBytes, expectedServerId,
-            operationStartedAtUtc, nowUtc, expectedProfileId, expectedLaunchSessionId, expectedGamePid, mapKind);
-        store.UpsertRecord(prepared.Record);
-        return prepared.Import;
-    }
-
     internal static FirstLivePreparedResource PrepareCorrelatedResult(
         string resultPath,
         string requestId,

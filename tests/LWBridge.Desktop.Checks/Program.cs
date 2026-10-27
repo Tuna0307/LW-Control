@@ -87,7 +87,6 @@ await Map014ConsecutiveEngineCleanupChecks.RunAsync();
 await Map014TerminalSourceValidationChecks.RunAsync();
 Map014ResourceHydrationReceiptChecks.Run();
 await Map014SharedAcquisitionChecks.RunAsync();
-await Map014NativeSharedReceiptSourceChecks.RunAsync();
 await Map014Map317SharedAdapterChecks.RunAsync();
 await Map014AutoSharedOwnershipChecks.RunAsync();
 Map014SharedSourceAdmissionChecks.Run();

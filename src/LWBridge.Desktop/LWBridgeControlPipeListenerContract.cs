@@ -1,8 +1,8 @@
 namespace LWBridge.Desktop;
 
-// LWB-R7-100: source-backed listener construction and accept semantics from
-// lwbridge-0.3.1.exe. This remains an offline contract model: it never opens a
-// named pipe or starts a production accept loop.
+// LWB-R7-100: listener construction and accept semantics recovered from
+// lwbridge-0.3.1.exe. Consumed by LWBridgeControlPipeNativeServer and the
+// live handshake; this class itself opens no pipe.
 internal static class LWBridgeControlPipeListenerContract
 {
     public const uint PipeAccessDuplex = 0x00000003;
@@ -47,21 +47,4 @@ internal static class LWBridgeControlPipeListenerContract
             _ => LWBridgePipeConnectDisposition.Failed,
         };
     }
-
-    // The original accept state sets the first-instance byte to 1 only during
-    // initial construction, then clears it immediately after the first server
-    // object is created. Replacement accept instances therefore omit the flag.
-    public static bool UseFirstPipeInstanceFlag(int serverInstanceOrdinal)
-    {
-        if (serverInstanceOrdinal < 0)
-            throw new ArgumentOutOfRangeException(nameof(serverInstanceOrdinal));
-        return serverInstanceOrdinal == 0;
-    }
-}
-
-internal enum LWBridgePipeConnectDisposition
-{
-    Connected,
-    Pending,
-    Failed,
 }

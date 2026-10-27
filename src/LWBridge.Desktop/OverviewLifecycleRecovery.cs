@@ -10,8 +10,9 @@ namespace LWBridge.Desktop;
 //   monitor tick         0x41a8a0 (interval 2 s, 0xe5650)      recovery start    0x41b03a
 //   recovery run         0xe5884  (2 s loop, 0xe69e3)           log classifier    0x419e2a
 //   retry tables         0xd67b08 (normal) / 0xd681b0 (maintenance)
-// Decision logic below mirrors tools/lwbridge317/home009_recovery_oracle.py line by line; the cited
-// RVAs and the constants are asserted against the image by home009_contract.py. Effects (terminate,
+// Decision logic below mirrors the HOME009 recovery oracle (tools/lwbridge317/home009_recovery_oracle.py
+// in the research archive tag archive/research-offline-controller); the cited RVAs and constants were
+// asserted against the original image there. Effects (terminate,
 // cleanup/restoration, relaunch, log files, bridge heartbeat) are current-client adaptations.
 internal sealed partial class OverviewLifecycleService
 {
@@ -66,20 +67,6 @@ internal sealed partial class OverviewLifecycleService
         ulong noticeId = 0) => new(
             "idle", reason, updateDetected, restarted, startedAt, completedAt,
             attempts, null, null, noticeId, false);
-
-    private ulong NextRecoveryNoticeId()
-    {
-        lock (stateGate)
-        {
-            recoveryNoticeId = unchecked(recoveryNoticeId + 1);
-            return recoveryNoticeId;
-        }
-    }
-
-    private ulong CurrentRecoveryNoticeId()
-    {
-        lock (stateGate) return recoveryNoticeId;
-    }
 
     private DateTimeOffset RecoveryNow() => testHooks?.UtcNow?.Invoke() ?? DateTimeOffset.UtcNow;
 
@@ -1414,7 +1401,6 @@ internal sealed partial class OverviewLifecycleService
                 throw new BridgeCommandException("GAME_RECOVERY_TERMINATE_FAILED", "Unable to terminate the exact owned game process for recovery.");
         }
     }
-
 
     private static bool ValidateExactProcessIdentity(int pid, string expectedPath, string expectedStartedAtUtc, out Process? process)
     {

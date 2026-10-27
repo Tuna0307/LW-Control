@@ -962,22 +962,6 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             throw new InvalidOperationException(failureCode + ": live server moved outside Auto's cycle");
     }
 
-    private async Task RecordErrorAsync(string error)
-    {
-        MapAutoScanSnapshot snapshot;
-        await stateGate.WaitAsync().ConfigureAwait(false);
-        try
-        {
-            CommitLocked(state with { LastError = error });
-            snapshot = CreateSnapshotLocked();
-        }
-        finally
-        {
-            stateGate.Release();
-        }
-        Publish(snapshot);
-    }
-
     private void ReconcileRestartState()
     {
         RestartState? restart = state.Restart;

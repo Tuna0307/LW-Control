@@ -189,9 +189,6 @@ internal sealed record ResourceCompletenessReport(
     IReadOnlyList<ResourceCompletenessBatchDiagnostics> Batches,
     IReadOnlyList<ResourceCompletenessAcceptedRow> AcceptedRows)
 {
-    internal string ToStableJson(bool indented = true) => JsonSerializer.Serialize(
-        this,
-        new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = indented });
 
     // Source accounting is independent of completed AOI geometry. Finishing
     // all point AOIs cannot turn a duplicate physical Resource identity, an

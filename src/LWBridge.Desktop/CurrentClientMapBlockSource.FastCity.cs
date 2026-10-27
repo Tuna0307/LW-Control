@@ -254,67 +254,6 @@ internal sealed partial class CurrentClientMapBlockSource
         fastCitySettledSessionId = session.SessionId;
     }
 
-    private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureFullTrainListMapAsync(
-        OverviewMapScanSession session,
-        MapScanExecutionRequest request,
-        IReadOnlySet<int> pendingBlockIndices,
-        Action<MapScanSourceProgress>? progress,
-        CancellationToken cancellationToken)
-    {
-        IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
-            request.TileWidth, request.TileHeight);
-        if (logicalBlocks.Count != 2500 || pendingBlockIndices.Count != logicalBlocks.Count ||
-            logicalBlocks.Any(block => !pendingBlockIndices.Contains(block.BlockIndex)))
-            throw new InvalidDataException("Direct Train-list acquisition requires the exact 2,500-block full-world pending set.");
-
-        progress?.Invoke(new MapScanSourceProgress(20));
-        FastTrainListSnapshot directSnapshot = await ProbeTrainListAsync(
-            session, request, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<FastTrainPrepared> directRows = directSnapshot.Rows;
-        RequireSameSession(session);
-        progress?.Invoke(new MapScanSourceProgress(90));
-
-        var recordsByBlock = new Dictionary<int, List<MapStoredRecord>>();
-        foreach (FastTrainPrepared raw in directRows)
-        {
-            FastTrainPrepared prepared = raw.Record.Kind == "truck"
-                ? ApplyFinalTruckMetadataEnrichment(raw)
-                : raw;
-            int blockColumn = prepared.X / MapScanGeometry.RecoveredBlockSpan;
-            int blockRow = prepared.Y / MapScanGeometry.RecoveredBlockSpan;
-            int blocksPerAxis = checked((int)(request.TileWidth / MapScanGeometry.RecoveredBlockSpan));
-            int blockIndex = checked(blockRow * blocksPerAxis + blockColumn);
-            if (blockIndex < 0 || blockIndex >= logicalBlocks.Count)
-                throw new InvalidDataException("Direct Train-list row fell outside the logical full-world block grid.");
-            if (!recordsByBlock.TryGetValue(blockIndex, out List<MapStoredRecord>? bucket))
-                recordsByBlock[blockIndex] = bucket = [];
-            bucket.Add(prepared.Record);
-        }
-
-        string[] directKinds = request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal).ToArray();
-        var captures = new List<MapScanBlockCapture>(logicalBlocks.Count);
-        foreach (MapScanTargetBlock block in logicalBlocks)
-        {
-            IReadOnlyList<MapStoredRecord> records = recordsByBlock.TryGetValue(
-                block.BlockIndex, out List<MapStoredRecord>? bucket)
-                ? bucket
-                : Array.Empty<MapStoredRecord>();
-            string payload = JsonSerializer.Serialize(new
-            {
-                protocol = "current_fast_train_list_v1",
-                blockIndex = block.BlockIndex,
-                recordsInBlock = records.Count,
-                selectedTypes = directKinds,
-                coverage = "official_get_train_list_snapshot",
-                source = "LWTrainDataManager.TryGetTrainList(true)",
-            }, JsonOptions.Default);
-            captures.Add(new MapScanBlockCapture(
-                request.ServerId, request.WorldId, block.BlockIndex, payload, records));
-        }
-        progress?.Invoke(new MapScanSourceProgress(100));
-        return captures;
-    }
-
     private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureFullMonsterMapViaCoarseLodAsync(
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
@@ -964,13 +903,6 @@ internal sealed partial class CurrentClientMapBlockSource
         request.SelectedTypes.Count == 1 &&
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
 
-    private static bool IsTrainListOnly(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count >= 1 &&
-        request.SelectedTypes.All(type => type is "truck" or "railway");
-
-    private static bool IsMonsterOnly(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count == 1 && IncludesMonsterSource(request);
-
     private static bool IsOverviewSessionAdmissionGap(Exception error) =>
         error is InvalidDataException &&
         string.Equals(
@@ -1149,25 +1081,6 @@ internal sealed partial class CurrentClientMapBlockSource
         (double ready, _) = Check(response, "marchSourceAtPointReady");
         if (ready < start || ready - start > FastCityProbeTimeout.TotalSeconds)
             throw Bad("native point-ready snapshot is out of the correlated probe time window");
-    }
-
-    internal async Task<IReadOnlyList<MapStoredRecord>> CaptureRailwayListSnapshotForTestAsync(
-        CancellationToken cancellationToken)
-    {
-        OverviewMapScanSession session = RequireReadySession();
-        if (waitForHealthySession is { } waitForHealthy)
-        {
-            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
-            RequireSameSession(session);
-        }
-        CurrentClientMapContext context = await GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);
-        var request = new MapScanExecutionRequest(
-            "trainlist" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture),
-            context.ServerId, context.WorldId, context.TileWidth, context.TileHeight,
-            ["railway"], 20, 2, context.PlayerTileX, context.PlayerTileY);
-        FastTrainListSnapshot snapshot = await ProbeTrainListAsync(
-            session, request, cancellationToken).ConfigureAwait(false);
-        return snapshot.Rows.Select(row => row.Record).ToArray();
     }
 
     internal async Task<CurrentClientTrainListCoverageResult> GetTrainListCoverageAsync(

@@ -20,19 +20,15 @@ internal sealed record DesktopUiSelection(
 internal static class DesktopUiContentRoot
 {
     internal const string CanonicalDirectoryName = "ProductionUi";
-    internal const string LegacyDirectoryName = "WebUi";
     internal const string IdentityFileName = "lwbridge-ui-build.json";
     internal const string CanonicalProject = "LWBridge.UI-0.3.17";
     internal const string CanonicalSource = "src/LWBridge.UI-0.3.17";
 
     internal static DesktopUiSelection Select(
         string baseDirectory,
-        bool useLegacyUi,
         string? explicitUiRoot,
         bool allowProofOverride)
     {
-        if (useLegacyUi && explicitUiRoot is not null)
-            throw new ArgumentException("--legacy-ui cannot be combined with --ui-root.");
         if (explicitUiRoot is not null && !allowProofOverride)
             throw new ArgumentException("--ui-root is restricted to the explicit Map UI integration proof mode.");
 
@@ -40,12 +36,6 @@ internal static class DesktopUiContentRoot
         {
             string proofRoot = RequireIndex(Path.GetFullPath(explicitUiRoot), "Proof UI root");
             return new DesktopUiSelection("proof-override", proofRoot, TryReadCanonicalIdentity(proofRoot));
-        }
-
-        if (useLegacyUi)
-        {
-            string legacyRoot = RequireIndex(Path.Combine(baseDirectory, LegacyDirectoryName), "Legacy recovery UI root");
-            return new DesktopUiSelection("legacy-recovery", legacyRoot, null);
         }
 
         string canonicalRoot = Path.Combine(baseDirectory, CanonicalDirectoryName);
