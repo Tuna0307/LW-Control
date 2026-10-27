@@ -20,27 +20,12 @@ internal sealed record FirstLiveResultImport(
     string? DeclaredSourceCaptureSha256,
     string DataJson);
 
-internal sealed record FirstLiveReplay(MapDataStore Store, FirstLiveResultImport Import);
-
 internal sealed record FirstLivePreparedResource(
     FirstLiveResultImport Import,
     MapStoredRecord Record);
 
 internal static class FirstLiveResultImporter
 {
-    public static FirstLiveReplay CreateIsolatedReplay(string diagnosticsPath)
-    {
-        MapDataStore store = MapDataStore.CreateInMemory();
-        try
-        {
-            return new FirstLiveReplay(store, ImportOneResource(store, diagnosticsPath));
-        }
-        catch
-        {
-            store.Dispose();
-            throw;
-        }
-    }
 
     public static FirstLiveResultImport ImportOneResource(MapDataStore store, string diagnosticsPath)
     {

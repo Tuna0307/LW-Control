@@ -153,9 +153,7 @@ internal sealed partial class LWBridgeWindow
                             string receipt = surface switch
                             {
                                 "r29-part-a" => Path.Combine(directory, "r29-part-a-ui.json"),
-                                "r29-preset-speed" => Path.Combine(directory, "r29-preset-speed.json"),
                                 "r29-sweep" => Path.Combine(directory, "r29-sweep-connected.json"),
-                                "r29-performance" => Path.Combine(directory, "r29-performance.json"),
                                 "r29-scroll" => Path.Combine(directory, "r29-scroll.json"),
                                 "r29-memory" => Path.Combine(directory, "r29-memory.json"),
                                 _ when surface.StartsWith("r30-", StringComparison.Ordinal) => Path.Combine(directory, surface + "-ui.json"),
@@ -166,25 +164,15 @@ internal sealed partial class LWBridgeWindow
                                 await RunFeature018R30AutomationProofAsync(core, receipt, directory, owner, uid, serverId, surface[4..], token);
                             else if (surface == "r29-part-a")
                                 await RunFeature018R29PartAProofAsync(core, receipt, directory, owner, uid, serverId, token);
-                            else if (surface == "r29-preset-speed")
-                                await RunFeature018R29PresetSpeedProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "r29-sweep")
                             {
                                 await RunFeature018R29ConnectedSweepAsync(core, receipt, directory, owner, uid, serverId, token);
                                 completedBySweep = true;
                             }
-                            else if (surface == "r29-performance")
-                                await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "r29-scroll")
                                 await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token, scrollOnly: true);
                             else if (surface == "r29-memory")
                                 await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token, memoryOnly: true);
-                            else if (surface == "equipment")
-                                await RunFeature018R28EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
-                            else if (surface == "city")
-                                await RunFeature018R23CityImageProofAsync(core, receipt, directory, owner, uid, serverId, token);
-                            else if (surface == "chat")
-                                await RunFeature018R23ChatTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else throw new InvalidDataException("Unsupported R23 UI surface");
                             result = JsonDocument.Parse(await File.ReadAllTextAsync(receipt, token)).RootElement.Clone();
                         }

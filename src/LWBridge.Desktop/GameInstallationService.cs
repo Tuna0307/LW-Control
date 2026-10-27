@@ -86,13 +86,6 @@ internal sealed class GameInstallationService
         return detected with { Path = string.Empty, Source = "none" };
     }
 
-    public GameRootStatus SaveSelectedRoot(string path)
-    {
-        var status = Validate(path, "selected");
-        if (!status.Valid) return status;
-        config.Update(c => c with { GameRoot = status.Path });
-        return status with { Source = "configured" };
-    }
 
     public GameRootStatus Validate(string path, string source)
     {

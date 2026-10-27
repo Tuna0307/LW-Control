@@ -71,7 +71,7 @@ class PackageReleaseChecks(unittest.TestCase):
 
     def test_shipped_sources_have_no_test_account_uids(self):
         for path in sorted((package.ROOT / "src").rglob("*")):
-            if path.is_file() and "node_modules" not in path.parts and path.suffix in (
+            if path.is_file() and not {"node_modules", "bin", "obj"} & set(path.parts) and path.suffix in (
                     ".cs", ".lua", ".py", ".js", ".jsx", ".json", ".html", ".css", ".mjs"):
                 with self.subTest(path=path.relative_to(package.ROOT).as_posix()):
                     package.verify_no_test_account_bytes(path.name, path.read_bytes())

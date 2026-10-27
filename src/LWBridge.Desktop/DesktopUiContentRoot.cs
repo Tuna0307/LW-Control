@@ -30,7 +30,7 @@ internal static class DesktopUiContentRoot
         bool allowProofOverride)
     {
         if (explicitUiRoot is not null && !allowProofOverride)
-            throw new ArgumentException("--ui-root is restricted to the explicit Map UI integration proof mode.");
+            throw new ArgumentException("An explicit UI root is restricted to the check-only override.");
 
         if (explicitUiRoot is not null)
         {

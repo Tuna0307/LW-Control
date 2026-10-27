@@ -65,7 +65,6 @@ internal sealed class LWBridgeBackend
     private readonly GameRecoveryStatusCommandService gameRecoveryStatus;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly LastWarInstalledTexts lastWarInstalledTexts = new();
-    private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
     private readonly Func<object?>? runtimeTasksProvider;
     private readonly Func<bool>? bridgeReadyProvider;
@@ -74,7 +73,6 @@ internal sealed class LWBridgeBackend
         LocalConfigStore? config = null,
         INativeAsyncCommandService? asyncCommands = null,
         MapDataStore? mapData = null,
-        int? firstLiveResultServerId = null,
         OverviewLifecycleService? overviewLifecycle = null,
         LastWarLocaleService? lastWarLocales = null,
         Func<object>? mapScanStatusProvider = null,
@@ -103,7 +101,6 @@ internal sealed class LWBridgeBackend
                 : new LastWarLocaleService(Path.Combine(
                     Path.GetFullPath(applicationDataRoot),
                     "locales")));
-        this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
         this.runtimeTasksProvider = runtimeTasksProvider;
         this.bridgeReadyProvider = bridgeReadyProvider;
@@ -124,14 +121,14 @@ internal sealed class LWBridgeBackend
 
     internal LWBridgeControlPipeHostState? BridgeHostState => bridgeHostState;
 
-    public object GetBootstrap(bool fixture, string sessionId, bool suppressAutoLaunch = false)
+    public object GetBootstrap(bool fixture, string sessionId)
     {
         var profile = CreateProfile();
         return new
         {
             mode = fixture ? "fixture" : "live",
             sessionId,
-            autoLaunchGame = fixture || suppressAutoLaunch ? false : config.Snapshot.AutoLaunchGame,
+            autoLaunchGame = fixture ? false : config.Snapshot.AutoLaunchGame,
             profiles = new
             {
                 selectedProfileId = profile.id,
@@ -811,12 +808,7 @@ internal sealed class LWBridgeBackend
         };
     }
 
-    private object CreateCurrentMapScanStatus() => firstLiveResultServerId is int serverId
-        // IMPLEMENTATION POLICY: saved-capture replay has no active acquisition
-        // session. Keep scan state unavailable and identify the source explicitly
-        // so UI/status consumers cannot mistake the replay for a fresh idle scan.
-        ? CreateMapScanStatus(serverId, "unavailable", null, "saved_capture_replay")
-        : CreateMapScanStatus();
+    private object CreateCurrentMapScanStatus() => CreateMapScanStatus();
 
     private static object CreateMapScanStatus(
         int serverId = 0,

@@ -7,146 +7,26 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
         string? capturePath = ReadPathOption(args, "--capture");
-        string? liveProbePath = ReadPathOption(args, "--live-probe");
-        string? hostProbePath = ReadPathOption(args, "--host-probe");
-        string? firstLiveResultPath = ReadPathOption(args, "--first-live-result");
-        string? liveResourceProofPath = ReadPathOption(args, "--live-resource-proof");
-        string? liveCityProofPath = ReadPathOption(args, "--live-city-proof");
-        string? normalUiLiveResourceProofPath = ReadPathOption(args, "--normal-ui-live-resource-proof");
         string? normalUiLiveMapProofPath = ReadPathOption(args, "--normal-ui-live-map-proof");
-        string? mapUiIntegrationProofPath = ReadPathOption(args, "--map-ui-integration-proof");
-        string? homeMapCampaignProofPath = ReadPathOption(args, "--home-map-campaign-proof");
-        bool homeMapCampaignNarrow = args.Contains("--home-map-campaign-narrow", StringComparer.OrdinalIgnoreCase);
-        bool homeMapCampaignHomeOnly = args.Contains("--home-map-campaign-home-only", StringComparer.OrdinalIgnoreCase);
-        string? ownerEvidencePath = ReadPathOption(args, "--owner-evidence");
-        string? cityReopenProofPath = ReadPathOption(args, "--city-reopen-proof");
-        string? uiRootPath = ReadPathOption(args, "--ui-root");
         string? isolatedRootPath = ReadPathOption(args, "--isolated-root");
-        string? map010NamesProofPath = ReadPathOption(args, "--map010-native-names-proof");
-        if (map010NamesProofPath is not null)
-        {
-            if (isolatedRootPath is null || !string.Equals(initialViewOption(args), "map-data", StringComparison.Ordinal) ||
-                (languageOption(args) is not "en" and not "ja") ||
-                (themeOption(args) is not "light" and not "dark") ||
-                new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath,
-                    liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath,
-                    mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath, ownerEvidencePath }
-                    .Any(option => option is not null))
-                throw new ArgumentException("MAP-010 name proof requires an isolated normal app, --view map-data, explicit EN/JA language and light/dark theme.");
-            string relative = Path.GetRelativePath(isolatedRootPath, map010NamesProofPath);
-            if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
-                throw new ArgumentException("MAP-010 proof output must remain inside its explicitly isolated root.");
-        }
-        if (uiRootPath is not null && mapUiIntegrationProofPath is null)
-            throw new ArgumentException("--ui-root is restricted to --map-ui-integration-proof.");
-        if (mapUiIntegrationProofPath is not null && uiRootPath is null)
-            throw new ArgumentException("--map-ui-integration-proof requires --ui-root.");
-        if (isolatedRootPath is not null &&
-            new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath }.Any(path => path is not null))
-        {
+        if (isolatedRootPath is not null && capturePath is not null)
             throw new ArgumentException("--isolated-root is restricted to normal production composition.");
-        }
-        if (isolatedRootPath is not null)
+        if (isolatedRootPath is not null && normalUiLiveMapProofPath is not null)
         {
-            foreach (string proofPath in new[] { normalUiLiveResourceProofPath, normalUiLiveMapProofPath }.OfType<string>())
-            {
-                string relative = Path.GetRelativePath(isolatedRootPath, proofPath);
-                if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
-                    throw new ArgumentException("Normal production proof output must remain inside its explicitly isolated root.");
-            }
+            string relative = Path.GetRelativePath(isolatedRootPath, normalUiLiveMapProofPath);
+            if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                throw new ArgumentException("Normal production proof output must remain inside its explicitly isolated root.");
         }
-        if (homeMapCampaignNarrow && homeMapCampaignProofPath is null)
-            throw new ArgumentException("--home-map-campaign-narrow requires --home-map-campaign-proof.");
-        if (homeMapCampaignHomeOnly && homeMapCampaignProofPath is null)
-            throw new ArgumentException("--home-map-campaign-home-only requires --home-map-campaign-proof.");
-        if (cityReopenProofPath is not null)
-        {
-            if (new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, ownerEvidencePath }.Any(path => path is not null))
-                throw new ArgumentException("--city-reopen-proof cannot be combined with other probe/capture modes.");
-            LiveResourceProofRunner.RunCityReopenAsync(cityReopenProofPath).GetAwaiter().GetResult();
-            return;
-        }
-        if (liveResourceProofPath is not null || liveCityProofPath is not null)
-        {
-            if (liveResourceProofPath is not null && liveCityProofPath is not null)
-                throw new ArgumentException("--live-resource-proof and --live-city-proof are mutually exclusive.");
-            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null || homeMapCampaignProofPath is not null || ownerEvidencePath is not null)
-                throw new ArgumentException("Live map proof mode cannot be combined with other probe/capture modes.");
-            string proofPath = liveCityProofPath ?? liveResourceProofPath!;
-            LiveResourceProofRunner.RunTwiceAsync(proofPath, liveCityProofPath is not null ? "city" : "resource").GetAwaiter().GetResult();
-            return;
-        }
-        if (normalUiLiveResourceProofPath is not null &&
-            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null || homeMapCampaignProofPath is not null || ownerEvidencePath is not null))
-        {
-            throw new ArgumentException("--normal-ui-live-resource-proof cannot be combined with other probe/capture modes.");
-        }
-        if (normalUiLiveMapProofPath is not null &&
-            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || mapUiIntegrationProofPath is not null || homeMapCampaignProofPath is not null || ownerEvidencePath is not null))
-        {
+        if (normalUiLiveMapProofPath is not null && capturePath is not null)
             throw new ArgumentException("--normal-ui-live-map-proof cannot be combined with other probe/capture modes.");
-        }
-        if (mapUiIntegrationProofPath is not null &&
-            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || homeMapCampaignProofPath is not null || ownerEvidencePath is not null))
-        {
-            throw new ArgumentException("--map-ui-integration-proof cannot be combined with other probe/capture modes.");
-        }
-        if (homeMapCampaignProofPath is not null &&
-            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null || ownerEvidencePath is not null))
-        {
-            throw new ArgumentException("--home-map-campaign-proof cannot be combined with other probe/capture modes.");
-        }
-        if (new[] { capturePath, liveProbePath, hostProbePath }.Count(path => path is not null) > 1)
-            throw new ArgumentException("--capture, --live-probe and --host-probe are mutually exclusive.");
-        if (firstLiveResultPath is not null && (liveProbePath is not null || hostProbePath is not null))
-            throw new ArgumentException("--first-live-result cannot be combined with --live-probe or --host-probe.");
-        if (ownerEvidencePath is not null && (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null))
-            throw new ArgumentException("--owner-evidence is passive normal-app instrumentation and cannot be combined with capture/probe/replay modes.");
         string initialView = ReadValueOption(args, "--view") ?? "overview";
-        string? startupStateProof = ReadPathOption(args, "--startup-state-proof");
-        bool normalStartup = capturePath is null && liveProbePath is null && hostProbePath is null &&
-            firstLiveResultPath is null && homeMapCampaignProofPath is null;
-        if (startupStateProof is not null && (!normalStartup || isolatedRootPath is null))
-            throw new ArgumentException("--startup-state-proof requires an explicit isolated normal data root.");
-        if (normalStartup)
-        {
-            IReadOnlyList<string> cleared = StartupMapScanCleanup.Clear(DesktopApplicationPaths.Create(isolatedRootPath).Root);
-            if (startupStateProof is not null)
-            {
-                // Same production startup boundary, without a window/game launch.
-                File.WriteAllText(startupStateProof, System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    state = "completed", clearedDatabases = cleared,
-                    source = System.Reflection.Assembly.GetExecutingAssembly()
-                        .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
-                        .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().First().InformationalVersion,
-                }, JsonOptions.Indented));
-                return;
-            }
-        }
+        if (capturePath is null)
+            StartupMapScanCleanup.Clear(DesktopApplicationPaths.Create(isolatedRootPath).Root);
         string? language = ReadValueOption(args, "--language");
         string? theme = ReadValueOption(args, "--theme");
         var window = new LWBridgeWindow(
-            capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
-            normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath, uiRootPath,
-            mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow,
-            isolatedRootPath, homeMapCampaignHomeOnly, map010NamesProofPath);
-        if (hostProbePath is null)
-        {
-            Application.Run(window);
-            if (homeMapCampaignProofPath is not null)
-                window.FinalizeHomeMapCampaignProof();
-            window.FinalizeIsolatedProbeStorage();
-            return;
-        }
-
-        // IMPLEMENTATION POLICY: the isolated host probe deliberately closes its
-        // real window before releasing a late backend completion. Keep the UI
-        // thread alive just long enough to persist that post-close evidence.
-        using var context = new ApplicationContext();
-        window.HostProbeFinished += (_, _) => context.ExitThread();
-        window.Show();
-        Application.Run(context);
+            capturePath, initialView, language, theme, normalUiLiveMapProofPath, isolatedRootPath);
+        Application.Run(window);
         window.FinalizeIsolatedProbeStorage();
     }
 
@@ -164,7 +44,4 @@ internal static class Program
             throw new ArgumentException($"{name} requires a value.");
         return args[index + 1];
     }
-    private static string? initialViewOption(string[] args) => ReadValueOption(args, "--view");
-    private static string? languageOption(string[] args) => ReadValueOption(args, "--language");
-    private static string? themeOption(string[] args) => ReadValueOption(args, "--theme");
 }

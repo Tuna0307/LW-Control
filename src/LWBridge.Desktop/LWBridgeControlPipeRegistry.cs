@@ -104,11 +104,6 @@ internal sealed class LWBridgeControlPipeRegistry
                 ? value.ExpiresAtMilliseconds : null;
     }
 
-    public bool IsPending(string instanceId)
-    {
-        lock (gate) return pending.ContainsKey(instanceId);
-    }
-
     // Only an exact token-bearing pending registration can override the
     // listener's bootstrap image path. Binding the image to this session
     // prevents a second profile's installation from widening A's identity

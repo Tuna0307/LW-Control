@@ -56,41 +56,6 @@ internal static class NormalUiResourceProofContract
         })()
         """;
 
-    internal static JsonElement RequireCorrelatedSearchRow(
-        NormalUiResourceProofExpected expected,
-        NormalUiResourceProofSearchObservation observation)
-    {
-        if (string.IsNullOrWhiteSpace(observation.RequestId))
-            throw new InvalidDataException("Normal-window proof did not capture the Resource Search native request id.");
-        if (expected.ProfileId is { Length: > 0 } expectedProfile &&
-            (!observation.Payload.TryGetProperty("profileId", out JsonElement profileValue) ||
-             profileValue.ValueKind != JsonValueKind.String ||
-             !string.Equals(profileValue.GetString(), expectedProfile, StringComparison.Ordinal)))
-            throw new InvalidDataException("Normal-window Resource Search request did not match the acquisition profile identity.");
-        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(observation.Payload);
-        if (query.Kind != "resource" || query.ServerId != expected.ServerId || query.Page != 1)
-            throw new InvalidDataException("Normal-window proof did not observe the expected page-1 resource Search query.");
-
-        JsonElement result = observation.Result;
-        if (result.ValueKind != JsonValueKind.Object ||
-            !result.TryGetProperty("rows", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array ||
-            !result.TryGetProperty("total", out JsonElement totalValue) || !totalValue.TryGetInt32(out int total) || total < 1)
-        {
-            throw new InvalidDataException("Normal-window resource Search returned no correlated rows.");
-        }
-
-        JsonElement? matched = null;
-        foreach (JsonElement row in rows.EnumerateArray())
-        {
-            if (!MatchesQueryRow(row, expected)) continue;
-            if (matched.HasValue)
-                throw new InvalidDataException("Normal-window resource Search returned duplicate rows for the expected acquisition identity.");
-            matched = row.Clone();
-        }
-        return matched ?? throw new InvalidDataException(
-            "Normal-window resource Search did not return the exact newly acquired resource row.");
-    }
-
     internal static NormalUiResourceProofMatch RequireRenderedRow(
         NormalUiResourceProofExpected expected,
         JsonElement queryRow,
@@ -132,18 +97,6 @@ internal static class NormalUiResourceProofContract
             queryRow.Clone(),
             string.Join('\t', matched.Cells),
             matched.Cells.ToArray());
-    }
-
-    private static bool MatchesQueryRow(JsonElement row, NormalUiResourceProofExpected expected)
-    {
-        if (row.ValueKind != JsonValueKind.Object) return false;
-        return TryGetInt(row, "serverId") == expected.ServerId &&
-            string.Equals(TryGetString(row, "recordKey"), expected.RecordKey, StringComparison.Ordinal) &&
-            TryGetInt(row, "pointIndex") == expected.PointIndex &&
-            TryGetInt(row, "x") == expected.X &&
-            TryGetInt(row, "y") == expected.Y &&
-            TryGetNullableInt(row, "level") == expected.Level &&
-            TryGetLong(row, "updatedAt") == expected.UpdatedAt;
     }
 
     private static int? TryGetInt(JsonElement row, string name) =>
