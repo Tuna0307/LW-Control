@@ -1,8 +1,8 @@
 // Retained Map filter and action-error presentation. Scheduling/sharing were removed by MAP-016 owner direction.
-// Exact source: evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js
+// Exact source: archive/research-offline-controller:evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js
 // (SHA-256 CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089); binding names below are
 // expanded for readability. Locators and the original-component differential live under
-// evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/.
+// archive/research-offline-controller:evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/.
 //
 // This module only formats retained filters and errors; no provider actions are dispatched.
 

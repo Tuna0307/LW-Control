@@ -1,5 +1,4 @@
-// Task-owned AFK closeout adapter. Keep previewAfkFixtures.js untouched because it
-// is protected pre-existing WIP in this assignment.
+// Browser-preview AFK adapter layered over previewAfkFixtures.js (preview fixtures only).
 import {
   initialAfkToolbarConfig as baseInitialAfkToolbarConfig,
   previewAllianceMembers,
