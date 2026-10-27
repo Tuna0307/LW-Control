@@ -23,7 +23,7 @@ import compact_lua53 as original_bytecode
 from inspect_current import root_methods
 
 SOURCE = (_SCRIPTS / "feature018_hotkey_actions.lua")
-ARCHIVED_V26 = SOURCE.parents[1] / "artifacts/feature018/offline-candidate-continuation/LWScripts.data"
+ARCHIVED_V26 = _REPO / "artifacts/feature018/offline-candidate-continuation/LWScripts.data"
 ORIGINAL_V26_LUA_ENTRY_SHA = (
     "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
 )

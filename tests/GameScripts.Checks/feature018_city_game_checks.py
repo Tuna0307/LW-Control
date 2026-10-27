@@ -15,7 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT.parents[0] / 'artifacts/map-013-lua-site'))
+sys.path.insert(0, str(_REPO / 'artifacts/map-013-lua-site'))
 sys.path.insert(0, str(_RESEARCH / 'map_009_offline'))
 sys.path.insert(0, str(ROOT))
 from lupa.lua53 import LuaRuntime  # noqa: E402
