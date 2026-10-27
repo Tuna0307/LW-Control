@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Hash-locked read-only inspection of the installed Last War v24 Lua package.
+"""Read-only inspection of the installed Last War Lua package (LWLF).
+
+The helpers root_methods/walk/disassemble are also used by the game-script checks.
+The output records the package hash, so a report always names the game build it read.
 
 Lineage: compact_lua53.py selects only parser primitives from
 archive/research-offline-controller:tools/inspect_current_dispatch_plunder_sources.py.
@@ -22,21 +25,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_live_resource_probe as probe  # noqa: E402
 import compact_lua53 as lua  # noqa: E402
 
-PACKAGE_SHA256 = "d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495"
-ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
-FILE_VERSION = 3
-CONTENT_VERSION = 24
-ENTRY_COUNT = 18741
-
-
 def load_entries(path: Path) -> dict[str, bytes]:
-    with path.open("rb") as file:
-        digest = hashlib.file_digest(file, "sha256").hexdigest()
-    if digest != PACKAGE_SHA256:
-        raise ValueError(f"unexpected installed v24 LWLF hash: {digest}")
-    fv, cv, entries = probe.read_lwlf(path)
-    if (fv, cv, len(entries)) != (FILE_VERSION, CONTENT_VERSION, ENTRY_COUNT):
-        raise ValueError(f"unexpected LWLF identity: {fv}, {cv}, {len(entries)}")
+    _, _, entries = probe.read_lwlf(path)
     return dict(entries)
 
 
@@ -115,6 +105,10 @@ def main() -> None:
     ap.add_argument("--near", help="filter instructions around matching text")
     ap.add_argument("--output", type=Path, help="write report to ignored scratch JSON")
     args = ap.parse_args()
+    with Path(args.package).open("rb") as file:
+        package_sha256 = hashlib.file_digest(file, "sha256").hexdigest()
+    file_version, content_version, _ = probe.read_lwlf(Path(args.package))
+    print(f"PACKAGE sha256={package_sha256} lwlf={file_version} content={content_version}", file=sys.stderr)
     entries = load_entries(Path(args.package))
     patterns = args.entry or []
     names = [name for name in entries if any(fnmatch.fnmatchcase(name, pat) for pat in patterns)]
