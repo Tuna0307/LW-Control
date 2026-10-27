@@ -58,6 +58,25 @@ local function member(object, key)
     return nil
 end
 
+-- Explicit links installed by cooperating bridge modules. Unknown replacements
+-- still fail closed; mere closure nesting is never inferred with debug APIs.
+local observer_links=setmetatable({},{__mode='k'})
+function M.RegisterObserverLink(object,key,wrapper,previous)
+    if type(wrapper)~='function'or type(previous)~='function'or member(object,key)~=wrapper then return false end
+    observer_links[wrapper]={object=object,key=key,previous=previous};return true
+end
+function M.ObserverContains(object,key,expected)
+    if type(expected)~='function'then return false end
+    local current=member(object,key)
+    for _=1,32 do
+        if current==expected then return true end
+        local link=observer_links[current]
+        if not link or link.object~=object or link.key~=key then return false end
+        current=link.previous
+    end
+    return false
+end
+
 local function invoke(object, method, ...)
     local fn = member(object, method)
     if type(fn) ~= "function" then return false, nil end
@@ -609,7 +628,7 @@ local function observe_attack_sender()
         -- A new/replaced native sender could bypass the observation fence.
         -- Never wrap a different sender as though it were the exact original
         -- previously captured for an outstanding nonce transaction.
-        return net==observed_send_owner and original==observed_send
+        return net==observed_send_owner and M.ObserverContains(net,'SendMessage',observed_send)
     end
     if type(original)~="function" then return false end
     observed_send=function(route,...)
@@ -617,6 +636,13 @@ local function observe_attack_sender()
         local defs=rawget(_G,"MsgDefines")
         local created=route==member(defs,"WorldMarchFormationNew")
         local changed=route==member(defs,"WorldMarchChange")
+        local strict=active_attack_invocation
+        if strict and strict.strictIdleJoin then
+            if not created or not native_create_send_matches(strict,args,true)or strict.sendCount~=0 or
+               type(strict.guard)~='function'or not strict.guard()then
+                error('Idle rally join owner/formation/target or native route changed before send',0)
+            end
+        end
         local matched={}
         if created or changed then
             for _,transaction in pairs(attacks) do
@@ -671,6 +697,7 @@ local function observe_attack_sender()
         return table.unpack(returned,2,returned.n)
     end
     net.SendMessage=observed_send
+    M.RegisterObserverLink(net,'SendMessage',observed_send,original)
     observed_send_owner=net
     return member(net,"SendMessage")==observed_send
 end
@@ -698,7 +725,7 @@ local function observe_create_serializer()
     local original=ok and member(class,"OnCreate") or nil
     if observed_create_serializer then
         return class==observed_serializer_owner and
-            original==observed_create_serializer
+            M.ObserverContains(class,'OnCreate',observed_create_serializer)
     end
     if type(original)~="function" then return false end
     local wrapper=function(self,formation,kind,target,...)
@@ -720,6 +747,7 @@ local function observe_create_serializer()
         return table.unpack(returned,2,returned.n)
     end
     class.OnCreate=wrapper
+    M.RegisterObserverLink(class,'OnCreate',wrapper,original)
     observed_create_serializer=wrapper
     observed_serializer_owner=class
     return member(class,"OnCreate")==wrapper
@@ -731,7 +759,7 @@ local function observe_attack_replies()
     for _,name in ipairs({"WorldMarchFormationNewMessage","WorldMarchChangeMessage"}) do
         local ok,class=pcall(require,"Net.Msgs."..name)
         local current=ok and member(class,"HandleMessage") or nil
-        if observed_replies[name] and current~=observed_replies[name] then
+        if observed_replies[name] and not M.ObserverContains(class,'HandleMessage',observed_replies[name]) then
             -- Another owner replaced or reloaded the original reply handler.
             -- Never silently recapture it: the original callback chain and
             -- exact native response attribution are no longer demonstrated.
@@ -779,12 +807,13 @@ local function observe_attack_replies()
                     return table.unpack(returned,2,returned.n)
                 end
                 class.HandleMessage=wrapper
+                M.RegisterObserverLink(class,'HandleMessage',wrapper,original)
                 observed_replies[name]=wrapper
         end
         if name=="WorldMarchFormationNewMessage" then
             create_reply_observer_intact=ok and
                 observed_replies[name]~=nil and
-                member(class,"HandleMessage")==observed_replies[name]
+                M.ObserverContains(class,'HandleMessage',observed_replies[name])
         end
     end
     return create_reply_observer_intact
@@ -2519,6 +2548,59 @@ function M.AutomationSend(fields, input_clear, target, continuous)
         return result
     end
     return {state="accepted",data={requestDispatched=true,nativeTransaction=transaction_view(transaction)}}
+end
+
+-- Original v27 ChangeMarchByType 1206-1212 obtains an EXISTING march before
+-- OnJoinRally(1352). An idle formation instead uses TryStartMarch(...,true,...)
+-- -> SendCreateMarchMessage -> StartMarch's formation argument, never march UUID.
+function M.AutomationJoinIdle(fields,input_clear,target)
+    local uid,denial=owner_and_focus(fields,input_clear,false)
+    if not uid then return denial end
+    local ready,prior=settle_previous_attack_for_fresh_order(fields,input_clear,uid)
+    if not ready then return prior end
+    local account=native_account()
+    local forms=member(rawget(_G,'DataCenter'),'ArmyFormationDataManager')
+    local manager=member(rawget(_G,'DataCenter'),'WorldMarchDataManager')
+    local ok,form=invoke(forms,'GetOneArmyInfoByIndex',tonumber(fields.slot))
+    local formation,native_form=ident(member(form,'uuid'))
+    if not ok or not formation or ident(member(form,'ownerUid'))~=uid or
+       number(member(form,'index'))~=tonumber(fields.slot)then return failed('Assigned rally formation identity unavailable')end
+    local staffed=invoke(form,'ConscriptSoldier')
+    if not staffed or not formation_staffing(form).staffedForAttack then return failed('Assigned rally squad lacks native troops')end
+    local fresh=target and M.AutomationRallyInfo(target.uuid,true)
+    local kind=member(rawget(_G,'MarchTargetType'),'JOIN_RALLY')
+    local back=member(rawget(_G,'MarchAutoBackType'),'Back')
+    local util=rawget(_G,'MarchUtil')
+    local energy_ok,energy=invoke(forms,'GetCurStaminaByUuid',native_form)
+    if not fresh or fresh.monsterId~=target.monsterId or not fresh.monster or fresh.player then
+        return failed('Native monster rally target changed')
+    end
+    if kind==nil or back==nil or not energy_ok or not number(energy)or
+       type(member(util,'TryStartMarch'))~='function'or not observe_create_serializer()or
+       not observe_attack_sender()or not observe_attack_replies()then return unsupported('Native idle rally route/observers unavailable')end
+    local function guard()
+        local current=target and M.AutomationRallyInfo(target.uuid,true)
+        local same,assigned=invoke(forms,'GetOneArmyInfoByIndex',tonumber(fields.slot))
+        local readable,busy=invoke(manager,'GetOwnerFormationMarch',member(account.player,'uid'),native_form,member(account.player,'allianceId'))
+        return owner_and_focus(fields,input_clear,false)==uid and same and
+            ident(member(assigned,'uuid'))==formation and ident(member(assigned,'ownerUid'))==uid and
+            number(member(assigned,'index'))==tonumber(fields.slot)and readable and busy==nil and current and
+            current.monsterId==fresh.monsterId and current.pointIndex==fresh.pointIndex and current.monsterUuid==fresh.monsterUuid
+    end
+    if not guard()then return failed('Idle rally owner, formation or target changed before send')end
+    fields.automationRally=true
+    local transaction={session=current_session,uid=uid,formation=formation,kind=kind,targetPoint=fresh.pointIndex,
+        targetUuid=fresh.uuid,server=account.server,sentAt=os.time(),sendCount=0,automation=true,strictIdleJoin=true,guard=guard}
+    attacks[fields.slot]=transaction;active_attack_invocation=transaction
+    local sent,error=pcall(util.TryStartMarch,native_form,kind,energy,true,tonumber(fresh.uuid),fresh.pointIndex,back,nil,nil,tonumber(account.server))
+    active_attack_invocation=nil
+    if not sent or transaction.sendCount~=1 or transaction.senderReturned~=true or
+       transaction.senderReturnedFalse or not transaction.clientCreateUuid then
+        local result=failed('Native idle rally send was not confirmed; no automatic retry')
+        result.data={dispatchAttempted=true,nativeTransaction=transaction_view(transaction),detail=not sent and tostring(error)or nil}
+        return result
+    end
+    return {state='accepted',data={requestDispatched=true,directJoin=true,nativeTransaction=transaction_view(transaction)}}
 end
 
 function M.AutomationObserve(fields,input_clear)

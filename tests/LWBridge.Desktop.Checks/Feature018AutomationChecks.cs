@@ -81,6 +81,10 @@ internal static class Feature018AutomationChecks
             await game.InvokeAsync("feature018_automation_configure", JsonSerializer.SerializeToElement(new { kind = "allianceHelp" }), token);
             if (fields?["authorizedUid"] != "1001" || JsonNode.Parse(fields["confirmedAutomationConfig"])!["allianceHelp"]!["enabled"]!.GetValue<bool>() != true)
                 throw new Exception("R30 game config did not come from the owned profile store");
+            await game.InvokeAsync("feature018_automation_stop", JsonSerializer.SerializeToElement(new { kind = "allianceHelp" }), token);
+            if (fields is null || !fields.ContainsKey("confirmedAutomationConfig") ||
+                JsonNode.Parse(fields["confirmedAutomationConfig"])!["allianceHelp"]!["enabled"]!.GetValue<bool>() != true)
+                throw new Exception("Stop must carry the current trusted settings, not the last page's configuration");
             foreach (object forged in new object[] { new { kind = "allianceHelp", authorizedUid = "999" }, new { kind = "allianceHelp", confirmedAutomationConfig = "{}" } })
             {
                 try { await game.InvokeAsync("feature018_automation_configure", JsonSerializer.SerializeToElement(forged), token);throw new Exception("R30 forged game authority accepted"); }

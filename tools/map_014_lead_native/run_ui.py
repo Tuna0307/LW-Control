@@ -386,7 +386,7 @@ def main():
     owned = subprocess.Popen([
         str(publish), "--isolated-root", str(destination),
         "--normal-ui-live-map-proof", str(proof),
-        "--view", "map-data", "--language", "en", "--theme", "light"
+        "--view", "overview" if os.environ.get("LWBRIDGE_STARTUP_HOME_PROOF") == "1" else "map-data", "--language", "en", "--theme", "light"
     ], startupinfo=startup, env=environment)
     (destination / "owned-process.json").write_text(json.dumps({
         "pid": owned.pid, "publish": str(publish), "source": str(source)

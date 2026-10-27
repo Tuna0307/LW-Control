@@ -46,16 +46,36 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
         // for this operation (or rejects it before dispatch). A failed local
         // mailbox publication can therefore be released without replaying it.
         if (error.code === "EQUIPMENT_EDIT_REJECTED") setPending(null);
-        if (!interrupted(error)) throw error;
+        // After dispatch, native slot and wearer pushes can briefly disagree
+        // even when the request is valid. Keep querying the frozen operation;
+        // never release its fence or retransmit because an observation failed.
+        if (!interrupted(error) && error.code !== "GAME_PRECONDITION_FAILED") throw error;
       }
     }
     // Completion is already authenticated. A subsequent read failure must not
     // leave an equipment transaction fenced forever; normal sync can retry it.
-    setPending(null); return snapshot();
+    setPending(null);
+    try { return await snapshot(); }
+    catch (error) {
+      // The native transaction already confirmed completion. A later read
+      // failure must not reclassify it as a rejected or uncertain mutation.
+      error.equipmentConfirmed = true;
+      throw error;
+    }
   };
   return {
     snapshot, assertOwner,
     readPresets: () => invoke("equipment_config_get"),
+    async renamePreset(slot, name, expectedPresetId) {
+      if (getPending()) throw new Error("Wait for the current equipment change to finish.");
+      if (!equipmentSlots.includes(slot) || typeof name !== "string" || !name.trim())
+        throw new Error("Choose a preset from 1 to 4 and enter its name.");
+      // A rename changes only its name. Do not take a fresh gear snapshot or
+      // recapture the saved loadout, and preserve other presets/restoration data.
+      if (typeof expectedPresetId !== "string" || !expectedPresetId)
+        throw Object.assign(new Error("The saved equipment preset is unavailable."), { code: "INVALID_REQUEST" });
+      return invoke("equipment_preset_rename", { slot, expectedPresetId, name: name.trim() });
+    },
     async savePreset(slot, name, defaultPresetName) {
       if (getPending()) throw new Error("Wait for the current equipment change to finish.");
       if (!equipmentSlots.includes(slot) || !name.trim()) throw new Error("Choose a preset from 1 to 4 and enter its name.");

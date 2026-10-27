@@ -109,7 +109,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
   const perform = async (operation, success = "squad.liveEquipmentUpdated") => {
     if (action.current || !runtime) return;
     const owner = runtime;
-    action.current = true; mutationGeneration.current += 1; setBusy(success === "squad.livePresetCaptured" ? "preset-save" : "game-change"); setError(null); setNotice(""); setDragged(null); setDropTarget("");
+    action.current = true; mutationGeneration.current += 1; setBusy(["squad.livePresetCaptured", "squad.livePresetRenamed"].includes(success) ? "preset-save" : "game-change"); setError(null); setNotice(""); setDragged(null); setDropTarget("");
     try {
       const result = await operation(), fresh = result.snapshot || result;
       owner.assertOwner();
@@ -119,9 +119,23 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
       }
     } catch (failure) {
       if (activeRuntime.current === owner) {
-        setError({ source: "action", failure });
-        try { const fresh = await owner.snapshot(); if (activeRuntime.current === owner) { setSnapshot(fresh); setHealthy(true); } }
-        catch (refreshFailure) { setHealthy(false); setError((current) => current?.source === "action" ? current : { source: "snapshot", failure: refreshFailure }); }
+        setError(failure.equipmentConfirmed === true
+          ? { source: "snapshot", key: "squad.liveEquipmentConfirmedRefreshPending" }
+          : { source: "action", failure });
+        try {
+          const fresh = await owner.snapshot(); owner.assertOwner();
+          if (activeRuntime.current === owner) {
+            setSnapshot(fresh); setHealthy(true);
+            if (failure.equipmentConfirmed === true) { setError(null); setNotice(success); }
+          }
+        }
+        catch (refreshFailure) {
+          if (activeRuntime.current === owner) {
+            setHealthy(false);
+            setError((current) => current?.source === "action" || failure.equipmentConfirmed === true
+              ? current : { source: "snapshot", failure: refreshFailure });
+          }
+        }
       }
     } finally {
       action.current = false;
@@ -143,15 +157,16 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
     <div className="equipment-preset-toolbar">
       <div><strong>{t("squad.liveEquipment")}</strong><span>{t("squad.liveEquipmentHelp")}</span></div>
     </div>
-    <div role="status" data-equipment-sync={busy ? "updating" : runtime?.pending ? "pending" : healthy ? "synced" : "offline"}>{t(busy === "preset-save" ? "common.processing" : busy ? "squad.liveEquipmentUpdating" : runtime?.pending ? "squad.liveEquipmentPending" : healthy ? "squad.liveEquipmentSynced" : "status.gameDisconnectedDisabled")}</div>
+    <div role="status" data-equipment-sync={busy ? "updating" : runtime?.pending ? "pending" : healthy ? "synced" : online && runtime ? "refreshing" : "offline"}>{t(busy === "preset-save" ? "common.processing" : busy ? "squad.liveEquipmentUpdating" : runtime?.pending ? "squad.liveEquipmentPending" : healthy ? "squad.liveEquipmentSynced" : online && runtime ? "common.loading" : "status.gameDisconnectedDisabled")}</div>
     {runtime?.pending && !busy ? <button type="button" data-equipment-action="resume" disabled={!online} onClick={() => perform(() => runtime.resume())}>{t("squad.liveEquipmentConfirm")}</button> : null}
-    {error ? <div className="equipment-result equipment-result-rejected" role="alert">{equipmentErrorText(t, error)}</div> : null}
+    {error ? <div className={`equipment-result${error.key === "squad.liveEquipmentConfirmedRefreshPending" ? "" : " equipment-result-rejected"}`} role={error.key === "squad.liveEquipmentConfirmedRefreshPending" ? "status" : "alert"}>{equipmentErrorText(t, error)}</div> : null}
     {notice && !busy ? <div className="equipment-result equipment-result-success" role="status">{t(notice, { number: selectedPreset + 1 })}</div> : null}
     <section className="equipment-live-presets" data-equipment-presets="true">
       <strong>{t("squad.equipmentPresets")}</strong><p>{t("squad.livePresetHelp")}</p>
       <div className="equipment-preset-list">{presets?.equipmentPresets.map((preset, index) => <button type="button" key={preset.id} data-equipment-preset={index + 1} className={selectedPreset === index ? "active" : ""} disabled={busy || runtime?.pending} onClick={() => { setSelectedPreset(index); setPresetName(preset.name); setNotice(""); }}><span>{preset.name}</span><small>Alt+{index + 1} · {t(savedPositionCount(preset) ? "squad.livePresetSaved" : "squad.livePresetEmpty")}</small></button>)}</div>
       <div className="equipment-preset-actions">
         <label>{t("squad.presetNamePrompt")}<input data-equipment-preset-name="true" value={presetName} disabled={disabled || !presets} onChange={(event) => setPresetName(event.target.value)} /></label>
+        <button type="button" data-equipment-action="rename-preset" disabled={disabled || !presets || !savedPositionCount(selected) || !presetName.trim() || presetName.trim() === selected?.name} onClick={() => perform(async () => ({ snapshot, config: await runtime.renamePreset(selectedPreset + 1, presetName, selected.id) }), "squad.livePresetRenamed")}>{t("squad.livePresetRename")}</button>
         <button type="button" data-equipment-action="save-preset" disabled={disabled || !presets || !presetName.trim()} onClick={() => perform(() => runtime.savePreset(selectedPreset + 1, presetName, (number) => t("squad.presetDefaultName", { number })), "squad.livePresetCaptured")}>{t("squad.livePresetCapture")}</button>
         <button type="button" data-equipment-action="equip-preset" disabled={disabled || !savedPositionCount(selected)} onClick={() => perform(() => runtime.applyPreset(selectedPreset + 1), "squad.livePresetEquipped")}>{t("squad.livePresetEquip")}</button>
       </div>

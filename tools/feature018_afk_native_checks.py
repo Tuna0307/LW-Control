@@ -103,6 +103,24 @@ def main():
       leader.status=0;war.attackAllianceId=8;assert(attack.AutomationRallyInfo('700',true)==nil)
       war.attackAllianceId=7;war.targetUid=11;assert(attack.AutomationRallyInfo('700',true)==nil)
       war.targetUid=10;state.march=nil
+      MarchUtil.TryStartMarch=function(formation,kind,energy,isFormation,uuid,point,back,a,b,server)
+        assert(formation==101 and kind==4 and isFormation==true and uuid==700 and point==100101 and back==1 and server==123,
+          'Idle join must create with the formation argument, never pass it as an existing march')
+        SFSNetwork.SendMessage(99,formation,kind,uuid,'100100;100101')
+      end
+      MarchUtil.OnJoinRally=function()error('Existing-march join must never receive an idle formation')end
+      local sends_before=state.sends
+      local joined_idle=attack.AutomationJoinIdle(fields,input,rally)
+      assert(joined_idle.state=='accepted'and joined_idle.data.requestDispatched and state.sends==sends_before+1,
+        joined_idle.error or 'Idle rally create is dispatched once')
+      assert(attack.AutomationObserve(fields,input).state=='accepted','A send is not a join acknowledgement')
+      state.march={uuid=605,ownerUid='1001',ownerFormationUuid=101,targetUuid=999,serverId=123,
+        GetMarchTargetType=function()return 4 end,clientCreateGuid='12345678-1234-4abc-8def-000000000001'}
+      assert(attack.AutomationObserve(fields,input).state~='confirmed','Unrelated same-formation march cannot confirm joining')
+      state.march.targetUuid=700
+      assert(attack.AutomationObserve(fields,input).state=='confirmed','Exact target and native GUID confirm joining')
+      state.march=nil
+      state.sends=sends_before -- Reset this isolated fixture's counter for the existing chooser scenarios below.
       UIWindowNames={UIFormationSelectListV2='formation'}
       local window
       UIManager={GetInstance=function()return {IsWindowOpen=function()return window~=nil end,
@@ -153,6 +171,9 @@ def main():
     vm.globals().native = native
     vm.execute('''
       native.Register(transport,overview)
+      fields.confirmedAfkConfig='{}'
+      assert(native.Configure(fields).state=='confirmed' and not native.Status().data.running,
+        'Disabled saved AFK settings must not start a fresh engine during initialization')
       local s=native.Status().data
       assert(getmetatable(s.rows).__feature018_array and getmetatable(s.receipts).__feature018_array,
         'The feature transport, not the Overview owner, must tag empty JSON arrays')

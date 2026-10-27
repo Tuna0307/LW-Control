@@ -62,6 +62,23 @@ class ResourceReplyCorrelation(unittest.TestCase):
     def check(self, code):
         self.assertTrue(LuaRuntime().execute(MODEL + BODY + code + '\nreturn true'))
 
+    def test_registered_successor_preserves_reply_and_unknown_wrapper_refused(self):
+        vm = LuaRuntime()
+        vm.globals().api = vm.execute((ROOT / 'tools/feature018_attack_actions.lua').read_text('utf-8'))
+        vm.execute("package.loaded['DataCenter.Global.LWBridgeFeature018AttackActions']=api")
+        self.assertTrue(vm.execute(MODEL + BODY + r'''
+assert(queue());local state=resource_scan_detail_runtime.state
+local previous=class.HandleMessage
+class.HandleMessage=function(...)return previous(...)end
+assert(api.RegisterObserverLink(class,'HandleMessage',class.HandleMessage,previous))
+assert(resource_scan_detail_runtime.install());reply(101,42,75,2212)
+assert(select(2,resource_scan_detail_runtime.rows(state))==1)
+previous=class.HandleMessage;class.HandleMessage=function(...)return previous(...)end
+assert(not resource_scan_detail_runtime.install())
+assert(select(2,resource_scan_detail_runtime.rows(state))==0)
+return true
+'''))
+
     def test_cached_foreign_detail_is_ignored_and_fresh_reply_frozen(self):
         self.check(r'''
 cache[42]={remainRes=99,initRes=200}

@@ -192,6 +192,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                             "PROFILE_RUNTIME_UNAVAILABLE",
                             "The requested profile has no active local runtime owner.")));
             var featureCommands = new Feature018GameCommandService(lifecycle, equipment, runtimeConfigStore);
+            if (lifecycleTestHooks is null)
+                automationStatus.SetRuntimeStartup(Feature018RuntimeStartup.Create(lifecycle, equipment, runtimeConfigStore));
             automationStatus.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
                 await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
             automationStatus.SetNativeChatStatusReader(async token => JsonSerializer.SerializeToNode(

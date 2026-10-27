@@ -20,6 +20,7 @@ let handler;
 const calls = [], profiles = new Map();
 const realNow = Date.now; let clock = realNow(); Date.now = () => clock;
 let getStatusFailures = 1, catalogFailures = 1;
+let runtimeResult = { running: false, state: "idle", rows: [], processed: {} };
 const empty = () => ({ enabled: false, strategies: [], allianceDrill: { enabled: false, activeRally: false, squadIndexes: [], joinRestrictions: { enabled: false, mode: "delay", slotRange: [2, 2], slotDelaySeconds: 0, delaySeconds: [1, 3], maxWaitMinutes: 5, leaderListMode: "off", leaders: [], skipSoloLeader: false, skipKicked: true } } });
 window.__LWBridgeBootstrap = { mode: "live", sessionId: "afk-mounted", profiles: { selectedProfileId: "A" } };
 window.chrome = { webview: {
@@ -39,7 +40,7 @@ window.chrome = { webview: {
     }
     let result = {};
     if (message.command === "get_status") result = { config: { tasks: { monsterSweep: profiles.get(p) || empty(), staminaPotion: { enabled: false, minStamina: 10, preferFifty: false } } } };
-    if (message.command === "feature018_afk_status") result = { running: false, state: "idle", rows: [], processed: {} };
+    if (message.command === "feature018_afk_status") result = structuredClone(runtimeResult);
     if (message.command === "monster_catalog_options") result = { unlockedSquads: [1], options: [{ key: "native-zombie", name: "Native Zombie", monsterNameKey: "native-zombie", monsterType: 2, monsterSpecial: 0, monsterIds: [], group: "normal", source: "search", action: "attack", rally: false, searchable: true, minLevel: 1, maxLevel: 30 }], allianceMembers: { ready: true, members: [], selfUid: "1001", online: true } };
     if (message.command === "monster_afk_config_save") { const { profileId, ...draft } = message.payload; profiles.set(p, structuredClone(draft)); result = draft; }
     queueMicrotask(() => handler({ data: { kind: "response", sessionId: "afk-mounted", id: message.id, ok: true, result } }));
@@ -105,6 +106,14 @@ assert.ok(ids.includes(firstId));
 await flush(() => document.querySelector('.monster-afk-toolbar input[type="checkbox"]').click());
 await flush(() => mounted.unmount());
 assert.equal(tick, undefined, "AFK polling must stop on unmount");
+const failedConfig=profiles.get('A');failedConfig.allianceDrill={...failedConfig.allianceDrill,enabled:true,squadIndexes:[1]};
+runtimeResult={running:false,state:'idle',rows:[],processed:{},allianceDrill:{state:'failed',running:false,
+  step:'joining',lastError:'Rally join was not confirmed by a native march',rows:[{squadIndex:1,step:'joining',activityRole:'member'}]}};
+const failedRoot=req('react-dom/client').createRoot(document.getElementById('root'));
+await flush(()=>failedRoot.render(React.createElement(I18nProvider,{},React.createElement(SquadsPage,{profileId:'A',online:true,activeTab:'afk',key:'failed-drill'}))));
+assert.ok(document.querySelector('[data-drill-runtime=failed]'),'Failed Drill is visible');
+assert.doesNotMatch(document.body.textContent,/Joining a rally|Leading a rally/,'Stale pending rows must not describe a failed engine as joining');
+await flush(()=>failedRoot.unmount());
 Date.now = realNow;
 dom.window.close();
 console.log("FEATURE018_R29_AFK_MOUNTED_OK: offline gate, hydrate recovery, catalogue backoff, localized failures, native save/Start/Stop");

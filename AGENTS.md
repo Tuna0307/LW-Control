@@ -1,3 +1,123 @@
+Latest lead release, 2026-10-27: owner asked to release now and is taking a break from the project.
+Lead merged codex/lwtool-remaining-tabs (PR #17) into main and published lw-control-v1.2-2026-10-27
+from product/package f93c3b9a2e56049f94976d204e43140cc5c0e8d1 (ZIP SHA-256 88697ff5…). Includes
+remaining tabs, Chat rewards, gathering recall/Drill fixes, startup sync and Treasure on LwTool's Dig
+Treasure logic (docs/reviews/2026-10-26-TREASURE-LWTOOL-LOGIC.md). Treasure, gathering redirect and
+live Drill join are inert-qualified only; owner will test Treasure live later. No worker task open.
+
+Latest worker startup handback, 2026-10-26: product/package b6b49eafdbf646cb05f51acc6997d84d4ed299cd,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-STARTUP-SYNCHRONIZATION.md and
+docs/proof/STARTUP-SYNCHRONIZATION-2026-10-26.json. Saved background configuration synchronizes from
+retained profile runtime, with bounded independent retry and exact owner fencing, without tab mounts.
+Final extracted package passed Home-only initialization, saved one-squad Gather activation and exact
+recall/all-home observation; disabled controllers stayed disabled. Published Chat cache is fenced at
+consumption. Original files restored and task app/game processes closed. No live AFK attack, Stamina
+item use or Drill join in this pass; independent acceptance/merge/release remain open. Reuse pinned
+package for documentation-only follow-ups and rebuild for changed product inputs.
+
+Latest owner startup assignment, 2026-10-26: fix saved features requiring visits to every tab/category
+after launching. Continue codex/lwtool-remaining-tabs / draft PR #17; read
+docs/reviews/2026-10-26-STARTUP-SYNCHRONIZATION.md. Initialize saved background configuration through
+retained per-profile runtime ownership, preserve strict session/account/no-replay and prior recall
+fixes, and qualify while Home remains the only visited page. Use the existing narrow approved main
+gather/recall scope for the optional single-squad regression; other main gameplay stays excluded.
+No main merge or release; rebuild for product-input changes and retain unsuccessful proof receipts.
+
+Latest worker repeated-recall handback, 2026-10-26: product/package 31523249098c00a60a44a5cfa6dd033272d4ebbe,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-GATHER-RECALL-RETENTION.md and
+docs/proof/GATHER-RECALL-RETENTION-2026-10-26.json. Exact gathering records survive temporary authority
+loss in the same VM/session; changed ownership and uncertain sends remain refused. Stop honors current
+trusted checkbox settings and reports missing tracking. The final extracted ZIP confirmed four new
+gathers/four recalls after a real 12-second host-only pause with Map scanning, then witnessed all four
+home. All original files restored, no task app/game processes. First package attempt had recall saved
+false because scripted setup clicked disabled controls; retained as a failed positive, proof now checks
+persisted preconditions. No arbitrary-duration guarantee, live Drill positive, independent acceptance,
+merge or release. Reuse the pinned ZIP for documentation-only work; rebuild for product-input changes.
+
+Latest owner gathering retest authority, 2026-10-26: owner explicitly selected "Allow fresh gathering
+tests on main" after the repeated recall failure. Fresh sends and exact recalls of up to four squads
+on verified empty ordinary resource tiles are authorized on the current main account for this test.
+This narrowly supersedes earlier recall-only/no-fresh-main restrictions. No purchases, items, chat,
+unrelated marches, other main-account actions, merge or release. Exact process/account/session ownership,
+no uncertain-send replay and script restoration still apply. Preserve existing live evidence first;
+qualify the same-session authority-gap and current-checkbox fixes with four real squads if available.
+
+Latest worker gathering continuation, 2026-10-26: product/package 552c1a8a779135e2f197cf0fffeb8ee95294ef8f,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-GATHER-MAP-CALLBACK-FIX.md and
+docs/proof/GATHER-MAP-CALLBACK-FIX-2026-10-26.json. Map detail and Hotkey recall observers now register
+explicit links; unknown wrappers remain refused. Old Map source fails the isolated collision test.
+Final ZIP confirms two new gathers/two exact recalls while Map scans; both native marches BACK_HOME,
+all original scripts restored, no task processes. Earlier one-/three-squad standalone tests pass.
+The negative-control squad-1 trip remains collecting: a manual Hotkey cleanup returned uncertain and
+was NOT retried; do not adopt it into a new gather session or claim a live Hotkey positive. Owner cleanup
+is still needed. No fourth-squad/live patched Drill positive, independent acceptance, merge or release.
+Reuse the source-pinned ZIP for documentation-only follow-ups; rebuild if product inputs change.
+
+Latest owner gathering continuation, 2026-10-26: owner switched to the approved test sub-account and
+explicitly authorized testing and task-owned game startup. Exact UID/server admission remains mandatory;
+the account has three unlocked squads. Read docs/reviews/2026-10-26-GATHER-MAP-CALLBACK-FIX.md.
+Continue codex/lwtool-remaining-tabs / draft PR #17. Reproduce On/gather/Off, including concurrent Map
+callbacks, and qualify a fresh source-pinned package. No automatic adoption of old/unrelated marches,
+uncertain-send replay, main-account action expansion, merge or release. Preserve prior tabs/restoration.
+
+Latest worker gathering/Drill handback, 2026-10-25: source 44be59d892ad9faf0d09f8342f31a99b273d5c1a,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-25-GATHER-DRILL-OWNER-FIX.md and
+docs/proof/GATHER-DRILL-OWNER-FIX-2026-10-25.json. Idle join used a formation UUID as an existing march;
+corrected native create path now has exact send/GUID/target confirmation. Gathering/attack observers
+cooperate through explicit bounded links; unknown replacements remain refused. Failed Drill UI is fixed.
+Paired old/new recall regression, Lua/UI/Desktop suites, fresh publish and exact package integrity pass.
+Patched live recall/join remain open: original event ended. One manual native Dispatch control is not an
+exact correlated positive; no agent recall packet sent. Owner's original app/game are left running on the
+old package; no active script replacement/restoration occurred. New tests need the new package/fresh
+ownership; do not adopt earlier gathering trips. No merge/release; independent review remains open.
+
+Latest owner bug assignment, 2026-10-25: fix gathering recall-on-disable and Alliance Drill not joining.
+Continue codex/lwtool-remaining-tabs / draft PR #17. Read docs/work-items/OWNER-GATHER-DRILL-FIX-2026-10-25.md.
+Owner explicitly permits ONLY these two live tests on the current main account: recalling tool-owned
+gathering squads and joining the current Drill rally. Other main gameplay remains read-only; do not
+expand this to fresh gathering dispatches, items, chat, purchases or unrelated marches. Preserve exact
+ownership/no replay and prior tabs. Capture random/event availability honestly. No merge or release.
+
+Latest worker Chat reward checkpoint, 2026-10-25: product 6d9c107166e92dbbf204d5c611ecd2a4d497625d,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/research/lwtool/2026-10-25/chat-rewards/IMPROVEMENTS.md
+and IMPROVEMENT_EVIDENCE.json. Counter ambiguity fixed, separate Gold controls/migration and bounded native
+room discovery implemented; controlled/UI/Desktop checks pass. Exact packaged read-only main-account
+catalog and original-script restoration pass. No live claim/reply or remote history request: eight native
+season servers but zero eligible known remote rooms. Special activity 710 remains unsupported. Do not
+claim full cross-server parity, live reward success or a speed winner. Main remains read-only; actual
+claims require the approved sub-account and natural opportunities. Independent review remains open;
+no merge/release. Reuse the pinned package for documentation-only follow-ups; rebuild for product changes.
+
+Latest owner Chat reward implementation approval, 2026-10-25: proceed with the recommended outcome
+counter fix, separate Gold Egg handling, source-qualified coverage and independent cross-server discovery
+investigation, then measurement. Read docs/work-items/LWTOOL-CHAT-REWARDS-IMPROVEMENT-2026-10-25.md.
+Continue codex/lwtool-remaining-tabs / draft PR #17; preserve prior tabs and exact ownership/restoration.
+This supersedes report-only scope below. No LwTool service dependency, main merge or release.
+
+Latest owner Chat reward comparison, 2026-10-25: Red Packet, Fireworks, Gold Egg and cross-server Gold Egg
+research is in docs/research/lwtool/2026-10-25/chat-rewards/COMPARISON.md and EVIDENCE.json. Documentation
+and inert comparison only; no product/game/service action. Current classifier handles 611/693, not 695/710;
+LwTool exposes separate Gold Egg controls and a broader optional cross-server feed, but its separate
+native claimant remains unavailable. CHAT-COMP-03 reproduces a got-cache/already-claimed success-counter
+ambiguity in ours. Proposed fixes are not implemented. No speed winner, merge or release is established.
+
+Latest worker remaining-tabs handback, 2026-10-25: source 4565147a9adf38ae0e21e535c584c2efaaf4aceb,
+codex/lwtool-remaining-tabs / draft PR #17. Read docs/research/lwtool/2026-10-25/remaining-tabs/FINAL_QUALIFICATION.md
+and EVIDENCE.json. Final-package Equipment, City and Settings checks/restoration pass; full UI/Desktop
+suites and 31 package-auditor tests pass. No current live attack/recall positive (unstaffed squads/target
+availability); Food House/chest/frontline positives await active game state. Do not turn availability
+checks into gameplay passes. Owner explicitly chose comparison only for speed-ups; keep them removed.
+Exact cleanup is verified, no task processes remain. Independent review/owner acceptance pending;
+no main merge or release. Reuse the source-pinned package for documentation-only follow-ups.
+
+Latest owner remaining-tabs assignment, 2026-10-25: compare Equipment, City Layout, Hotkeys, Mini Games
+and Settings side by side with LwTool; implement and qualify useful improvements. Use new branch
+codex/lwtool-remaining-tabs from main@122d1989 and read docs/work-items/LWTOOL-REMAINING-TABS-2026-10-25.md.
+Owner reports sub-account login and authorizes task app/game operation and feature actions there;
+freshly verify exact UID/server before mutations. Preserve accepted Home/Map, exact ownership and
+restoration; no real-money purchase, Unlock Land Cell, anti-cheat interference, main merge or release.
+Event/entitlement gaps stay explicit. Earlier no-worker-task and old Equipment/Mini deferrals are history.
+
 Latest lead release, 2026-10-25: lead audited PR #16 (all suites pass independently; own live Map smoke passes),
 merged codex/lwtool-full-improvement into main (f7fa931d) and published release lw-control-v1.1-2026-10-25.
 Home and Map done for owner scope. Known minor follow-ups: intermittent HomeR2 controlled assertion; retired-pipe

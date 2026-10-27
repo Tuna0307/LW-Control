@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-26",
+  "task": "Saved features initialize without tab visits",
+  "status": "INDEPENDENT_REVIEW_REQUIRED",
+  "sourceCommit": "b6b49eafdbf646cb05f51acc6997d84d4ed299cd",
+  "package": {
+    "name": "LW-Control-lwtool-improvement-b6b49eafdbf6.zip",
+    "sha256": "16e749846fea8a05a76b493bf0049bd6fa472920f49f1b7a942d09e982af0e49",
+    "executableSha256": "8fa9d8432857b767779838033e95b5dc15a04ec6f066055a6927d598af661847",
+    "archiveEntries": 105,
+    "verifiedRuntimeFiles": 104,
+    "sourceInputFileCount": 756,
+    "bridgeCount": 29,
+    "preLiveVerified": true,
+    "postLiveVerified": true
+  },
+  "proven": {
+    "native": true,
+    "fixture": false,
+    "homeOnly": true,
+    "startup": {
+      "ready": true,
+      "applied": [
+        "afk",
+        "allianceDrill",
+        "automation",
+        "chat",
+        "stamina",
+        "visualMetrics"
+      ],
+      "errors": {}
+    },
+    "backgroundTasksInitiallyDisabled": true,
+    "disabledGroupsNotStarted": true,
+    "persistedGatherEnableWithoutConfigureOrRun": true,
+    "automaticTrackedGatherCount": 1,
+    "exactRecallConfirmed": true,
+    "allSquadsHome": true,
+    "normalOwnedExit": true,
+    "originalFilesRestored": {
+      "LWScripts.data": true,
+      "LWScripts.txt": true,
+      "version.txt": true
+    },
+    "normalRecoveryJournalPresent": false
+  },
+  "controlledChecks": [
+    "Full Desktop delivery suite before final consumption-fence correction passed",
+    "Actual startup coordinator and status-service checks after final correction passed",
+    "Full unchanged UI suite passed",
+    "Native AFK/AFK engine/Stamina/Drill/Gather/lease/Map fixtures passed",
+    "Current trusted Stop-envelope configuration checked",
+    "Package auditor: 31 tests passed",
+    "Current probe packaging test passed"
+  ],
+  "retainedAttempts": [
+    {
+      "run": "20261026-121030",
+      "result": "Localized Home assertion failed before any fresh gathering; normal restoration"
+    },
+    {
+      "run": "20261026-121331",
+      "result": "Diagnostic Home-only automatic gather and recall passed"
+    },
+    {
+      "run": "20261026-122831",
+      "sourceCommit": "08bd8234f9249077a8ea4168439649ac26a5ee11",
+      "result": "Intermediate package Home-only automatic gather and recall passed"
+    }
+  ],
+  "liveLimits": [
+    "Disabled AFK, Stamina and Drill startup groups count as applied without dispatching Start",
+    "No live AFK attack, Stamina item use or Drill join was performed",
+    "Manual City, Equipment, Map scan and Mini Game actions remain manual",
+    "Finite startup regression, not every feature under every condition",
+    "Independent lead acceptance, merge and release remain open"
+  ],
+  "privacy": "No game UID, session/challenge, authentication material, march identity or private runtime path included"
+}

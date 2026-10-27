@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { chatRewardOutcomes } from "../src/locales/chat-reward-outcomes.js";
 import { fileURLToPath } from "node:url";
 import { retiredAutomationKey } from "./r30-retired-automation.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,7 +35,7 @@ const bridge = { profileId: "a", currentProfileOwner: () => ({ profileId: "a", g
   throw new Error(`Unexpected action: ${command}`);
 } };
 const flush = async fn => React.act(async () => { if (fn) await fn(); await new Promise(resolve => setTimeout(resolve, 0)); });
-for (const title of ["Red Packet", "Fireworks / Egg", "Treasure"]) {
+for (const title of ["Red Packet", "Fireworks / Egg", "Gold Egg", "Treasure"]) {
   let mounted;
   const mount = async () => { mounted = createRoot(document.getElementById("root")); await flush(() => mounted.render(React.createElement(I18nProvider, null, React.createElement(NativeChatAutomationCard, { title, description: "", online: false, profileId: "a", availableSquads: [], bridge })))); await flush(); };
   await mount();
@@ -134,5 +135,68 @@ await flush(() => treatmentToggle.click());
 assert.equal(calls[treatmentStop], "feature018_automation_stop");
 assert.ok(!document.querySelector('[data-native-automation=treatment] .automation-run-action'));
 await flush(() => treatmentRoot.unmount());
+for (const [state, field, label] of [["already_claimed", "alreadyClaimed", "Already claimed"],
+  ["exhausted", "exhausted", "No rewards left"], ["expired", "expired", "Expired"],
+  ["refused", "refused", "Refused"], ["unconfirmed", "unconfirmed", "Unconfirmed"]]) {
+  const profileId = `outcome-${state}`;
+  const outcomeBridge = { profileId, currentProfileOwner: () => ({ profileId, generation: 1 }),
+    isCurrentProfileOwner: o => o.profileId === profileId, invokeProfileScoped: async command => {
+      if (command === "feature018_chat_config_get") return { enabled: true };
+      if (command === "feature018_chat_status") return { services: { fireworks: { state, claimed: 0, [field]: 1 } } };
+      throw new Error(`Outcome display must not send a mutation: ${command}`);
+    } };
+  const outcomeRoot = createRoot(document.getElementById("root"));
+  await flush(() => outcomeRoot.render(React.createElement(I18nProvider, null,
+    React.createElement(NativeChatAutomationCard, { title: "Fireworks / Egg", description: "", online: true, profileId, bridge: outcomeBridge }))));
+  await flush();
+  assert.equal(document.querySelector(".automation-state").textContent, label);
+  const rewardRow = [...document.querySelectorAll(".automation-status-row")].find(r => r.textContent.includes("New rewards confirmed"));
+  assert.equal(rewardRow.querySelector("strong").textContent, "0", "Refusal/unknown must not look like a new reward");
+  assert.equal(document.querySelector(".state-success"), null);
+  await flush(() => outcomeRoot.unmount());
+}
+let goldSaved={enabled:true,legacyCombined:true};const goldCalls=[];
+const goldBridge={profileId:'gold',currentProfileOwner:()=>({profileId:'gold',generation:1}),
+  isCurrentProfileOwner:o=>o.profileId==='gold',invokeProfileScoped:async(command,payload)=>{
+    goldCalls.push(command);
+    if(command==='feature018_chat_config_get')return structuredClone(goldSaved);
+    if(command==='feature018_chat_status')return {services:{goldEgg:{state:'waiting',claimed:0,crossServer:{enabled:true,eligibleRooms:0}}}};
+    if(command==='feature018_chat_config_save'){assert.equal(payload.kind,'goldEgg');assert.equal('legacyCombined' in payload.config,false);
+      goldSaved=structuredClone(payload.config);return structuredClone(goldSaved);}
+    if(command==='feature018_chat_configure')return {};
+    throw new Error(command);
+  }};
+const goldRoot=createRoot(document.getElementById('root'));
+await flush(()=>goldRoot.render(React.createElement(I18nProvider,null,
+  React.createElement(NativeChatAutomationCard,{title:'Gold Egg',description:'',online:true,profileId:'gold',bridge:goldBridge}))));
+await flush();
+await flush(()=>document.querySelector('.automation-config-trigger').click());
+const goldOption=text=>[...document.querySelectorAll('[data-native-chat=goldEgg] button[role=switch]')].find(b=>b.textContent.includes(text));
+assert.equal(goldOption('Cross-server Gold Egg').disabled,true,'Migration requires explicit separation');
+assert.equal(goldOption('Skip birthday eggs').disabled,true);
+assert.ok(document.body.textContent.includes(chatRewardOutcomes.en['chatRewards.eventUnavailable']));
+const remoteRow=[...document.querySelectorAll('.automation-status-row')].find(r=>r.textContent.includes('Available cross-server rooms'));
+assert.equal(remoteRow.querySelector('strong').textContent,'0','Zero live room coverage stays visible');
+assert.equal(goldCalls.filter(c=>c==='feature018_chat_config_save').length,0,'Mount never saves migration');
+await flush(()=>document.querySelector('[data-chat-separate-gold]').click());
+await flush();
+assert.equal(goldOption('Cross-server Gold Egg').disabled,false);
+assert.equal(goldSaved.crossServerEnabled,false,'Separation does not enable remote discovery');
+await flush(()=>goldOption('Cross-server Gold Egg').click());
+await flush(()=>goldOption('Skip birthday eggs').click());
+assert.equal(goldSaved.crossServerEnabled,true);assert.equal(goldSaved.ignoreBirthday,true);
+assert.deepEqual(goldCalls.slice(-2),['feature018_chat_config_save','feature018_chat_configure']);
+await flush(()=>goldRoot.unmount());
+let retiredCalls=0;
+const retiredBridge={profileId:'successor',invokeProfileScoped:async()=>{retiredCalls++;throw new Error('Retired card invoked successor');}};
+const retiredRoot=createRoot(document.getElementById('root'));
+await flush(()=>retiredRoot.render(React.createElement(I18nProvider,null,
+  React.createElement(NativeChatAutomationCard,{title:'Gold Egg',description:'',online:true,profileId:'retired',bridge:retiredBridge}))));
+await flush();assert.equal(retiredCalls,0);assert.ok(document.querySelector('[role=alert]'),'Retired card stays mounted with an error instead of throwing');
+await flush(()=>retiredRoot.unmount());
+for (const [language, labels] of Object.entries(chatRewardOutcomes)) {
+  assert.equal(Object.keys(labels).length, 17, language);
+  for (const text of Object.values(labels)) assert.ok(text.trim(), language);
+}
 dom.window.close();
 console.log("FEATURE018_R30_REMOVALS_CHAT_COLLAPSE_PASS");

@@ -12,6 +12,8 @@ local bridge,array,owner,events,ledger_owner
 local configs,queue,seen,replies={},{},{},{}
 local listener={ready=false,observedMessages=0,eventMessages=0,retainedMessages=0}
 local services={}
+local response_hooks={}
+local cross={nextAt=0,cursor=1,allowed={},dirty={},batches=0,requestedRooms=0,eligibleRooms=0}
 local last_scan=0
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
 local function call(o,k,...)local f=get(o,k);if type(f)~='function'then return false end;return pcall(f,o,...)end
@@ -56,6 +58,30 @@ local function post(msg,key)
     local expected=get(rawget(_G,'PostType'),key)
     return expected~=nil and get(msg,'post')==expected
 end
+local function reward_config(job)
+    local config=configs[job.kind]or {}
+    if job.kind=='goldEgg'and config.legacyCombined==true then return configs[job.route]or {} end
+    return config
+end
+local function packet_family(data)
+    local packet=int(data.packetId)
+    local ok,template=call(center('RedPacketTemplateManager'),'GetTemplate',packet)
+    if not ok or not template then return nil end
+    local special,kind,goods=int(get(template,'special_type')),int(get(template,'type')),int(get(template,'goodsId'))
+    -- Native v27 packet catalog: government tax, trade/magatama, lucky
+    -- packets and birthday gifts. Diamond/birthday goods use the same
+    -- source-qualified OpenRedPacket route and its normal template checks.
+    if goods==670001 or (special==5 and kind==5)then return 'birthday' end
+    if goods==653052 then return 'diamond'end
+    if special==2 and kind==1 then return 'tax'end
+    if special==3 and kind==3 then return 'trade'end
+    if special==4 and kind==2 then return 'lucky'end
+end
+local function firework_type(data)
+    local config=int(data.configId)
+    local ok,value=invoke({get=rawget(_G,'GetTableData')},'get',get(rawget(_G,'TableName'),'Firework'),config,'type',0)
+    return config and ok and int(value)or nil
+end
 local function expire(msg,data,kind)
     local n=tonumber(data.expiredTime)
     if n and n>0 then return n end
@@ -67,19 +93,28 @@ local function expire(msg,data,kind)
 end
 local function describe(msg)
     local data=decode(msg);if not data then return nil end
-    local kind
-    if post(msg,'RedPackge_New')then kind='redPacket'
-    elseif post(msg,'FIREWORK_GIFT_REWARD')then kind='fireworks'
+    local kind,route,family
+    if post(msg,'RedPackge_New')then
+        kind='redPacket';route=kind;family=packet_family(data)
+        if family and configs.goldEgg then kind='goldEgg'end
+    elseif post(msg,'FIREWORK_GIFT_REWARD')then
+        kind='fireworks';route=kind
+        if configs.goldEgg and firework_type(data)==1 then kind='goldEgg';family='boss'end
+    elseif post(msg,'S0_ALLIANCE_BOSS_GIFT_REWARD')and configs.goldEgg and configs.goldEgg.legacyCombined~=true then
+        kind='goldEgg';route='fireworks';family='boss'
     elseif post(msg,'Detect_Treasure_Fin_Info')or post(msg,'Detect_Treasure_Reward_Fin_Info')or
         post(msg,'DetectEventGetDoubleTreasure')then kind='treasure'end
     if not kind then return nil end
     local uuid=data.uuid
     if uuid==nil or tostring(uuid)==''or #tostring(uuid)>128 then return nil end
-    if kind~='redPacket'and not id(uuid)then return nil end
+    route=route or kind
+    if route~='redPacket'and not id(uuid)then return nil end
     local server=int(data.targetServer or data.serverId)
     if server and server<0 then return nil end
-    local key=kind..'/'..tostring(server or 0)..'/'..tostring(uuid)
-    return {kind=kind,uuid=tostring(uuid),data=data,message=msg,key=key,expires=expire(msg,data,kind),
+    -- The ledger follows the actual native route, not the visible card. A
+    -- settings migration or a second announcement cannot send this reward twice.
+    local key=route..'/'..tostring(server or 0)..'/'..tostring(uuid)
+    return {kind=kind,route=route,family=family,uuid=tostring(uuid),data=data,message=msg,key=key,expires=expire(msg,data,route),
         roomId=get(msg,'roomId'),seqId=get(msg,'seqId'),server=server}
 end
 -- Owner 2026-10-22: optional active hours per Chat service (this computer's clock), e.g. 08:00-02:00
@@ -97,20 +132,49 @@ local function in_hours(config)
     return now>=a or now<b
 end
 local function active(config)return type(config)=='table'and config.enabled==true and in_hours(config)end
+local function gold_allowed(job,config)
+    if job.kind~='goldEgg'or configs.goldEgg.legacyCombined==true then return true end
+    if job.family=='boss'then
+        local ok,home=call(get(rawget(_G,'LuaEntry'),'Player'),'IsInSelfServer')
+        if not ok or home~=true then return false,'Native boss gifts require the home server'end
+    end
+    if job.family=='birthday'and config.ignoreBirthday==true then return false,'Birthday gifts are excluded'end
+    local home=owner.account:match('/(%d+)$')
+    if job.server and job.server>0 and tostring(job.server)~=home then
+        if config.crossServerEnabled~=true then return false,'Cross-server Gold Egg is disabled'end
+        if job.route=='redPacket'then
+            local ok,template=call(center('RedPacketTemplateManager'),'GetTemplate',int(job.data.packetId))
+            local allowed,value=call(ok and template,'IsCanCrossServer')
+            if not allowed or value~=true then return false,'Native packet cross-server conditions refused'end
+        end
+    end
+    return true
+end
 M._InHours=in_hours
 local function delay(range)
     range=type(range)=='table'and range or {0,0}
     local a,b=tonumber(range[1])or 0,tonumber(range[2])or 0
     return (a+math.random()*(b-a))*1000
 end
--- Owner 2026-10-22 Treasure: watch alliance chat for shared locations, find the real dig within
--- 3 tiles (people often share an empty tile next to it), send an idle squad to help dig
--- (MarchUtil.SendCreateMarchMessage DETECT_TREASURE, the game's own route), and claim with the
--- game's own request (UIUtil 4467: DetectEventClaimTreasure(uuid, serverId)) only for digs our
--- squad joined, after the time-of-day delay. Reply-confirmed; a refused claim is retried briefly.
+-- Treasure = alliance radar digs and Test Flight Failure treasures (TreasurePointInfo, pointType 21).
+-- Owner 2026-10-26: follow LwTool's "Dig Treasure" logic first (recovered settings/defaults, UI and
+-- result codes; its in-game Lua itself is not recovered, so unrecovered details are labelled):
+--  * Treasure Hunt: an alliance location share finds our alliance's digs on or within 3 tiles of it.
+--  * Unshared Treasure: each alliance location share also loads the 30x30 area around it (15 tiles
+--    each way, camera-free) and finds digs nobody shared.
+--  * Dig Dispatch: one squad per dig after the dig delay (ms, random +-20%), weakest or strongest
+--    first by the game's formation power (GetFormationPowerByUuid). Idle squads first; then (owner
+--    request) a squad out gathering is redirected with the game's own SendChangeMarchToServer, which
+--    MarchUtil.StartMarch (line 1945) uses whenever the chosen squad already has a march.
+--  * Claim: the game's DetectEventClaimTreasure(uuid, serverId) (UIUtil 4467) at the dig's completion
+--    time minus "Click before" (ms; negative = later), optional Random. Our squad need not have
+--    joined; treasure from my own radar is skipped by default. A "not finished yet" refusal
+--    (detect_dig_err_01) is retried briefly; "all slots taken" (radar_tips_4) is counted as late.
 local T={lookups={},digs={},shareSeen={},aoi=nil,hook=nil,
-    stats={sharesSeen=0,digsFound=0,dispatched=0,claimsSent=0,claimed=0,notJoined=0}}
-local SEARCH_RADIUS=3
+    stats={sharesSeen=0,digsFound=0,dispatched=0,redirected=0,claimsSent=0,claimed=0,late=0}}
+local HUNT_RADIUS,UNSHARED_RADIUS=3,15
+-- LwTool keeps randomClaimMax=10 without a recovered unit; Random here claims up to 10 s after the moment.
+local RANDOM_CLAIM_MS=10000
 local function world()return get(get(rawget(_G,'CS'),'SceneManager'),'World')end
 local function reflect(o,k)
     local direct=get(o,k);if direct~=nil then return direct end
@@ -130,25 +194,19 @@ function T.Ping()
     local ok,ping=call(proxy,'GetPing');ping=ok and tonumber(ping)or tonumber(reflect(proxy,'_ping'))
     return (ping and ping>0 and ping<5000)and ping or 0
 end
-function T.Delay(config)
-    local rows=type(config.claimSchedule)=='table'and config.claimSchedule or {}
-    local ok,t=pcall(os.date,'*t');local minute=ok and type(t)=='table'and t.hour*60+t.min
-    for _,r in ipairs(rows)do
-        local sh,sm=tostring(r.start or''):match('^(%d%d):(%d%d)$');local eh,em=tostring(r['end']or''):match('^(%d%d):(%d%d)$')
-        if minute and sh and eh then
-            local a,b=tonumber(sh)*60+tonumber(sm),tonumber(eh)*60+tonumber(em)
-            if (a<=b and minute>=a and minute<b)or(a>b and (minute>=a or minute<b))then
-                local lo=tonumber(r.min)or 0;local hi=math.max(lo,tonumber(r.max)or lo)
-                -- Owner 2026-10-22: 耗時 is measured by the server, so the trip there and back (one ping) is
-                -- already part of it. Wait the chosen time minus the ping, never below 0.
-                local ping=T.Ping();T.lastPing=ping
-                return math.max(0,(lo+math.random()*(hi-lo))*1000-ping)
-            end
-        end
-    end
-    return delay(config.claimDelaySeconds)
+-- LwTool claim moment for a dig finishing at `finish` (server ms).
+function T.ClaimAt(finish,config)
+    T.lastPing=T.Ping()
+    local before=math.max(-5000,math.min(300,tonumber(config.clickBeforeMs)or 0))
+    local extra=config.randomClaimEnabled==true and math.random()*RANDOM_CLAIM_MS or 0
+    return finish-before+extra
 end
--- A dig of our alliance that we may interact with (the R23 chat_treasure.lua checks).
+-- LwTool "Dig delay": the saved milliseconds, random +-20%.
+function T.Jitter(ms)
+    local base=math.max(0,math.min(60000,tonumber(ms)or 300))
+    return base*(0.8+math.random()*0.4)
+end
+-- A dig of our alliance that we may interact with.
 function T.Native(info)
     if not info or int(get(info,'pointType'))~=21 then return nil end
     local ok,ty=call(info,'GetType');local name=ok and tostring(get(ty,'FullName')or get(ty,'Name')or'')or''
@@ -160,24 +218,48 @@ function T.Native(info)
     if alliance==nil or tostring(alliance)==''or tostring(alliance)=='0'or tostring(get(info,'allianceId'))~=tostring(alliance)then return nil end
     local c1,complete=call(info,'IsComplete');local c2,got=call(info,'IsHaveGetReward',me)
     local c3,working=call(info,'IsHaveWorking',me);local c4,full=call(info,'IsReceiveAllReward')
+    local finish=tonumber(get(info,'completionTime'))
     return {uuid=uuid,pointIndex=point,server=server,complete=c1 and complete==true,claimed=c2 and got==true,
-        working=c3 and working==true,full=c4 and full==true,expires=tonumber(get(info,'expireTime'))}
+        working=c3 and working==true,full=c4 and full==true,expires=tonumber(get(info,'expireTime')),
+        finish=finish and finish>0 and finish or nil,own=me~=nil and id(get(info,'ownerUid'))==me}
 end
-function T.Near(pos)
-    local w=world();if not w then return nil end
-    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local best,bestDist
-    for dy=-SEARCH_RADIUS,SEARCH_RADIUS do for dx=-SEARCH_RADIUS,SEARCH_RADIUS do
+-- Every dig of our alliance within radius tiles of pos, nearest first.
+function T.Nearby(pos,radius)
+    local w=world();if not w then return {}end
+    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local found={}
+    for dy=-radius,radius do for dx=-radius,radius do
         local nx,ny=x+dx,y+dy
         if nx>=0 and nx<1000 and ny>=0 and ny<1000 then
             local ok,info=call(w,'GetPointInfo',ny*1000+nx+1);local t=ok and T.Native(info)
-            local d=math.abs(dx)+math.abs(dy)
-            if t and (not best or d<bestDist)then best,bestDist=t,d end
+            if t then t.distance=math.abs(dx)+math.abs(dy);found[#found+1]=t end
         end
     end end
-    return best
+    table.sort(found,function(a,b)return a.distance<b.distance end)
+    return found
 end
-function T.Share(msg)
-    if get(msg,'post')~=get(rawget(_G,'PostType'),'Text_PointShare_Alliance')then return end
+-- A location share is Text_PointShare (13) or Text_PointShare_Alliance (404) (UIUtil 4473/4494).
+-- Owner 2026-10-26: alliance chat only.
+local SHARE_POSTS={'Text_PointShare','Text_PointShare_Alliance'}
+local function one_of(value,names,source)
+    if value==nil then return false end
+    for _,name in ipairs(names)do local v=get(source,name);if v~=nil and v==value then return true end end
+    return false
+end
+-- The tile index from a share: `pos` as the game's share builder sets it, or `x`/`y` as ShareDecode reads it.
+local function share_pos(data)
+    if type(data)~='table'then return nil end
+    local pos=int(data.pos)
+    if not pos then
+        local x,y=int(data.x),int(data.y)
+        if x and y and x>=0 and x<1000 and y>=0 and y<1000 then pos=y*1000+x+1 end
+    end
+    if not pos and type(data.param)=='table'then return share_pos(data.param)end
+    return pos
+end
+function T.Share(msg,config)
+    local wide=config.unsharedEnabled==true
+    if config.huntEnabled==false and not wide then return end
+    if not one_of(get(msg,'post'),SHARE_POSTS,rawget(_G,'PostType'))then return end
     local groups=rawget(_G,'ChatGroupType')
     if get(groups,'GROUP_ALLIANCE')==nil or get(msg,'group')~=get(groups,'GROUP_ALLIANCE')then return end
     local key=tostring(get(msg,'roomId'))..'/'..tostring(get(msg,'seqId'))
@@ -187,13 +269,13 @@ function T.Share(msg)
     elseif type(raw)=='string'and #raw<20000 then
         local ok,json=pcall(require,'rapidjson');if ok then local yes,v=pcall(json.decode,raw);if yes then data=v end end
     end
-    if type(data)~='table'then data=decode(msg)end
-    local pos=type(data)=='table'and int(data.pos)
+    local pos=share_pos(data)or share_pos(decode(msg))
     if not pos or pos<1 or pos>1000000 then return end
-    local sid=int(data.sid);local p=get(rawget(_G,'LuaEntry'),'Player');local ok,cur=call(p,'GetCurServerId')
+    if type(data)~='table'then data=decode(msg)or {}end
+    local sid=int(data.sid)or(type(data.param)=='table'and int(data.param.sid))or nil;local p=get(rawget(_G,'LuaEntry'),'Player');local ok,cur=call(p,'GetCurServerId')
     if sid and ok and int(cur)and sid~=int(cur)then return end
     T.stats.sharesSeen=T.stats.sharesSeen+1
-    T.lookups[#T.lookups+1]={pos=pos,at=clock(),state='new'}
+    T.lookups[#T.lookups+1]={pos=pos,at=clock(),state='new',wide=wide,radius=wide and UNSHARED_RADIUS or HUNT_RADIUS}
 end
 function T.AoiCleanup()
     local a=T.aoi;if not a then return end
@@ -202,25 +284,32 @@ function T.AoiCleanup()
     if rawget(_G,'__lwbridgeAoiOwner')==a then rawset(_G,'__lwbridgeAoiOwner',nil)end
     T.aoi=nil
 end
--- Ask the server for the 3x3 map blocks around a shared spot without moving the camera.
-function T.AoiRequest(pos)
+-- The 10-tile map blocks covering radius around pos (up to 4x4 for 15 tiles).
+function T.AoiBlocks(pos,radius)
+    local i=pos-1;local x,y=i%1000,math.floor(i/1000)
+    return math.max(0,math.floor((x-radius)/10)),math.min(99,math.floor((x+radius)/10)),
+        math.max(0,math.floor((y-radius)/10)),math.min(99,math.floor((y+radius)/10))
+end
+-- Ask the server for those blocks without moving the camera. Returns false,'busy' while another
+-- service holds the shared lock.
+function T.AoiRequest(pos,radius)
     local w=world();local manager=reflect(w,'PointManager');local current=reflect(manager,'_curViewIndex')
     local cs=rawget(_G,'CS');if not w or not manager or not current or not cs then return false end
     -- One camera-free map request at a time across services (Alliance Gathering also uses this).
-    if rawget(_G,'__lwbridgeAoiOwner')~=nil then return false end
-    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local cx,cy=math.floor(x/10),math.floor(y/10)
+    if rawget(_G,'__lwbridgeAoiOwner')~=nil then return false,'busy'end
+    local i=pos-1;local x,y=i%1000,math.floor(i/1000);local bx0,bx1,by0,by1=T.AoiBlocks(pos,radius)
     local a={manager=manager,current=current,added={},int32=get(get(cs,'System'),'Int32'),
         replyFlag=reflect(manager,'isRecvViewPoints'),started=clock()}
     T.aoi=a;rawset(_G,'__lwbridgeAoiOwner',a)
     local ok=pcall(function()
         local indices={}
-        for ay=math.max(0,cy-1),math.min(99,cy+1)do for ax=math.max(0,cx-1),math.min(99,cx+1)do indices[#indices+1]=ay*100+ax end end
+        for ay=by0,by1 do for ax=bx0,bx1 do indices[#indices+1]=ay*100+ax end end
         local r=cs.WorldGetBlockMessage.Request()
         local p=get(rawget(_G,'LuaEntry'),'Player');local server=int(select(2,call(p,'GetCurServerId')))
         r.bigMap,r.x,r.y,r.serverId,r.worldId,r.type,r.lod=0,x,y,server,0,0,0
         r.blockSize,r.firstTime,r.battleFieldFirst=10,false,false
-        r.leftBottom=math.max(0,(cy-1)*10)*1000+math.max(0,(cx-1)*10)+1
-        r.rightTop=math.min(999,(cy+2)*10)*1000+math.min(999,(cx+2)*10)+1
+        r.leftBottom=by0*10*1000+bx0*10+1
+        r.rightTop=math.min(999,(by1+1)*10)*1000+math.min(999,(bx1+1)*10)+1
         local arr=cs.System.Array.CreateInstance(typeof(cs.System.Int32),#indices)
         for k,n in ipairs(indices)do
             local number=a.int32.Parse(tostring(n));arr:SetValue(number,k-1)
@@ -234,12 +323,15 @@ function T.AoiRequest(pos)
     if not ok then T.AoiCleanup()end
     return ok
 end
+-- d.state follows the squad (queued/sent/joined/tracking/closed/uncertain); d.claim the reward.
 function T.AddDig(t,config)
     if T.digs[t.uuid]then return end
     T.stats.digsFound=T.stats.digsFound+1
-    if t.complete or t.claimed or t.full then T.digs[t.uuid]={uuid=t.uuid,state='closed',at=clock()};return end
-    T.digs[t.uuid]={uuid=t.uuid,pointIndex=t.pointIndex,server=t.server,expires=t.expires,at=clock(),account=owner and owner.account,
-        state=t.working and 'joined'or 'queued',due=clock()+delay(config.dispatchDelaySeconds or {2,5})}
+    local d={uuid=t.uuid,pointIndex=t.pointIndex,server=t.server,expires=t.expires,at=clock(),account=owner and owner.account,own=t.own}
+    if t.claimed or t.full then d.state='closed'
+    elseif t.working or t.complete or config.dispatchEnabled~=true then d.state='tracking'
+    else d.state='queued';d.due=clock()+T.Jitter(config.dispatchDelayMs)end
+    T.digs[t.uuid]=d
 end
 local function own_dig_march(uuid)
     local p=get(rawget(_G,'LuaEntry'),'Player');local kind=get(rawget(_G,'MarchTargetType'),'DETECT_TREASURE')
@@ -250,35 +342,91 @@ local function own_dig_march(uuid)
         if yes and m and id(get(m,'targetUuid'))==uuid and tk and target==kind then return m end
     end
 end
-function T.Joined(uuid)
-    local d=T.digs[uuid];return (d and (d.state=='joined'or d.state=='claiming'))or own_dig_march(uuid)~=nil
+-- The native redirect sender starts from the march's live tile; the game refuses a broken march or
+-- one inside black tiles (same checks as the Q/W/E/R redirect in feature018_attack_actions.lua).
+local function redirect_allowed(march,server)
+    local broken_ok,broken=call(march,'GetIsBroken')
+    if broken_ok and broken==true then return false end
+    local su=rawget(_G,'SceneUtils');local scene=get(rawget(_G,'ForceChangeScene'),'World')
+    local to_index,in_black=get(su,'WorldToTileIndex'),get(su,'IsInBlackRange')
+    local pos_ok,pos=call(march,'GetMarchCurPos')
+    if not pos_ok or pos==nil or type(to_index)~='function'or type(in_black)~='function'or scene==nil or not server then return false end
+    local index_ok,index=pcall(to_index,pos,scene);index=tonumber(index)
+    if not index_ok or not index then return false end
+    local black_ok,black=pcall(in_black,index,server)
+    return black_ok and black==false
 end
-function T.Dispatch(d,config)
+-- Selected squads, idle ones and ones out gathering (MarchTargetType.COLLECT), each ordered by the
+-- game's formation power (weakest or strongest first; ties keep the saved order).
+function T.Squads(config)
     local p=get(rawget(_G,'LuaEntry'),'Player');local me=id(get(p,'uid'));local alliance=get(p,'allianceId')
-    local selected
-    for _,slot in ipairs(config.dispatchSquadPriority or {1})do
-        local ok,f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
+    local collect=get(rawget(_G,'MarchTargetType'),'COLLECT');local forms=center('ArmyFormationDataManager')
+    local idle,gathering={},{}
+    for rank,slot in ipairs(config.dispatchSquadPriority or {1,2,3,4})do
+        local ok,f=call(forms,'GetOneArmyInfoByIndex',slot)
         if ok and f and id(get(f,'ownerUid'))==me then
             local valid,m=call(center('WorldMarchDataManager'),'GetOwnerFormationMarch',get(p,'uid'),get(f,'uuid'),alliance)
-            if valid and m==nil then selected=f;break end
+            local measured,power=call(forms,'GetFormationPowerByUuid',get(f,'uuid'))
+            local e={formation=f,slot=slot,rank=rank,march=m,power=measured and tonumber(power)or 0}
+            if valid and m==nil then idle[#idle+1]=e
+            elseif valid and m and collect~=nil and id(get(m,'ownerUid'))==me then
+                local typed,target=call(m,'GetMarchTargetType')
+                if typed and target==collect then gathering[#gathering+1]=e end
+            end
         end
     end
+    local strong=config.dispatchOrder=='strong'
+    local function before(a,b)
+        if a.power~=b.power then if strong then return a.power>b.power end;return a.power<b.power end
+        return a.rank<b.rank
+    end
+    table.sort(idle,before);table.sort(gathering,before)
+    return idle,gathering
+end
+-- Gathering (feature018_gather_native.lua) resumes a squad Treasure borrowed as soon as it is home,
+-- instead of treating the redirect as a manual action.
+function T.Borrow(formation)
+    local b=rawget(_G,'__lwbridgeTreasureBorrow');if type(b)~='table'then b={};rawset(_G,'__lwbridgeTreasureBorrow',b)end
+    b[tostring(formation)]=clock()
+end
+function T.Dispatch(d,config)
     local retry=(tonumber(config.dispatchRetrySeconds)or 30)*1000
-    if not selected then d.due=clock()+retry;d.reason='No selected squad is idle';return end
     local kind=get(rawget(_G,'MarchTargetType'),'DETECT_TREASURE');local util=rawget(_G,'MarchUtil')
     local ok,back=invoke(util,'GetAutoBackHomeState',kind)
-    local ready,valid=invoke(util,'CheckFormation',get(selected,'uuid'),kind,tonumber(d.uuid),d.pointIndex,back)
-    if not kind or not ok or not ready or valid~=true then d.due=clock()+retry;d.reason='The game refused this squad for the dig';return end
+    if not kind or not ok then d.due=clock()+retry;d.reason='The game march route is unavailable';return end
+    local idle,gathering=T.Squads(config);local chosen,redirect
+    for _,e in ipairs(idle)do
+        local ready,valid=invoke(util,'CheckFormation',get(e.formation,'uuid'),kind,tonumber(d.uuid),d.pointIndex,back)
+        if ready and valid==true then chosen=e;break end
+    end
+    if not chosen and config.redirectGathering~=false then
+        local p=get(rawget(_G,'LuaEntry'),'Player');local server=int(select(2,call(p,'GetCurServerId')))
+        for _,e in ipairs(gathering)do if redirect_allowed(e.march,server)then chosen,redirect=e,true;break end end
+    end
+    if not chosen then
+        d.due=clock()+retry
+        d.reason=#idle>0 and 'The game refused the idle squads for the dig'or 'No selected squad is idle or out gathering'
+        return
+    end
     if not owned()then return end
     -- Audit 2026-10-23 AUDIT-01: only the account that found the dig may send to it, and the dig must
     -- still be our alliance's, unfinished, at the same tile right before the march.
     local w=world();local here=w and select(2,call(w,'GetPointInfo',d.pointIndex));local fresh=here and T.Native(here)
-    if d.account~=owner.account or not fresh or fresh.uuid~=d.uuid or fresh.complete or fresh.full then
+    if d.account~=owner.account or not fresh or fresh.uuid~=d.uuid or fresh.full then
         d.state='closed';d.reason='The dig is no longer valid for this account';return
     end
+    -- Already finished or already being dug by us: no march, the claim still follows.
+    if fresh.complete or fresh.working then d.state='tracking';return end
     -- Tombstone before the game route: an exception is uncertain and never launches a second march.
-    d.state='sent';d.sentAt=clock();d.slot=get(selected,'index')
-    local sent,error=invoke(util,'SendCreateMarchMessage',get(selected,'uuid'),kind,d.pointIndex,tonumber(d.uuid),-1,back,true,d.server)
+    d.state='sent';d.sentAt=clock();d.slot=chosen.slot;d.redirected=redirect or nil
+    local sent,error
+    if redirect then
+        T.Borrow(get(chosen.formation,'uuid'))
+        sent,error=invoke(util,'SendChangeMarchToServer',get(chosen.march,'uuid'),kind,d.pointIndex,tonumber(d.uuid),
+            back==1 or back==true,d.server,nil)
+    else
+        sent,error=invoke(util,'SendCreateMarchMessage',get(chosen.formation,'uuid'),kind,d.pointIndex,tonumber(d.uuid),-1,back,true,d.server)
+    end
     if not sent then d.state='uncertain';d.reason='Dig march submission uncertain; no replay: '..tostring(error)end
 end
 function T.InstallHook()
@@ -294,8 +442,13 @@ function T.InstallHook()
                 if code==nil then T.claiming=nil;T.stats.claimed=T.stats.claimed+1;if T.ack then T.ack('treasure',job.uuid)end
                 else
                     job.lastCode=tostring(code);job.retries=(job.retries or 0)+1
-                    if job.retries<20 and clock()-(job.firstSentAt or job.sentAt)<15000 then job.state='queued';job.due=clock()+300
-                    else job.state='refused';T.claiming=nil end
+                    -- Sent a little early ("Click before"): the dig is not finished yet, so try again.
+                    if job.lastCode=='detect_dig_err_01'and job.retries<20 and clock()-(job.firstSentAt or job.sentAt)<15000 then
+                        job.state='queued';job.due=clock()+300
+                    else
+                        if job.lastCode=='radar_tips_4'then T.stats.late=T.stats.late+1 end
+                        job.state='refused';T.claiming=nil
+                    end
                 end
             end
         end)
@@ -324,8 +477,22 @@ function T.Claim(job)
     if not server then local p=get(rawget(_G,'LuaEntry'),'Player');server=int(select(2,call(p,'GetCurServerId')))end
     job.state='sent';job.sentAt=clock();job.firstSentAt=job.firstSentAt or job.sentAt;job.sendCount=1
     T.claiming=job;T.stats.claimsSent=T.stats.claimsSent+1
-    if d then d.state='claiming'end
+    if d then d.claim='sent'end
     return invoke(network,'SendMessage',route,tonumber(job.uuid),server)
+end
+-- Queue (or re-time) the claim of a known dig at its completion time.
+function T.ScheduleClaim(d,config)
+    if d.claim=='closed'or(d.own and config.skipOwnRadar~=false)then return end
+    local w=world();local here=w and select(2,call(w,'GetPointInfo',d.pointIndex));local t=here and T.Native(here)
+    if not t or t.uuid~=d.uuid then return end
+    local key='treasure/'..tostring(d.server or 0)..'/'..d.uuid;local job=queue[key]
+    if t.claimed or t.full then d.claim='closed';return end
+    if not t.finish and not t.complete then return end
+    local due=T.ClaimAt(t.finish or clock(),config)
+    if not job then
+        queue[key]={kind='treasure',route='treasure',uuid=d.uuid,server=d.server,data={},key=key,state='queued',due=due,createdAt=clock()}
+        d.claim='queued'
+    elseif job.state=='queued'and not job.sendCount and not job.retries then job.due=due end
 end
 function T.Pump(config)
     -- AUDIT-03: an in-flight map request is released as soon as Treasure is off or outside its hours,
@@ -335,42 +502,46 @@ function T.Pump(config)
         for _,l in ipairs(T.lookups)do if l.state=='loading'then l.state='new'end end
         return
     end
-    -- 1. Shared spots: find the real dig within 3 tiles, loading the area once if needed.
+    -- 1. Shared spots: Treasure Hunt looks on/around the shared tile; Unshared Treasure loads the
+    -- 30x30 area first and queues every dig of our alliance in it, nearest first.
+    local function resolve(l)
+        local found=T.Nearby(l.pos,l.radius)
+        for _,t in ipairs(found)do T.AddDig(t,config)end
+        if #found>0 then l.state='found'else l.state='no_dig';T.lastReason='No dig within '..l.radius..' tiles of a shared spot'end
+    end
     if T.aoi and (reflect(T.aoi.manager,'isRecvViewPoints')==true or clock()-T.aoi.started>3000)then
-        local l=T.aoi.lookup;local t=l and T.Near(l.pos);T.AoiCleanup()
-        if l then
-            if t then T.AddDig(t,config);l.state='found'else l.state='no_dig';T.lastReason='No dig within 3 tiles of a shared spot'end
-        end
+        local l=T.aoi.lookup;T.AoiCleanup()
+        if l then resolve(l)end
     end
     for _,l in ipairs(T.lookups)do
-        if l.state=='new'then
-            local t=T.Near(l.pos)
-            if t then T.AddDig(t,config);l.state='found'
-            elseif not T.aoi then
-                if T.AoiRequest(l.pos)then T.aoi.lookup=l;l.state='loading'
-                elseif rawget(_G,'__lwbridgeAoiOwner')==nil or clock()-l.at>15000 then l.state='no_dig'end
-            end
+        if l.state=='new'and not l.wide and #T.Nearby(l.pos,l.radius)>0 then resolve(l)end
+        if l.state=='new'and not T.aoi then
+            local ok,why=T.AoiRequest(l.pos,l.radius)
+            if ok then T.aoi.lookup=l;l.state='loading'
+            -- The shared lock is busy: wait up to 15 s, then use what is already loaded.
+            elseif why~='busy'or clock()-l.at>15000 then resolve(l)end
         end
     end
     for i=#T.lookups,1,-1 do local st=T.lookups[i].state;if st~='new'and st~='loading'then table.remove(T.lookups,i)end end
-    -- 2. Dispatch, confirm, and trigger the claim when our squad leaves the finished dig.
+    -- 2. Dispatch and confirm one squad per dig; 3. claim each dig at its completion time.
     for _,d in pairs(T.digs)do
         if d.state=='queued'and d.due<=clock()and config.dispatchEnabled==true then T.Dispatch(d,config)
         elseif d.state=='sent'then
-            if own_dig_march(d.uuid)then d.state='joined';T.stats.dispatched=T.stats.dispatched+1
+            if own_dig_march(d.uuid)then
+                d.state='joined';T.stats.dispatched=T.stats.dispatched+1
+                if d.redirected then T.stats.redirected=T.stats.redirected+1 end
             elseif clock()-d.sentAt>30000 then d.state='uncertain';d.reason='Dig march was not confirmed; no replay'end
         end
-        if d.state=='joined'and not own_dig_march(d.uuid)then
-            local key='treasure/'..tostring(d.server or 0)..'/'..d.uuid
-            if not queue[key]then queue[key]={kind='treasure',uuid=d.uuid,server=d.server,data={},key=key,state='queued',due=clock()+T.Delay(config)}end
-        end
+        if d.state~='closed'then T.ScheduleClaim(d,config)end
     end
     for key,at in pairs(T.shareSeen)do if at<clock()-3600000 then T.shareSeen[key]=nil end end
     for uuid,d in pairs(T.digs)do if d.at<clock()-6*3600000 then T.digs[uuid]=nil end end
 end
 function T.Pending()
     if #T.lookups>0 or T.aoi then return true end
-    for _,d in pairs(T.digs)do if d.state=='queued'or d.state=='sent'or d.state=='joined'or d.state=='claiming'then return true end end
+    for _,d in pairs(T.digs)do
+        if d.state=='queued'or d.state=='sent'or d.state=='joined'or d.claim=='queued'or d.claim=='sent'then return true end
+    end
     return false
 end
 local function observe(msg,from_event,force)
@@ -382,19 +553,113 @@ local function observe(msg,from_event,force)
         if from_event then listener.eventMessages=listener.eventMessages+1 else listener.retainedMessages=listener.retainedMessages+1 end
         listener.lastMessageAt=clock();listener.lastPost=get(msg,'post')
     end
-    if active(configs.treasure)then T.Share(msg)end
+    if active(configs.treasure)then T.Share(msg,configs.treasure)end
     local job=describe(msg);if not job then return end
-    local config=configs[job.kind]or {}
+    local config=reward_config(job)
+    if not gold_allowed(job,config)then return end
+    -- LwTool "Do not auto-open treasure chests in my radar" (default on).
+    if job.kind=='treasure'and config.skipOwnRadar~=false and id(job.data.ownerUid)~=nil and
+        id(job.data.ownerUid)==id(get(get(rawget(_G,'LuaEntry'),'Player'),'uid'))then return end
     if not force and not active(config)then return end
     if job.expires and job.expires<=clock()then return end
-    if queue[job.key]then queue[job.key].message=msg;queue[job.key].data=job.data;return end
+    if queue[job.key]then
+        local old=queue[job.key];old.message=msg;old.data=job.data
+        if old.state=='queued'and not old.sendCount and old.kind~=job.kind then
+            old.kind=job.kind;old.family=job.family;old.due=clock()+delay(config.claimDelaySeconds)
+        end
+        return
+    end
     local count=0;for _ in pairs(queue)do count=count+1 end
     if count>=512 then service(job.kind).error='Chat claim queue is full';return end
-    job.due=clock()+(job.kind=='treasure'and T.Delay(config)or delay(config.claimDelaySeconds));job.state='queued';job.force=force
+    -- A finish announcement means the dig is done now: LwTool's claim moment is now minus Click before.
+    job.createdAt=clock();job.due=job.kind=='treasure'and T.ClaimAt(clock(),config)or clock()+delay(config.claimDelaySeconds)
+    job.state='queued';job.force=force
     queue[job.key]=job
 end
 local function chat_manager()
     local ok,mgr=call(rawget(_G,'ChatManager2'),'GetInstance');return ok and mgr
+end
+local function native_season_servers()
+    local manager=center('SeasonDataManager')
+    local ok,values=call(manager,'GetServerListInt')
+    if not ok then
+        local meta=manager and getmetatable(manager);local index=get(meta,'__index')
+        local method=get(index,'GetServerListInt')
+        if type(method)=='function'then ok,values=pcall(method,manager)end
+    end
+    local servers={}
+    if ok then each(values,function(value)local n=int(value);if n and n>0 then servers[n]=true end end)end
+    return servers
+end
+local function cross_rooms(home_server)
+    local manager=chat_manager();local room_manager=get(manager,'Room')
+    local ok,rooms=call(room_manager,'GetGameServerRoomList')
+    local servers=native_season_servers();local home=tonumber(home_server)or(owner and tonumber(owner.account:match('/(%d+)$')))
+    local selected,seen,budget={},{},0
+    local function collect(value,depth)
+        budget=budget+1;if budget>512 or depth>3 then return end
+        if type(value)=='string'and #value<=128 then
+            local server=tonumber(value:match('country_(%d+)'))
+            if not server or server==home or not servers[server]or seen[value]then return end
+            local available,room=call(room_manager,'GetRoomData',value)
+            if available and room and tostring(get(room,'roomId'))==value and
+                type(get(room,'GetUnblockedChatDatas'))=='function'and #selected<32 then
+                selected[#selected+1]=value;seen[value]=true
+            end
+        elseif type(value)=='table'then
+            for _,child in pairs(value)do if budget>=512 then break end;collect(child,depth+1)end
+        elseif value~=nil then each(value,function(child)collect(child,depth+1)end)end
+    end
+    if ok then collect(rooms,0)end
+    table.sort(selected)
+    return selected,seen,room_manager
+end
+local function cross_enabled()
+    local config=configs.goldEgg
+    return active(config)and config.crossServerEnabled==true and config.legacyCombined~=true
+end
+local function mark_history(data)
+    if not owned()or not cross_enabled()then return end
+    local room=get(data,'roomId')
+    if type(room)=='string'and cross.allowed[room]then cross.dirty[room]=true end
+end
+local function pump_cross()
+    if not cross_enabled()then cross.allowed={};cross.dirty={};cross.eligibleRooms=0;return end
+    if clock()>=cross.nextAt then
+        cross.nextAt=clock()+15000
+        local rooms,allowed,manager=cross_rooms()
+        cross.eligibleRooms=#rooms;cross.allowed=allowed
+        if #rooms>0 and type(get(manager,'requestMultiRoomLatestMsg'))=='function'and owned()then
+            local batch={}
+            for _=1,math.min(8,#rooms)do
+                if cross.cursor>#rooms then cross.cursor=1 end
+                batch[#batch+1]=rooms[cross.cursor];cross.cursor=cross.cursor+1
+            end
+            -- Fresh copies of native permission-supplied IDs go through the
+            -- game's own pending-request fence. No guessed IDs, room joins,
+            -- external feed or reward request are used for discovery.
+            local ok,accepted=call(manager,'requestMultiRoomLatestMsg',batch)
+            if ok and accepted==true and #batch>0 then
+                cross.batches=cross.batches+1;cross.requestedRooms=cross.requestedRooms+#batch
+                cross.lastRequestAt=clock()
+            end
+        end
+    end
+    -- Coalesce history callbacks and inspect one completed room per tick.
+    local room_id=next(cross.dirty)
+    if room_id then
+        cross.dirty[room_id]=nil
+        local _,allowed,manager=cross_rooms()
+        if allowed[room_id]and owned()then
+            local ok,room=call(manager,'GetRoomData',room_id)
+            local valid,messages=call(ok and room,'GetUnblockedChatDatas')
+            local count=0
+            if valid then each(messages,function(msg)
+                if count<200 and owned()then count=count+1;observe(msg,true)end
+            end)end
+            cross.lastReadAt=clock()
+        end
+    end
 end
 local function scan(force_kind)
     local mgr=chat_manager();local room=get(mgr,'Room')
@@ -413,13 +678,24 @@ local function scan(force_kind)
 end
 local function ack(kind,uuid,data)
     if not owned()or uuid==nil then return end
+    local matches={}
     for _,job in pairs(queue)do
-        if job.kind==kind and job.uuid==tostring(uuid)and job.state=='sent'then
+        if (job.route or job.kind)==kind and job.uuid==tostring(uuid)and job.state=='sent'then
+            local server=type(data)=='table'and int(data.targetServer or data.serverId)
+            if not server or not job.server or server==job.server then matches[#matches+1]=job end
+        end
+    end
+    -- The protocol has no per-attempt nonce. Never credit two different
+    -- server-qualified targets from one UUID-only observation.
+    if #matches~=1 then return end
+    for _,job in ipairs(matches)do
+        if job.state=='sent'then
             job.state='success';job.confirmedAt=clock()
-            local s=service(kind);s.claimed=s.claimed+1;s.lastResult='success';s.state='success';s.lastRunAt=clock()
-            s.receipts[#s.receipts+1]={uuid=job.uuid,state='success',at=clock(),nativePostState=true}
+            local s=service(job.kind);s.claimed=s.claimed+1;s.lastResult='success';s.state='success';s.lastRunAt=clock();s.error=nil
+            if job.unconfirmed then s.unconfirmed=math.max(0,(s.unconfirmed or 0)-1);job.unconfirmed=nil end
+            s.receipts[#s.receipts+1]={uuid=job.uuid,state='success',at=clock(),nativePostState=true,newRewardConfirmed=true}
             if #s.receipts>30 then table.remove(s.receipts,1)end
-            local config=configs[kind]or {}
+            local config=reward_config(job)
             if config.replyEnabled and job.roomId and type(config.replies)=='table'and #config.replies>0 then
                 replies[#replies+1]={job=job,at=clock()+delay(config.replyDelaySeconds),
                     phrase=config.replies[math.random(1,#config.replies)]}
@@ -428,10 +704,70 @@ local function ack(kind,uuid,data)
     end
 end
 T.ack=ack
+local function outcome(job,state,reason)
+    if job.state~='sent'and job.state~='queued'then return end
+    local s=service(job.kind)
+    if state=='unconfirmed'then
+        if not job.unconfirmed then s.unconfirmed=(s.unconfirmed or 0)+1;job.unconfirmed=true end
+        -- Retain the original sent tombstone and accept a later genuine
+        -- response. Unknown is never permission to retransmit.
+    else
+        if job.unconfirmed then s.unconfirmed=math.max(0,(s.unconfirmed or 0)-1);job.unconfirmed=nil end
+        job.state=state
+        local field=state=='already_claimed'and 'alreadyClaimed'or state
+        s[field]=(s[field]or 0)+1
+        if state=='refused'or state=='exhausted'or state=='expired'then s.failed=s.failed+1 end
+    end
+    s.lastResult=state;s.state=state;s.error=reason;s.lastRunAt=clock()
+    if not job.recordedOutcome or job.recordedOutcome~=state then
+        s.receipts[#s.receipts+1]={uuid=job.uuid,state=state,at=clock(),newRewardConfirmed=false}
+        if #s.receipts>30 then table.remove(s.receipts,1)end
+        job.recordedOutcome=state
+    end
+end
+local function response(kind,data)
+    if not owned()or type(data)~='table'then return end
+    local packet=get(data,'redPacket')
+    local uuid=kind=='redPacket'and get(packet,'uuid')or get(data,'uuid')
+    uuid=uuid or get(data,'uuid')
+    if uuid==nil then return end -- Unidentified errors cannot be assigned to a pending job.
+    local error_code=get(data,'errorCode')
+    if error_code==nil then ack(kind,uuid,data);return end
+    local matches={}
+    for _,job in pairs(queue)do
+        if (job.route or job.kind)==kind and job.uuid==tostring(uuid)and job.state=='sent'then
+            local server=int(data.targetServer or data.serverId)
+            if not server or not job.server or server==job.server then matches[#matches+1]=job end
+        end
+    end
+    if #matches~=1 then return end
+    local states={firework_tips_1016='already_claimed',firework_tips_1015='exhausted',firework_tips_1014='expired'}
+    outcome(matches[1],states[tostring(error_code)]or 'refused',tostring(error_code))
+end
+local function attach_response_hooks()
+    for _,spec in ipairs({{'fireworks','Net.Msgs.GetFireworksGiftMessage'}, {'redPacket','Net.Msgs.OpenRedPacketMessage'}})do
+        local ok,class=pcall(require,spec[2])
+        local original=ok and get(class,'HandleMessage')
+        if type(original)=='function'and not response_hooks[spec[2]]then
+            local kind=spec[1]
+            local wrapper=function(self,data,...)
+                local values=table.pack(pcall(original,self,data,...))
+                if values[1]then pcall(response,kind,data)end
+                if not values[1]then error(values[2],0)end
+                return table.unpack(values,2,values.n)
+            end
+            local installed=pcall(function()class.HandleMessage=wrapper end)
+            if installed and get(class,'HandleMessage')==wrapper then
+                response_hooks[spec[2]]={class=class,original=original,wrapper=wrapper}
+            end
+        end
+    end
+    local n=0;for _ in pairs(response_hooks)do n=n+1 end;listener.responseObserverCount=n
+end
 local function subscribe()
     local ok,manager=call(rawget(_G,'EventManager'),'GetInstance')
     if not ok or not manager then return end
-    if events and events.manager==manager then return end
+    if events and events.manager==manager then attach_response_hooks();return end
     M.Detach()
     events={manager=manager,rows={}}
     local function add(event,callback)
@@ -441,21 +777,29 @@ local function subscribe()
     end
     add(get(rawget(_G,'ChatEventEnum'),'CHAT_RECIEVE_ROOM_MSG'),function(msg)observe(msg,true)end)
     add(get(rawget(_G,'ChatEventEnum'),'CHAT_ROOM_ONEMSG_UPDATA'),function(msg)observe(msg,true)end)
+    add(get(rawget(_G,'ChatEventEnum'),'CHAT_ROOM_HISTORYMSG_UPDATA'),mark_history)
     add(get(rawget(_G,'EventId'),'RedPacketOpen'),function(data)
         local packet=get(data,'redPacket');ack('redPacket',get(packet,'uuid'),data)
     end)
     add(get(rawget(_G,'EventId'),'FireworkGiftGotUpdate'),function(data)ack('fireworks',get(data,'uuid'),data)end)
     listener.eventListenerCount=#events.rows
+    attach_response_hooks()
 end
 function M.Detach()
     if events then for _,r in ipairs(events.rows)do call(events.manager,'RemoveListener',r[1],r[2])end end
     events=nil;listener.eventListenerCount=0
+    for key,hook in pairs(response_hooks)do
+        -- Never overwrite a newer game/extension wrapper during cleanup.
+        if get(hook.class,'HandleMessage')==hook.wrapper then pcall(function()hook.class.HandleMessage=hook.original end)end
+        response_hooks[key]=nil
+    end
+    listener.responseObserverCount=0
 end
 local function claimed(job)
     local p=get(rawget(_G,'LuaEntry'),'Player');local uid=id(get(p,'uid'))
     local data=decode(job.message)or job.data
     for _,u in ipairs(data.uids or {})do if tostring(u)==uid then return true end end
-    if job.kind=='fireworks'then
+    if job.route=='fireworks'then
         local ok,v=call(center('LWFireworkGiftManager'),'IsThisGiftUuidGot',tonumber(job.uuid));if ok and v then return true end
     elseif job.kind=='treasure'then
         local world=get(get(rawget(_G,'CS'),'SceneManager'),'World')
@@ -468,10 +812,12 @@ local function claimed(job)
 end
 local function claim(job)
     local data=decode(job.message)or job.data
+    local permitted,reason=gold_allowed(job,reward_config(job))
+    if not permitted then return false,reason end
     local mgr=chat_manager()
     local route=rawget(_G,'MsgDefines');local network=rawget(_G,'SFSNetwork')
     if type(get(network,'SendMessage'))~='function'then return false,'Native game message sender unavailable'end
-    if job.kind=='redPacket'then
+    if job.route=='redPacket'then
         local ok,blocked=call(mgr,'CanNotPickRedPacket',data)
         if not ok or blocked then return false,'Native Red Packet eligibility refused'end
         local packet=int(data.packetId)
@@ -488,9 +834,28 @@ local function claim(job)
         if not owned()then return false,'Chat owner lease changed'end
         job.state='sent';job.sentAt=clock();job.sendCount=1
         return invoke(network,'SendMessage',get(route,'OpenRedPacket'),job.uuid,packet,channel,job.server or 0)
-    elseif job.kind=='fireworks'then
+    elseif job.route=='fireworks'then
         local config=int(data.configId);local yes,kind=invoke({get=rawget(_G,'GetTableData')},'get',get(rawget(_G,'TableName'),'Firework'),config,'type',0)
         if not config or not yes or not int(kind)or not id(data.ownerUid)or not get(route,'GetFireworksGift')then return false,'Native Fireworks / Egg gift type unavailable'end
+        if job.kind=='goldEgg'and configs.goldEgg.legacyCombined~=true then
+            -- Boss announcements are location links in the native UI. Do not
+            -- turn one into a claim until the game's own gift object exists
+            -- for this exact UUID/owner/config and permits receiving it.
+            local ok,q=call(center('LWFireworkGiftManager'),'GetGiftQueueByPlayerUid',tostring(data.ownerUid))
+            local list,items=call(ok and q,'ToArray');local found
+            if list then each(items,function(item)
+                if tostring(get(item,'uuid'))==job.uuid and tostring(get(item,'ownerUid'))==tostring(data.ownerUid)and
+                    int(get(item,'configId'))==config and int(get(item,'type'))==1 then found=item end
+            end)end
+            if not found then
+                if clock()-(job.createdAt or clock())<2000 then return false,'Waiting for native gift eligibility',true end
+                return false,'The announcement has no matching eligible native gift'
+            end
+            local checked=call(found,'CheckIsAvailable');local measured,full=call(found,'IsReachLimit')
+            if not checked or get(found,'isAvailable')~=true or not measured or full~=false then
+                return false,'Native gift ownership, alliance, expiry or remaining-count conditions refused'
+            end
+        end
         if not owned()then return false,'Chat owner lease changed'end
         job.state='sent';job.sentAt=clock();job.sendCount=1
         return invoke(network,'SendMessage',get(route,'GetFireworksGift'),{uuid=tonumber(job.uuid),ownerUid=tostring(data.ownerUid),type=kind})
@@ -516,36 +881,40 @@ function M.Pump()
     if not has_chat_work()then return end
     if not owned()then return end
     subscribe()
+    pump_cross()
     if clock()-last_scan>=RESCAN_MS then last_scan=clock();scan()end
     for _,job in pairs(queue)do
-        local s=service(job.kind);local config=configs[job.kind]or {}
-        if job.state=='sent'and claimed(job)then ack(job.kind,job.uuid)end
-        if job.state=='queued'and job.kind=='treasure'and not T.Joined(job.uuid)then
-            -- Owner 2026-10-22: never claim a dig our squad did not join.
-            job.state='not_joined';T.stats.notJoined=T.stats.notJoined+1
-        elseif job.state=='queued'and job.kind=='treasure'and T.Busy(job)then
+        local s=service(job.kind);local config=reward_config(job)
+        -- The got-cache also changes on an "already claimed" refusal. Only a
+        -- genuine native success event/identified success response credits a
+        -- new reward; a cache-only change after send remains unconfirmed.
+        if job.state=='sent'and job.kind~='treasure'and claimed(job)then
+            outcome(job,'unconfirmed','Native got-cache alone does not confirm a new reward')
+        elseif job.state=='sent'and job.kind=='treasure'and claimed(job)then ack(job.kind,job.uuid)end
+        if job.state=='queued'and job.kind=='treasure'and T.Busy(job)then
             -- Wait for the reply to the claim already in flight.
-        -- AUDIT-04: active hours are checked again at the send. Treasure claims are only queued for digs
-        -- our squad joined, and those finish after the stop time (owner 2026-10-22).
+        -- AUDIT-04: active hours are checked again at the send. A Treasure dig found within the hours
+        -- may still be claimed when it finishes after the stop time.
         elseif job.state=='queued'and (job.force or (job.kind=='treasure'and config.enabled==true)or active(config))and job.due<=clock()then
-            if job.expires and job.expires<=clock()then job.state='expired'
-            elseif claimed(job)then job.state='already_claimed'
+            if job.expires and job.expires<=clock()then outcome(job,'expired')
+            elseif claimed(job)then outcome(job,'already_claimed')
             else
-                local yes,error=claim(job)
-                if job.kind=='treasure'and (job.retries or 0)>0 then -- a brief retry after a refused claim
-                elseif job.sendCount==1 then s.submitted=s.submitted+1;s.lastResult='submitted';s.state='waiting_ack'
-                else job.state='refused';s.failed=s.failed+1;s.lastResult='failed';s.error=error end
-                if not yes and job.sendCount==1 then job.uncertain=true;s.error='Claim submission is uncertain; this target will not be replayed'end
+                local yes,error,deferred=claim(job)
+                if deferred and not job.sendCount then job.due=clock()+100
+                elseif job.kind=='treasure'and (job.retries or 0)>0 then -- a brief retry after a refused claim
+                elseif job.sendCount==1 then s.submitted=s.submitted+1;if job.state=='sent'then s.lastResult='submitted';s.state='waiting_ack'end
+                else outcome(job,'refused',error)end
+                if not yes and job.sendCount==1 and job.state=='sent'then job.uncertain=true;s.error='Claim submission is uncertain; this target will not be replayed'end
             end
         elseif job.state=='sent'and clock()-job.sentAt>15000 then
-            s.state='waiting_ack';s.error='Waiting for native claim confirmation; this target will not be replayed'
+            outcome(job,'unconfirmed','Waiting for native claim confirmation; this target will not be replayed')
         end
     end
     for i=#replies,1,-1 do
         local reply=replies[i]
         if reply.at<=clock()then
             table.remove(replies,i)
-            local config=configs[reply.job.kind]or {}
+            local config=reward_config(reply.job)
             if config.replyEnabled and active(config)and owned()then
                 local mgr=chat_manager();local ok,allowed=call(mgr,'CheckRoomSend',reply.job.roomId)
                 if ok and allowed then call(mgr,'SendChatMsg',{roomId=reply.job.roomId,msg=reply.phrase,
@@ -584,9 +953,15 @@ function M.Run(request)
     scan(request.kind);M.Pump();return M.Status()
 end
 function M.Status()
-    for _,kind in ipairs({'redPacket','fireworks','treasure'})do
+    for _,kind in ipairs({'redPacket','fireworks','goldEgg','treasure'})do
         local s=service(kind);local config=configs[kind]or {}
         s.enabled=config.enabled==true;s.running=owned()and s.enabled;s.pendingCount=0
+        s.legacyCombined=kind=='goldEgg'and config.legacyCombined==true or nil
+        if kind=='goldEgg'then
+            s.crossServer={enabled=cross_enabled(),eligibleRooms=cross.eligibleRooms,
+                historyBatches=cross.batches,requestedRooms=cross.requestedRooms,lastReadAt=cross.lastReadAt}
+            s.eventEggClaimsSupported=false
+        end
         s.replyPendingCount=0
         for _,r in ipairs(replies)do if r.job.kind==kind then s.replyPendingCount=s.replyPendingCount+1 end end
         for _,job in pairs(queue)do if job.kind==kind and (job.state=='queued'or job.state=='sent')then s.pendingCount=s.pendingCount+1 end end
@@ -610,8 +985,53 @@ function M.Read(request)
     local configured=M.Configure(request);if configured.state~='confirmed'then return configured end
     return M.Status()
 end
+-- Read-only native options for reward taxonomy and cross-server eligibility.
+-- Configuration templates contain no player messages/rewards and this path
+-- neither installs listeners nor joins a room or submits a claim.
+function M.Catalog(request)
+    local signature=account();local uid=signature and signature:match('^([^/]+)/')
+    if not uid or request.authorizedUid~=uid or not bridge or not bridge.Feature018OwnerToken()then
+        return fail('Chat account admission absent')
+    end
+    local packets,firework_rows={},{}
+    local function scalar(value)
+        if type(value)=='number'or type(value)=='boolean'then return value end
+        if type(value)=='string'and #value<=250 then return value end
+    end
+    local ok,templates=call(center('RedPacketTemplateManager'),'GetAllRedPackTemplate')
+    if ok then each(templates,function(template)
+        if #packets>=512 then return end
+        local row={}
+        for _,key in ipairs({'id','type','goodsId','gift_type','special_type','para1','pic','item_pic','chat_icon'})do row[key]=scalar(get(template,key))end
+        local named,name=call(template,'GetName');if named then row.name=scalar(name)end
+        packets[#packets+1]=row
+    end)end
+    local yes,controller=call(rawget(_G,'LocalController'),'instance')
+    if yes then call(controller,'visitTable',get(rawget(_G,'TableName'),'Firework'),function(key,row)
+        row=row or key
+        if type(get(row,'getValue'))~='function'then return end
+        if #firework_rows>=512 then return end
+        local out={}
+        for _,key in ipairs({'id','type','goods','name','gift_type','reward'})do
+            local valid,value=call(row,'getValue',key);if valid then out[key]=scalar(value)end
+        end
+        firework_rows[#firework_rows+1]=out
+    end)end
+    local home=signature:match('/(%d+)$')
+    local rooms,_,room_manager=cross_rooms(home)
+    local servers=native_season_servers();local server_count=0
+    for _ in pairs(servers)do server_count=server_count+1 end
+    if array then array(packets);array(firework_rows)end
+    return result({readOnly=true,requestDispatched=false,observation='native_chat_reward_configuration',
+        packets=packets,fireworks=firework_rows,boundedAt=512,
+        crossServer={seasonServerCount=server_count,eligibleKnownRemoteRooms=#rooms,
+            nativeRoomListAvailable=type(get(room_manager,'GetGameServerRoomList'))=='function',
+            nativeHistoryAvailable=type(get(room_manager,'requestMultiRoomLatestMsg'))=='function',
+            historyRequested=false,roomJoined=false}})
+end
 function M.CleanupAfterLeaseLoss()
     M.Detach();T.Release();configs={};replies={};owner=nil;listener.ready=false
+    cross={nextAt=0,cursor=1,allowed={},dirty={},batches=0,requestedRooms=0,eligibleRooms=0}
 end
 -- Owner 2026-10-21: read-only game emoji list for the Auto Reply picker. No send, no subscription.
 -- ChatInterface.GetOldEmojiStr 926-935: a game emoji travels in text as <lwEmoji:ID:>.
@@ -701,6 +1121,7 @@ function M.Register(feature,overview)
     feature.RegisterHandler('feature018_chat_configure',M.Configure)
     feature.RegisterHandler('feature018_chat_run',M.Run)
     feature.RegisterHandler('feature018_chat_status',M.Read)
+    feature.RegisterHandler('feature018_chat_catalog',M.Catalog)
     feature.RegisterHandler('feature018_chat_emoji_list',M.EmojiList)
     feature.RegisterHandler('feature018_chat_emoji_image',M.EmojiImage)
 end

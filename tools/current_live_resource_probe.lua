@@ -4759,6 +4759,9 @@ end
 
 function resource_scan_detail_runtime.reset()
     local hook = resource_scan_detail_runtime.hook
+    -- A cooperating observer can sit above ours. Retire this generation even
+    -- when we cannot restore the top callback without removing its successor.
+    if hook ~= nil then hook.enabled = false end
     if hook ~= nil and safe_get(hook.class, "HandleMessage") == hook.wrapper then
         hook.class.HandleMessage = hook.original
     end
@@ -4793,13 +4796,18 @@ end
 
 function resource_scan_detail_runtime.install()
     if resource_scan_detail_runtime.hook ~= nil then
-        local hook = resource_scan_detail_runtime.hook
-        return safe_get(hook.class, "HandleMessage") == hook.wrapper
+        local hook, links = resource_scan_detail_runtime.hook, resource_scan_detail_runtime.links
+        return hook.enabled == true and (safe_get(hook.class, "HandleMessage") == hook.wrapper or
+            links ~= nil and links.ObserverContains(hook.class, "HandleMessage", hook.wrapper) == true)
     end
+    local loaded, links = pcall(require, "DataCenter.Global.LWBridgeFeature018AttackActions")
+    if loaded then resource_scan_detail_runtime.links = links end
     local ok, class = pcall(require, "Net.Msgs.WorldGetDetailMessage")
     local original = ok and class and safe_get(class, "HandleMessage") or nil
     if type(original) ~= "function" then return false end
+    local hook = { class = class, original = original, enabled = true }
     local wrapper = function(self, response, ...)
+        if not hook.enabled then return original(self, response, ...) end
         local results = table.pack(pcall(original, self, response, ...))
         if not results[1] then error(results[2], 0) end
         local observed, reason = pcall(resource_scan_detail_runtime.observe, response)
@@ -4810,7 +4818,9 @@ function resource_scan_detail_runtime.install()
     end
     class.HandleMessage = wrapper
     if safe_get(class, "HandleMessage") ~= wrapper then return false end
-    resource_scan_detail_runtime.hook = { class = class, original = original, wrapper = wrapper }
+    hook.wrapper = wrapper
+    resource_scan_detail_runtime.hook = hook
+    if loaded then links.RegisterObserverLink(class, "HandleMessage", wrapper, original) end
     return true
 end
 
@@ -4904,7 +4914,7 @@ function resource_scan_detail_runtime.rows(state)
     local scope_valid = current_server_id() == state.serverId and
         resource_scan_detail_runtime.scope_matches(state.scope, resource_scan_detail_runtime.network_scope())
     local hook = resource_scan_detail_runtime.hook
-    scope_valid = scope_valid and hook ~= nil and safe_get(hook.class, "HandleMessage") == hook.wrapper
+    scope_valid = scope_valid and hook ~= nil and resource_scan_detail_runtime.install()
     for index = 1, #state.targets do
         local target = state.targets[index]
         local detail = scope_valid and target.detail or nil

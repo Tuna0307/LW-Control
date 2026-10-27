@@ -410,8 +410,13 @@ end
 function M.FinishStop(kind)
     local a=adapter(kind);if a and a.FinishStop then return a.FinishStop(kind)end
 end
-function M.Stop(kind)
-    local a=adapter(kind);if a then return a.Stop(kind)end
+function M.Suspend(kind)
+    local a=adapter(kind)
+    if a and a.Suspend then a.Suspend(kind);return true end
+    return false
+end
+function M.Stop(kind,config)
+    local a=adapter(kind);if a then return a.Stop(kind,config)end
     if kind=='allianceGift'and giftEvents then
         pcall(call,giftEvents.manager,'RemoveListener',giftEvents.event,giftEvents.fn);giftEvents=nil;giftFresh=nil
     end

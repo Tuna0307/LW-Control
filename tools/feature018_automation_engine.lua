@@ -40,9 +40,17 @@ local function measured(kind,fn,...)
     return table.unpack(values,1,values.n)
 end
 local function finish_stop(kind)if native.FinishStop then pcall(native.FinishStop,kind)end end
-local function stop_native(kind,allowCleanup)
+local function stop_native(kind,allowCleanup,config)
     if not native.Stop then return end
-    local yes,out=pcall(native.Stop,kind)
+    -- A missing lease pauses authority; it does not erase this VM's exact
+    -- gathering receipts. Resumption must still match the full original owner.
+    if not allowCleanup and native.Suspend then
+        local yes,suspended=pcall(native.Suspend,kind)
+        if yes and suspended then return end
+    end
+    local yes,out=pcall(native.Stop,kind,config)
+    if not yes then row(kind).error='Cleanup could not be prepared: '..tostring(out);return end
+    if type(out)=='table'and out.warning and cleanup[kind]==nil then row(kind).error=out.warning end
     if not yes or type(out)~='table'or type(out.cleanupJobs)~='table'or #out.cleanupJobs==0 then return end
     if not allowCleanup or not owned()then finish_stop(kind);return end
     local at=clock();local jobs={};local r=row(kind)
@@ -79,7 +87,7 @@ local function apply(request,explicit)
                 -- Retain the send tombstone; off never creates a retry path.
                 if pending[kind]then if not pending[kind].readOnly then uncertain[kind]=pending[kind]end;pending[kind]=nil end
                 force[kind]=nil;r.state='disabled';r.nextRunAt=nil
-                stop_native(kind,true)
+                stop_native(kind,true,config)
             elseif config.enabled==true and not(previous and previous.enabled==true)then
                 r.state='waiting';r.nextRunAt=0
             end
@@ -101,9 +109,17 @@ function M.Stop(request)
     if owner and not owned()then M.CleanupAfterLeaseLoss();return fail('The game account changed; Automation stopped')end
     local kind=request.kind
     if not native.Supports(kind)then return fail('This Automation service is unavailable')end
+    local config=configs[kind]
+    if request.confirmedAutomationConfig~=nil then
+        local loaded,json=pcall(require,'rapidjson')
+        local decoded,data=false,nil
+        if loaded then decoded,data=pcall(json.decode,request.confirmedAutomationConfig)end
+        if not decoded or type(data)~='table'or type(data[kind])~='table'then return fail('Confirmed profile Automation settings are unavailable')end
+        config=data[kind]
+    end
     if pending[kind]then if not pending[kind].readOnly then uncertain[kind]=pending[kind]end;pending[kind]=nil end
     configs[kind]={enabled=false};force[kind]=nil
-    stop_native(kind,true)
+    stop_native(kind,true,config)
     stopped[kind]=true
     local r=row(kind);r.enabled=false;r.state='disabled';r.nextRunAt=nil
     recalc();return ok({stopped=true})
@@ -226,7 +242,10 @@ function M.Pump()
 end
 function M.CleanupAfterLeaseLoss()
     for kind in pairs(configs)do stop_native(kind,false)end
-    for kind in pairs(cleanup)do finish_stop(kind)end
+    for kind in pairs(cleanup)do
+        row(kind).error='Recall confirmation was interrupted; the earlier request will not be repeated'
+        finish_stop(kind)
+    end
     cleanup={}
     for kind,job in pairs(pending)do if not job.readOnly then uncertain[kind]=job end end
     configs={};pending={};force={};stopped={};active=false;owner=nil

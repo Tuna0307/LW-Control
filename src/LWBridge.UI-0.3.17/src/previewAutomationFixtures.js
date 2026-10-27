@@ -314,6 +314,7 @@ export function previewAutomationRuntime(title, previewState = "") {
     "Alliance Gathering Dispatch": { ...common, available: 2, dispatched: 1 },
     "Red Packet": { ...common, pendingCount: 2, lastResult: failed ? "failed" : "success" },
     "Fireworks / Egg": { ...common, pendingCount: 1, lastResult: failed ? "failed" : "success" },
+    "Gold Egg": { ...common, pendingCount: 1, lastResult: failed ? "failed" : "success" },
     Treasure: { ...common, pendingCount: 2, dispatchPendingCount: 1, lastResult: failed ? "failed" : "success" },
   };
   return byTitle[title] || common;

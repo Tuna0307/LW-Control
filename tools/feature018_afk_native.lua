@@ -247,27 +247,18 @@ potion.Bind({Owned=owned,Now=now,Snapshot=stamina_snapshot,Use=function(o,item)
     local ok,value=pcall(net.SendMessage,route,{uuid=item.uuid,num=1})
     return ok and value~=false,not ok and tostring(value) or nil
 end})
--- Owner 2026-10-22: join a rally directly, without opening the team screen. Same call the
--- screen's Dispatch makes (UIFormationSelectListNewCtrl 1352): MarchUtil.OnJoinRally(formation,
--- rallyType, rallyUuid, rallyPoint, stamina) -> StartMarch(JOIN_RALLY, point, rallyUuid, -1, formation).
-local function direct_join(slot,t)
-    local f=form(slot);if not f then return nil,'Assigned rally squad absent' end
-    local ok_busy,busy=march(slot);if not ok_busy or busy~=nil then return nil,'Assigned rally squad is busy' end
-    local fresh=attack.AutomationRallyInfo(t.uuid,true)
-    if not fresh or fresh.monsterId~=t.monsterId then return nil,'Native monster rally target changed' end
-    call(f,'ConscriptSoldier')
-    if not tonumber(get(f,'totalSoldierNum'))or tonumber(get(f,'totalSoldierNum'))<=0 then return nil,'Assigned rally squad lacks native troops' end
-    local join=get(rawget(_G,'MarchUtil'),'OnJoinRally');local types=rawget(_G,'MarchTargetType')
-    if type(join)~='function'or not get(types,'JOIN_RALLY')then return nil,'Native rally join unavailable' end
-    local _,energy=call(center('ArmyFormationDataManager'),'GetCurStaminaByUuid',get(f,'uuid'))
-    local formation=id(get(f,'uuid'))
-    -- From here a send may have happened: an error is kept as an uncertain tombstone, never retried.
-    local ok,err=pcall(join,get(f,'uuid'),get(types,'RALLY_FOR_BOSS'),tonumber(fresh.uuid),fresh.pointIndex,tonumber(energy)or 0)
-    if not ok then
-        jobs[slot]={activity='monsterSweep',uncertain=true,target=t,error=tostring(err)}
-        error('Native rally join outcome uncertain: '..tostring(err))
+-- Idle formations create a march; OnJoinRally accepts an existing march ID.
+-- Reuse exact serializer/send/reply/target ownership instead of accepting any
+-- later march on this formation as proof of joining.
+local function direct_join(slot,t,f)
+    local receipt=attack.AutomationJoinIdle(f,clear_input,t)
+    if receipt.state~='accepted'or get(receipt.data,'requestDispatched')~=true then
+        if get(receipt.data,'dispatchAttempted')or get(receipt.data,'nativeTransaction')then
+            jobs[slot]={activity='monsterSweep',uncertain=true,target=t,fields=f,receipt=receipt}
+        end
+        return nil,receipt.error or 'Native idle rally was not dispatched'
     end
-    jobs[slot]={activity='monsterSweep',target=t,sentAt=now(),phase='directAck',join=true,formation=formation}
+    jobs[slot]={activity='monsterSweep',target=t,fields=f,sentAt=now(),phase='ack',join=true,receipt=receipt}
     return tostring(slot)
 end
 local function send(o,slot,p,t)
@@ -291,7 +282,7 @@ local function send(o,slot,p,t)
             return nil,receipt.error or 'Continuous rally join not dispatched'
         end
         if p.kind=='join'then
-            local token,why=direct_join(slot,t)
+            local token,why=direct_join(slot,t,f)
             if token then jobs[slot].activity=p.activity or 'monsterSweep' end
             return token,why
         end
@@ -317,20 +308,6 @@ local function observe(job,allow_send)
     local native=jobs[job.slot]
     if not native then return {failed=true,error='Native pending march missing'} end
     if native.uncertain then return {failed=true,error='Native send outcome uncertain; restart suppressed'} end
-    if native.phase=='directAck' then
-        -- Confirmed when the squad's own march to the rally appears.
-        local ok,m=march(job.slot)
-        local type_ok,kind=call(m,'GetMarchTargetType')
-        if ok and m~=nil and id(get(m,'uuid'))and (not type_ok or kind~=get(rawget(_G,'MarchTargetType'),'BACK_HOME'))then
-            native.phase='battle';native.marchUuid=id(get(m,'uuid'))
-            native.ack={serverAcknowledgementCorrelated=true,directJoin=true,marchUuid=native.marchUuid}
-            joined[native.target.uuid]=true
-            return {step='joining',acknowledged=true,receipt=native.ack}
-        elseif now()-native.sentAt>30 then
-            return {failed=true,error='Rally join was not confirmed by a native march'}
-        end
-        return {step='joining'}
-    end
     if native.phase=='chooser' then
         if allow_send==false then return {step='waiting_event'}end
         if now()-native.sentAt>20 then return {failed=true,error='Native rally chooser timed out; no retry'}end
@@ -509,12 +486,14 @@ function M.Start(request)
 end
 function M.Stop()engine.Stop();return M.Status()end
 function M.Configure(request)
+    local a=account();local token=bridge and bridge.Feature018OwnerToken()
+    if not a or request.authorizedUid~=a.uid or not token then return failed('AFK configuration account changed')end
+    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedAfkConfig or '{}')
+    if not ok or type(config)~='table' then return failed('Confirmed AFK configuration unavailable')end
+    if not config.enabled then return M.Stop()end
     local status=engine.Status()
     if status.state=='idle' or status.state=='stopped' then return M.Start(request)end
     if not owner or not owned(owner) or request.authorizedUid~=owner.uid then return failed('AFK configuration account changed')end
-    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedAfkConfig or '{}')
-    if not ok then return failed('Confirmed AFK configuration unavailable')end
-    if not config.enabled then return M.Stop()end
     local configured,error=engine.Configure(config)
     if not configured then return failed(error)end
     return M.Status()

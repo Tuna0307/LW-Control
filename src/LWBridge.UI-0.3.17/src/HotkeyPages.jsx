@@ -7,9 +7,17 @@ import { backendBridge } from "./backendBridge.js";
 // Audit 2026-10-23 W08: Hotkeys and Mini Games each save the whole hotkey object. Run every
 // fresh-read + save one after another (shared by both pages), so one switch save never undoes another.
 let hotkeySaveChain = Promise.resolve();
-function saveHotkeyFieldInOrder(field, value) {
+function saveHotkeyFieldInOrder(field, value, owner) {
+  const assertOwner = () => {
+    if (!backendBridge.isCurrentProfileOwner(owner)) {
+      throw Object.assign(new Error("The settings edit's profile generation retired."),
+        { code: "PROFILE_GENERATION_RETIRED" });
+    }
+  };
   const run = hotkeySaveChain.catch(() => {}).then(async () => {
+    assertOwner();
     const fresh = await backendBridge.invokeProfileScoped("hotkey_config_get");
+    assertOwner();
     return backendBridge.invokeProfileScoped("hotkey_config_save", { ...fresh, [field]: value });
   });
   hotkeySaveChain = run;
@@ -158,7 +166,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       } else {
         // Original 0.3.17 performs a fresh get before every whole-object save,
         // so another tab's updated fields are retained.
-        saved = await saveHotkeyFieldInOrder(field, nextConfig[field]);
+        saved = await saveHotkeyFieldInOrder(field, nextConfig[field], owner);
       }
       if (!backendBridge.isCurrentProfileOwner(owner)) return;
       sourceConfigRef.current = saved;

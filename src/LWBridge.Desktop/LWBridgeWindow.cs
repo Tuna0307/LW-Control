@@ -484,6 +484,9 @@ internal sealed partial class LWBridgeWindow : Form
                     ? new Feature018GameCommandService(overviewLifecycleService)
                     : new Feature018GameCommandService(overviewLifecycleService, equipmentConfigService, profileRuntimeConfigStore);
                 services.Add(featureCommands);
+                if (equipmentConfigService is not null && profileRuntimeConfigStore is not null)
+                    automationStatusService?.SetRuntimeStartup(Feature018RuntimeStartup.Create(
+                        overviewLifecycleService, equipmentConfigService, profileRuntimeConfigStore));
                 automationStatusService?.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
                     await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
                 automationStatusService?.SetNativeChatStatusReader(async token => JsonSerializer.SerializeToNode(
@@ -1336,6 +1339,13 @@ internal sealed partial class LWBridgeWindow : Form
             }
             if (normalUiLiveMapProofPath is not null)
             {
+                if (productionPaths?.ExplicitIsolation == true &&
+                    Environment.GetEnvironmentVariable("LWBRIDGE_STARTUP_HOME_PROOF") == "1")
+                {
+                    await RunStartupHomeProofAsync(core, normalUiLiveMapProofPath);
+                    Close();
+                    return;
+                }
                 if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
                     throw new InvalidOperationException("--normal-ui-live-map-proof requires --view map-data.");
                 await RunNormalUiProductionMapProofAsync(core, normalUiLiveMapProofPath);
@@ -1656,8 +1666,12 @@ internal sealed partial class LWBridgeWindow : Form
             if (ownerFixNativeProof && !ownerFixRemoteProof &&
                 Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1")
             {
-                await RunFeature018PackagedUiProofAsync(core, fullOutputPath, directory,
-                    ownedMapSession, operationCts.Token);
+                if (Environment.GetEnvironmentVariable("LWBRIDGE_CHAT_CATALOG_READ_ONLY") == "1")
+                    await RunReadOnlyChatCatalogProofAsync(core, fullOutputPath, directory,
+                        ownedMapSession, operationCts.Token);
+                else
+                    await RunFeature018PackagedUiProofAsync(core, fullOutputPath, directory,
+                        ownedMapSession, operationCts.Token);
                 return;
             }
             if (ownerFixNativeProof && !ownerFixRemoteProof &&

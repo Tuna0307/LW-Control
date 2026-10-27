@@ -14,7 +14,9 @@ export function NativeCardHeader({ title, description, checked, disabled, onTogg
 }
 
 const STATE_KEYS = { disabled: "common.disabled", waiting: "common.waiting", success: "common.success",
-  nothing_available: "automation.state.nothingToDo", unconfirmed: "automation.state.unconfirmed", error: "common.failed" };
+  nothing_available: "automation.state.nothingToDo", unconfirmed: "automation.state.unconfirmed", error: "common.failed",
+  already_claimed: "chatRewards.alreadyClaimed", exhausted: "chatRewards.exhausted",
+  expired: "chatRewards.expired", refused: "chatRewards.refused" };
 
 // One status pill, then label/value rows, a muted note and any error.
 export function NativeCardStatus({ t, online, enabled, state, rows = [], note, errors = [] }) {

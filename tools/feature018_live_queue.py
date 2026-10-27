@@ -11,10 +11,20 @@ import uuid
 from pathlib import Path
 
 
-def submit(directory, operation, timeout=45, *, expected_uid="4799432499002212", expected_server=2212):
+def submit(directory, operation, timeout=45, *, expected_uid="4799432499002212", expected_server=2212, gather_only=False):
     # Proof-only authority: explicit temporary account selection never accepts
     # an arbitrary UID, and server alone can never authorize the owner's main.
-    if (expected_uid, expected_server) not in (("4799432499002212", 2212), ("1183884595002296", 2296)):
+    # Explicit per-run owner authorization can extend ONLY the gathering proof
+    # to another exact account. The default authority remains unchanged.
+    if gather_only:
+        allowed = (operation.get('kind') == 'finish' or
+            operation.get('kind') == 'r23Ui' and operation.get('surface') == 'r30-resourceGather' or
+            operation.get('kind') == 'command' and operation.get('command') in
+                ('feature018_automation_observe', 'feature018_automation_status', 'feature018_automation_stop') and
+                operation.get('payload', {}).get('kind', 'resourceGather') == 'resourceGather')
+        if not allowed or not str(expected_uid).isdigit() or str(expected_uid).startswith('0') or expected_server <= 0:
+            raise ValueError('Owner-authorized gathering proof scope exceeded')
+    if not gather_only and (expected_uid, expected_server) not in (("4799432499002212", 2212), ("1183884595002296", 2296)):
         raise ValueError("Account is outside the owner-authorized proof pairs")
     if (str(operation.get("command", "")).startswith("mini_land_") or
             operation.get("command") == "monopoly_cell_open"):

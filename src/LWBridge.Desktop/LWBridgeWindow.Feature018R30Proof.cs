@@ -99,10 +99,37 @@ internal sealed partial class LWBridgeWindow
                     : "!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
             foreach (string step in setup)
             {
+                if (kind == "resourceGather") await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
                 Owned();await core.ExecuteScriptAsync(step);await Task.Delay(900, token);
             }
             if (kind == "resourceGather")
+            {
+                int count = int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_SQUADS"), out int wanted) ? wanted : 1;
+                int first = int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_FIRST_SQUAD"), out int start) ? start : 1;
+                if (count is < 1 or > 4 || first is < 1 or > 4 || first + count > 5) throw new InvalidDataException("Gather proof squads must be within 1-4.");
                 await WaitDom("document.querySelectorAll('[data-native-automation=resourceGather] .automation-resource-gather-squad input[type=checkbox]')[0]?.checked===true");
+                for (int slot = 0; slot < 4; slot++)
+                {
+                    Owned();
+                    await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
+                    if (slot < first - 1 || slot >= first - 1 + count)
+                    {
+                        await core.ExecuteScriptAsync("(()=>{const c=document.querySelectorAll('[data-native-automation=resourceGather] .automation-resource-gather-squad')[" + slot + "]?.querySelector('input[type=checkbox]');if(c?.checked)c.click();})()");
+                        await Task.Delay(900, token);
+                        continue;
+                    }
+                    if (await core.ExecuteScriptAsync("(()=>{const g=document.querySelectorAll('[data-native-automation=resourceGather] .automation-resource-gather-squad')[" + slot + "];const c=g?.querySelector('input[type=checkbox]');if(!c||c.disabled)return false;if(!c.checked)c.click();return true})()") != "true")
+                        throw new InvalidDataException("Gather proof squad is unavailable.");
+                    await Task.Delay(900, token);
+                    await core.ExecuteScriptAsync("(()=>{const g=document.querySelectorAll('[data-native-automation=resourceGather] .automation-resource-gather-squad')[" + slot + "];const s=g.querySelectorAll('select');s[0].value='" + (Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_RESOURCE") ?? "food") + "';s[0].dispatchEvent(new Event('change',{bubbles:true}));s[1].value='" + (Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_LEVEL") ?? "1") + "';s[1].dispatchEvent(new Event('change',{bubbles:true}));})()");
+                    await Task.Delay(900, token);
+                }
+                await WaitDom("!!document.querySelector('" + selector + " button[role=switch]:not(:disabled)')");
+                bool recallChecked = await core.ExecuteScriptAsync("document.querySelector('" + selector + " .automation-form-grid input[type=checkbox]')?.checked===true") == "true";
+                bool recallSaved = profileRuntimeConfigStore!.ReadTasksSnapshot()[kind]?["recallOnDisable"]?.GetValue<bool>() == true;
+                await File.WriteAllTextAsync(Path.Combine(directory, "r30-gather-recall-precondition.json"), JsonSerializer.Serialize(new { recallChecked, recallSaved }, JsonOptions.Default), token);
+                if (!recallChecked || !recallSaved) throw new InvalidDataException("Gather recall option must be checked and persisted before any gathering test.");
+            }
             if (kind == "officialPosition")
             {
                 // Owner rule 2026-10-21: the product supports all six positions, but live tests
@@ -176,6 +203,29 @@ internal sealed partial class LWBridgeWindow
                     await WaitDom("document.querySelector('" + selector + "')?.dataset.automationState==='" + terminal.Value.GetProperty("state").GetString() + "'");
                 uiConfirmed = true;
             }
+            if (kind == "resourceGather" && int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_HOLD_SECONDS"), out int hold))
+            {
+                if (hold is < 0 or > 120) throw new InvalidDataException("Gather proof hold must be 0-120 seconds.");
+                await File.WriteAllTextAsync(Path.Combine(directory, "r30-gather-hold-start.json"), JsonSerializer.Serialize(terminal, JsonOptions.Default), token);
+                for (int i = 0; i < hold; i++) { Owned(); await Task.Delay(1000, token); }
+                if (Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_MAP_OVERLAP") == "1")
+                {
+                    await map317CommandService!.InvokeAsync("map_scan_start", JsonSerializer.SerializeToElement(new { selectedTypes = new[] { "resource" }, scanMode = "fast" }), token);
+                    for (int i = 0; i < 80; i++)
+                    {
+                        Owned();
+                        var observed = JsonSerializer.SerializeToElement(await game.InvokeAsync("feature018_automation_observe", JsonSerializer.SerializeToElement(new { kind }), token), JsonOptions.Default);
+                        var scan = JsonSerializer.SerializeToElement(await map317CommandService.InvokeAsync("map_scan_status", empty.RootElement, token), JsonOptions.Default);
+                        await File.WriteAllTextAsync(Path.Combine(directory, "r30-gather-map-overlap.json"), JsonSerializer.Serialize(new { observed, scan }, JsonOptions.Default), token);
+                        if (observed.TryGetProperty("observers", out var observerState) && observerState.TryGetProperty("rows", out var rows) && rows.ValueKind == JsonValueKind.Array &&
+                            rows.EnumerateArray().Any(row => row.GetProperty("index").GetInt32() == 2 && !row.GetProperty("direct").GetBoolean())) break;
+                        if (scan.TryGetProperty("isReading", out var reading) && reading.ValueKind == JsonValueKind.False) break;
+                        await Task.Delay(250, token);
+                    }
+                }
+                object? beforeStop = await game.InvokeAsync("feature018_automation_observe", JsonSerializer.SerializeToElement(new { kind }), token);
+                await File.WriteAllTextAsync(Path.Combine(directory, "r30-gather-before-stop.json"), JsonSerializer.Serialize(beforeStop, JsonOptions.Default), token);
+            }
             await core.ExecuteScriptAsync("document.querySelector('" + selector + "')?.scrollIntoView({block:'center'})");
             await using var capture = File.Create(Path.Combine(directory, "r30-" + kind + ".png"));
             await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, capture);
@@ -186,6 +236,8 @@ internal sealed partial class LWBridgeWindow
             await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('" + selector + " button[role=switch]');if(b?.getAttribute('aria-checked')==='true')b.click();})()");
             // Let a switch-off cleanup (gathering recall) be sent and confirmed before the explicit stop.
             if (kind == "resourceGather") await Task.Delay(TimeSpan.FromSeconds(20), token);
+            if (kind == "resourceGather" && Environment.GetEnvironmentVariable("LWBRIDGE_R30_GATHER_MAP_OVERLAP") == "1")
+                await map317CommandService!.InvokeAsync("map_scan_stop", empty.RootElement, token);
             // Cleanup is an explicit stop, never a resend of the gameplay request.
             await game.InvokeAsync("feature018_automation_stop", JsonSerializer.SerializeToElement(new { kind }), token);
             var store = new AutomationTaskConfigCommandService(profileRuntimeConfigStore!);

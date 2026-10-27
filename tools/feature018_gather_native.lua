@@ -8,6 +8,10 @@ local GATHER_TYPES={metal='Metal',food='Food',gold='Wood'}
 local bridge,owner,settings,search,active,stopping,detailJob,lastDetailReply
 local cursor=1
 local hooks,slots,known={},{},{}
+local lastObserverFailure,lastStopObservers
+local suspensionCount=0
+local observer_ok,observers=pcall(require,'DataCenter.Global.LWBridgeFeature018AttackActions')
+if not observer_ok then observers={}end
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
 local function call(o,k,...)local f=get(o,k);if type(f)~='function'then error('Native '..k..' is unavailable')end;return f(o,...)end
 local function id(v)local s=tostring(v);if s:match('^[1-9]%d*$')then return s end end
@@ -38,15 +42,40 @@ local function form(slot)
     return f
 end
 local function march(f)return call(center('WorldMarchDataManager'),'GetOwnerFormationMarch',get(player(),'uid'),get(f,'uuid'),get(player(),'allianceId'))end
+local function treasure_borrow(formation,at)
+    local b=rawget(_G,'__lwbridgeTreasureBorrow');local t=type(b)=='table'and tonumber(b[formation])or nil
+    return t~=nil and at-t<7200000
+end
 local function detach()
-    for i=#hooks,1,-1 do local h=hooks[i];if get(h.object,h.key)==h.wrapper then h.object[h.key]=h.previous end end
+    for i=#hooks,1,-1 do local h=hooks[i];h.enabled=false;if get(h.object,h.key)==h.wrapper then h.object[h.key]=h.previous end end
     hooks={};search=nil;active=nil;detailJob=nil
 end
 local function hook(object,key,make)
     local previous=get(object,key);if type(previous)~='function'then error('Native '..key..' observer unavailable')end
-    local wrapper=make(previous);object[key]=wrapper;hooks[#hooks+1]={object=object,key=key,wrapper=wrapper,previous=previous}
+    local h={object=object,key=key,previous=previous,enabled=true}
+    local inner=make(previous)
+    local wrapper=function(...)if not h.enabled then return previous(...)end;return inner(...)end
+    h.wrapper=wrapper;object[key]=wrapper;hooks[#hooks+1]=h
+    if type(observers.RegisterObserverLink)=='function'then observers.RegisterObserverLink(object,key,wrapper,previous)end
 end
-local function intact()for _,h in ipairs(hooks)do if get(h.object,h.key)~=h.wrapper then return false end end;return #hooks>0 end
+local function intact()
+    for _,h in ipairs(hooks)do
+        local present=get(h.object,h.key)==h.wrapper
+        if not present and type(observers.ObserverContains)=='function'then present=observers.ObserverContains(h.object,h.key,h.wrapper)end
+        if not h.enabled or not present then return false end
+    end
+    return #hooks>0
+end
+local function observer_snapshot()
+    local out={hookCount=#hooks,rows={}}
+    for i,h in ipairs(hooks)do
+        local current=get(h.object,h.key)
+        out.rows[#out.rows+1]={index=i,key=h.key,enabled=h.enabled==true,direct=current==h.wrapper,
+            currentType=type(current),knownChain=type(observers.ObserverContains)=='function'and
+                observers.ObserverContains(h.object,h.key,h.wrapper)==true or false}
+    end
+    return out
+end
 local function safe_point(pointId,squad,radius)
     local w=world();local p=call(w,'GetPointInfo',pointId);local r=call(w,'GetResourcePointInfoByIndex',pointId)
     if not p or not r then return nil,'Resource point is not loaded' end
@@ -81,9 +110,11 @@ end
 local function fresh_record(rec)
     if not owned()then return nil end
     local f=form(rec.slot);if not f or tostring(get(f,'uuid'))~=rec.formation then return nil end
-    -- Returning marches disappear from GetOwnerFormationMarch before arrival.
-    -- Re-read the exact captured UUID; retain every ownership/GUID fence.
-    local m=call(center('WorldMarchDataManager'),'GetMarch',tonumber(rec.uuid))
+    -- Prefer the current owned formation; returning marches may disappear
+    -- from that view, so fall back to the exact UUID. Both paths keep every
+    -- ownership/GUID fence below and never adopt another march in this slot.
+    local m=march(f)
+    if tostring(get(m,'uuid'))~=rec.uuid then m=call(center('WorldMarchDataManager'),'GetMarch',tonumber(rec.uuid))end
     -- Arrival/collecting updates clear the creation GUID too. This record was
     -- admitted with that GUID at creation; the exact UUID/owner/formation/server
     -- stays required throughout its life. A different nonempty GUID is refused.
@@ -93,7 +124,8 @@ local function fresh_record(rec)
     return m
 end
 local function guard(job)
-    if not owned()or not intact()then return false,'Gathering game account/session or native observer changed'end
+    if not owned()then return false,'Gathering game account/session changed'end
+    if not intact()then lastObserverFailure=observer_snapshot();return false,'Gathering native observer is missing or was replaced by an unknown observer'end
     if stopping and job.phase~='recall'then return false,'Gathering has been stopped'end
     if job.phase=='recall'then
         if known[job.record.slot]~=job.record or job.record.recallAttempted and job.record.recallJob~=job then return false,'Gathering recall was already attempted or ownership record retired'end
@@ -117,7 +149,7 @@ local function recall_job(rec,slot,reason)
     local job={phase='recall',route='MarchUtil.OnBackHome',record=rec,slot=slot,stopping=reason==nil,wireCount=0,reason=reason}
     job.execute=function()
         if job.executionStarted then error('Gathering recall was already attempted; no replay')end
-        local ok,why=guard(job);if not ok then error(why)end
+        local ok,why=guard(job);if not ok then error(why,0)end
         job.executionStarted=true;rec.recallAttempted=true;rec.recallJob=job;active=job;job.executing=true
         local result=table.pack(pcall(enum('MarchUtil','OnBackHome'),tonumber(rec.uuid)))
         job.executing=false
@@ -222,6 +254,7 @@ function M.BeforeSend(kind,job)if not M.Supports(kind)then return true end;retur
 function M.Plan(kind,c,at)
     if not M.Supports(kind)then return nil end
     local current=account();if owner and not same_owner(owner,current)then detach();slots={};known={}end;owner=current;settings=c;stopping=false
+    if next(known)~=nil and #hooks==0 then install()end
     local radius=tonumber(c.scanRadius)or 200;local validRadius=false
     for _,v in ipairs({50,100,150,200,250,300,400,500})do if v==radius then validRadius=true end end
     local delay=tonumber(c.manualResumeDelaySeconds)or 120
@@ -239,9 +272,14 @@ function M.Plan(kind,c,at)
         if f then
             local v=slots[slot]or {};slots[slot]=v;v.formation=tostring(get(f,'uuid'));row.step='idle'
             local m=march(f)
+            -- Owner 2026-10-26: Treasure may redirect a gathering squad to a dig; that is not a manual
+            -- action, so gathering resumes as soon as the squad is home (borrow expires after 2 h).
+            local borrowed=treasure_borrow(v.formation,at)
+            if not m and borrowed then rawget(_G,'__lwbridgeTreasureBorrow')[v.formation]=nil;v.manualResumeAt=nil end
             if m then
                 local rec=known[slot];local mine=rec and fresh_record(rec);local ours=mine~=nil
-                if not ours then v.manualResumeAt=at+delay*1000;v.search=nil;row.pauseReason='manual_wait'end
+                if not ours and borrowed then v.manualResumeAt=nil;v.search=nil;row.pauseReason='treasure'
+                elseif not ours then v.manualResumeAt=at+delay*1000;v.search=nil;row.pauseReason='manual_wait'end
                 row.step='busy'
                 if ours and not rec.recallAttempted and call(mine,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and
                    tonumber(get(mine,'targetPos'))==rec.pointId then
@@ -371,17 +409,39 @@ function M.Verify(kind,job)
     end
     return false
 end
-function M.Stop(kind)
+function M.Suspend(kind)
+    if M.Supports(kind)then
+        suspensionCount=suspensionCount+1
+        detach();stopping=true
+    end
+end
+function M.Stop(kind,config)
     if not M.Supports(kind)then return end
+    lastStopObservers=observer_snapshot()
     stopping=true;search=nil
     for _,v in pairs(slots)do v.search=nil end
     local out={cleanupJobs={}}
-    if not owned()then M.FinishStop(kind);known={};slots={};owner=nil;return out end
+    if type(config)=='table'then settings=config end
+    if not owned()then
+        if settings and settings.recallOnDisable==true then out.warning='No matching gathering owner is available in this session; no squads were recalled'end
+        M.FinishStop(kind);known={};slots={};owner=nil;return out
+    end
     if settings and settings.recallOnDisable==true then
+        -- A suspended session can be stopped before another Plan occurs.
+        -- Reinstall only after the original full owner token is fresh again.
+        if next(known)~=nil and #hooks==0 then install()end
         for slot,rec in pairs(known)do
             local m=fresh_record(rec)
             if not rec.recallAttempted and m and call(m,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and tonumber(get(m,'targetPos'))==rec.pointId then
                 out.cleanupJobs[#out.cleanupJobs+1]=recall_job(rec,slot)
+            end
+        end
+        for _,s in ipairs(settings.squads or {})do
+            local slot=tonumber(s.squadIndex);local f=s.enabled==true and slot and form(slot)
+            local m=f and march(f)
+            if m and call(m,'GetMarchTargetType')==enum('MarchTargetType','COLLECT')and
+               (known[slot]==nil or fresh_record(known[slot])==nil)then
+                out.warning='Some gathering squads have no matching ownership record in this session; they were not recalled'
             end
         end
     end
@@ -393,7 +453,15 @@ end
 function M.FinishStop(kind)if M.Supports(kind)then detach();stopping=true end end
 function M.Observe(kind)
     if not M.Supports(kind)then return {state='unsupported'}end
-    local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000}
+    local a=account();local out={readOnly=true,serverTime=clock(),gatherSquadIndexes={},gatherSquads={},gatherResources={},worldTileCount=1000,
+        observerOwnerMatches=owned()==true,observerChainReady=intact()==true,
+        observers=observer_snapshot(),lastStopObservers=lastStopObservers,lastObserverFailure=lastObserverFailure,
+        suspensionCount=suspensionCount,trackedGatherSquads={}}
+    for slot,rec in pairs(known)do
+        local m=fresh_record(rec)
+        out.trackedGatherSquads[#out.trackedGatherSquads+1]={squadIndex=slot,recordMatches=m~=nil,
+            recallAttempted=rec.recallAttempted==true}
+    end
     for slot=1,4 do
         local f=call(center('ArmyFormationDataManager'),'GetOneArmyInfoByIndex',slot)
         if id(get(f,'uuid'))and tostring(get(f,'ownerUid'))==a.uid then

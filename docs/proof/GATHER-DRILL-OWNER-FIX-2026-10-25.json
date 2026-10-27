@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "status": "SOURCE_AND_CONTROLLED_CHECKS_PASS_PATCHED_LIVE_ACCEPTANCE_OPEN",
+  "branch": "codex/lwtool-remaining-tabs",
+  "draftPr": 17,
+  "productSource": "44be59d892ad9faf0d09f8342f31a99b273d5c1a",
+  "baseline": "a52538038409b1b1880032de167d51ca9d15de1b",
+  "mainMerged": false,
+  "released": false,
+  "mainActionAuthorization": "Only tool-owned gathering recall and joining the then-current Drill rally; no other main gameplay",
+  "nativeObservation": {
+    "nativeState": "failed",
+    "nativeRunning": false,
+    "nativeStep": "joining",
+    "lastError": "Rally join was not confirmed by a native march",
+    "activeEvent": true,
+    "rallyCandidates": 11,
+    "secondsToEventEnd": 405.948,
+    "joinableCandidates": 11,
+    "manualUiDispatchAttempts": 1,
+    "patchedLiveJoinProven": false,
+    "agentRecallSends": 0,
+    "patchedLiveRecallProven": false,
+    "ownerOriginalAppAndGamePreserved": true,
+    "agentInstalledScriptWrites": 0,
+    "capturedNativeObservation": "artifacts/owner-gather-drill-20261025/after-manual-join-private.json",
+    "eventEndObserved": true,
+    "eventEndObservation": "Passive native game screenshot displayed activity ended after packaging",
+    "manualUiControlResult": "Not independently correlated; not a patched live positive"
+  },
+  "pairedRecallControlled": {
+    "baseline": "a52538038409b1b1880032de167d51ca9d15de1b",
+    "results": {
+      "before": {
+        "recallSent": false,
+        "error": "Gathering game account/session or native observer changed",
+        "wireSends": 3,
+        "accountUnchanged": true
+      },
+      "after": {
+        "recallSent": true,
+        "error": null,
+        "wireSends": 4,
+        "accountUnchanged": true
+      }
+    },
+    "liveActions": 0
+  },
+  "nativeSource": {
+    "originalPackageSha256": "8f61102f401f3052598365ca9750c2c496969895b5add2da138cb2147d045493",
+    "contentVersion": 27,
+    "modules": [
+      {
+        "module": "Util/MarchUtil.luac",
+        "encodedSha256": "d3c3bb47b11e555ccd646510628c2e428000436ffa8bc8bac290a1320094e245",
+        "decodedSha256": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4"
+      },
+      {
+        "module": "UI/UIFormation/UIFormationSelectListNew/Controller/UIFormationSelectListNewCtrl.luac",
+        "encodedSha256": "c7081eed53c9d2cc34707b580efcf17287316988dfa5d5696fbb93db2d737fc9",
+        "decodedSha256": "f229f1866f44fc276630615ac4b208d3981972eeaea519a138e8021d945525f4"
+      }
+    ]
+  },
+  "checks": {
+    "fullUi": true,
+    "fullDesktopDelivery": true,
+    "packageAuditorTests": 31,
+    "idleJoinInverses": true,
+    "registeredObserverAndUnknownReplacementInverses": true
+  },
+  "package": {
+    "zip": "artifacts/owner-gather-drill-20261025/package-final/LW-Control-lwtool-improvement-44be59d892ad.zip",
+    "sha256": "5aaf4faf811a6c20630c4ca984f494bb77690ec2fd17a0d6175ced61d0a825b3",
+    "bytes": 10390472,
+    "zipEntries": 105,
+    "sourceCommit": "44be59d892ad9faf0d09f8342f31a99b273d5c1a",
+    "sourceGitTree": "1d2418be174e45e5be0cabc9082e75ff41465886",
+    "sourceInputSha256": "bdf1ef0c49a07ce43dd65aacb0f10a505bf4232c41487089929502ded71351ad",
+    "sourceInputFileCount": 750,
+    "bridgesVerified": 29,
+    "status": "INDEPENDENT_REVIEW_REQUIRED"
+  },
+  "sourceAnchors": [
+    {
+      "path": "tools/feature018_attack_actions.lua",
+      "line": 64,
+      "contains": "function M.RegisterObserverLink"
+    },
+    {
+      "path": "tools/feature018_attack_actions.lua",
+      "line": 68,
+      "contains": "function M.ObserverContains"
+    },
+    {
+      "path": "tools/feature018_attack_actions.lua",
+      "line": 2556,
+      "contains": "function M.AutomationJoinIdle"
+    },
+    {
+      "path": "tools/feature018_gather_native.lua",
+      "line": 55,
+      "contains": "local function intact()"
+    },
+    {
+      "path": "tools/feature018_gather_native.lua",
+      "line": 411,
+      "contains": "observerOwnerMatches"
+    },
+    {
+      "path": "tools/feature018_afk_native.lua",
+      "line": 253,
+      "contains": "local function direct_join"
+    },
+    {
+      "path": "tools/feature018_drill_engine.lua",
+      "line": 55,
+      "contains": "function M.Fail"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "line": 349,
+      "contains": "const drillFailed"
+    }
+  ],
+  "retainedEvidence": [
+    {
+      "path": "artifacts/owner-gather-drill-20261025/live-summary-sanitized.json",
+      "sha256": "b6a7ef87d121d3953e79fe89e6bb6a5c4d119b75c0d5566bc7a11c595e342047"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/after-manual-join-private.json",
+      "sha256": "0caf542f27eceb3a201bc0adab0c034b84595f8614c08dd66f96f44082b06675"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/recall-paired-controlled.json",
+      "sha256": "d2129919ff5cf85d14c43bb224efb9622daae28d4b603d3f93b66ba3f137d58c"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/lua-regressions.log",
+      "sha256": "7dd630776e0d5553927a16d438f6bc673edbb0936576d215718a590852c3a1db"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/ui-checks.log",
+      "sha256": "90b15496ab943311b2cd1a1fdd341fb6108d2a02f389d889850efc754984e8a5"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/desktop-checks.log",
+      "sha256": "48ac53566bd5dcb867c625218d65f7c8068ad8ab7f3692b88749f1a1e67a508b"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/publish-final.log",
+      "sha256": "b3d674ed98f403bcd3c028695551b545d1712bea95e485e4a7c0dcf1b2010c55"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/package-auditor.log",
+      "sha256": "0c6a773cdff9bec622989a633b8c517e67a64db1e020bd638a49cfab5bc05def"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/package-final/package-receipt.json",
+      "sha256": "84fd60060def63f1226d526bcc7c5ac150285b0b0f5596f0aba8ef6e6ebbc990"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/package-final/extraction-verification.json",
+      "sha256": "524caf051cb0819e057778175aa589139f68b90bec291c6f0ab342d9c5e3a30e"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/native-ui-dispatch.txt",
+      "sha256": "66eb768623f8e2987523a93ad19cf1f8faa3c1a26f3c12de01f9882253015b74"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/OnJoinRally.txt",
+      "sha256": "49c5c11603aa80657fd59382656a72c60cc7cc42340d8bcdbae4768f66d9811e"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/StartMarch.txt",
+      "sha256": "19fde4d234b2108f7de2a921202547715e887adda75d23c251e7d1912097de7a"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/TryStartMarch.txt",
+      "sha256": "c4de0620da39ff36b7b16a91716b5903322088e41f9920e95bddbbc7c5cc854e"
+    },
+    {
+      "path": "artifacts/owner-gather-drill-20261025/SendCreateMarchMessage.txt",
+      "sha256": "08f4634c667ea4adcc4e42e87f2f13d8b37c09a4f97a0becdbbbf036ad1d3479"
+    }
+  ],
+  "remaining": [
+    "Patched live exact owned gathering recall from a fresh engine-owned trip",
+    "Patched live Drill join with exact native create GUID and target",
+    "Independent code review and owner acceptance"
+  ]
+}
