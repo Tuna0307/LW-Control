@@ -1,3 +1,5 @@
+> **Dated snapshot (2026-10-25).** Describes LW-Control as it was then. What is current, and where the archived files it cites live: [competitor-research README](../README.md).
+
 # Red Packet, Fireworks and Gold Egg comparison
 
 25 October 2026. Source comparison and inert verification only; no product

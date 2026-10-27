@@ -1,3 +1,5 @@
+> **Dated snapshot (2026-10-23).** Describes LW-Control as it was then. What is current, and where the archived files it cites live: [competitor-research README](../README.md).
+
 # LwTool vs LW-Control full product method matrix
 
 Date: 2026-10-23

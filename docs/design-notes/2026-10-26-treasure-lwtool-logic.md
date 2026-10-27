@@ -1,5 +1,7 @@
 # Treasure: LwTool "Dig Treasure" logic first (2026-10-26)
 
+> **Status (2026-10-27):** merged to `main` through PR #17 and released as `lw-control-v1.2-2026-10-27`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 Branch `codex/lwtool-remaining-tabs` / draft PR #17. Owner direction 2026-10-26: Treasure means the
 alliance **radar treasure digs** and **Test Flight Failure** treasures (both `TreasurePointInfo`,
 pointType 21, told apart by `eventId`). Treasure is no longer on hold; the owner reports live

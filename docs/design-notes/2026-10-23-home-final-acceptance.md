@@ -1,5 +1,7 @@
 # Home final independent acceptance
 
+> **Status (2026-10-27):** merged to `main` through PR #16 and released as `lw-control-v1.1-2026-10-25`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 **ACCEPTED for the owner's agreed Home scope on 2026-10-24.**
 Home is done for this scope; Map comparison/improvement is next. No main merge
 or public release was performed. Production/package source is
@@ -117,7 +119,7 @@ Do not introduce split writes without qualifying a streaming receiver.
   payload hash passed. No competitor payload, account state or diagnostic dump.
 - The immutable package manifest records creation before independent review;
   this report is its separate final acceptance receipt, not a modified ZIP.
-- Sanitized results: `2026-10-23-HOME-FINAL-ACCEPTANCE-EVIDENCE.json` beside this report.
+- Sanitized results: [2026-10-23-home-final-acceptance.json](evidence/2026-10-23-home-final-acceptance.json).
 - Raw own-session evidence, mini dump, negative controls, actual UI captures,
   exact process receipts and one-off controllers remain ignored in
   `artifacts/home-final-acceptance-20261023/`.

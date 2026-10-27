@@ -1,3 +1,5 @@
+> **Dated snapshot (2026-10-23).** Describes LW-Control as it was then. What is current, and where the archived files it cites live: [competitor-research README](../README.md).
+
 > Superseded handback status: Home received independent lead acceptance on 2026-10-24 after further corrections and final-package replay. See [final acceptance](../../design-notes/2026-10-23-home-final-acceptance.md). Final production/package source: `ae7eceb464ce1c06cb8a1854a3d686b2017cbeeb`. The historical measurements below remain unchanged.
 
 # Home connection stability report — 2026-10-23

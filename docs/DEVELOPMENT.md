@@ -36,8 +36,9 @@ Launch is ON by default, so a normal start may launch the game.
 Baseline on 2026-10-27, Linux:
 
 - UI: all jsdom checks pass.
-- Game scripts: 37 pass and 16 skip on Linux. All 16 are Windows-only or need `--original-dir`;
-  each skipped check gets past its imports when a stub `msvcrt` is provided.
+- Game scripts: 37 pass and 16 skip on Linux. All 16 are Windows-only or need `--original-dir`.
+  Eleven of them read the installed game package, so they also need the verified Last War
+  installation; all pass on the Windows dev machine.
 - Packager tests: pass.
 
 ## Release
@@ -75,7 +76,13 @@ The app refuses to inject into an unknown client. To support a new game build:
   CURRENT_CLIENT_ADAPTATION.
 - `TreatWarningsAsErrors` is on for all C# projects (`Directory.Build.props`).
 - The nine UI locales (`src/LWBridge.UI-0.3.17/src/locales/`) must stay complete;
-  `check-ui-complete.mjs` enforces this.
+  `check-ui-complete.mjs` enforces this. The nine main catalogs are generated from the original
+  0.3.17 assets (`scripts/generate-recovered-locales.mjs`); new strings go in the separate
+  feature locale modules next to them. Many original keys look unused but are looked up from
+  native error codes, so do not prune them by search.
+- Every Lua module injected into the game's script package must encode to at most 65,535 bytes
+  (`feature018_package_checks.py`), and Lua 5.3 allows at most 200 local variables in one
+  function or main chunk. The Map probe is close to both limits (see STATUS.md).
 - Never commit account data, test UIDs in product code, databases, screenshots of accounts, or
   third-party binaries. Put local evidence in the git-ignored `artifacts/`.
 - Tests that touch game logic must say whether they are **controlled/inert** (fake game objects) or

@@ -1,7 +1,9 @@
+> **Dated snapshot (2026-10-25).** Describes LW-Control as it was then. What is current, and where the archived files it cites live: [competitor-research README](../README.md).
+
 # Remaining tabs: LwTool and LW-Control
 
 Status: comparison, implementation and bounded final-package qualification are
-complete for the available game state. See [FINAL_QUALIFICATION.md](../../design-notes/2026-10-25-remaining-tabs-qualification.md)
+complete for the available game state. See [remaining-tabs qualification](../../design-notes/2026-10-25-remaining-tabs-qualification.md)
 for results and explicit Hotkey/Mini live-positive gaps. Independent review is
 pending. No merge or release.
 
@@ -12,7 +14,7 @@ UI SHA-256 is `5de6a7c1c9a83fdd2e141989e5998535f0a1f0e64778c8dcc2e44d9493ff05b8`
 The focused Equipment/Hotkey/settings Python API bodies are unchanged from the
 23 October recovery. Other APIs changed, so earlier whole-product rankings are
 not assumed current. Private recovered code, credentials and runtime rows stay
-ignored locally. The public evidence index is [EVIDENCE.json](../../design-notes/evidence/REMAINING-TABS-2026-10-25.json).
+ignored locally. The public evidence index is [REMAINING-TABS-2026-10-25.json](../../design-notes/evidence/REMAINING-TABS-2026-10-25.json).
 
 ## Side-by-side feature comparison
 

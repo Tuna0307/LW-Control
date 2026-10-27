@@ -1,5 +1,7 @@
 # Gathering recall and idle Drill join correction
 
+> **Status (2026-10-27):** merged to `main` through PR #17 and released as `lw-control-v1.2-2026-10-27`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 Product source `44be59d892ad9faf0d09f8342f31a99b273d5c1a` on
 `codex/lwtool-remaining-tabs`, draft PR #17. Source fixes and controlled
 qualification are complete; patched live acceptance is still open. No merge

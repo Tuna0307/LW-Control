@@ -1,6 +1,8 @@
+> **Dated snapshot (2026-10-24).** Describes LW-Control as it was then. What is current, and where the archived files it cites live: [competitor-research README](../README.md).
+
 # LwTool active scan method report
 
-> Local Map closeout: [LEAD_FINAL_MAP_QUALIFICATION.md](../../design-notes/2026-10-25-map-final-qualification.md). Required final packaged gates now pass; earlier pending-package statements below are historical. Remote-service recovery limits are unchanged.
+> Local Map closeout: [Map final qualification](../../design-notes/2026-10-25-map-final-qualification.md). Required final packaged gates now pass; earlier pending-package statements below are historical. Remote-service recovery limits are unchanged.
 
 Date: 2026-10-24
 Status: canonical recovered-method report for the Map comparison assignment.
