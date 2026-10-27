@@ -1,4 +1,4 @@
-"""Read-only compact Lua 5.3 bytecode parser for installed LWLF v24.
+"""Read-only compact Lua 5.3 bytecode parser for the installed LWLF package (written against v24).
 
 Lineage: selected OPS, Reader, parse_proto, parse_chunk, opcode and operand
 helpers from archive/research-offline-controller:tools/inspect_current_dispatch_plunder_sources.py

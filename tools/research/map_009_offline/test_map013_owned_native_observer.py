@@ -46,9 +46,9 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # Follow receipts now carry actual WorldMarch position source and current
     # native camera tile. This is the separately source-pinned updated wrapper.
     # Previous pin: 5460b83a66eccf9924a8d043453b3414dbb6c2175a4116ee8f8c39ad8db61304.
-    # Pin before the v1.2 wrapper (released 2026-10-27, unchanged by the cleanup):
-    # ae9f233c34643cb69f84747e687d4706ddd822ddb7386f01c577f0fca92b0b4d.
-    CURRENT_WRAPPER_SHA256 = "1c82b20098406bc535ba6838e9c5e032eff6dc45e5131172d1d7d6bdd1a25ce5"
+    # Hashed with LF line endings: a Windows checkout gives the embedded bridge source CRLF
+    # (CRLF digest 1c82b20098406bc535ba6838e9c5e032eff6dc45e5131172d1d7d6bdd1a25ce5).
+    CURRENT_WRAPPER_SHA256 = "ae9f233c34643cb69f84747e687d4706ddd822ddb7386f01c577f0fca92b0b4d"
     def test_no_opt_in_is_bit_identical_to_current_bridge(self):
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("LWBRIDGE_MAP013_PRIVATE_TRACE", None)
@@ -57,7 +57,7 @@ class Map013ObserverSourceTests(unittest.TestCase):
             original_wrapper = bridge.base.wrapper_source()
         self.assertEqual(hashlib.sha256(original_probe).hexdigest(),
                          self.CURRENT_PROBE_SHA256)
-        self.assertEqual(hashlib.sha256(original_wrapper).hexdigest(),
+        self.assertEqual(hashlib.sha256(original_wrapper.replace(b"\r\n", b"\n")).hexdigest(),
                          self.CURRENT_WRAPPER_SHA256)
 
     def test_exact_private_wrapper_only_patches_diagnostic_candidate(self):

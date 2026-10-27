@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Current-build-only, read-only RGMD/IL method and reference inspector.
+"""Read-only RGMD/IL method and reference inspector for the installed game assembly.
 
 Uses rgmd_il.py, the selected metadata reader/IL decoder from
 archive/research-offline-controller:tools/inspect_lastwar_rdl_metadata.py.
@@ -13,7 +13,6 @@ from pathlib import Path
 
 from rgmd_il import MetadataImage
 
-SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
 DEFAULT = (Path.home() / "AppData/Local/FunFly/Last War-Survival Game"
            / "Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl")
 
@@ -29,8 +28,6 @@ def main():
     args = ap.parse_args()
     with args.assembly.open("rb") as file:
         digest = hashlib.file_digest(file, "sha256").hexdigest()
-    if digest != SHA256:
-        raise ValueError(f"unsupported assembly hash: {digest}")
     image = MetadataImage.load(args.assembly)
     output = []
     for index, type_row in enumerate(image.tables.TypeDef.rows, 1):

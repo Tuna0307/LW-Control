@@ -22,7 +22,7 @@ REPO = Path(__file__).resolve().parents[3]
 TOOLS = REPO / "src" / "LWBridge.GameScripts"
 sys.path.insert(0, str(TOOLS))
 import run_overview_bridge_current as admitted
-overview = admitted.base  # shim applies current-client v24 hash/compatibility gate
+overview = admitted.base  # shim applies the current-client compatibility gate
 
 
 def retire_owned_reply(path: Path, request_id: str, profile: str, session: str,

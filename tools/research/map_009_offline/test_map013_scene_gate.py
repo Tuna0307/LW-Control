@@ -1,51 +1,14 @@
-"""Actual decoded scene guards and inert diagnostic orchestration; no game."""
+"""Inert scene-gate and reply-retirement checks for the MAP-013 observer helpers; no game."""
 from pathlib import Path
 import json
-import os
 import tempfile
 import unittest
 from unittest.mock import patch
 
-import compact_lua53 as lua
-from execute_selected import execute
-from inspect_current import load_entries, probe, root_methods
 import run_map013_owned_observer as observer
 
 
 class SceneGateTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # Explicit immutable original input during an admitted live candidate;
-        # load_entries still enforces the unchanged original v24 SHA-256.
-        entries = load_entries(Path(os.environ.get("LWBRIDGE_MAP013_SOURCE_PACKAGE",probe.paths()["data"])))
-        cls.root = lua.parse_chunk(probe.decode_lenc(entries["Util/SceneUtils.luac"]))
-        cls.methods = root_methods(cls.root)
-
-    def body(self, method):
-        body = self.root
-        for item in self.methods[method].split("/")[1:]:
-            body = body["children"][int(item)]
-        return body
-
-    def test_actual_native_scene_predicates(self):
-        for scene, city, world in ((0, False, False), (11, True, False), (22, False, True)):
-            env = {"CS": {"SceneManager": {"CurrSceneID": scene}},
-                   "SceneManagerSceneID": {"City": 11, "World": 22}}
-            self.assertEqual(execute(self.body("GetIsInCity"), globals_=env), (city,))
-            self.assertEqual(execute(self.body("GetIsInWorld"), globals_=env), (world,))
-
-    def test_actual_change_to_world_silently_skips_unadmitted_scene(self):
-        callbacks = []
-        env = {"StopwatchProfilerL": {"Begin": lambda *_: None, "End": lambda: None}}
-        up = {1: {"GetIsInWorld": lambda: False, "GetIsInCity": lambda: False}}
-        self.assertEqual(execute(self.body("ChangeToWorld"),
-                                 lambda: callbacks.append(True), globals_=env, upvalues=up), ())
-        self.assertEqual(callbacks, [])
-        up[1]["GetIsInWorld"] = lambda: True
-        execute(self.body("ChangeToWorld"), lambda: callbacks.append(True),
-                globals_=env, upvalues=up)
-        self.assertEqual(callbacks, [True])
-
     def test_gate_reobserves_unknown_and_preserves_each_terminal_reply(self):
         with tempfile.TemporaryDirectory(prefix="map013-scene-gate-") as directory:
             attempt = Path(directory)

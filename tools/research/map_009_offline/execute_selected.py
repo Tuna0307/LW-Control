@@ -1,4 +1,4 @@
-"""Tiny bounded interpreter for SELECTED real v24 Lua 5.3 function bodies.
+"""Tiny bounded interpreter for SELECTED real game Lua 5.3 function bodies.
 
 Runs only the opcodes needed for the source-backed position/index and request
 serialization tests. Network, UI, Unity and filesystem callbacks are supplied
