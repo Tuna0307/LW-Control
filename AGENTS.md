@@ -1,3 +1,10 @@
+Latest lead release, 2026-10-27: owner asked to release now and is taking a break from the project.
+Lead merged codex/lwtool-remaining-tabs (PR #17) into main and published lw-control-v1.2-2026-10-27
+from product/package f93c3b9a2e56049f94976d204e43140cc5c0e8d1 (ZIP SHA-256 88697ff5…). Includes
+remaining tabs, Chat rewards, gathering recall/Drill fixes, startup sync and Treasure on LwTool's Dig
+Treasure logic (docs/reviews/2026-10-26-TREASURE-LWTOOL-LOGIC.md). Treasure, gathering redirect and
+live Drill join are inert-qualified only; owner will test Treasure live later. No worker task open.
+
 Latest worker startup handback, 2026-10-26: product/package b6b49eafdbf646cb05f51acc6997d84d4ed299cd,
 codex/lwtool-remaining-tabs / draft PR #17. Read docs/reviews/2026-10-26-STARTUP-SYNCHRONIZATION.md and
 docs/proof/STARTUP-SYNCHRONIZATION-2026-10-26.json. Saved background configuration synchronizes from
