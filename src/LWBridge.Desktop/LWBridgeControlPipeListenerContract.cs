@@ -48,3 +48,10 @@ internal static class LWBridgeControlPipeListenerContract
         };
     }
 }
+
+internal enum LWBridgePipeConnectDisposition
+{
+    Connected,
+    Pending,
+    Failed,
+}
