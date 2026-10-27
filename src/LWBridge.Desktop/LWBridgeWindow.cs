@@ -44,7 +44,6 @@ internal sealed partial class LWBridgeWindow : Form
     private readonly string uiRootPath;
     private readonly bool liveUiReloadAllowed;
     private LWBridgeBackend backend = null!;
-    private readonly MapDataStore? mapData;
     private LWBridgeControlPipeHostState? bridgeHostState;
     private OverviewLifecycleService? overviewLifecycleService;
     private Map317CommandService? map317CommandService;
@@ -150,9 +149,6 @@ internal sealed partial class LWBridgeWindow : Form
         primaryProfileId = productionApplicationRoot is null ? null : config.Snapshot.ProfileId;
         primaryProfileSeed = productionApplicationRoot is null ? null : config.Snapshot;
         activeProfileConfig = config;
-        // The legacy store backs only the isolated capture. Normal production
-        // Map owns exactly the recovered per-profile Map317 database below.
-        mapData = isolated ? MapDataStore.CreateInMemory() : null;
         string? controllerDatabasePath = productionApplicationRoot is null
             ? null
             : Path.Combine(productionApplicationRoot, "controller.db");
@@ -344,7 +340,6 @@ internal sealed partial class LWBridgeWindow : Form
         backend = new LWBridgeBackend(
             config,
             asyncCommands: productionCommands,
-            mapData: mapData,
             overviewLifecycle: overviewLifecycleService,
             mapScanStatusProvider: map317CommandService is null
                 ? null
@@ -1869,10 +1864,8 @@ internal sealed partial class LWBridgeWindow : Form
                         : command == "set_window_theme"
                             ? Task.FromResult(
                                 windowThemeService.Apply(Handle, payload))
-                        : command == "map_city_export"
-                            ? map317CommandService is not null
-                                ? ExportMap317CityAsync(payload, cancellationToken)
-                                : ExportCityAsync(payload, cancellationToken)
+                        : command == "map_city_export" && map317CommandService is not null
+                            ? ExportMap317CityAsync(payload, cancellationToken)
                         : Task.Run(async () =>
                         {
                             SemaphoreSlim? ownerAdmission = null;
@@ -2087,42 +2080,6 @@ internal sealed partial class LWBridgeWindow : Form
         cancellationToken.ThrowIfCancellationRequested();
         return await Task.Run(
             () => service.WriteCityExport(request, selectedPath),
-            cancellationToken);
-    }
-
-    private async Task<object?> ExportCityAsync(
-        JsonElement payload,
-        CancellationToken cancellationToken)
-    {
-        CityExportRequest request = backend.PrepareCityExport(payload);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        string selectedPath;
-        try
-        {
-            using var dialog = new SaveFileDialog
-            {
-                FileName = request.DefaultFileName,
-                Filter = "Excel workbook|*.xlsx",
-                DefaultExt = "xlsx",
-                AddExtension = true,
-                OverwritePrompt = true,
-                CheckPathExists = true,
-            };
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-                return LWBridgeBackend.CreateCityExportCanceledResult();
-            selectedPath = dialog.FileName;
-        }
-        catch
-        {
-            // RECOVERED LWB-R7-059: rfd 0.16 synchronous save_file() maps both
-            // user cancellation and dialog build/show/get-result failure to None.
-            return LWBridgeBackend.CreateCityExportCanceledResult();
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-        return await Task.Run(
-            () => backend.WriteCityExport(request, selectedPath),
             cancellationToken);
     }
 
@@ -2343,7 +2300,6 @@ internal sealed partial class LWBridgeWindow : Form
             // shared control-pipe host; profile replacement closes retired hosts earlier.
             bridgeHostState?.Close();
             profileRegistryService?.Dispose();
-            mapData?.Dispose();
             if (isolatedConfigRoot is not null)
             {
                 try { Directory.Delete(isolatedConfigRoot, recursive: true); }

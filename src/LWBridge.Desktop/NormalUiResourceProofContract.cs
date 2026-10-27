@@ -99,17 +99,6 @@ internal static class NormalUiResourceProofContract
             matched.Cells.ToArray());
     }
 
-    private static int? TryGetInt(JsonElement row, string name) =>
-        row.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed) ? parsed : null;
-
-    private static int? TryGetNullableInt(JsonElement row, string name) =>
-        !row.TryGetProperty(name, out JsonElement value) || value.ValueKind == JsonValueKind.Null
-            ? null
-            : value.TryGetInt32(out int parsed) ? parsed : int.MinValue;
-
-    private static long? TryGetLong(JsonElement row, string name) =>
-        row.TryGetProperty(name, out JsonElement value) && value.TryGetInt64(out long parsed) ? parsed : null;
-
     private static string? TryGetString(JsonElement row, string name) =>
         row.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 }

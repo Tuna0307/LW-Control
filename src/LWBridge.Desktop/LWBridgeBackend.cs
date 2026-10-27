@@ -3,11 +3,6 @@ using System.Text.Json;
 
 namespace LWBridge.Desktop;
 
-internal sealed record CityExportRequest(
-    MapDataQueryOptions Query,
-    CityExportWorkbookOptions WorkbookOptions,
-    string DefaultFileName);
-
 internal sealed class LWBridgeBackend
 {
     private static readonly string[] MapKinds = MapScanContract.AllTypes;
@@ -58,8 +53,6 @@ internal sealed class LWBridgeBackend
     private readonly INativeAsyncCommandService? asyncCommands;
     private readonly OverviewLifecycleService? overviewLifecycle;
     private readonly LWBridgeControlPipeHostState? bridgeHostState;
-    private readonly MapDataStore? mapData;
-    private readonly ServerJumpHistoryCommandService serverJumpHistory;
     private readonly AppendLogCommandService appendLog;
     private readonly ProxyStatusCommandService proxyStatus;
     private readonly GameRecoveryStatusCommandService gameRecoveryStatus;
@@ -72,7 +65,6 @@ internal sealed class LWBridgeBackend
     public LWBridgeBackend(
         LocalConfigStore? config = null,
         INativeAsyncCommandService? asyncCommands = null,
-        MapDataStore? mapData = null,
         OverviewLifecycleService? overviewLifecycle = null,
         LastWarLocaleService? lastWarLocales = null,
         Func<object>? mapScanStatusProvider = null,
@@ -88,10 +80,6 @@ internal sealed class LWBridgeBackend
         this.asyncCommands = asyncCommands;
         this.overviewLifecycle = overviewLifecycle;
         this.bridgeHostState = bridgeHostState;
-        this.mapData = mapData;
-        serverJumpHistory = new ServerJumpHistoryCommandService(
-            this.config.Snapshot.ProfileId,
-            mapData);
         appendLog = new AppendLogCommandService(
             this.config.Snapshot.ProfileId,
             profileRuntimeDirectory);
@@ -325,7 +313,15 @@ internal sealed class LWBridgeBackend
             case "server_jump_history_get":
             case "server_jump_history_import":
             case "server_jump_history_set":
-                return serverJumpHistory.Invoke(command, payload);
+                // Map317CommandService owns the saved history; without it the
+                // request is refused exactly as the retired store-less fallback did.
+                if (!payload.TryGetProperty("profileId", out JsonElement historyProfile) ||
+                    historyProfile.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(historyProfile.GetString()))
+                    throw new BridgeCommandException("PROFILE_ID_REQUIRED", "profileId is required");
+                throw new BridgeCommandException(
+                    "PROFILE_RUNTIME_UNAVAILABLE",
+                    "profile runtime unavailable");
             case "update_status":
                 return new
                 {
@@ -365,37 +361,20 @@ internal sealed class LWBridgeBackend
                         isReading,
                         currentServerId,
                         serverIdSource);
-                    MapDataStore store = RequireMapDataStore();
-                    store.ClearServer(serverId);
-                    return CreateMapScanStatus(
-                        currentServerId,
-                        "idle",
-                        null,
-                        serverIdSource ?? "none");
+                    throw MapIndexUnavailable();
                 }
             case "map_data_options":
-                {
-                    int serverId = MapDataQueryContract.RequiredServerIdOrAll(payload);
-                    MapDataStore store = RequireMapDataStore();
-                    MapOptionSourceSelection source = serverId == 0
-                        ? new MapOptionSourceSelection(0, null)
-                        : SelectMapOptionSource(serverId);
-                    MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
-                        source, RecoveredWallClock.UnixTimeMilliseconds());
-                    return CreateMapDataOptions(serverId, aggregates);
-                }
+                MapDataQueryContract.RequiredServerIdOrAll(payload);
+                throw MapIndexUnavailable();
             case "map_search":
-                {
-                    MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
-                    MapSearchResult result = RequireMapDataStore().SearchIndexed(query);
-                    return new { rows = result.Rows, total = result.Total };
-                }
+                MapDataQueryContract.NormalizeSearch(payload);
+                throw MapIndexUnavailable();
             case "map_city_export":
                 throw new BridgeCommandException(
                     "NATIVE_DIALOG_REQUIRED",
                     "City export requires the desktop save dialog host.");
             case "map_player_mark_set":
-                return SetPlayerMark(payload);
+                throw MapIndexUnavailable();
             case "map_summary":
                 {
                     RequireOptionalProfile(payload);
@@ -422,25 +401,7 @@ internal sealed class LWBridgeBackend
                             ? runElement.GetString()
                             : null;
 
-                    MapDataStore store = RequireMapDataStore();
-                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
-                        serverId,
-                        isReading,
-                        serverId,
-                        scanRunId);
-                    MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
-                        source,
-                        RecoveredWallClock.UnixTimeMilliseconds());
-                    var counts = MapScanContract.RecoveredDefaultTypes.ToDictionary(
-                        kind => kind,
-                        kind => aggregates.Counts.TryGetValue(kind, out int count) ? count : 0,
-                        StringComparer.Ordinal);
-                    return new
-                    {
-                        serverId,
-                        counts,
-                        scanState,
-                    };
+                    throw MapIndexUnavailable();
                 }
             case "feedback_export":
                 ValidateFeedbackExportPayload(payload);
@@ -843,7 +804,9 @@ internal sealed class LWBridgeBackend
         lastError,
     };
 
-    private MapDataStore RequireMapDataStore() => mapData ?? throw new BridgeCommandException(
+    // Without a Map317 runtime there is no profile map index. Map317CommandService
+    // answers every Map data command in normal production composition.
+    private static BridgeCommandException MapIndexUnavailable() => new(
         "MAP_INDEX_UNAVAILABLE",
         "Map data is unavailable before the profile map index is initialized.");
 
@@ -864,271 +827,6 @@ internal sealed class LWBridgeBackend
             : null;
         return (isReading, serverId, serverIdSource);
     }
-
-    private MapOptionSourceSelection SelectMapOptionSource(int serverId)
-    {
-        if (mapScanStatusProvider is null)
-            return MapDataStore.SelectOptionSource(serverId, false, 0, null);
-
-        JsonElement status = JsonSerializer.SerializeToElement(mapScanStatusProvider(), JsonOptions.Default);
-        int scanServerId = status.TryGetProperty("serverId", out JsonElement server) && server.TryGetInt32(out int parsed)
-            ? parsed
-            : 0;
-        bool isReading = status.TryGetProperty("isReading", out JsonElement reading) && reading.ValueKind == JsonValueKind.True;
-        string? scanRunId = status.TryGetProperty("scanRunId", out JsonElement run) && run.ValueKind == JsonValueKind.String
-            ? run.GetString()
-            : null;
-        return MapDataStore.SelectOptionSource(serverId, isReading, scanServerId, scanRunId);
-    }
-
-    private static object CreateMapDataOptions(int serverId, MapOptionAggregates aggregates)
-    {
-        object? scanProgress = aggregates.ScanProgress is { } progress
-            ? new
-            {
-                // RECOVERED frontend consumer surface (LWB-R6-004): only these
-                // persisted scanProgress fields are required here. Do not serialize the
-                // adjacent count/type columns whose exact original public mapping remains
-                // unrecovered.
-                id = progress.Id,
-                serverId = progress.ServerId,
-                status = progress.Status,
-                createdAt = progress.CreatedAt,
-                updatedAt = progress.UpdatedAt,
-                error = progress.Error,
-            }
-            : null;
-        return new
-        {
-            serverId,
-            counts = aggregates.Counts,
-            alliances = aggregates.Alliances.Select(item => new { name = item.Name ?? string.Empty, count = item.Count }).ToArray(),
-            names = new
-            {
-                resource = aggregates.Names.Where(item => item.Kind == "resource").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
-                monster = aggregates.Names.Where(item => item.Kind == "monster").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
-            },
-            dispatchLevels = aggregates.DispatchLevels,
-            noAllianceCount = aggregates.NoAllianceCount,
-            rewardItems = new
-            {
-                truck = aggregates.RewardItems.Where(item => item.Kind == "truck").Select(item => new { key = item.Key, name = item.Name, iconPath = item.IconPath }).ToArray(),
-                railway = aggregates.RewardItems.Where(item => item.Kind == "railway").Select(item => new { key = item.Key, name = item.Name, iconPath = item.IconPath }).ToArray(),
-            },
-            treasureTypes = aggregates.TreasureTypes.Select(item => new
-            {
-                key = item.Key,
-                count = item.Count,
-                treasureType = item.TreasureType,
-                suppliesType = item.SuppliesType,
-                treasureNameKey = item.TreasureNameKey,
-            }).ToArray(),
-            scanProgress,
-        };
-    }
-
-    internal CityExportRequest PrepareCityExport(
-        JsonElement payload,
-        DateTimeOffset? utcNow = null)
-    {
-        ValidateCommandScope("map_city_export", payload);
-        if (!payload.TryGetProperty("query", out JsonElement exportQuery) ||
-            exportQuery.ValueKind != JsonValueKind.Object)
-        {
-            throw new BridgeCommandException(
-                "INVALID_MAP_QUERY",
-                "map_city_export query must be an object.");
-        }
-
-        if (!exportQuery.TryGetProperty("serverId", out JsonElement serverElement) ||
-            !serverElement.TryGetInt32(out int serverId) ||
-            serverId <= 0)
-        {
-            throw new BridgeCommandException(
-                "MAP_EXPORT_FAILED",
-                "city export server is unavailable");
-        }
-
-        using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new
-        {
-            profileId = ProfileId,
-            kind = "city",
-            query = JsonSerializer.Deserialize<object>(exportQuery.GetRawText(), JsonOptions.Default),
-        }, JsonOptions.Default));
-        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(envelope.RootElement);
-
-        string[] headers = ReadCityExportHeaders(payload);
-        string sheetName = ReadOptionalExportString(payload, "sheetName", "Cities");
-        string yesLabel = ReadOptionalExportString(payload, "yesLabel", "Yes");
-        string noLabel = ReadOptionalExportString(payload, "noLabel", "No");
-        var workbookOptions = new CityExportWorkbookOptions(
-            headers,
-            sheetName,
-            yesLabel,
-            noLabel);
-
-        string fileName = BuildCityExportDefaultFileName(
-            serverId,
-            utcNow ?? DateTimeOffset.UtcNow);
-        return new CityExportRequest(query, workbookOptions, fileName);
-    }
-
-    internal object WriteCityExport(CityExportRequest request, string path)
-    {
-        ArgumentNullException.ThrowIfNull(request);
-        if (string.IsNullOrWhiteSpace(path))
-            throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export path is invalid");
-
-        MapDataStore store = RequireMapDataStore();
-        var rows = new List<JsonElement>();
-        int total = 0;
-        for (int page = 1; page <= 1000; page++)
-        {
-            MapSearchResult result = store.SearchCityPageForExport(
-                request.Query with { Page = page, PageSize = 200 });
-            total = result.Total;
-            if (result.Rows.Count == 0)
-                break;
-            rows.AddRange(result.Rows);
-            if (rows.Count >= total)
-                break;
-        }
-        if (rows.Count < total)
-            MapDataStore.RequireCityExportRowLimit(total);
-
-        CityExportWorkbookWriteResult writeResult;
-        try
-        {
-            using var stream = new FileStream(
-                path,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None);
-            writeResult = CityExportWorkbookWriter.Write(
-                stream,
-                rows,
-                request.WorkbookOptions);
-            stream.Flush(flushToDisk: true);
-        }
-        catch (BridgeCommandException)
-        {
-            throw;
-        }
-        catch (ArgumentException ex)
-        {
-            throw new BridgeCommandException(
-                "MAP_EXPORT_FAILED",
-                "city export headers are invalid",
-                ex.Message);
-        }
-        catch (Exception ex)
-        {
-            throw new BridgeCommandException(
-                "MAP_EXPORT_FAILED",
-                ex.Message);
-        }
-
-        return new
-        {
-            canceled = false,
-            path,
-            rowCount = writeResult.RowCount,
-        };
-    }
-
-    internal static object CreateCityExportCanceledResult() => new
-    {
-        canceled = true,
-        path = string.Empty,
-        rowCount = 0,
-    };
-
-    internal static string BuildCityExportDefaultFileName(
-        int serverId,
-        DateTimeOffset utcNow)
-    {
-        DateTimeOffset utc = utcNow.ToUniversalTime();
-        return "map-cities-" + serverId.ToString(CultureInfo.InvariantCulture) + "-" +
-            utc.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + ".xlsx";
-    }
-
-    private static string[] ReadCityExportHeaders(JsonElement payload)
-    {
-        if (!payload.TryGetProperty("headers", out JsonElement headersElement) ||
-            headersElement.ValueKind != JsonValueKind.Array ||
-            headersElement.GetArrayLength() != 12)
-        {
-            throw new BridgeCommandException(
-                "MAP_EXPORT_FAILED",
-                "city export headers are invalid");
-        }
-
-        string[] headers = new string[12];
-        int index = 0;
-        foreach (JsonElement header in headersElement.EnumerateArray())
-        {
-            if (header.ValueKind != JsonValueKind.String ||
-                string.IsNullOrWhiteSpace(header.GetString()))
-            {
-                throw new BridgeCommandException(
-                    "MAP_EXPORT_FAILED",
-                    "city export headers are invalid");
-            }
-            headers[index++] = header.GetString()!;
-        }
-        return headers;
-    }
-
-    private static string ReadOptionalExportString(
-        JsonElement payload,
-        string property,
-        string fallback)
-    {
-        if (!payload.TryGetProperty(property, out JsonElement element) ||
-            element.ValueKind != JsonValueKind.String)
-            return fallback;
-        return element.GetString() ?? fallback;
-    }
-
-    private object SetPlayerMark(JsonElement payload)
-    {
-        if (!payload.TryGetProperty("row", out JsonElement row) || row.ValueKind != JsonValueKind.Object)
-            throw new BridgeCommandException("INVALID_PLAYER_MARK", "player mark row must be an object.");
-        if (!payload.TryGetProperty("marked", out JsonElement markedElement) ||
-            markedElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
-            throw new BridgeCommandException("INVALID_PLAYER_MARK", "marked must be a boolean.");
-
-        int serverId = MapDataQueryContract.RequiredServerId(row);
-        string ownerUid = GetRequiredString(row, "ownerUid");
-        bool marked = markedElement.GetBoolean();
-        MapDataStore store = RequireMapDataStore();
-        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        if (marked)
-        {
-            store.UpsertPlayerMark(new MapPlayerMark(
-                serverId,
-                ownerUid,
-                "active",
-                now,
-                null,
-                row.GetRawText()));
-        }
-        else
-        {
-            store.DeletePlayerMark(serverId, ownerUid);
-        }
-
-        return new
-        {
-            serverId,
-            ownerUid,
-            marked,
-            state = marked ? "active" : null,
-            markedAt = marked ? now : (long?)null,
-            checkedAt = (long?)null,
-        };
-    }
-
     private void ValidateCommandScope(string command, JsonElement payload)
     {
         if (string.Equals(command, "profile_instance_status", StringComparison.Ordinal))
@@ -1141,7 +839,7 @@ internal sealed class LWBridgeBackend
             return;
         if (payload.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_PAYLOAD", "Command payload must be a JSON object.");
-        if (ServerJumpHistoryCommandService.IsCommand(command))
+        if (command is "server_jump_history_get" or "server_jump_history_set" or "server_jump_history_import")
             return;
         if (!GlobalCommands.Contains(command))
             RequireProfile(payload);

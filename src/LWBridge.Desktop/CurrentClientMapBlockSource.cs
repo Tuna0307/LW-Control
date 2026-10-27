@@ -446,7 +446,7 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
         int selectedIndex = RequirePositiveInt(root, indexName);
         bool cityTargetedView = mapKind == "city" && MatchesBool(root, "cityTargetedView", true);
 
-        _ = LiveResourceProbeCommandService.PrepareCorrelatedResult(
+        _ = FirstLiveResultImporter.PrepareCorrelatedResult(
             resultPath,
             requestId,
             out _,
