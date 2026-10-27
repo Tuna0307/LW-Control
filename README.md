@@ -1,73 +1,57 @@
-# LW-Control application candidate
+# LW-Control
 
-**Latest Windows build (v1.1, 2026-10-25):** [Download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/lw-control-v1.1-2026-10-25/LW-Control-lwtool-improvement-33c92711549a.zip) · [Release details](https://github.com/Tuna0307/LW-Control/releases/tag/lw-control-v1.1-2026-10-25).
-Extract the complete ZIP into a fresh writable folder and run **LWBridge.Desktop.exe** (inside `LW-Control-UI`).
-v1.1 adds a more stable game connection (Home) and a more reliable Map scanner on top of v1.0.
+A Windows desktop helper for **Last War: Survival**. It rebuilds the commercial tool LWBridge 0.3.17
+(without its login/licensing system) and adds improvements learned from the LwTool client.
 
-**Previous stable release:** [Available Map v0.6.0](https://github.com/Tuna0307/LW-Control/releases/tag/map-available-v0.6.0).
-The previous stable ZIP uses **Launch LWBridge.cmd**; the latest ZIP uses **LWBridge.Desktop.exe**. Requires the .NET 10
-Desktop Runtime and Microsoft Edge WebView2 Runtime. Game integration additionally
-requires Python and the verified current Last War installation. The UI baseline and single-profile Home Launch â†’ Connected â†’ Close are delivered;
-stored City/Resource browsing and City XLSX export are added in v0.3.0.
-Additional native features are accepted and released separately.
+**Latest release: [v1.2 (2026-10-27)](https://github.com/Tuna0307/LW-Control/releases/tag/lw-control-v1.2-2026-10-27)**:
+[download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/lw-control-v1.2-2026-10-27/LW-Control-lwtool-improvement-f93c3b9a2e56.zip).
+Extract it into a fresh writable folder and run `LW-Control-UI/LWBridge.Desktop.exe`. Requires the
+.NET 10 Desktop Runtime (x64), Microsoft Edge WebView2 Runtime, Python 3 and the supported Last War
+PC client.
 
-A runnable Windows application reconstructed from LWBridge 0.3.17. This is an incremental release candidate, **not a completed 1-to-1 Home/Map clone**. Read [feature status](docs/FEATURE_STATUS.md) for the exact accepted scope and remaining gaps.
+## Features
 
-The main candidate contains production source and runtime dependencies. The large historical reverse-engineering archive stays on `research/offline-controller`; one small original frontend asset is retained because the locale checker uses it directly.
+| Tab | What it does |
+|---|---|
+| Home | Launch, connect to and close the game per profile, with auto-reconnect and repair |
+| Map Data | Fast whole-map scans of cities, resources, monsters, events, Trucks, Railway and more; filters, Jump, Auto scans, City XLSX export |
+| Automation | Alliance help/donations/gifts/gathering, trade station, treatment, official application, Secret Task, Ghost Ops, chat rewards, Treasure |
+| Squads / AFK | Monster AFK, shared AFK profiles, stamina items, Alliance Drill, Gathering |
+| City Layout | Move and swap buildings |
+| Hotkeys | Q/W/E/R attack, recall, shields, equipment presets, relocation, frontline reinforcement, G troops |
+| Mini Games | Food House auto clear, Black Market chests |
+| Settings | Nine UI languages, theme, in-game FPS/ping |
 
-## Build and run
+What is fully verified and what is only tested offline: see **[docs/STATUS.md](docs/STATUS.md)**.
 
-Requirements: Windows x64, .NET 10 SDK, Node.js/npm and Microsoft Edge WebView2 Runtime. Live game integration additionally uses Python and the currently verified Last War build; a game update must pass compatibility checks before use.
+## Repository layout
 
-```powershell
-dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release
+```
+src/
+  LWBridge.Desktop/        Windows app (C#, WinForms + WebView2): commands, game lifecycle, pipe, Map engine
+  LWBridge.UI-0.3.17/      React frontend (built into the app's ProductionUi/)
+  LWBridge.Map-0.3.17/     Map library (contracts, store, export)
+  LWBridge.GamePipeAdapter/ DLL loaded in the game for the pipe connection
+  LWBridge.GameScripts/    Python launch helpers + Lua that runs inside the game (shipped with the app)
+tests/
+  LWBridge.Desktop.Checks/ C# checks for the app (Windows)
+  GameScripts.Checks/      Python checks that run the real Lua with fake game objects
+tools/
+  release/                 Release packager and packaged smoke test
+  live-harness/            Scripts that drove live tests of the packaged app (Windows)
+  research/                Game-package inspection and Map research helpers
+  rea-mcp/                 Local reverse-engineering MCP tool config
+docs/                      Status, architecture, development, live-testing rules, history
 ```
 
-Then double-click `Start LWBridge.cmd`, or run the executable directly. The original Auto Launch preference defaults to enabled, so normal startup can launch the game. An explicit independent application data root is supported:
+## Build and test
 
 ```powershell
-& ./src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe --isolated-root C:/LW-Control-data
-```
-
-## Verify the delivered Home slice
-
-These checks use inert providers; they do not launch Last War:
-
-```powershell
-npm.cmd --prefix src/LWBridge.UI-0.3.17 run check
+dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release   # also builds the UI
+npm --prefix src/LWBridge.UI-0.3.17 run check
 dotnet run --project tests/LWBridge.Desktop.Checks -c Release
-pwsh -NoProfile -File tools/check_packaged_home.ps1
+python tests/GameScripts.Checks/run_all_checks.py --output artifacts/checks-run
 ```
 
-The packaged capture is explicitly an isolated fixture smoke test. It proves boot/render/cleanup, not original live parity. Actual mounted Home settings and persistence are recorded in [the delivery review](docs/HOME_DELIVERY_REVIEW.md).
-
-## Publish
-
-```powershell
-dotnet publish src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release -o artifacts/application
-```
-
-Keep the whole output folder: it contains the canonical frontend, WebView dependencies, game-pipe adapter and Python/Lua helpers. The research directory is not required to build or launch it.
-
-## Downloadable UI candidate
-
-The reviewed UI release is built from this branch using `pwsh -NoProfile -File tools/package_ui_release.ps1` after a clean `dotnet publish`. This creates a ZIP under `artifacts/release/` with a complete publish folder, **Launch LWBridge.cmd**, a short `README-RELEASE.txt`, and the exact source commit. Extract the entire ZIP to a writable folder on Windows x64; install the **.NET 10 Desktop Runtime** and **Microsoft Edge WebView2 Runtime** if missing. Double-click **Launch LWBridge.cmd**. **The original Auto Launch setting is enabled by default**; on a normal user profile startup may launch Last War. The safe disabled-profile proof in the release review uses a separate test data root, not altered shipped defaults.
-
-Release verifier (Windows; optional Microsoft Edge and dev-only Playwright required for the full browser sweep):
-
-```powershell
-npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:release-ui
-pwsh -NoProfile -File tools/check_packaged_home.ps1 -Executable "artifacts/application/LWBridge.Desktop.exe"
-```
-
-See [UI release review](docs/UI_MAIN_RELEASE_REVIEW.md) for the baseline page/state matrix and unrecovered native behavior. The UI candidate is not an endorsement of complete native Home/Map parity, updater functionality or protected-original service access.
-
-## Home Launch â†’ Connected â†’ Close (focused native delivery)
-
-A bounded single-profile Home Launch/Connected/Close flow has additionally been demonstrated from the **actual packaged Windows WebView2 UI** against the compatible current Last War client. The game authenticated through the native control pipe, the Home page showed Connected in English/light and Japanese/dark, and the real Close button exited the exact owned game and restored all three original script-file hashes. The task-only isolated root was removed after normal cleanup. The original Auto Launch default remains **ON** for ordinary user profiles; the isolated proof disabled it through its own UI. See [feature proof and original-source comparison](docs/reviews/2026-10-09-LWB317-HOME-LAUNCH-DELIVERY-002.md). This does **not** certify the original protected 0.3.17 runtime, advanced reconnection, Map scans, gameplay or updater.
-
-To build the focused feature release on a **committed clean branch**, publish the application with `dotnet publish src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release -o artifacts/application`, then run `pwsh -NoProfile -File tools/package_ui_release.ps1 -ReleaseLabel Home-Launch`. Extract the complete ZIP and run **Launch LWBridge.cmd**. Both .NET 10 Desktop Runtime (x64) and Edge WebView2 Runtime are required.
-
-## Stored Map data browsing and City export
-
-Stored City/Resource search, filters, sorting, pagination, tab return and City XLSX export are reviewed native features. The proof uses genuine previously published data; the download does not include private datasets. A real Home connection may be needed after restart to select the server. This does not certify original scanner traversal or the complete Map tab. See [lead acceptance](docs/MAP_DATA_LEAD_ACCEPTANCE.md).
+Full instructions, including releases: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Working on this with an AI agent? Start with [AGENTS.md](AGENTS.md).

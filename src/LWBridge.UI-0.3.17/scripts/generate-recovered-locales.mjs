@@ -1,3 +1,6 @@
+// Regenerates src/locales from the ORIGINAL 0.3.17 frontend assets. Those assets live only in the
+// research archive (tag archive/research-offline-controller, path evidence/lwbridge-0.3.17/...).
+// Check that archive out next to this repo layout before running; normal builds never need this.
 import fs from "node:fs";
 import { retiredAutomationKey } from "./r30-retired-automation.mjs";
 import { AUTOMATION_RUNTIME_MESSAGES } from "./r30-runtime-messages.mjs";

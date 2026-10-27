@@ -43,7 +43,7 @@ for (const relative of sourceFiles) {
 // Exact original Gather me requests common.loading, absent from the original
 // English catalog. Preserve its key-as-text result rather than invent a label.
 const recoveredMissingKeys = new Set(["common.loading"]);
-const originalPanel = fs.readFileSync(path.join(root, "../../evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js"), "utf8");
+const originalPanel = fs.readFileSync(path.join(root, "reference/original-0.3.17/AutomationPanel-BJ0gIqFh.js"), "utf8");
 if (!originalPanel.includes("a(`common.loading`)") || "common.loading" in en) throw new Error("Revalidate original Gather missing-key exception.");
 const missing = [...literalKeys].filter((key) => !key.includes("${") && !(key in en) && !recoveredMissingKeys.has(key)).sort();
 if (missing.length) throw new Error(`Missing recovered English locale keys:\n${missing.join("\n")}`);

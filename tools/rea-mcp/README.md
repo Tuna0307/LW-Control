@@ -55,7 +55,7 @@ The 6.7.0 native smoke check also passed against the previously admitted
 `xlua-proxy-plain.dll`: real Ghidra assembly, pseudocode, procedure body,
 callers/callees and incoming references were returned, and `close_binary` succeeded.
 Raw evidence is retained under ignored `artifacts/rea-toolchain/update-6.7.0-native`.
-The compact update receipt is `docs/proof/REA-MCP-UPDATE-2026-10-23.json`.
+The compact update receipt is `docs/proof/REA-MCP-UPDATE-2026-10-23.json` (archived: tag archive/pre-cleanup-2026-10-27).
 
 ## MAP-013 portable Ghidra native provider (2026-10-12)
 
@@ -97,7 +97,7 @@ produced **real Ghidra 12.1.4 assembly, decompiled entry pseudocode,
 callers/callees and references**; its owned analysis session closed successfully.
 Raw REA Evidence IDs/outputs are in ignored
 `artifacts/rea-toolchain/xlua-plain-proof-v2`, summarized at
-`docs/proof/MAP-013-REA-NATIVE-2026-10-12.json`.
+`docs/proof/MAP-013-REA-NATIVE-2026-10-12.json` (archived: tag archive/pre-cleanup-2026-10-27).
 
 For direct Ghidra `analyzeHeadless.bat` workflows (outside REA's bridge), set
 `APPDATA` and `LOCALAPPDATA` to private **process-scoped** folders under
@@ -116,7 +116,7 @@ pseudocode bodies** (including a Map-related state machine and three linked
 callees), but **not** complete original Map scanner pseudocode, kind-dispatch
 message schemas, or a decryption key. Use actual v24
 managed IL/Lua decoders for custom RDL/RGMD and Lua bytecode; do not force
-them into a PE parser. Refer to `docs/MAP_013_REA_NATIVE_RECOVERY.md` for limits.
+them into a PE parser. Refer to `docs/MAP_013_REA_NATIVE_RECOVERY.md` (archived: tag archive/pre-cleanup-2026-10-27) for limits.
 
 **MAP-013 lead-corrected extractor:** `Map013Selective.java` now requires
 `<ignored-report-path> <ignored-raw-directory> <budget-seconds 10..7200>
@@ -167,5 +167,5 @@ automatically decrypt protected commercial feature packages, authenticate
 source responses or prove scanner speed/accuracy.
 
 Raw installation smoke outputs stay under ignored `artifacts/rea-*`. The small
-receipt is `docs/proof/REA-MCP-INSTALL-2026-10-12.json`. Source/skill attribution
+receipt is `docs/proof/REA-MCP-INSTALL-2026-10-12.json` (archived: tag archive/pre-cleanup-2026-10-27). Source/skill attribution
 and license are in this directory's `LICENSE-REA.txt`.
