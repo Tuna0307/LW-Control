@@ -324,7 +324,8 @@ internal static class Map016DataChecks
                     Require(error.Code == "FEATURE_REMOVED", command + " did not explain owner removal");
                 }
             }
-            await Task.Delay(3 * M.MapPlunderWorker.TickMilliseconds);
+            // Former plunder worker tick was 100 ms; wait three ticks to prove nothing fires.
+            await Task.Delay(300);
             Require(actions.ForbiddenCalls == 0, "removed route or legacy worker reached an account-action provider");
         }
         using var reopened = new M.MapStore(db);

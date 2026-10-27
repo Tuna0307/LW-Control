@@ -72,3 +72,4 @@ The full original ledgers, with every evidence path, are in the archive tag
 | D-F08 | OWN_DESIGN | Chat rewards: exact native outcome counting, separate Gold Egg card, bounded cross-server room discovery, and one shared status poll for the four Chat cards. | Inert + read-only native |
 | D-F09 | OWN_DESIGN | Saved background features start from the per-profile runtime at launch, so no tab visits are needed. | Genuine Home-only run |
 | D-F10 | OWN_DESIGN | Gathering keeps its exact march records through a temporary loss of authority in the same session, and recalls them on Off. | Genuine 4-squad run |
+| D-F11 | OWNER_DIRECTION | Ghost Ops automation removed (2026-10-22): no card, saved settings or game-side engine. Map's Ghost scan is unaffected. | Controlled |

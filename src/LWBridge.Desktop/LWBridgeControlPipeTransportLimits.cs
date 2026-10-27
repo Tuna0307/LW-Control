@@ -1,15 +1,11 @@
 namespace LWBridge.Desktop;
 
 // LWB-R7-099: numeric transport limits recovered from the original 0.3.1
-// bridge host. This is intentionally an offline boundary model only: it does
-// not open a pipe, start an accept loop, enqueue production traffic, or own
-// pending Lua calls.
+// bridge host, enforced by LWBridgeControlPipeRpcSessionTransport.
 internal static class LWBridgeControlPipeTransportLimits
 {
     // The original bounded sender stores 0x2000 permit units and consumes two
     // units per queued item; the adjacent configured maximum is 0x1000.
-    public const int OutboundQueuePermitUnits = 0x2000;
-    public const int OutboundPermitUnitsPerItem = 2;
     public const int OutboundQueueItemCapacity = 0x1000;
 
     // A separate semaphore is constructed with 0x04000000 permits and the

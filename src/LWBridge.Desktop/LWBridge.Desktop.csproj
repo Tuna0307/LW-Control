@@ -12,7 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="WebUi\index.html;WebUi\preview-host.js;WebUi\presentation.css;WebUi\assets\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="..\LWBridge.GameScripts\run_live_resource_probe.py;..\LWBridge.GameScripts\run_live_resource_probe_current.py;..\LWBridge.GameScripts\current_client_compat.py;..\LWBridge.GameScripts\current_live_resource_probe.lua"
              Link="LiveResourceProbe\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"

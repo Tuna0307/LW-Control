@@ -1,7 +1,7 @@
 """Read-only Last War RG/RGMD metadata and CIL decoder.
 
 Lineage: only metadata parser and IL decoder from
-research/offline-controller:tools/inspect_lastwar_rdl_metadata.py;
+archive/research-offline-controller:tools/inspect_lastwar_rdl_metadata.py;
 original parser lineage 0d23432 of Macro-Clicker-and-Icon-Watcher.
 Current installed assembly hash gate is in inspect_managed.py.
 """

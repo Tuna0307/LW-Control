@@ -419,14 +419,6 @@ internal static class MapDataQueryContract
             throw new BridgeCommandException("INVALID_MAP_QUERY", "pageSize must be a positive integer.");
         return Math.Clamp(number, 1, 200);
     }
-    private static int OptionalPositiveInt(JsonElement payload, string name, int fallback)
-    {
-        if (!payload.TryGetProperty(name, out JsonElement value) || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
-            return fallback;
-        if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int result) || result < 1)
-            throw new BridgeCommandException("INVALID_MAP_QUERY", $"{name} must be a positive integer.");
-        return result;
-    }
 
     private static int? OptionalNonNegativeInt(JsonElement payload, string name)
     {

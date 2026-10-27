@@ -1,5 +1,5 @@
 // Recovered Map table presentation. Exact source locators are recorded under
-// evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/.
+// archive/research-offline-controller:evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/.
 import { mapOwnerFilterLabel } from "./mapOwnerFilters.js";
 
 const LIVE_TARGET_KINDS = new Set(["truck", "railway"]);

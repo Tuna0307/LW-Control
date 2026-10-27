@@ -1,8 +1,8 @@
 namespace LWBridge.Desktop;
 
 // OVL-05 recovery policy. Thresholds, retry tables and caps are 0.3.17 facts re-proved from
-// lwbridge-0.3.17.exe (see HOME009 monitor-recovery-analysis.md); the 0.3.1 script
-// tools/inspect_lwbridge_game_recovery.py is historical only.
+// lwbridge-0.3.17.exe (HOME009 analysis; see the research archive tag
+// archive/research-offline-controller).
 internal static class OverviewRecoveryPolicy
 {
     internal static readonly TimeSpan HangThreshold = TimeSpan.FromSeconds(30);
@@ -28,12 +28,6 @@ internal static class OverviewRecoveryPolicy
         TimeSpan.FromMinutes(10),
     ];
 
-    internal static TimeSpan RetryDelay(bool maintenance, int attempt)
-    {
-        TimeSpan[] table = maintenance ? MaintenanceRetryDelays : NormalRetryDelays;
-        int index = Math.Clamp(Math.Max(attempt, 1) - 1, 0, table.Length - 1);
-        return table[index];
-    }
 }
 
 internal sealed record OverviewRecoveryStatus(

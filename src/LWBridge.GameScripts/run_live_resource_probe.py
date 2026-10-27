@@ -388,7 +388,8 @@ def close_owned_game_process_for_restore(
 
     HOME 009 NOTE: the product Stop path no longer uses this graceful closer; the
     original 0.3.17 Stop terminates the PID (see terminate_owned_game_process_for_stop).
-    This function remains for the research live-resource probe only.
+    It is still used to close a game after a failed (not cancelled) Home start
+    (run_overview_bridge.close_failed_start_game) and by this probe's own restore.
     """
     pid = owned_game.get("pid")
     process_path = owned_game.get("path")

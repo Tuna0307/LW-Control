@@ -32,7 +32,7 @@ system. It also takes useful ideas from a competing tool, **LwTool**
 
 | Path | What it is |
 |---|---|
-| `src/LWBridge.Desktop/` | The Windows app (`net10.0-windows`, WinForms + WebView2). Hosts the UI, command services, profile/settings/map SQLite stores, game lifecycle, named-pipe server and Map scan engine. `WebUi/` is an older recovery UI kept as a fallback (`--legacy-ui`); the default UI is `ProductionUi/`. |
+| `src/LWBridge.Desktop/` | The Windows app (`net10.0-windows`, WinForms + WebView2). Hosts the UI, command services, profile/settings/map SQLite stores, game lifecycle, named-pipe server and Map scan engine. The UI it hosts is `ProductionUi/`. |
 | `src/LWBridge.UI-0.3.17/` | React 19 + Vite frontend. The Desktop build runs `npm ci` and `npm run build` and copies the output to `ProductionUi/`. `scripts/check-*.mjs` are the UI tests (jsdom; a few use Edge through Playwright). `reference/original-0.3.17/` holds one original asset that a check compares against. |
 | `src/LWBridge.Map-0.3.17/` | Map library: contracts, scan state machine, SQLite store, City XLSX export. |
 | `src/LWBridge.GamePipeAdapter/` | `netstandard2.0` DLL loaded inside the game. It gives Lua a non-blocking framed pipe client. |
@@ -85,5 +85,7 @@ PID, account UID and server) first, and never replays an uncertain request.
 ## Proof switches
 
 `Program.cs` accepts many `--*-proof` switches, and the `LWBridgeWindow.*Proof.cs` partial classes
-implement them. They let the live harness (`tools/live-harness/`) drive the real packaged app
-without mouse or keyboard input. None run without an explicit switch.
+implement them, together with some `LWBRIDGE_*` environment variables. They let the live harness
+(`tools/live-harness/`) drive the real packaged app without mouse or keyboard input. None run
+without an explicit switch or variable. [LIVE_TESTING.md](LIVE_TESTING.md#proof-switches) maps
+each one to its driver; removing the unused ones is a follow-up in [STATUS.md](STATUS.md).

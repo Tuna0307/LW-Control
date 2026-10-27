@@ -16,6 +16,9 @@ import zipfile
 
 import map_015_package_ui as package_ui
 
+# Temporary fixtures live under the git-ignored artifacts/ folder; a fresh clone has none.
+package_ui.ARTIFACTS.mkdir(exist_ok=True)
+
 
 class ProgrammePackageCompatibilityTests(unittest.TestCase):
     def test_owned_runner_disables_python_bytecode_without_weakening_package_gate(self):

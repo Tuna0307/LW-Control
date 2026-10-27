@@ -1,5 +1,7 @@
 # Chat reward implementation and qualification
 
+> **Status (2026-10-27):** merged to `main` through PR #17 and released as `lw-control-v1.2-2026-10-27`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 Product source `6d9c107166e92dbbf204d5c611ecd2a4d497625d` on
 `codex/lwtool-remaining-tabs`, draft PR #17. The owner approved implementation
 after the [historical comparison](../competitor-research/lwtool/CHAT_REWARDS_COMPARISON.md). This report supersedes that
@@ -73,8 +75,8 @@ Relevant original modules include `RedPacketTemplate`, `ChatRoomManager`,
 `GetFireworksGiftMessage`, `LWFireworkGiftManager`, `LWFireworkGift`,
 `ChatItemS0AllianceBossPushMsg`, `FireworkWorldBuildBubble` and
 `ActEasterEggManager`. Original module hashes and the earlier 95-module comparison
-remain in [EVIDENCE.json](evidence/CHAT-REWARDS-2026-10-25.json); new proof receipts are indexed in
-[IMPROVEMENT_EVIDENCE.json](evidence/CHAT-REWARDS-2026-10-25.json). Raw account/chat material,
+and the new proof receipts are indexed in
+[CHAT-REWARDS-2026-10-25.json](evidence/CHAT-REWARDS-2026-10-25.json). Raw account/chat material,
 recovered competitor code and native dumps remain ignored locally.
 
 ## Qualification and reproduction
@@ -90,18 +92,19 @@ coalescing, off-hours/opt-out/owner loss and cleanup. Mounted tests cover migrat
 separation, saved options, zero coverage, refusal presentation, stale profiles and
 all nine catalogs' 17 added strings. All 31 package-auditor tests passed.
 
-Run from the repository root:
+Run from the repository root (current layout):
 
 ```powershell
-python docs/research/lwtool/2026-10-25/chat-rewards/verify_improvements.py
 dotnet run --project tests/LWBridge.Desktop.Checks -p:SkipCanonicalProductionUiBuild=true -- --chat-rewards
+python tests/GameScripts.Checks/feature018_chat_engine_checks.py
+python tests/GameScripts.Checks/feature018_cross_chat_checks.py
+python tests/GameScripts.Checks/feature018_gold_egg_checks.py
 npm --prefix src/LWBridge.UI-0.3.17 run check
-python -m unittest discover -s tools -p test_map_015_package_ui.py
+python -m unittest discover -s tools/live-harness -p test_map_015_package_ui.py
 ```
 
-The historical comparison reproducer now loads its old engine from its explicit
-Git baseline; it still reproduces the old counterexample without misreporting
-the corrected current engine as defective.
+The historical comparison reproducer (`verify_improvements.py`) is in the
+`archive/pre-cleanup-2026-10-27` tag under `docs/research/lwtool/2026-10-25/chat-rewards/`.
 
 ## Delivery and remaining limits
 

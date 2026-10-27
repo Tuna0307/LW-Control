@@ -7,6 +7,7 @@ import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src" / "LWBridge.GameScripts"))
 import run_live_resource_probe as probe
 import compact_lua53 as lua
 from read_config_literals_014 import read_literals

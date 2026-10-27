@@ -161,7 +161,6 @@ internal sealed partial class LWBridgeWindow : Form
         string? mapUiIntegrationProofPath = null,
         string? homeMapCampaignProofPath = null,
         bool homeMapCampaignNarrow = false,
-        bool useLegacyUi = false,
         string? isolatedRootPath = null,
         bool homeMapCampaignHomeOnly = false,
         string? map010NamesProofPath = null)
@@ -184,7 +183,6 @@ internal sealed partial class LWBridgeWindow : Form
         this.theme = theme;
         DesktopUiSelection uiSelection = DesktopUiContentRoot.Select(
             AppContext.BaseDirectory,
-            useLegacyUi,
             uiRootPath,
             allowProofOverride: mapUiIntegrationProofPath is not null);
         this.uiRootPath = uiSelection.RootPath;

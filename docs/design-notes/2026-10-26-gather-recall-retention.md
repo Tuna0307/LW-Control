@@ -1,5 +1,7 @@
 # Repeated gathering recall failure: retain exact receipts across authority gaps
 
+> **Status (2026-10-27):** merged to `main` through PR #17 and released as `lw-control-v1.2-2026-10-27`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 The owner's test of package `552c1a8a7791` still failed: Off showed Disabled
 with six confirmed gathering sends, no recall count/error, and four squads
 collecting. This supersedes any broad completion claim from the earlier

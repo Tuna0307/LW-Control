@@ -5,9 +5,8 @@ using Microsoft.Win32.SafeHandles;
 
 namespace LWBridge.Desktop;
 
-// LWB-R7-120: authenticated-session command/result transport. This layer uses
-// the recovered queue/byte/time boundaries, but remains isolated from normal
-// application composition until its Windows proof is complete.
+// LWB-R7-120: authenticated-session command/result transport, using the
+// recovered queue/byte/time boundaries. Composed into the live host by R7-123.
 internal sealed class LWBridgeControlPipeRpcSessionTransport : IAsyncDisposable
 {
     private readonly LWBridgeControlPipeAcceptedSession session;

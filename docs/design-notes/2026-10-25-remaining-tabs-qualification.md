@@ -1,5 +1,7 @@
 # Remaining tabs qualification
 
+> **Status (2026-10-27):** merged to `main` through PR #17 and released as `lw-control-v1.2-2026-10-27`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 Product source: `4565147a9adf38ae0e21e535c584c2efaaf4aceb`, branch
 `codex/lwtool-remaining-tabs`, draft PR #17. Ready for independent review for the
 bounded results below. No main merge, release or whole-product superiority claim.
@@ -53,7 +55,7 @@ Final aggregate comparisons matched every initial equipment slot and all 25
 inventory wearers, plus the complete original City layout. Normal owned Stop
 proved game exit and restored all three original script files, with no recovery
 journal. Prior unsuccessful candidates and their exact restoration are retained
-in [EVIDENCE.json](evidence/REMAINING-TABS-2026-10-25.json); they are not erased by this successful run.
+in [REMAINING-TABS-2026-10-25.json](evidence/REMAINING-TABS-2026-10-25.json); they are not erased by this successful run.
 
 ## Checks and delivery
 
@@ -77,7 +79,7 @@ exact extraction were verified. Product input fingerprint:
 
 Private evidence root: `artifacts/lwtool-remaining-tabs-20261025/`.
 The package is under `package-final3/`; native final receipts are indexed by
-hash in EVIDENCE.json. No competitor code, credentials or runtime data ships.
+hash in that evidence file. No competitor code, credentials or runtime data ships.
 
 Independent review and owner acceptance remain separate. Live attack/recall and
 event-dependent Mini Game positives require eligible game state. No measured

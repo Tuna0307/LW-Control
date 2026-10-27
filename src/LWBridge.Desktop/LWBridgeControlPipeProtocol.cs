@@ -30,30 +30,6 @@ internal static class LWBridgeControlPipeProtocol
         return frame;
     }
 
-    public static bool TryDecodeFrame(
-        ReadOnlySpan<byte> bufferedBytes,
-        out byte[] payload,
-        out int bytesConsumed)
-    {
-        payload = [];
-        bytesConsumed = 0;
-
-        if (bufferedBytes.Length < FramePrefixLength)
-            return false;
-
-        uint payloadLength = BinaryPrimitives.ReadUInt32LittleEndian(bufferedBytes);
-        if (payloadLength is 0 or > MaxFramePayloadLength)
-            throw new InvalidDataException("LWBridge control-pipe frame length is outside the recovered range.");
-
-        int frameLength = checked(FramePrefixLength + (int)payloadLength);
-        if (bufferedBytes.Length < frameLength)
-            return false;
-
-        payload = bufferedBytes.Slice(FramePrefixLength, (int)payloadLength).ToArray();
-        bytesConsumed = frameLength;
-        return true;
-    }
-
     public static LWBridgeProxyHello ParseProxyHello(ReadOnlySpan<byte> utf8Json)
     {
         using JsonDocument document = JsonDocument.Parse(utf8Json.ToArray());
@@ -160,22 +136,6 @@ internal static class LWBridgeControlPipeProtocol
             ok,
             result,
             error);
-    }
-
-    // IMPLEMENTATION POLICY: compare only values whose original handshake
-    // validation is source-backed. Timestamp freshness is deliberately handled
-    // by the connection host when that lifecycle is recovered.
-    public static bool MatchesExpectedIdentity(
-        LWBridgeProxyHello hello,
-        string expectedProfileId,
-        string expectedInstanceId,
-        string expectedToken,
-        string expectedBuildId)
-    {
-        return string.Equals(hello.ProfileId, expectedProfileId, StringComparison.Ordinal) &&
-               string.Equals(hello.InstanceId, expectedInstanceId, StringComparison.Ordinal) &&
-               string.Equals(hello.Token, expectedToken, StringComparison.Ordinal) &&
-               string.Equals(hello.BuildId, expectedBuildId, StringComparison.Ordinal);
     }
 
     internal static LWBridgeEnvelope ParseEnvelope(

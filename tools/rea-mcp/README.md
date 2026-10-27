@@ -91,6 +91,8 @@ node tools/rea-mcp/native-catalog.mjs
 node tools/rea-mcp/verify-native.mjs 'evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006/c-extracted/xlua-proxy-plain.dll' 'artifacts/rea-toolchain/recheck-native'
 ```
 
+The `evidence/lwbridge-0.3.17/...` input file is in the `archive/research-offline-controller` tag.
+
 The original-associated 64-bit `xlua-proxy-plain.dll` SHA-256
 `266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902`
 produced **real Ghidra 12.1.4 assembly, decompiled entry pseudocode,

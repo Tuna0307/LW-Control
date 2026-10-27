@@ -1,5 +1,7 @@
 # Lead final Map qualification — 2026-10-25
 
+> **Status (2026-10-27):** merged to `main` through PR #16 and released as `lw-control-v1.1-2026-10-25`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 **Map's required local, read-only qualification gates pass.** Source review,
 implementation, genuine packaged Manual/Auto all-ten, Stop, Clear/reopen and
 bounded Home integration smoke are complete. This accepts the tested Map scope;
@@ -9,7 +11,7 @@ No main merge or public release occurred. The retained runtime receipts are date
 2026-10-24; this closeout was refreshed on 2026-10-25.
 
 The authoritative sanitized receipts are in
-[LEAD_FINAL_QUALIFICATION_EVIDENCE.json](evidence/2026-10-25-map-final-qualification.json).
+[2026-10-25-map-final-qualification.json](evidence/2026-10-25-map-final-qualification.json).
 Earlier journal-blocked and incomplete-package statuses are historical.
 
 ## Final source and package

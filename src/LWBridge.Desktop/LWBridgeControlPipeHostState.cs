@@ -530,15 +530,6 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         return registry.Unregister(instanceId, registrationSerial);
     }
 
-    internal LWBridgeControlPipeRegistry RequireActiveRegistry()
-    {
-        lock (gate)
-        {
-            ThrowIfStopped();
-            return registry;
-        }
-    }
-
     private void ThrowIfStopped()
     {
         if (stopped)

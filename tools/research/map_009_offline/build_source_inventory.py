@@ -106,7 +106,8 @@ def manifest() -> dict:
 
 
 def main():
-    out = Path(__file__).resolve().parents[3] / "docs/proof/MAP-009-OFFLINE-NATIVE-SOURCE-LOCATORS-2026-10-12.json"
+    out = Path(__file__).resolve().parents[3] / "artifacts/MAP-009-OFFLINE-NATIVE-SOURCE-LOCATORS.json"
+    out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(manifest(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print("current v24 source inventory:", len(SELECTION), "Lua modules,", len(MANAGED_METHODS),
           "managed methods ->", out)

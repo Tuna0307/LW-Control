@@ -15,7 +15,7 @@ PC client.
 |---|---|
 | Home | Launch, connect to and close the game per profile, with auto-reconnect and repair |
 | Map Data | Fast whole-map scans of cities, resources, monsters, events, Trucks, Railway and more; filters, Jump, Auto scans, City XLSX export |
-| Automation | Alliance help/donations/gifts/gathering, trade station, treatment, official application, Secret Task, Ghost Ops, chat rewards, Treasure |
+| Automation | Alliance help/donations/gifts/gathering, trade station, treatment, official application, Secret Task, chat rewards, Treasure |
 | Squads / AFK | Monster AFK, shared AFK profiles, stamina items, Alliance Drill, Gathering |
 | City Layout | Move and swap buildings |
 | Hotkeys | Q/W/E/R attack, recall, shields, equipment presets, relocation, frontline reinforcement, G troops |

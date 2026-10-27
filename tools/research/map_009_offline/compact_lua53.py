@@ -1,7 +1,7 @@
 """Read-only compact Lua 5.3 bytecode parser for installed LWLF v24.
 
 Lineage: selected OPS, Reader, parse_proto, parse_chunk, opcode and operand
-helpers from research/offline-controller:tools/inspect_current_dispatch_plunder_sources.py
+helpers from archive/research-offline-controller:tools/inspect_current_dispatch_plunder_sources.py
 (v19 parser). Historical hash gates and semantic claims are NOT imported;
 current artifact identity is validated by inspect_current.py.
 """

@@ -2,9 +2,9 @@
 """Hash-locked read-only inspection of the installed Last War v24 Lua package.
 
 Lineage: compact_lua53.py selects only parser primitives from
-research/offline-controller:tools/inspect_current_dispatch_plunder_sources.py.
+archive/research-offline-controller:tools/inspect_current_dispatch_plunder_sources.py.
 The register-aware root method mapper and disassembly layout adapt
-research/offline-controller:tools/lwbridge317/inspect_map_provider_semantics.py.
+archive/research-offline-controller:tools/lwbridge317/inspect_map_provider_semantics.py.
 No game process, writes to installed files, or live-probe main() calls.
 """
 from __future__ import annotations

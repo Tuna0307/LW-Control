@@ -2,7 +2,7 @@
 """Current-build-only, read-only RGMD/IL method and reference inspector.
 
 Uses rgmd_il.py, the selected metadata reader/IL decoder from
-research/offline-controller:tools/inspect_lastwar_rdl_metadata.py.
+archive/research-offline-controller:tools/inspect_lastwar_rdl_metadata.py.
 """
 from __future__ import annotations
 

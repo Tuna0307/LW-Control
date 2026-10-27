@@ -1,5 +1,7 @@
 # Saved features initialize independently of feature pages
 
+> **Status (2026-10-27):** merged to `main` through PR #17 and released as `lw-control-v1.2-2026-10-27`. Statements below about branches, draft PRs or "not merged" describe the state on the note's date.
+
 Owner reports needing to visit every tab/sub-tab after launching. Continue
 `codex/lwtool-remaining-tabs` / draft PR #17; no main merge or release.
 
