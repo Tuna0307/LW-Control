@@ -142,14 +142,6 @@ def bridge_source() -> bytes:
     data = (HERE / "current_overview_bridge.lua").read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
         raise OverviewBridgeError("Overview bridge source must not contain a UTF-8 BOM")
-    if os.environ.get("LWBRIDGE_MAP013_WORLD_TRACE"):
-        if os.environ["LWBRIDGE_MAP013_WORLD_TRACE"] != "1":
-            raise OverviewBridgeError("MAP-013 WorldReady trace flag must be exactly 1")
-        if (not os.environ.get("LWBRIDGE_REBUILD_DATA_ROOT")
-                or not os.environ.get("LWBRIDGE_MAP013_WRAPPER_TRACE")):
-            raise OverviewBridgeError("MAP-013 WorldReady stages require exact private wrapper and root")
-        from map_009_offline.worldready_instrument_013 import instrument_worldready
-        data = instrument_worldready(data)
     return data
 
 

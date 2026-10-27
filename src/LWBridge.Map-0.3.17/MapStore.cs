@@ -168,18 +168,6 @@ public sealed partial class MapStore : IDisposable
 
     public string DatabasePath { get; }
 
-    public static string DatabasePathForProfileRoot(string profileRoot) =>
-        Path.Combine(Path.GetFullPath(profileRoot), DatabaseDirectoryName, DatabaseFileName);
-
-    public static string DatabasePathForRuntimeRoot(string runtimeRoot, string profileId)
-    {
-        if (string.IsNullOrWhiteSpace(runtimeRoot))
-            throw new ArgumentException("Runtime root is required.", nameof(runtimeRoot));
-        if (string.IsNullOrWhiteSpace(profileId))
-            throw new ArgumentException("Profile id is required.", nameof(profileId));
-        return Path.Combine(Path.GetFullPath(runtimeRoot), "profiles", profileId, DatabaseDirectoryName, DatabaseFileName);
-    }
-
     public static MapStore CreateInMemory() => new(new SqliteConnection("Data Source=:memory:"));
 
     public IReadOnlyDictionary<string, string> ReadSchemaDefinitions()
@@ -309,23 +297,6 @@ public sealed partial class MapStore : IDisposable
                 FROM scan_runs WHERE id=$id
                 """;
             command.Parameters.AddWithValue("$id", runId);
-            using SqliteDataReader reader = command.ExecuteReader();
-            return reader.Read() ? ReadScanRun(reader) : null;
-        }
-    }
-
-    public MapScanRun? ReadLatestScanRun(int serverId)
-    {
-        ValidateServerId(serverId);
-        lock (gate)
-        {
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error
-                FROM scan_runs WHERE server_id=$server AND status<>'discarded'
-                ORDER BY updated_at DESC LIMIT 1
-                """;
-            command.Parameters.AddWithValue("$server", serverId);
             using SqliteDataReader reader = command.ExecuteReader();
             return reader.Read() ? ReadScanRun(reader) : null;
         }
