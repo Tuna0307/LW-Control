@@ -80,7 +80,6 @@ const api = {
     savedValues.set(owner, (savedValues.get(owner) || []).filter((id) => id !== serverId));
     return {serverId:scanServer,isReading:false,phase:'idle',selectedTypes:['city'],scanMode:'normal'};
   },
-  listPlunderJobs: async () => ({dispatchJobs:[],truckJobs:[]}),
 };
 const render = () => flush(() => reactRoot.render(React.createElement(I18nProvider, {},
   React.createElement(MapRoutePage, {mapApi:api, mapOwner:ownerKey(),

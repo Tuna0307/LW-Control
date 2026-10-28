@@ -123,9 +123,7 @@ for (const language of ["en", "ja"]) {
     dataOptions: async (serverId) => ({ serverId, counts: { ghost: (taskRows[serverId] || []).length }, names: { resource: [], monster: [] }, alliances: [], noAllianceCount: 0,
       dispatchLevels: [], treasureTypes: [], rewardItems: { truck: [], railway: [], ghost: optionItems[serverId] || [] } }),
     search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return controlledSearch(kind, query); },
-    listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
     scanStatus: async () => state,
-    prepareGhostPlunder: async () => { throw new Error("Ghost plunder must never be invoked by a reward filter check"); },
   };
   const root = createRoot(document.getElementById("root"));
   await flush(() => root.render(React.createElement(I18nProvider, { key: language }, React.createElement(MapDataPage,

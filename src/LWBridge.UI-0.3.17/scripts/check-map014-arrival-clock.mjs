@@ -76,7 +76,6 @@ try {
         rows: requestedKind === kind ? rows : [],
         total: requestedKind === kind ? rows.length : 0,
       }),
-      listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
       scanStatus: async () => state,
       marchFollow: async (row) => { requests.push({ owner, uuid: row.marchUuid, now }); },
     });

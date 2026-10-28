@@ -178,7 +178,7 @@ internal static class Map006PublishedAudit
         var expiringSearchCountRanges = new Dictionary<string, object>(StringComparer.Ordinal);
         using (var native = new Map317CommandService(
             database, Map317.UnavailableMapProvider.Instance,
-            Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false))
+            Map317.UnavailableMapActionProvider.Instance))
         {
             JsonElement options = await Invoke(native, "map_data_options", new { serverId });
             foreach (string kind in Kinds)

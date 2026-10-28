@@ -2464,8 +2464,8 @@ internal sealed partial class CurrentClientMapBlockSource
             // Current-v22 ActGhostreconTaskTemplate.CheckCanSteal uses
             // (serverTime-completionTime)/1000 >= protectTime, while
             // GetPointStealType compares #stealList with stealMaxtimes. Project
-            // those exact scheduler fields here so the 0.3.17 host can perform
-            // its pre-provider validation before PrepareGhostPlunderTasksAsync.
+            // those exact fields here; the Map table's plunder status and the
+            // "plunderable only" filter read them.
             if (row.TryGetProperty("completionTime", out JsonElement completionValue) &&
                 completionValue.TryGetInt64(out long completionTime) && completionTime > 0 &&
                 row.TryGetProperty("protectTime", out JsonElement protectValue) &&

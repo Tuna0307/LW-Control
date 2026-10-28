@@ -89,7 +89,7 @@ internal static class MapManualScanDeliveryChecks
         string path, IMapScanBlockSource source, int width = 40) =>
         new(path, new CurrentClientMap317ScanProvider(
                 source, _ => Task.FromResult(Status(width)), _ => Task.FromResult(Context(width))),
-            Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false);
+            Map317.UnavailableMapActionProvider.Instance);
 
     private static async Task<JsonElement> WaitTerminal(Map317CommandService service)
     {
@@ -280,7 +280,7 @@ internal static class MapManualScanDeliveryChecks
 
             using (var reopened = new Map317CommandService(
                 database, Map317.UnavailableMapProvider.Instance,
-                Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false))
+                Map317.UnavailableMapActionProvider.Instance))
             {
                 Require((await Search(reopened, "city")).GetProperty("total").GetInt32() == 1 &&
                         (await Search(reopened, "resource")).GetProperty("total").GetInt32() == 2,

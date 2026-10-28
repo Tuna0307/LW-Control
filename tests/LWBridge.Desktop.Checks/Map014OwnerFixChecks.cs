@@ -241,18 +241,10 @@ internal static class Map014OwnerFixChecks
                 InspectTreasureStates = (_, _, _) => ValueTask.FromResult(new Map317.TreasureInspectionResult("", "", [])),
                 GetTreasureClaimStatus = _ => throw new NotSupportedException(),
                 ClaimTreasures = (_, _) => throw new NotSupportedException(),
-                ShareDispatchTaskToAlliance = (_, _) => throw new NotSupportedException(),
-                PrepareGhostPlunderTasks = (_, _) => throw new NotSupportedException(),
-                GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
-                ArmDispatchPlunder = (_, _) => throw new NotSupportedException(),
-                ArmTruckPlunder = (_, _) => throw new NotSupportedException(),
-                DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
-                DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
-                ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
             };
             bool statusProbeTimesOut = false;
             using var service = new Map317CommandService(db, source,
-                actions, startPlunderWorkers: false,
+                actions,
                 statusReader: _ => statusProbeTimesOut
                     ? Task.FromException<CurrentClientMapStatusContext>(new TimeoutException("controlled fresh world-state poll unavailable"))
                     : currentStatus is null

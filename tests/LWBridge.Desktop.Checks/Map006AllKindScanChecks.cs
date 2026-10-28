@@ -78,7 +78,7 @@ internal static class Map006AllKindScanChecks
                     source,
                     _ => Task.FromResult(new CurrentClientMapStatusContext(true, 317, 317, [], [], 1, 20, 20, 1, 1)),
                     _ => Task.FromResult(new CurrentClientMapContext(317, 1, 20, 20, 1, 1, "map-006-controlled"))),
-                Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false))
+                Map317.UnavailableMapActionProvider.Instance))
             {
                 foreach (string kind in Kinds)
                 {
@@ -114,7 +114,7 @@ internal static class Map006AllKindScanChecks
 
             using (var reopened = new Map317CommandService(db,
                 Map317.UnavailableMapProvider.Instance,
-                Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false))
+                Map317.UnavailableMapActionProvider.Instance))
             {
                 foreach (string kind in Kinds)
                     Require((await Search(reopened, kind)).GetProperty("total").GetInt32() == 1,

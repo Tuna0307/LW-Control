@@ -9,7 +9,7 @@ namespace LWBridge.Desktop;
 /// Only source-backed current-client actions are implemented here; unrecovered
 /// protected actions fail explicitly instead of fabricating game behavior.
 /// </summary>
-internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvider, Map317.IGhostPlunderProvider
+internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvider
 {
     private readonly CurrentClientMapBlockSource source;
     internal CurrentClientMap317ActionProvider(CurrentClientMapBlockSource source)
@@ -87,54 +87,6 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
         Map317.TreasureClaimProviderRequest request,
         CancellationToken cancellationToken = default) =>
         ValueTask.FromException<JsonElement>(ProviderUnavailable("current-client Treasure claim provider is unavailable"));
-
-    // Compatibility signatures remain on IMapActionProvider because historic
-    // consumers and the upgrade probe compile against this interface. Every
-    // retired operation rejects before reading game state or sending a command.
-    private static Map317.BridgeCommandException Retired() =>
-        new("FEATURE_REMOVED", "Automatic plunder, scheduling and alliance sharing were removed by the owner.");
-
-    public ValueTask<Map317.DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(
-        JsonElement row, CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<Map317.DispatchShareProviderResult>(Retired());
-
-    public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(
-        IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<JsonElement>>(Retired());
-
-    public ValueTask<Map317.MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(
-        CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<Map317.MapPlunderServerDayProviderResult?>(Retired());
-
-    public ValueTask<IReadOnlyList<Map317.DispatchPlunderArmResult>> ArmDispatchPlunderAsync(
-        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(Retired());
-
-    public ValueTask<IReadOnlyList<Map317.DispatchPlunderArmResult>> ArmGhostPlunderAsync(
-        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(Retired());
-
-    public ValueTask<Map317.TruckPlunderArmResult> ArmTruckPlunderAsync(
-        Map317.TruckPlunderArmJob job, CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<Map317.TruckPlunderArmResult>(Retired());
-
-    public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(
-        CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderResultEvent>>(Retired());
-
-    public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(
-        CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderResultEvent>>(Retired());
-
-    public ValueTask<IReadOnlyList<Map317.TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(
-        CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<Map317.TruckPlunderResultEvent>>(Retired());
-
-    public ValueTask ClearTruckPlunderPendingAsync(
-        int serverId, string trainUuid, string jobId,
-        CancellationToken cancellationToken = default) =>
-        ValueTask.FromException(Retired());
-
 
     private static CurrentClientTreasureInspectionRecord ToTreasureRecord(int expectedServerId, JsonElement row)
     {

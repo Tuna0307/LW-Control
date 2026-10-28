@@ -17,8 +17,6 @@ internal sealed partial class LWBridgeWindow : Form
         "bridge://update-status",
         "bridge://feedback-export-progress",
         "bridge://player-mark-changed",
-        "bridge://dispatch-plunder-changed",
-        "bridge://truck-plunder-changed",
         "bridge://local-map-auto-scan-changed",
         "bridge://hotkey-outcome",
     ];
@@ -30,8 +28,6 @@ internal sealed partial class LWBridgeWindow : Form
         "bridge://resource-automation-status",
         "bridge://game-recovery",
         "bridge://player-mark-changed",
-        "bridge://dispatch-plunder-changed",
-        "bridge://truck-plunder-changed",
         "bridge://local-map-auto-scan-changed",
         "bridge://hotkey-outcome",
     };
@@ -74,8 +70,6 @@ internal sealed partial class LWBridgeWindow : Form
     private Action<OverviewRecoveryStatus>? overviewRecoveryHandler;
     private Action<object>? manualMapScanStatusHandler;
     private Action? mapPlayerMarkHandler;
-    private Action? dispatchPlunderHandler;
-    private Action? truckPlunderHandler;
     private Action<MapAutoScanSnapshot>? mapAutoScanHandler;
     private readonly WindowThemeService windowThemeService = new();
     private readonly string? isolatedConfigRoot;
@@ -742,12 +736,8 @@ internal sealed partial class LWBridgeWindow : Form
             manualMapScanStatusHandler = status =>
                 OnManualMapScanStatusChanged(generation, status);
             mapPlayerMarkHandler = () => OnMap317PlayerMarkChanged(generation);
-            dispatchPlunderHandler = () => OnDispatchPlunderChanged(generation);
-            truckPlunderHandler = () => OnTruckPlunderChanged(generation);
             map317CommandService.ScanStatusChanged += manualMapScanStatusHandler;
             map317CommandService.PlayerMarkChanged += mapPlayerMarkHandler;
-            map317CommandService.DispatchPlunderChanged += dispatchPlunderHandler;
-            map317CommandService.TruckPlunderChanged += truckPlunderHandler;
         }
         if (mapAutoScanService is not null)
         {
@@ -766,18 +756,12 @@ internal sealed partial class LWBridgeWindow : Form
                 map317CommandService.ScanStatusChanged -= manualMapScanStatusHandler;
             if (mapPlayerMarkHandler is not null)
                 map317CommandService.PlayerMarkChanged -= mapPlayerMarkHandler;
-            if (dispatchPlunderHandler is not null)
-                map317CommandService.DispatchPlunderChanged -= dispatchPlunderHandler;
-            if (truckPlunderHandler is not null)
-                map317CommandService.TruckPlunderChanged -= truckPlunderHandler;
         }
         if (mapAutoScanService is not null && mapAutoScanHandler is not null)
             mapAutoScanService.StateChanged -= mapAutoScanHandler;
         overviewRecoveryHandler = null;
         manualMapScanStatusHandler = null;
         mapPlayerMarkHandler = null;
-        dispatchPlunderHandler = null;
-        truckPlunderHandler = null;
         mapAutoScanHandler = null;
     }
 
@@ -2126,48 +2110,6 @@ internal sealed partial class LWBridgeWindow : Form
             if (IsCurrentDocument(session) &&
                 session.Subscriptions.Contains("bridge://player-mark-changed"))
                 SendEvent(session, "bridge://player-mark-changed", new { });
-        }
-        try
-        {
-            if (InvokeRequired) BeginInvoke(Publish);
-            else Publish();
-        }
-        catch (InvalidOperationException) { }
-    }
-
-    private void OnDispatchPlunderChanged(long generation)
-    {
-        if (sessionClosed || IsDisposed || !IsCurrentProfileRuntimeGeneration(generation)) return;
-        void Publish()
-        {
-            if (!IsCurrentProfileRuntimeGeneration(generation)) return;
-            DocumentSession session = documentSession;
-            if (IsCurrentDocument(session) &&
-                session.Subscriptions.Contains("bridge://dispatch-plunder-changed"))
-            {
-                SendEvent(session, "bridge://dispatch-plunder-changed", new { });
-            }
-        }
-        try
-        {
-            if (InvokeRequired) BeginInvoke(Publish);
-            else Publish();
-        }
-        catch (InvalidOperationException) { }
-    }
-
-    private void OnTruckPlunderChanged(long generation)
-    {
-        if (sessionClosed || IsDisposed || !IsCurrentProfileRuntimeGeneration(generation)) return;
-        void Publish()
-        {
-            if (!IsCurrentProfileRuntimeGeneration(generation)) return;
-            DocumentSession session = documentSession;
-            if (IsCurrentDocument(session) &&
-                session.Subscriptions.Contains("bridge://truck-plunder-changed"))
-            {
-                SendEvent(session, "bridge://truck-plunder-changed", new { });
-            }
         }
         try
         {

@@ -111,7 +111,6 @@ for (const language of ["en", "zh-TW"]) {
       if (query.protectionState === "active") rows = rows.filter((row) => row.monsterProtectionKnown && row.monsterProtectionActive);
       return { rows, total: rows.length };
     },
-    listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
     scanStatus: async () => state,
     follow: async () => { throw new Error("Zombie Boss rows must never offer Follow"); },
   };

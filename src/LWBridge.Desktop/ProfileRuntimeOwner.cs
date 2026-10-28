@@ -78,7 +78,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         ProfileRegistryCommandService profileRegistryService,
         Map317.IMapProvider? mapProvider = null,
         Map317.IMapActionProvider? mapActionProvider = null,
-        bool startPlunderWorkers = true,
         bool startAutoScheduler = true,
         bool startRecoveryMonitor = true,
         bool startBridgeTransport = true,
@@ -161,8 +160,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 : new Map317CommandService(
                     Path.Combine(fullProfileRoot, "map-data", "map-data.db"),
                     mapProvider,
-                    mapActionProvider ?? LWBridge.Map317.UnavailableMapActionProvider.Instance,
-                    startPlunderWorkers);
+                    mapActionProvider ?? LWBridge.Map317.UnavailableMapActionProvider.Instance);
             auto = new MapAutoScanCommandService(
                 Path.Combine(fullProfileRoot, "runtime", "map-auto-scan.json"),
                 new MapAutoScanExecutionBoundary

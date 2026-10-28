@@ -74,8 +74,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
         control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(ApplyStatusOverlay(args.State));
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
-        actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
-        actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
     }
 
     /// <summary>
@@ -87,7 +85,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         string databasePath,
         Map317.IMapProvider mapProvider,
         Map317.IMapActionProvider actionProvider,
-        bool startPlunderWorkers,
         Func<CancellationToken, Task<CurrentClientMapStatusContext>>? statusReader = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
@@ -112,14 +109,10 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
         control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(ApplyStatusOverlay(args.State));
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
-        actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
-        actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
     }
 
     public event Action<object>? ScanStatusChanged;
     public event Action? PlayerMarkChanged;
-    public event Action? DispatchPlunderChanged;
-    public event Action? TruckPlunderChanged;
 
     internal ResourceCompletenessReport? LastResourceCompletenessReport =>
         currentSource?.LastResourceCompletenessReport;
