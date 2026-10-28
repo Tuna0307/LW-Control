@@ -96,7 +96,7 @@ internal static class Map016DataChecks
         var calls = new List<string>();
         var actions = new InertActions(() => current, server => { current = server; calls.Add("server:" + server); },
             (server, x, y) => { Require(current == server, "Jump used coordinates before row server admission"); calls.Add($"tile:{server}:{x}:{y}"); });
-        using var service = new Map317CommandService(db, Provider(() => current), actions, startPlunderWorkers: false);
+        using var service = new Map317CommandService(db, Provider(() => current), actions);
         JsonElement unscoped = await Search(service, "city", new { });
         Require(unscoped.GetProperty("total").GetInt32() == 0,
             "missing server on an idle/unobserved owner broadened into All servers");
@@ -201,7 +201,7 @@ internal static class Map016DataChecks
             _ => Task.FromResult(new CurrentClientMapStatusContext(true, connected ? 2212 : 0, 2212, [], [], 0, 20, 20, 1, 1)),
             _ => Task.FromResult(new CurrentClientMapContext(2212, 0, 20, 20, 1, 1, "clear-all-controlled")));
         using var service = new Map317CommandService(db, provider,
-            M.UnavailableMapActionProvider.Instance, startPlunderWorkers: false);
+            M.UnavailableMapActionProvider.Instance);
         service.BindAutoScanCycleBusy(() => autoBusy);
         async Task Reject(object payload, string expectedCode)
         {
@@ -306,7 +306,7 @@ internal static class Map016DataChecks
             command.ExecuteNonQuery();
         }
         var actions = new InertActions(() => 2212, _ => { }, (_, _, _) => { });
-        using (var service = new Map317CommandService(db, Provider(() => 2212), actions, startPlunderWorkers: true))
+        using (var service = new Map317CommandService(db, Provider(() => 2212), actions))
         {
             foreach (string command in new[] {
                 "map_ghost_plunder_prepare", "map_dispatch_share_alliance", "map_plunder_jobs_list",
@@ -371,13 +371,5 @@ internal static class Map016DataChecks
         public ValueTask<M.TreasureInspectionResult> InspectTreasureStatesAsync(IReadOnlyList<JsonElement> rows, bool refresh, CancellationToken cancellationToken = default) => throw Forbidden();
         public ValueTask<JsonElement> GetTreasureClaimStatusAsync(CancellationToken cancellationToken = default) => throw Forbidden();
         public ValueTask<JsonElement> ClaimTreasuresAsync(M.TreasureClaimProviderRequest request, CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<M.DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(JsonElement row, CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<M.MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<IReadOnlyList<M.DispatchPlunderArmResult>> ArmDispatchPlunderAsync(IReadOnlyList<M.DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<M.TruckPlunderArmResult> ArmTruckPlunderAsync(M.TruckPlunderArmJob job, CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<IReadOnlyList<M.DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask<IReadOnlyList<M.TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(CancellationToken cancellationToken = default) => throw Forbidden();
-        public ValueTask ClearTruckPlunderPendingAsync(int value, string uuid, string job, CancellationToken cancellationToken = default) => throw Forbidden();
     }
 }

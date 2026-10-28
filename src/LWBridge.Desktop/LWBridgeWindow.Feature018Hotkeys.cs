@@ -29,12 +29,9 @@ internal sealed partial class LWBridgeWindow
     private void StartFeature018HotkeyMonitoring()
     {
         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1") return;
-        if (capturePath is not null || liveProbePath is not null ||
-            hostProbePath is not null || (normalUiLiveMapProofPath is not null &&
+        if (capturePath is not null || (normalUiLiveMapProofPath is not null &&
                 (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") != "1" ||
-                 !feature018R2AccountVerified)) ||
-            normalUiLiveResourceProofPath is not null || mapUiIntegrationProofPath is not null ||
-            homeMapCampaignProofPath is not null || map010NamesProofPath is not null)
+                 !feature018R2AccountVerified)))
             return;
         feature018HotkeyMonitor.Tick += Feature018HotkeyTick;
         feature018HotkeyMonitor.Start();

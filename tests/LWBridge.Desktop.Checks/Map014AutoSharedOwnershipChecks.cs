@@ -816,20 +816,12 @@ internal static class Map014AutoSharedOwnershipChecks
             InspectTreasureStates = (_, _, _) => throw new InvalidOperationException("no Treasure calls"),
             GetTreasureClaimStatus = _ => throw new InvalidOperationException("no claim status calls"),
             ClaimTreasures = (_, _) => throw new InvalidOperationException("no claims"),
-            ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("no sharing"),
-            PrepareGhostPlunderTasks = (_, _) => throw new InvalidOperationException("no Ghost actions"),
-            GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
-            ArmDispatchPlunder = (_, _) => throw new InvalidOperationException("no plunder"),
-            ArmTruckPlunder = (_, _) => throw new InvalidOperationException("no plunder"),
-            DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
-            DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
-            ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
         };
         Exception? testFailure = null;
         try
         {
             using var map = new Map317CommandService(Path.Combine(root, "map.db"),
-                provider, actionProvider, startPlunderWorkers: false,
+                provider, actionProvider,
                 statusReader: _ => Task.FromResult(new CurrentClientMapStatusContext(
                     true, Volatile.Read(ref liveServer), 317, [], [], 0, 1000, 1000, 500, 500)));
             provider.RunTerminated += run => manualTerminated.TrySetResult(run);

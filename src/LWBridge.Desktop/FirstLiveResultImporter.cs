@@ -20,51 +20,134 @@ internal sealed record FirstLiveResultImport(
     string? DeclaredSourceCaptureSha256,
     string DataJson);
 
-internal sealed record FirstLiveReplay(MapDataStore Store, FirstLiveResultImport Import);
-
 internal sealed record FirstLivePreparedResource(
     FirstLiveResultImport Import,
     MapStoredRecord Record);
 
 internal static class FirstLiveResultImporter
 {
-    public static FirstLiveReplay CreateIsolatedReplay(string diagnosticsPath)
+    // Validates a live-probe result against the requesting scan before its first
+    // point is prepared (moved here from the retired live-resource probe service).
+    private const string ExpectedProbeVersion = "lwbridge-live-resource-probe-2";
+
+    internal static FirstLivePreparedResource PrepareCorrelatedResult(
+        string resultPath,
+        string requestId,
+        out int? acquisitionOrdinal,
+        Func<string, byte[]>? readAllBytes = null,
+        int? expectedServerId = null,
+        DateTimeOffset? operationStartedAtUtc = null,
+        DateTimeOffset? nowUtc = null,
+        string? expectedProfileId = null,
+        string? expectedLaunchSessionId = null,
+        int? expectedGamePid = null,
+        string mapKind = "resource")
     {
-        MapDataStore store = MapDataStore.CreateInMemory();
-        try
+        if (mapKind is not ("resource" or "city"))
+            throw new ArgumentOutOfRangeException(nameof(mapKind));
+        byte[] resultBytes = (readAllBytes ?? File.ReadAllBytes)(resultPath);
+        using JsonDocument resultDocument = JsonDocument.Parse(resultBytes);
+        JsonElement root = resultDocument.RootElement;
+        if (!root.TryGetProperty("schemaVersion", out JsonElement schemaValue) ||
+            !schemaValue.TryGetInt32(out int schemaVersion) || schemaVersion != 1 ||
+            !root.TryGetProperty("probeVersion", out JsonElement probeVersionValue) ||
+            probeVersionValue.ValueKind != JsonValueKind.String ||
+            probeVersionValue.GetString() != ExpectedProbeVersion)
         {
-            return new FirstLiveReplay(store, ImportOneResource(store, diagnosticsPath));
+            throw new InvalidDataException("Live resource result did not match the supported probe schema/version.");
         }
-        catch
+        if (root.TryGetProperty("mapKind", out JsonElement resultMapKind))
         {
-            store.Dispose();
-            throw;
+            if (resultMapKind.ValueKind != JsonValueKind.String || !string.Equals(resultMapKind.GetString(), mapKind, StringComparison.Ordinal))
+                throw new InvalidDataException("Live map result did not match the requested map kind.");
         }
-    }
+        else if (mapKind != "resource")
+            throw new InvalidDataException("Live city result did not identify its requested map kind.");
 
-    public static FirstLiveResultImport ImportOneResource(MapDataStore store, string diagnosticsPath)
-    {
-        ArgumentNullException.ThrowIfNull(store);
-        if (string.IsNullOrWhiteSpace(diagnosticsPath))
-            throw new ArgumentException("First-live diagnostics path is required.", nameof(diagnosticsPath));
+        if (!root.TryGetProperty("requestId", out JsonElement requestIdValue) ||
+            requestIdValue.ValueKind != JsonValueKind.String ||
+            !string.Equals(requestIdValue.GetString(), requestId, StringComparison.Ordinal) ||
+            !root.TryGetProperty("state", out JsonElement stateValue) ||
+            stateValue.ValueKind != JsonValueKind.String ||
+            stateValue.GetString() != "proven")
+        {
+            throw new InvalidDataException("Live resource result did not match the app request correlation contract.");
+        }
+        if (expectedProfileId is not null &&
+            (!root.TryGetProperty("profileId", out JsonElement profileValue) ||
+             profileValue.ValueKind != JsonValueKind.String ||
+             !string.Equals(profileValue.GetString(), expectedProfileId, StringComparison.Ordinal)))
+        {
+            throw new InvalidDataException("Live resource result did not match the selected app profile identity.");
+        }
+        if (expectedLaunchSessionId is not null &&
+            (!root.TryGetProperty("launchSessionId", out JsonElement sessionValue) ||
+             sessionValue.ValueKind != JsonValueKind.String ||
+             !string.Equals(sessionValue.GetString(), expectedLaunchSessionId, StringComparison.Ordinal)))
+        {
+            throw new InvalidDataException("Live resource result did not match the helper-owned launch session identity.");
+        }
+        if (expectedGamePid.HasValue &&
+            (!root.TryGetProperty("gamePid", out JsonElement pidValue) ||
+             !pidValue.TryGetInt32(out int resultPid) || resultPid != expectedGamePid.Value))
+        {
+            throw new InvalidDataException("Live resource result did not match the helper-owned game PID identity.");
+        }
+        const string currentViewRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)";
+        const string targetedCityRoute = currentViewRoute + "+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)";
+        if (!root.TryGetProperty("requestRoute", out JsonElement routeValue) || routeValue.ValueKind != JsonValueKind.String)
+            throw new InvalidDataException("Live map result did not prove a recovered current-view request route.");
+        string? requestRoute = routeValue.GetString();
+        bool supportedRoute = mapKind == "resource"
+            ? requestRoute == currentViewRoute
+            : requestRoute is currentViewRoute or targetedCityRoute;
+        if (!supportedRoute)
+            throw new InvalidDataException($"Live {mapKind} result did not prove a supported recovered request route.");
+        if (!root.TryGetProperty("source", out JsonElement sourceValue) ||
+            sourceValue.ValueKind != JsonValueKind.String ||
+            sourceValue.GetString() != "WorldPointManager._pointInfos")
+        {
+            throw new InvalidDataException("Live resource result did not identify the proven WorldPointManager._pointInfos source.");
+        }
+        if (!root.TryGetProperty("capturedAt", out JsonElement capturedAtValue) ||
+            capturedAtValue.ValueKind != JsonValueKind.String ||
+            !DateTimeOffset.TryParse(
+                capturedAtValue.GetString(),
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out DateTimeOffset capturedAt))
+        {
+            throw new InvalidDataException("Live resource result did not contain a valid capture timestamp.");
+        }
+        if (operationStartedAtUtc.HasValue && capturedAt < operationStartedAtUtc.Value.AddSeconds(-2))
+            throw new InvalidDataException("Live resource result predates the active app acquisition and is stale.");
+        DateTimeOffset freshnessNow = nowUtc ?? DateTimeOffset.UtcNow;
+        if (capturedAt > freshnessNow.AddSeconds(5))
+            throw new InvalidDataException("Live resource result capture timestamp is implausibly in the future.");
 
-        string sourcePath = Path.GetFullPath(diagnosticsPath);
-        if (!File.Exists(sourcePath))
-            throw new FileNotFoundException("First-live diagnostics file was not found.", sourcePath);
-
-        byte[] bytes = File.ReadAllBytes(sourcePath);
-        return ImportOneResource(store, bytes, sourcePath);
-    }
-
-    public static FirstLiveResultImport ImportOneResource(
-        MapDataStore store,
-        ReadOnlyMemory<byte> diagnosticsBytes,
-        string sourcePath)
-    {
-        ArgumentNullException.ThrowIfNull(store);
-        FirstLivePreparedResource prepared = PrepareOneResource(diagnosticsBytes, sourcePath);
-        store.UpsertRecord(prepared.Record);
-        return prepared.Import;
+        if (!root.TryGetProperty("point_records", out JsonElement records) || records.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("Live map result is missing point_records.");
+        string expectedPointKind = mapKind == "city" ? "player_base" : "resource_point";
+        JsonElement? selectedPoint = null;
+        foreach (JsonElement candidate in records.EnumerateArray())
+        {
+            if (candidate.ValueKind == JsonValueKind.Object && candidate.TryGetProperty("kind", out JsonElement kind) &&
+                kind.ValueKind == JsonValueKind.String && kind.GetString() == expectedPointKind)
+            { selectedPoint = candidate; break; }
+        }
+        if (!selectedPoint.HasValue || !selectedPoint.Value.TryGetProperty("serverId", out JsonElement serverValue) ||
+            !serverValue.TryGetInt32(out int serverId) || serverId is < 1 or > 99999)
+            throw new InvalidDataException($"Live {mapKind} result does not contain a supported positive serverId.");
+        if (!selectedPoint.Value.TryGetProperty("source", out JsonElement pointSource) || pointSource.ValueKind != JsonValueKind.String ||
+            pointSource.GetString() != "WorldPointManager._pointInfos")
+            throw new InvalidDataException($"Live {mapKind} point does not identify the proven WorldPointManager._pointInfos source.");
+        if (mapKind == "city" && (!selectedPoint.Value.TryGetProperty("pointType", out JsonElement pt) || !pt.TryGetInt32(out int pointType) || pointType != 6))
+            throw new InvalidDataException("Live city result did not contain current-client player-base pointType 6.");
+        if (expectedServerId.HasValue && serverId != expectedServerId.Value)
+            throw new InvalidDataException($"Live {mapKind} result belongs to a different server than the active bounded session.");
+        acquisitionOrdinal = root.TryGetProperty("acquisitionOrdinal", out JsonElement ordinalValue) &&
+            ordinalValue.TryGetInt32(out int parsedOrdinal) && parsedOrdinal > 0 ? parsedOrdinal : null;
+        return mapKind == "city" ? FirstLiveResultImporter.PrepareOneCity(resultBytes, resultPath) : FirstLiveResultImporter.PrepareOneResource(resultBytes, resultPath);
     }
 
     internal static FirstLivePreparedResource PrepareOneResource(

@@ -154,23 +154,6 @@ internal static class MapDataQueryContract
             viewerAllianceId);
     }
 
-    public static void RequireRecoveredIndexedSearch(MapDataQueryOptions options)
-    {
-        if (options.UnsupportedFeatures.Count == 0) return;
-        throw new BridgeCommandException(
-            "MAP_QUERY_UNRECOVERED",
-            "The requested Map Data filter/sort has not been recovered sufficiently for production use.",
-            new { options.Kind, unsupported = options.UnsupportedFeatures });
-    }
-
-    public static int RequiredServerId(JsonElement payload)
-    {
-        int serverId = RequiredServerIdOrAll(payload);
-        if (serverId == 0)
-            throw new BridgeCommandException("INVALID_SERVER_ID", "serverId must be an integer from 1 through 99999.");
-        return serverId;
-    }
-
     public static int RequiredServerIdOrAll(JsonElement payload)
     {
         if (!payload.TryGetProperty("serverId", out JsonElement value) ||

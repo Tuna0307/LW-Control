@@ -94,18 +94,6 @@ internal sealed partial class LWBridgeWindow
             }
             throw new InvalidDataException($"Original {name} panel failed to render");
         }
-        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R22_EQUIPMENT_PROOF") == "1")
-        {
-            await RunFeature018R22EquipmentTabProofAsync(core, outputPath, directory,
-                owner, uid, serverId, token);
-            return;
-        }
-        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R22_CITY_IMAGE_PROOF") == "1")
-        {
-            await RunFeature018R22CityImageProofAsync(core, outputPath, directory,
-                owner, uid, serverId, token);
-            return;
-        }
         try
         {
             await Nav(4, ".city-layout-panel, .city-layout-empty", "City Layout");
@@ -253,19 +241,6 @@ internal sealed partial class LWBridgeWindow
                     }
                     else if (!TryFindCityMove(city, candidateOrdinal - nativeCandidates,
                         out uuid, out oldPoint, out newPoint)) break;
-                    // Two R3 sessions sent an unacknowledged legacy Replace
-                    // packet for this exact native building. Even though the
-                    // v26 Move sender has now been recovered, never transmit
-                    // another command for that building while its earlier
-                    // server result is unresolved. A distinct current-game
-                    // building can be used for a separately admitted Move.
-                    if (Environment.GetEnvironmentVariable(
-                            "LWBRIDGE_FEATURE018_R3_CITY_ACTION_OPT_IN") == "1" &&
-                        uuid == "1392040865799139725")
-                    {
-                        evidence["cityPreviousUnacknowledgedBuildingExcluded"] = uuid;
-                        continue;
-                    }
                     candidateObserved = true;
                 if (suggestedNative) evidence["cityNativeCandidateValidated"] =
                     new { uuid, oldPoint, newPoint };
@@ -308,52 +283,8 @@ internal sealed partial class LWBridgeWindow
                     yes.ValueKind == JsonValueKind.True)
                 {
                     candidateValidated = true;
-                    // The two previously accepted live v26 packets for this
-                    // owner had NO independently confirmed BuildManager ACK.
-                    // The native sender returns void, so repeated submission
-                    // could race a late server result even after restarting
-                    // the game. Continue native validation and mounted UI
-                    // proof without submitting another uncertain packet.
-                    if (Environment.GetEnvironmentVariable(
-                            "LWBRIDGE_FEATURE018_R3_CITY_ACTION_OPT_IN") != "1")
-                    {
-                        evidence["cityMoveSendWithheld"] =
-                            "Earlier native building replacement has no correlated server ACK; manual fresh one-shot admission required";
-                        break;
-                    }
-                    JsonElement? start = await Command("city_layout_apply_start", outbound,
-                        "cityMoveStart");
-                    if (start is { } request && request.TryGetProperty("accepted", out var accepted) &&
-                        accepted.ValueKind == JsonValueKind.True)
-                    {
-                        await AwaitCityStatus(Command, Save, evidence, token, "cityMoveStatus");
-                        JsonElement? after = await Command("city_layout_snapshot_get",
-                            receiptKey: "citySnapshotAfter");
-                        if (after is { } checkedCity)
-                        {
-                            int? observed = FindCityBuildingPoint(checkedCity, uuid!);
-                            evidence["cityMoveAuthoritativePoint"] = new { uuid, oldPoint, newPoint,
-                                observed, moved = observed == newPoint };
-                            await Save();
-                            if (observed == newPoint)
-                            {
-                                var back = new { baseRevision = checkedCity.GetProperty("layoutRevision").GetString(),
-                                    placements = new[] { new { uuid, targetPointId = oldPoint } } };
-                                JsonElement? undoValid = await Command("city_layout_validate", back,
-                                    "cityRestoreValidation");
-                                if (undoValid is { } uv && uv.GetProperty("valid").GetBoolean())
-                                {
-                                    JsonElement? restore = await Command("city_layout_apply_start", back,
-                                        "cityRestoreStart");
-                                    if (restore is { } rs && rs.TryGetProperty("accepted", out var ra) &&
-                                        ra.ValueKind == JsonValueKind.True)
-                                        await AwaitCityStatus(Command, Save, evidence, token,
-                                            "cityRestoreStatus");
-                                    await Command("city_layout_snapshot_get", receiptKey: "citySnapshotRestored");
-                                }
-                            }
-                        }
-                    }
+                    evidence["cityMoveSendWithheld"] =
+                        "Earlier native building replacement has no correlated server ACK; manual fresh one-shot admission required";
                     break;
                 }
                 }
@@ -534,31 +465,10 @@ internal sealed partial class LWBridgeWindow
                 await Command("mini_land_status", new { expectedCellId = cellId },
                     "miniLandExactCellBefore");
             }
-            // One uncertain accepted land dispatch was already observed in R3.
-            // Future packaged verification runs are read-only until the
-            // operator explicitly opts into a new one-shot land send.
-            JsonElement? unlock = Environment.GetEnvironmentVariable(
-                "LWBRIDGE_FEATURE018_R3_LAND_ACTION_OPT_IN") == "1"
-                ? await Command("monopoly_cell_open", receiptKey: "miniLandUnlock")
-                : null;
-            if (unlock is null)
-                evidence["miniLandUnlockSkipped"] = "prior_dispatched_land_ack_unconfirmed_no_auto_retry";
+            evidence["miniLandUnlockSkipped"] = "prior_dispatched_land_ack_unconfirmed_no_auto_retry";
             if (exactLandCellId is { } pendingCellId)
                 await Command("mini_land_status", new { expectedCellId = pendingCellId },
                     "miniLandExactCellAfter");
-            if (unlock is { } u && u.TryGetProperty("requestDispatched", out var sent) &&
-                sent.ValueKind == JsonValueKind.True)
-            {
-                for (int i = 0; i < 50; i++)
-                {
-                    JsonElement? state = await Command("mini_land_status",
-                        exactLandCellId is { } sentCellId ? new { expectedCellId = sentCellId } : null,
-                        receiptKey: "miniLandAfter");
-                    if (state is { } land && land.TryGetProperty("state", out var current) &&
-                        current.GetString() == "unlocked") break;
-                    await Task.Delay(400, token);
-                }
-            }
             await Command("mini_sheep_status", receiptKey: "miniSheepBefore");
             await Command("mini_sheep_board", receiptKey: "miniSheepBoardBefore");
             await Command("feature018_sheep_automation_status", receiptKey: "miniSheepAutomationBefore");
@@ -677,19 +587,4 @@ internal sealed partial class LWBridgeWindow
         return false;
     }
 
-    private static async Task AwaitCityStatus(
-        Func<string, object?, string?, Task<JsonElement?>> request,
-        Func<Task> save, Dictionary<string, object?> evidence,
-        CancellationToken token, string key)
-    {
-        for (int i = 0; i < 100; i++)
-        {
-            JsonElement? status = await request("city_layout_apply_status", null, key);
-            if (status is { } s && s.TryGetProperty("state", out var state) &&
-                state.GetString() is "succeeded" or "failed" or "cancelled") return;
-            await Task.Delay(250, token);
-        }
-        evidence[key + "Timeout"] = true;
-        await save();
-    }
 }

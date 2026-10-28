@@ -373,17 +373,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             RecoveryJournalState.Pending or RecoveryJournalState.Unknown;
     }
 
-    // PM16-01 IMPLEMENTATION POLICY: a validated installation may replace the bound
-    // lifecycle root only while no owned launch/close/recovery work is active and no
-    // same-profile recovery journal remains. Re-selecting the same root
-    // is a harmless persistence-only no-op.
-    internal void RebindGameRoot(string selectedRoot, Action persistSelection)
-    {
-        if (string.IsNullOrWhiteSpace(selectedRoot))
-            throw new ArgumentException("A validated game root is required.", nameof(selectedRoot));
-        RebindGameRootSelection(selectedRoot, selectionChanged: false, persistSelection);
-    }
-
     internal void RebindGameRootSelection(
         string? selectedRoot,
         bool selectionChanged,

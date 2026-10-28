@@ -49,7 +49,7 @@ internal static class Map007ActionProviderChecks
                         i.ToString(), null, null, null, null, null, null, null, now, payload));
                 }
             }
-            int server = 317, inspections = 0, claimSends = 0, dispatchSends = 0;
+            int server = 317, inspections = 0, claimSends = 0;
             string identity = "viewer-007";
             bool changeSecondBatchIdentity = false;
             bool duplicateSecondBatchUuid = false;
@@ -89,23 +89,9 @@ internal static class Map007ActionProviderChecks
                     return ValueTask.FromException<JsonElement>(new Map317.BridgeCommandException(
                         "GAME_PROVIDER_UNAVAILABLE", "controlled claim terminal protocol unavailable"));
                 },
-                ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("No sharing"),
-                PrepareGhostPlunderTasks = (_, _) =>
-                    ValueTask.FromException<IReadOnlyList<JsonElement>>(
-                        new Map317.BridgeCommandException("FEATURE_REMOVED", "Ghost preparation retired")),
-                GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
-                ArmDispatchPlunder = (_, _) =>
-                {
-                    dispatchSends++;
-                    throw new InvalidOperationException("No plunder");
-                },
-                ArmTruckPlunder = (_, _) => throw new InvalidOperationException("No plunder"),
-                DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
-                DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
-                ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
             };
             using var service = new Map317CommandService(path, Map317.UnavailableMapProvider.Instance,
-                boundary, startPlunderWorkers: false);
+                boundary);
             JsonElement snapshot = await Call(service, "map_treasure_claim_status", new { });
             Require(snapshot.GetProperty("candidateCount").GetInt32() == 101 &&
                 snapshot.GetProperty("inspectedCount").GetInt32() == 101 && inspections == 2 &&
@@ -173,7 +159,7 @@ internal static class Map007ActionProviderChecks
             identity = "different-user";
             releaseGate.TrySetResult(true);
             await held;
-            Require(claimSends == 1 && dispatchSends == 0, "read-only preview sent an extra action request");
+            Require(claimSends == 1, "read-only preview sent an extra action request");
             Console.WriteLine("MAP_007_RETIRED_GHOST_TREASURE_INSPECT_PREVIEW_OK");
         }
         finally

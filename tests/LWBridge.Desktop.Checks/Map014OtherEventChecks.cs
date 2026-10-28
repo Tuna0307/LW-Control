@@ -210,14 +210,6 @@ internal static class Map014OtherEventChecks
                 GotoServer = (_, _) => throw new InvalidOperationException("No server switch"),
                 GetTreasureClaimStatus = _ => throw new InvalidOperationException("Use read-only inspection"),
                 ClaimTreasures = (_, _) => { claimCalls++; throw new InvalidOperationException("No claims"); },
-                ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("No sharing"),
-                PrepareGhostPlunderTasks = (_, _) => throw new InvalidOperationException("No Ghost"),
-                GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
-                ArmDispatchPlunder = (_, _) => throw new InvalidOperationException("No plunder"),
-                ArmTruckPlunder = (_, _) => throw new InvalidOperationException("No plunder"),
-                DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
-                DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
-                ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
             };
             var control = new Map317.MapActionControlPlane(store, provider, () => 3000);
             JsonElement status = await control.TreasureClaimStatusAsync();

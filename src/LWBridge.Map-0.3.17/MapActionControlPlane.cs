@@ -31,10 +31,6 @@ public sealed class MapActionControlPlane
         this.protectedCallTimeout = protectedCallTimeout ?? TimeSpan.FromMilliseconds(ProtectedCallTimeoutMilliseconds);
     }
 
-    // Kept solely for old desktop event subscriptions; retired jobs cannot emit.
-    public event EventHandler? DispatchPlunderChanged { add { } remove { } }
-    public event EventHandler? TruckPlunderChanged { add { } remove { } }
-
     public async ValueTask<CoordinateJumpResult> CoordinateJumpAsync(
         int serverId, int x, int y, CancellationToken cancellationToken = default)
     {

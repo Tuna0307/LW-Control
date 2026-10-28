@@ -51,9 +51,9 @@ If a newer owner instruction conflicts with them, the newer instruction wins. Re
 
 - `run_ui.py <scenario>`: starts an isolated copy of the packaged UI (`LWBRIDGE_MAP014_UI_EXE` or
   `artifacts/map014-takeover/publish/`) against the live game and runs a proof scenario (Map kinds,
-  Auto, Clear, `feature018-tabs`, …). It uses the app's `--*-proof` switches. It expects some
-  earlier trusted receipts under `artifacts/` on the original dev machine, so read it before
-  reusing it elsewhere.
+  Auto, Clear, `feature018-tabs`, …) through `--normal-ui-live-map-proof` and the proof
+  variables below. It expects some earlier trusted receipts under `artifacts/` on the original
+  dev machine, so read it before reusing it elsewhere.
 - `run_owned.py <scenario>`: native-only scan/benchmark runs through `Native.csproj`/`Program.cs`.
 - `feature018_live_queue.py`: sends one operation to an already running isolated proof session.
   It refuses every account except the current test account.
@@ -68,26 +68,28 @@ If a newer owner instruction conflicts with them, the newer instruction wins. Re
 - `map_015_package_ui.py`, `map_017_audit.py`, `audit_*.py`, `compare_*.py`: packaged Map proof
   and receipt auditing.
 
+Live runs need the owner's go-ahead for the session. The owner authorized task-owned app/game
+start/stop for assigned work; that does not cover owner sessions.
+
 ## Proof switches
 
-The packaged app only runs proof code when a switch or variable asks for it. Driver = the script
-in `tools/` that sets it. "None" means no script in the repository drives it any more; those are
-candidates for removal (STATUS.md follow-ups).
+The packaged app only runs proof code when a switch or variable asks for it, and every remaining
+one has a driver in `tools/`. Proof modes that no script drove any more were removed on
+2026-10-28; they are in git history.
 
 | Switch / variable | Driver |
 |---|---|
 | `--isolated-root`, `--view`, `--language`, `--theme`, `--capture` | `run_ui.py` and `home_stability_*.py`; `--view` and `--capture` also `release/check_packaged_home.ps1` |
 | `--normal-ui-live-map-proof` | `run_ui.py` |
-| `LWBRIDGE_MAP014_*`, `LWBRIDGE_MAP016_*` (except `NO_GAME_UI_PROOF`), `LWBRIDGE_MAP017_UI_MODE`, `LWBRIDGE_STARTUP_HOME_PROOF`, `LWBRIDGE_FEATURE018_UI_PROOF`, `LWBRIDGE_FEATURE018_R2_PROOF` | `run_ui.py` (`LWBRIDGE_MAP014_NEW_KINDS_UI` via `map_015_package_ui.py`) |
+| `LWBRIDGE_MAP014_*`, `LWBRIDGE_MAP016_*`, `LWBRIDGE_MAP017_UI_MODE`, `LWBRIDGE_STARTUP_HOME_PROOF`, `LWBRIDGE_FEATURE018_UI_PROOF`, `LWBRIDGE_FEATURE018_R2_PROOF` | `run_ui.py` (`LWBRIDGE_MAP014_NEW_KINDS_UI` via `map_015_package_ui.py`) |
 | `LWBRIDGE_FEATURE018_STAGED_PROOF`, `_BACKGROUND_ONLY`, `_PROOF_UID`, `_PROOF_SERVER`, `LWBRIDGE_R29_PERF_PROOF` | `feature018_live.py`, `tabs_checkpoint.py` |
 | `LWBRIDGE_R29_SWEEP_PROOF` | `tabs_checkpoint.py` |
+| `LWBRIDGE_R30_*` | Optional knobs of the `r30-*` staged surfaces that `feature018_live.py` requests (defaults apply when unset) |
 | `LWBRIDGE_HOME004_ISOLATED_ROUTE_FAULT` | `home_stability_faults.py`, `home_stability_route_cycles.py` |
-| `LWBRIDGE_HOME004_RECOVERY_TRACE`, `LWBRIDGE_HOME_STABILITY_TRACE`, `LWBRIDGE_HOME004_F06_DISPATCH_TRACE` | None (manual trace switches) |
-| `--city-reopen-proof`, `--first-live-result`, `--home-map-campaign-*`, `--host-probe`, `--live-city-proof`, `--live-probe`, `--live-resource-proof`, `--map-ui-integration-proof`, `--map010-native-names-proof`, `--normal-ui-live-resource-proof`, `--owner-evidence`, `--startup-state-proof`, `--ui-root` | None |
-| `LWBRIDGE_CHAT_CATALOG_*`, `LWBRIDGE_FEATURE018_R22_*`, `LWBRIDGE_FEATURE018_R3_*_OPT_IN`, `LWBRIDGE_MAP016_NO_GAME_UI_PROOF`, `LWBRIDGE_R30_*`, `LWBRIDGE_STARTUP_GATHER_PROOF` | None |
+| `LWBRIDGE_HOME004_RECOVERY_TRACE`, `LWBRIDGE_HOME_STABILITY_TRACE`, `LWBRIDGE_HOME004_F06_DISPATCH_TRACE` | Manual diagnostic trace switches (no script) |
+
+Staged proof surfaces (`feature018_live_queue.py` operation `r23Ui`): `r30-*`, `r29-part-a`,
+`r29-scroll`, `r29-memory` and `r29-sweep`.
 
 `LWBRIDGE_BUILD_ID`, `LWBRIDGE_INSTANCE_ID`, `LWBRIDGE_PIPE_TOKEN`, `LWBRIDGE_PROFILE_ID` and
 `LWBRIDGE_REBUILD_DATA_ROOT` are not proof switches: the app sets them for the game it launches.
-
-Live runs need the owner's go-ahead for the session. The owner authorized task-owned app/game
-start/stop for assigned work; that does not cover owner sessions.

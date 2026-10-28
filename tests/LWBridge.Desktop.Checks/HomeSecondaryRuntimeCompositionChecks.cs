@@ -59,15 +59,14 @@ internal static class HomeSecondaryRuntimeCompositionChecks
             byte[] sentinel = System.Text.Encoding.UTF8.GetBytes("historical files must remain untouched");
             File.WriteAllBytes(oldRecord, sentinel);
             File.WriteAllBytes(oldManifest, sentinel);
-            // UI content is never displayed/executed. The explicit UI integration
-            // override lets this backend-composition regression run from the Checks
+            // UI content is never displayed/executed. The check-only UI root seam
+            // lets this backend-composition regression run from the Checks
             // directory without copying a canonical browser build into its output.
             string unusedUi = Path.Combine(root, "unused-ui");
             Directory.CreateDirectory(unusedUi);
             File.WriteAllText(Path.Combine(unusedUi, "index.html"), "<!doctype html><title>never shown</title>");
-            window = new LWBridgeWindow(null, null, null, "overview", "en", "light",
-                isolatedRootPath: root, uiRootPath: unusedUi,
-                mapUiIntegrationProofPath: Path.Combine(root, "never-executed-ui-proof.json"));
+            window = new LWBridgeWindow(null, "overview", "en", "light",
+                isolatedRootPath: root, testUiRootPath: unusedUi);
             Require(!window.Visible && !window.IsHandleCreated,
                 "no native window shown or handle created");
             Require(Field<LWBridgeBackend>(window, "backend").ProfileId == b,

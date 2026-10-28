@@ -119,7 +119,6 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
       ? [{uuid:"doom-42",marchUuid:"7654321",serverId:2212,x:20,y:30,monsterNameKey:"doom"},
          {uuid:"stationary-1",serverId:2212,x:21,y:31,monsterNameKey:"ordinary"}] : [],
       total: ["city", "truck", "dispatch", "ghost"].includes(kind) ? 1 : kind === "resource" || kind === "monster" ? 2 : 0 }; },
-    listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
     marchFollow: async (row) => { follows.push(`${row.serverId}:${String(row.marchUuid)}`); if (heldFollow) await heldFollow; },
     start: async (types, speed) => { starts.push({ types: [...types], speed }); return state; },
     setPlayerMark: async (row, marked) => { marks.push({ uid: row.ownerUid, marked }); cityMarked = marked; },

@@ -164,7 +164,7 @@ internal static class MapManualScanPublishedAudit
 
         using var native = new Map317CommandService(
             database, Map317.UnavailableMapProvider.Instance,
-            Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false);
+            Map317.UnavailableMapActionProvider.Instance);
         JsonElement cities = await Query(native, "city", serverId);
         JsonElement resources = await Query(native, "resource", serverId);
         Require(cities.GetProperty("total").GetInt32() == counts["city"] &&

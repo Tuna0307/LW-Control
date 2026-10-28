@@ -40,7 +40,6 @@ internal static class Map006NavigationShareChecks
             int worldMoves = 0;
             int marches = 0;
             int serverMoves = 0;
-            int shareCalls = 0;
             var heldEntered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var heldRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             bool holdCoordinate = false;
@@ -82,27 +81,10 @@ internal static class Map006NavigationShareChecks
                     new Map317.BridgeCommandException("GAME_PROVIDER_UNAVAILABLE", "claim status not available")),
                 ClaimTreasures = (_, _) => ValueTask.FromException<JsonElement>(
                     new Map317.BridgeCommandException("GAME_PROVIDER_UNAVAILABLE", "claim result not available")),
-                ShareDispatchTaskToAlliance = (row, _) =>
-                {
-                    shareCalls++;
-                    string id = row.GetProperty("uuid").GetString()!;
-                    if (id == "3")
-                        return ValueTask.FromException<Map317.DispatchShareProviderResult>(
-                            new Map317.BridgeCommandException("GAME_PROVIDER_ERROR", "share rejected"));
-                    return ValueTask.FromResult(new Map317.DispatchShareProviderResult(id == "1"));
-                },
-                PrepareGhostPlunderTasks = (_, _) => ValueTask.FromException<IReadOnlyList<JsonElement>>(
-                    new Map317.BridgeCommandException("GAME_PROVIDER_UNAVAILABLE", "Ghost provider unavailable")),
-                GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
-                ArmDispatchPlunder = (_, _) => throw new InvalidOperationException("No game plunder permitted"),
-                ArmTruckPlunder = (_, _) => throw new InvalidOperationException("No game plunder permitted"),
-                DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
-                DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
-                ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
             };
             using var service = new Map317CommandService(
                 Path.Combine(root, "map-data.db"), Map317.UnavailableMapProvider.Instance,
-                actions, startPlunderWorkers: false);
+                actions);
 
             await MustReject(async () => _ = await Invoke(service, "map_coordinate_jump",
                 new { serverId = 0, x = 2, y = 3 }), "INVALID_COORDINATE", "zero server");
@@ -168,7 +150,6 @@ internal static class Map006NavigationShareChecks
             };
             await MustReject(async () => _ = await Invoke(service, "map_dispatch_share_alliance", new { rows }),
                 "FEATURE_REMOVED", "owner-removed alliance sharing");
-            Require(shareCalls == 0, "removed native sharing route reached the provider");
             JsonElement inspection = await Invoke(service, "map_treasure_claim_status", new { });
             Require(inspection.GetProperty("serverId").GetInt32() == 318 &&
                 inspection.GetProperty("candidateCount").GetInt32() == 0 &&

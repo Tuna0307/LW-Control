@@ -73,9 +73,6 @@ internal sealed class DesktopApplicationPaths
     internal string MapDatabasePath(string profileId) =>
         Path.Combine(ProfileRoot(profileId), "map-data", "map-data.db");
 
-    internal string LegacyLiveResourceMapDatabasePath(string profileId) =>
-        Path.Combine(ProfileRoot(profileId), "map-data.db");
-
     internal string WebViewUserDataRoot(string mode)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(mode);

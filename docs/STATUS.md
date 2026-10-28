@@ -47,18 +47,14 @@ an account whose tutorial is unfinished). Details: [BEHAVIOR_DIFFERENCES.md](BEH
    64,573 bytes against the 65,535-byte limit for one packaged module, and its main chunk uses
    200 of Lua 5.3's 200 local variables. New probe code must free space first (see DEVELOPMENT.md).
 
-Code cleanups that need a Windows machine (build + Desktop checks after each step):
+Code notes:
 
-6. Proof-only code still lives in the product: the `LWBridgeWindow.*Proof.cs` partial classes,
-   `--*-proof` switches in `Program.cs` and `LWBRIDGE_*` proof environment variables. Many have
-   no driver left in `tools/live-harness/` (see LIVE_TESTING.md). `LWBridgeWindow.cs` is
-   about 370 KB, mostly because of these.
-7. The removed plunder feature still has an interface surface: `IMapActionProvider` /
-   `IGhostPlunderProvider` methods that only return `FEATURE_REMOVED`, the
-   `dispatch-plunder-changed` / `truck-plunder-changed` events and `startPlunderWorkers`
-   parameters, plus their test fakes.
-8. `src/LWBridge.Desktop/MapDataStore*.cs` is the older Map store. Only legacy live proofs and
-   `FirstLiveResultImporter` use it; the product Map tab uses `LWBridge.Map-0.3.17`'s `MapStore`.
+6. `src/LWBridge.Desktop/MapDataStore*.cs` remains only as the staged-scan sink that the Map014
+   and manual-scan checks drive (`MapDataStoreScanSink`) and to clear an old per-profile
+   `map-data.db` at startup. The Map tab itself uses `LWBridge.Map-0.3.17`'s `MapStore`.
+7. The 2026-10-28 cleanup removed every proof switch without a driver, the legacy Map store
+   paths and the retired plunder provider surface. `LWBridgeWindow.cs` went from about 370 KB to
+   about 120 KB. Retired Map commands still answer `FEATURE_REMOVED`.
 
 ## Ideas not done
 
