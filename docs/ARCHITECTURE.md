@@ -84,8 +84,9 @@ PID, account UID and server) first, and never replays an uncertain request.
 
 ## Proof switches
 
-`Program.cs` accepts many `--*-proof` switches, and the `LWBridgeWindow.*Proof.cs` partial classes
-implement them, together with some `LWBRIDGE_*` environment variables. They let the live harness
-(`tools/live-harness/`) drive the real packaged app without mouse or keyboard input. None run
-without an explicit switch or variable. [LIVE_TESTING.md](LIVE_TESTING.md#proof-switches) maps
-each one to its driver; removing the unused ones is a follow-up in [STATUS.md](STATUS.md).
+`Program.cs` accepts a few test switches (`--capture`, `--normal-ui-live-map-proof`,
+`--isolated-root`, `--view`, `--language`, `--theme`), and some `LWBRIDGE_*` environment variables
+start proofs implemented in the `LWBridgeWindow.*Proof.cs` partial classes. They let the live
+harness (`tools/live-harness/`) drive the real packaged app without mouse or keyboard input.
+None run without an explicit switch or variable. [LIVE_TESTING.md](LIVE_TESTING.md#proof-switches)
+maps each one to the script that drives it.
