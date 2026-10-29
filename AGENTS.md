@@ -4,10 +4,11 @@ Read this first. It is the single entry point for any AI (Claude, Codex, …) or
 Keep it short and current: replace outdated lines instead of appending a log. History belongs in
 [docs/HISTORY.md](docs/HISTORY.md) and in git.
 
-## Current state (2026-10-27)
+## Current state (2026-10-29)
 
-- `main` = released **v1.2** plus the 2026-10-27 repository cleanup. No branch, PR or task is in
-  progress. The owner is taking a break.
+- Latest release is **v1.2**. `main` also includes repository cleanup through 2026-10-28.
+  `codex/launch-update-recovery` repairs pending official Lua updates across all launch routes;
+  see STATUS.md for validation and review state.
 - What works, what has only been tested offline, and what is pending: [docs/STATUS.md](docs/STATUS.md).
   The owner will test Treasure live; Chat claims and the Alliance Drill join still need a live
   opportunity.

@@ -1,7 +1,8 @@
 # Product status
 
-Last updated 2026-10-27, release **lw-control-v1.2-2026-10-27** (product source `f93c3b9a`,
-merged to `main` through PR #17). No work is in progress; the owner is taking a break.
+Last updated 2026-10-29. Latest release: **lw-control-v1.2-2026-10-27** (product source
+`f93c3b9a`, merged to `main` through PR #17). Launch update recovery is ready for review
+on `codex/launch-update-recovery`; this is not a new release.
 
 Status meanings:
 
@@ -77,3 +78,21 @@ The app checks the installed Last War client against known hashes (`CurrentClien
 `src/LWBridge.GameScripts/current_client_compat.py`). After a game update, the hashes and any
 changed game Lua interfaces must be re-verified before live use. See
 [DEVELOPMENT.md](DEVELOPMENT.md#after-a-game-update).
+
+The 2026-10-29 launch repair moves pending official Lua-update recovery into the shared
+start transaction, covering manual Launch, startup, reconnect and repair. It invalidates
+stale settlement, lets the official launcher update restored originals, and permits one
+bridge retry with a fresh readiness window. Stop/Close remains effective throughout.
+Unknown runtime/critical Lua changes remain blocked. See the
+[design note](design-notes/2026-10-29-launch-update-recovery.md).
+
+Validation: focused controlled lifecycle checks and the full Windows Desktop suite passed;
+all UI checks, all 53 strict game-script checks (zero skips), four release packager tests,
+an inert packaged Home capture and a separate v29 candidate roundtrip passed. A genuine
+isolated run reproduced the delta failure, applied the official v27-to-v29 update, connected
+the bridge and closed/restored the exact post-update originals. Its final Home proof account
+gate rejected the selected account, so that first run is qualified only for update recovery,
+connection and restoration. A second genuine isolated Home proof on the identified account
+passed launch, authenticated connection, Home initialization and exact Close/restoration.
+Both runs left no game/launcher processes or recovery journals and preserved the existing
+owner app. Gameplay tasks were disabled; no gameplay qualification is claimed.

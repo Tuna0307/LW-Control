@@ -27,6 +27,12 @@ if (args.Length == 1 && args[0] == "--home-connection-stability")
     return;
 }
 
+if (args.Length == 1 && args[0] == "--home-official-update-recovery")
+{
+    await HomeOfficialUpdateRecoveryChecks.RunAsync();
+    return;
+}
+
 if (args.Length == 3 && args[0] == "--map008-installed-names")
 {
     Map008InstalledNameChecks.CheckInstalled(args[1], args[2]);
@@ -52,6 +58,7 @@ await HomeAutomationParityChecks.RunAsync();
 await HomeFunctionalProfileCrudChecks.RunAsync();
 await HomeR1AdoptionChecks.RunAsync();
 await HomeStaleAdoptionChecks.RunAsync();
+await HomeOfficialUpdateRecoveryChecks.RunAsync();
 await HomeSecondaryRuntimeCompositionChecks.RunAsync();
 GamePipeAdapterLeaseChecks.Run();
 await Feature018HotkeyConfigChecks.RunAsync();

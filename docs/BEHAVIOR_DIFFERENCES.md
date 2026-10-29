@@ -29,7 +29,7 @@ The full original ledgers, with every evidence path, are in the archive tag
 | D-H05 | OWN_DESIGN | Profile capacity is not copied from the commercial limit; local profiles are offered (see D-H07). | n/a |
 | D-H06 | OWN_DESIGN | Home Close sends Stop for the captured profile even before a recovery instance ID exists. | Controlled |
 | D-H07 | OWN_DESIGN | Four local profile slots with Add/Delete (SQLite); the folder picker is shown even when a root is valid. | Controlled + packaged WebView |
-| D-H08 | OWN_DESIGN | When no repair journal exists, Update-and-Launch falls back to a real owned Start and requires Connected. Never calls the official updater. | Controlled |
+| D-H08 | OWN_DESIGN | When no repair journal exists, Update-and-Launch falls back to a real owned Start and requires Connected. Shared official-update settlement/recovery still applies (D-H19). | Controlled |
 | D-H09 | OWN_DESIGN | Per-profile delete admission; another profile's Start/Stop stays usable while one is busy. | Packaged WebView |
 | D-H10 | OWN_DESIGN | An active recovery without an instance ID shows as `recovering`; sidebar Stop / Stop All work during it. | Native controlled |
 | D-H11 | OWN_DESIGN | A per-profile Enabled toggle. Disabled profiles cannot be started or auto-reconciled; running ones are not killed. | Native + packaged |
@@ -40,6 +40,7 @@ The full original ledgers, with every evidence path, are in the archive tag
 | D-H16 | CURRENT_CLIENT_ADAPTATION | Opt-in isolated route-fault switch for testing transport loss (`--isolated-root` + env flag only). | Genuine game |
 | D-H17 | CURRENT_CLIENT_ADAPTATION | Journal-based Stop works without the plaintext challenge after adoption failure. | Genuine game |
 | D-H18 | OWN_DESIGN | The game's Lua package is per Windows user, so only one real game owner runs at a time (`BRIDGE_HOST_BUSY`). Two real games need a second independent installation; this is unverified. | Native controlled |
+| D-H19 | CURRENT_CLIENT_ADAPTATION | Every launch route handles a pending official Lua delta with exact restoration, untouched official settlement and at most one bridge retry, inside the same cancellable start transaction. Unknown runtime/critical Lua changes remain blocked. | Controlled startup/reconnect/cancel; genuine v27-to-v29 repair and Home Launch/Close |
 
 ## Map
 
