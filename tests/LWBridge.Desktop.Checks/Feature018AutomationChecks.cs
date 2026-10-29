@@ -18,11 +18,6 @@ internal static class Feature018AutomationChecks
             var token = CancellationToken.None;
             if (AutomationTaskConfigCommandService.Default("allianceGift")["intervalMinutes"]!.GetValue<int>() != 120)
                 throw new Exception("R30 recovered gift interval changed");
-            if (!OverviewLifecycleService.IsOfficialLuaUpdateFailure(new BridgeCommandException("LAUNCH_FAILED", "x",
-                    new { error = "OverviewBridgeError: official_lua_update_failed: official launcher rejected the Lua delta output" })) ||
-                OverviewLifecycleService.IsOfficialLuaUpdateFailure(new BridgeCommandException("LAUNCH_FAILED", "x", new { error = "timeout" })) ||
-                OverviewLifecycleService.IsOfficialLuaUpdateFailure(new BridgeCommandException("GAME_REPAIR_REQUIRED", "official_lua_update_failed")))
-                throw new Exception("R30 official update retry must match only the Lua update failure");
             if (AutomationTaskConfigCommandService.Default("allianceGather")["allianceGatherSquads"]!.AsArray().Count != 2)
                 throw new Exception("R30 recovered alliance gathering squads changed");
             foreach (object bad in new object[] { new { enabled = true, allianceGatherSquads = Array.Empty<int>() }, new { enabled = false, allianceGatherSquads = new[] { 1, 1 } }, new { enabled = false, allianceGatherSquads = new[] { 5 } } })

@@ -134,6 +134,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private bool startupReconcileConsumed;
     private IReadOnlyList<OverviewStartupError> startupReconcileErrors = Array.Empty<OverviewStartupError>();
 
+    // Produced only by the structured current-client helper failure below.
+    // The helper has exited and completed its owned cleanup before this reaches StartAsync.
+    private sealed class OfficialLuaUpdateException(string message) : Exception(message) { }
+
     public OverviewLifecycleService(
         string profileId,
         string? gameRoot,
@@ -988,44 +992,66 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
 
             JsonElement helper;
-            try
+            for (int attempt = 0; ; attempt++)
             {
-                helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
-            }
-            catch (BridgeCommandException error) when (
-                string.Equals(error.Code, "OFFICIAL_LAUNCHER_RESTARTED", StringComparison.Ordinal))
-            {
-                // 0x1DC345..0x1DC3D0: only attempt 1's exact 27-byte
-                // OFFICIAL_LAUNCHER_RESTARTED error permits attempt 2.
-                // Official-Lua-update and spawn-timeout are NOT equivalent
-                // events. The current helper has no verified producer of this
-                // typed event; synthetic tests prove policy, not live mapping.
-                cancellationToken.ThrowIfCancellationRequested();
-                if (testHooks is null)
+                try
                 {
-                    long officialSettleDeadline = checked(
-                        RecoveryClockMilliseconds() +
+                    helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
+                    break;
+                }
+                catch (OfficialLuaUpdateException)
+                {
+                    // A server-side update can arrive while the unchanged local package
+                    // still matches its cached settlement. The launcher cannot apply that
+                    // delta to injected scripts. Its failed helper has restored the originals;
+                    // restore-only preflight must succeed again before untouched settlement.
+                    // Keep this in the admitted transaction for manual, startup and recovery
+                    // starts alike, so Stop/Close cannot race a second launch transaction.
+                    InvalidateOfficialSettleMarker();
+                    if (attempt != 0) throw;
+                    ThrowIfStartClosed(cancellationToken);
+                    long officialSettleDeadline = checked(RecoveryClockMilliseconds() +
                         (long)OfficialClientSettleTimeout.TotalMilliseconds);
-                    await EnsureOfficialClientSettledAsync(
-                        selectedRoot, cancellationToken, officialSettleDeadline,
-                        forceOfficialSettle: true).ConfigureAwait(false);
-                    if (startDeadline!.Value - RecoveryClockMilliseconds() <
-                        MinimumStartWindowMilliseconds + 1_000)
-                        throw;
+                    await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken,
+                        officialSettleDeadline, forceOfficialSettle: true).ConfigureAwait(false);
+                    ThrowIfStartClosed(cancellationToken);
+                    startDeadline = checked(RecoveryClockMilliseconds() +
+                        (long)helperSupervisionTimeout.TotalMilliseconds);
                     RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
-                    startInvocation = CreateBoundedStartInvocation(
-                        newSession, newChallenge, startDeadline.Value,
-                        controlPipeLaunchBinding);
+                    startInvocation = CreateBoundedStartInvocation(newSession, newChallenge,
+                        startDeadline.Value, controlPipeLaunchBinding);
                 }
-                else
+                catch (BridgeCommandException error) when (attempt == 0 &&
+                    string.Equals(error.Code, "OFFICIAL_LAUNCHER_RESTARTED", StringComparison.Ordinal))
                 {
-                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
-                    startInvocation = new OverviewHelperInvocation(
-                        "start", profileId, newSession, newChallenge, null, null, null,
-                        ControlPipeLaunchBinding: controlPipeLaunchBinding);
+                    // 0x1DC345..0x1DC3D0: the exact launcher-restart event also
+                    // permits only attempt 2. Preserve its original remaining-budget
+                    // rule; timeout/spawn failures do not acquire a retry.
+                    ThrowIfStartClosed(cancellationToken);
+                    if (testHooks is null)
+                    {
+                        long officialSettleDeadline = checked(
+                            RecoveryClockMilliseconds() +
+                            (long)OfficialClientSettleTimeout.TotalMilliseconds);
+                        await EnsureOfficialClientSettledAsync(
+                            selectedRoot, cancellationToken, officialSettleDeadline,
+                            forceOfficialSettle: true).ConfigureAwait(false);
+                        if (startDeadline!.Value - RecoveryClockMilliseconds() <
+                            MinimumStartWindowMilliseconds + 1_000)
+                            throw;
+                        RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
+                        startInvocation = CreateBoundedStartInvocation(
+                            newSession, newChallenge, startDeadline.Value,
+                            controlPipeLaunchBinding);
+                    }
+                    else
+                    {
+                        RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
+                        startInvocation = new OverviewHelperInvocation(
+                            "start", profileId, newSession, newChallenge, null, null, null,
+                            ControlPipeLaunchBinding: controlPipeLaunchBinding);
+                    }
                 }
-                // Exactly one more invocation; no catch retries its failure.
-                helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             }
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
@@ -1653,7 +1679,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private async Task<JsonElement> RunHelperCoreAsync(OverviewHelperInvocation invocation, CancellationToken cancellationToken)
     {
         if (testHooks?.RunHelperAsync is { } testRunner)
-            return await testRunner(invocation, cancellationToken).ConfigureAwait(false);
+        {
+            JsonElement result = await testRunner(invocation, cancellationToken).ConfigureAwait(false);
+            if (result.TryGetProperty("ok", out JsonElement ok) && ok.ValueKind == JsonValueKind.False)
+                ThrowHelperFailure(invocation, result, "");
+            return result;
+        }
 
         string operationHelperPath = invocation.Operation == "preflight-recover"
             ? Path.Combine(Path.GetDirectoryName(helperPath) ?? AppContext.BaseDirectory,
@@ -1754,38 +1785,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             {
                 JsonElement root = document.RootElement;
                 if (process.ExitCode != 0 || !root.TryGetProperty("ok", out JsonElement ok) || ok.ValueKind != JsonValueKind.True)
-                {
-                    string error = root.TryGetProperty("error", out JsonElement errorElement) && errorElement.ValueKind == JsonValueKind.String
-                        ? errorElement.GetString() ?? "unknown Overview helper error"
-                        : stderr.Trim();
-                    string? errorType = root.TryGetProperty("errorType", out JsonElement errorTypeElement) && errorTypeElement.ValueKind == JsonValueKind.String
-                        ? errorTypeElement.GetString()
-                        : null;
-                    if (invocation.Operation == "start" &&
-                        error.StartsWith("Overview start cancelled by closing LWBridge", StringComparison.Ordinal))
-                    {
-                        throw new BridgeCommandException(
-                            "GAME_OPERATION_CANCELLED",
-                            "LWBridge closed while the game was starting.",
-                            new { error });
-                    }
-                    if (string.Equals(errorType, "CurrentClientCompatibilityError", StringComparison.Ordinal))
-                        throw new BridgeCommandException(
-                            "GAME_UPDATE_UNSUPPORTED",
-                            "Last War updated, but LWBridge could not verify this game version as automatically compatible.",
-                            new { error });
-                    if (string.Equals(errorType, "ServerMaintenanceError", StringComparison.Ordinal))
-                        throw new BridgeCommandException(
-                            "SERVER_MAINTENANCE",
-                            "Last War servers are currently under maintenance. Scanning is temporarily unavailable.",
-                            new { error, loginCode = "E005", loadingCode = "E109" });
-                    if (invocation.Operation == "start" &&
-                        string.Equals(errorType, "LauncherSpawnError", StringComparison.Ordinal))
-                        throw new BridgeCommandException(
-                            "LAUNCH_TASK_FAILED", "LAUNCH_TASK_FAILED",
-                            new { error });
-                    throw new InvalidOperationException(error);
-                }
+                    ThrowHelperFailure(invocation, root, stderr);
                 return root.Clone();
             }
         }
@@ -1794,6 +1794,35 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (!retainHelperOwnership)
                 ReleaseHelperProcess(process);
         }
+    }
+
+    private static void ThrowHelperFailure(OverviewHelperInvocation invocation, JsonElement root, string stderr)
+    {
+        string error = root.TryGetProperty("error", out JsonElement errorElement) && errorElement.ValueKind == JsonValueKind.String
+            ? errorElement.GetString() ?? "unknown Overview helper error"
+            : stderr.Trim();
+        string? errorType = root.TryGetProperty("errorType", out JsonElement errorTypeElement) && errorTypeElement.ValueKind == JsonValueKind.String
+            ? errorTypeElement.GetString()
+            : null;
+        if (invocation.Operation == "start" &&
+            error.StartsWith("Overview start cancelled by closing LWBridge", StringComparison.Ordinal))
+            throw new BridgeCommandException("GAME_OPERATION_CANCELLED",
+                "LWBridge closed while the game was starting.", new { error });
+        if (invocation.Operation == "start" &&
+            string.Equals(errorType, "OverviewBridgeError", StringComparison.Ordinal) &&
+            error.StartsWith("official_lua_update_failed:", StringComparison.Ordinal))
+            throw new OfficialLuaUpdateException(error);
+        if (string.Equals(errorType, "CurrentClientCompatibilityError", StringComparison.Ordinal))
+            throw new BridgeCommandException("GAME_UPDATE_UNSUPPORTED",
+                "Last War updated, but LWBridge could not verify this game version as automatically compatible.", new { error });
+        if (string.Equals(errorType, "ServerMaintenanceError", StringComparison.Ordinal))
+            throw new BridgeCommandException("SERVER_MAINTENANCE",
+                "Last War servers are currently under maintenance. Scanning is temporarily unavailable.",
+                new { error, loginCode = "E005", loadingCode = "E109" });
+        if (invocation.Operation == "start" &&
+            string.Equals(errorType, "LauncherSpawnError", StringComparison.Ordinal))
+            throw new BridgeCommandException("LAUNCH_TASK_FAILED", "LAUNCH_TASK_FAILED", new { error });
+        throw new InvalidOperationException(error);
     }
 
     private async Task ReleaseRetainedHelperAfterExitAsync(
