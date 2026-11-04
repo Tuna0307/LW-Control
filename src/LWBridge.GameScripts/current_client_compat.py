@@ -9,11 +9,17 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-POLICY = "lwbridge-current-client-critical-anchors-3"
+POLICY = "lwbridge-current-client-critical-anchors-4"
 EXPECTED_FILE_VERSION = 3
 EXPECTED_GAME_SHA256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d"
 EXPECTED_XLUA_SHA256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
 EXPECTED_ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
+SUPPORTED_RUNTIMES = {
+    (EXPECTED_GAME_SHA256, EXPECTED_XLUA_SHA256, EXPECTED_ASSEMBLY_SHA256),
+    ("4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
+     "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
+     "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9"),
+}
 CRITICAL_ENTRIES = {
     "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
     "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
@@ -51,12 +57,8 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
     game_hash = lr.sha256_file(p["game"])
     xlua_hash = lr.sha256_file(p["xlua"])
     assembly_hash = lr.sha256_file(p["assembly"])
-    if game_hash != EXPECTED_GAME_SHA256:
-        problems.append("LastWar.exe changed from the recovered supported build")
-    if xlua_hash != EXPECTED_XLUA_SHA256:
-        problems.append("xlua.dll changed from the recovered LENC contract")
-    if assembly_hash != EXPECTED_ASSEMBLY_SHA256:
-        problems.append("Assembly-CSharp.rdl changed from the recovered map/runtime contract")
+    if (game_hash, xlua_hash, assembly_hash) not in SUPPORTED_RUNTIMES:
+        problems.append("unsupported runtime combination: LastWar.exe, xlua.dll and Assembly-CSharp.rdl require qualification together")
 
     file_version, content_version, entries = lr.read_lwlf(p["data"])
     mapped = dict(entries)
