@@ -7,7 +7,7 @@ namespace LWBridge.Desktop;
 // critical Lua anchor below remains exact. Core/critical changes fail closed.
 internal static class CurrentClientCompatibility
 {
-    internal const string Policy = "lwbridge-current-client-critical-anchors-3";
+    internal const string Policy = "lwbridge-current-client-critical-anchors-4";
     internal const string ExpectedGameSha256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d";
     internal const string ExpectedXluaSha256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45";
     internal const string ExpectedAssemblyCSharpSha256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e";
@@ -27,9 +27,15 @@ internal static class CurrentClientCompatibility
         if (current.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("Current-client compatibility evidence is missing.");
         RequireString(current, "compatibilityPolicy", Policy);
-        RequireString(current, "gameSha256", ExpectedGameSha256);
-        RequireString(current, "xluaSha256", ExpectedXluaSha256);
-        RequireString(current, "assemblyCSharpSha256", ExpectedAssemblyCSharpSha256);
+        var runtime = (RequiredSha256(current, "gameSha256"),
+            RequiredSha256(current, "xluaSha256"), RequiredSha256(current, "assemblyCSharpSha256"));
+        if (runtime != (ExpectedGameSha256, ExpectedXluaSha256, ExpectedAssemblyCSharpSha256) &&
+            runtime != ("4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
+                "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
+                "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9"))
+            throw new BridgeCommandException("GAME_UPDATE_UNSUPPORTED",
+                "Last War installed a runtime update that needs compatibility qualification.",
+                new { gameSha256 = runtime.Item1, xluaSha256 = runtime.Item2, assemblyCSharpSha256 = runtime.Item3 });
         RequireString(current, "luaEntrySha256", ExpectedLuaEntrySha256);
         if (!current.TryGetProperty("fileVersion", out JsonElement fileVersion) ||
             !fileVersion.TryGetInt32(out int parsedFileVersion) || parsedFileVersion != 3)

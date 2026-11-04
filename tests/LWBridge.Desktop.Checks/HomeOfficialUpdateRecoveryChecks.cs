@@ -14,6 +14,7 @@ internal static class HomeOfficialUpdateRecoveryChecks
 
     internal static async Task RunAsync()
     {
+        CheckRuntimeCombinations();
         await AutomaticStartupRepairsInsideOneTransaction();
         await SecondDeltaFailsWithoutAnotherRepair();
         await UnrelatedFailuresDoNotRepair();
@@ -23,6 +24,35 @@ internal static class HomeOfficialUpdateRecoveryChecks
         await CallerCancellationPreventsRetry();
         await ClosePreventsRetry();
         Console.WriteLine("HOME_OFFICIAL_UPDATE_RECOVERY_CONTROLLED_OK startup/reconnect/bounded-retry/stop/cancel/close; game launches=0");
+    }
+
+    private static void CheckRuntimeCombinations()
+    {
+        string[] oldRuntime = [CurrentClientCompatibility.ExpectedGameSha256,
+            CurrentClientCompatibility.ExpectedXluaSha256, CurrentClientCompatibility.ExpectedAssemblyCSharpSha256];
+        string[] newRuntime = ["4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
+            "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
+            "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9"];
+        for (int mask = 0; mask < 8; mask++)
+        {
+            string Pick(int index) => (mask & (1 << index)) == 0 ? oldRuntime[index] : newRuntime[index];
+            var evidence = JsonSerializer.SerializeToElement(new { compatibilityPolicy = CurrentClientCompatibility.Policy,
+                gameSha256 = Pick(0), xluaSha256 = Pick(1), assemblyCSharpSha256 = Pick(2) });
+            try
+            {
+                CurrentClientCompatibility.ValidateCurrentClient(evidence);
+                throw new Exception("Incomplete compatibility evidence was accepted");
+            }
+            catch (BridgeCommandException error) when (error.Code == "GAME_UPDATE_UNSUPPORTED")
+            {
+                Require(mask != 0 && mask != 7, "a supported coherent runtime was rejected");
+            }
+            catch (InvalidDataException error)
+            {
+                Require((mask == 0 || mask == 7) && error.Message.Contains("luaEntrySha256"),
+                    "mixed runtimes must fail before critical Lua admission");
+            }
+        }
     }
 
     private static void Require(bool valid, string reason)

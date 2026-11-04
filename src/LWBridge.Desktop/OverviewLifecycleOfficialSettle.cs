@@ -249,6 +249,10 @@ internal sealed partial class OverviewLifecycleService
             throw new InvalidDataException("Overview preflight recovery reported changed installed files.");
         if (!result.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("Overview preflight recovery did not return current-client compatibility evidence.");
+        if (!result.TryGetProperty("compatibilityOk", out JsonElement compatible) || compatible.ValueKind != JsonValueKind.True)
+            throw new BridgeCommandException("GAME_UPDATE_UNSUPPORTED",
+                "Last War updated its runtime or scripts. This build needs compatibility qualification before LW-Control can launch it.",
+                new { currentClient = current, problems = result.TryGetProperty("compatibilityProblems", out var problems) ? problems : default });
         return CurrentClientCompatibility.ValidateCurrentClient(current);
     }
 

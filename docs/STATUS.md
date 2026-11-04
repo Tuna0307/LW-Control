@@ -1,6 +1,6 @@
 # Product status
 
-Last updated 2026-10-29. Latest release: **lw-control-v1.2-2026-10-27** (product source
+Last updated 2026-11-04. Latest release: **lw-control-v1.2-2026-10-27** (product source
 `f93c3b9a`, merged to `main` through PR #17). Launch update recovery is ready for review
 on `codex/launch-update-recovery`; this is not a new release.
 
@@ -73,6 +73,23 @@ or measurement before it is worth the extra state:
   thread).
 
 ## Compatibility
+
+**2026-11-04, manifest 1106 / Lua v31:** the official update changed LastWar.exe,
+xlua.dll and Assembly-CSharp.rdl together. Policy 4 admits this exact coherent runtime
+alongside the previous runtime, retaining all four critical Lua pins. Mixed/unknown runtimes
+are rejected. Preflight now reports `GAME_UPDATE_UNSUPPORTED` with observed identities and
+inspection problems instead of a generic launch error. This does not guarantee support for
+future native updates.
+
+PROVEN: genuine isolated Home launch, authenticated connection, initialization, exact Close
+and restoration passed with all gameplay tasks off. No task game/launcher or recovery journal
+remained; the existing owner app was preserved. Full Desktop checks (including all eight old/new
+runtime combinations), Python runtime-admission checks, candidate roundtrip and packager tests
+passed. The full Python suite reported **45 pass, 9 fail, 0 skip**: nine source checks still
+pin v26/v27; investigating those pins also exposed changed UIUtil and building-description
+modules. Those checks have not been weakened. Gameplay behavior on this update remains
+unqualified, and this change is not a release. See the
+[qualification note](design-notes/2026-11-04-runtime-1106.md).
 
 The app checks the installed Last War client against known hashes (`CurrentClientCompatibility.cs`,
 `src/LWBridge.GameScripts/current_client_compat.py`). After a game update, the hashes and any

@@ -75,7 +75,9 @@ recovery journal to work around it. If automatic recovery fails, confirm owned-p
 and original-file restoration before another launch. A changed runtime/critical anchor needs
 the qualification below.
 
-1. Record the new hashes for the files checked in `src/LWBridge.Desktop/CurrentClientCompatibility.cs`
+1. Qualify and add the coherent game/xlua/assembly hash tuple together, retaining older supported
+   tuples; never accept independent mixtures or automatically trust newly observed hashes.
+   Record the new hashes for the files checked in `src/LWBridge.Desktop/CurrentClientCompatibility.cs`
    and `src/LWBridge.GameScripts/current_client_compat.py` (LuaEntry and the other pinned `.luac` files).
 2. Re-check the game Lua interfaces that the `feature018_*.lua` and probe modules call. The
    inspection helpers in `tools/research/map_009_offline/` (`inspect_current.py`,
