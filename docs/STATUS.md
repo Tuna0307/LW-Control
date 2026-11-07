@@ -1,6 +1,6 @@
 # Product status
 
-Last updated 2026-11-04. Latest release: **lw-control-v1.2-2026-10-27** (product source
+Last updated 2026-11-08. Latest release: **lw-control-v1.2-2026-10-27** (product source
 `f93c3b9a`, merged to `main` through PR #17). Launch update recovery is ready for review
 on `codex/launch-update-recovery`; this is not a new release.
 
@@ -38,6 +38,15 @@ Normal/Fast scan modes, and the six worker diagnostic panels. **Unlock Land Cell
 an account whose tutorial is unfinished). Details: [BEHAVIOR_DIFFERENCES.md](BEHAVIOR_DIFFERENCES.md).
 
 ## Known issues and follow-ups
+
+City eligibility correction (2026-11-08): `codex/city-building-move-level` passes the native
+movement check `itemId + level`, matching CityBuilding.OnBeginLongTap. The old base-only
+argument queried the wrong template row and fixed ordinary buildings. A genuine read-only
+snapshot changed movable count from 61 to 119 out of 132, including all four Drill Grounds
+and all four Hospitals. Exact task-owned Close/restoration passed; no buildings were moved.
+Controlled eligibility, City producer/candidate behavior and package checks pass. Full Python
+suite: 46 pass, nine existing source-identity failures, zero skips. See the
+[qualification note](design-notes/2026-11-08-city-movement-level.md).
 
 1. **Live checks still owed**: Treasure dig/redirect/claim, chat reward claims, Alliance Drill
    join and a fresh Hotkey attack. Each needs a natural in-game opportunity.
