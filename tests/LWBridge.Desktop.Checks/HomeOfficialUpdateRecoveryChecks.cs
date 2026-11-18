@@ -15,6 +15,7 @@ internal static class HomeOfficialUpdateRecoveryChecks
     internal static async Task RunAsync()
     {
         CheckRuntimeCombinations();
+        CheckV36PackageAdmission();
         await AutomaticStartupRepairsInsideOneTransaction();
         await SecondDeltaFailsWithoutAnotherRepair();
         await UnrelatedFailuresDoNotRepair();
@@ -52,6 +53,47 @@ internal static class HomeOfficialUpdateRecoveryChecks
                 Require((mask == 0 || mask == 7) && error.Message.Contains("luaEntrySha256"),
                     "mixed runtimes must fail before critical Lua admission");
             }
+        }
+    }
+
+    private static void CheckV36PackageAdmission()
+    {
+        const string package = "1f468c90d3a6918df3b3c3f80c613df8ace50f16d12e649a36a249474f70fe13";
+        const string v36Constants = "c733d10341290e52265da1a1266fca8e90b675ac8447e18bd5131158f3ebe314";
+        const string previousConstants = "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd";
+        JsonElement Evidence(string hash, string constants, int contentVersion = 36) =>
+            JsonSerializer.SerializeToElement(new
+            {
+                compatibilityPolicy = CurrentClientCompatibility.Policy,
+                gameSha256 = "4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
+                xluaSha256 = "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
+                assemblyCSharpSha256 = "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9",
+                luaEntrySha256 = CurrentClientCompatibility.ExpectedLuaEntrySha256,
+                fileVersion = 3, contentVersion, entryCount = 19001, packageSize = 41869776,
+                packageCrc32 = 2966631066u, packageSha256 = hash,
+                criticalEntries = new Dictionary<string, string>
+                {
+                    ["DataCenter/Global/LuaEntry.luac"] = CurrentClientCompatibility.ExpectedLuaEntrySha256,
+                    ["Global/ConstDefine.luac"] = constants,
+                    ["Util/CSharpCallLuaInterface.luac"] = "d3d3ad22fa0c6fd3cf09fd2639de99dcbf0bd27b19656651d55d8af22de778c0",
+                    ["UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac"] = "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+                }
+            });
+        Require(CurrentClientCompatibility.ValidateCurrentClient(Evidence(package, v36Constants)) == package,
+            "verified v36 package must be admitted");
+        foreach (var invalid in new[]
+        {
+            Evidence(new string('0', 64), v36Constants),
+            Evidence(package, previousConstants),
+            Evidence(package, v36Constants, 35),
+        })
+        {
+            try
+            {
+                CurrentClientCompatibility.ValidateCurrentClient(invalid);
+                throw new InvalidOperationException("Unsupported v36 combination was admitted");
+            }
+            catch (InvalidDataException) { }
         }
     }
 

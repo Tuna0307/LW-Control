@@ -1,6 +1,6 @@
 # Product status
 
-Last updated 2026-11-08. Latest release: **lw-control-v1.2-2026-10-27** (product source
+Last updated 2026-11-18. Latest release: **lw-control-v1.2-2026-10-27** (product source
 `f93c3b9a`, merged to `main` through PR #17). Launch update recovery is ready for review
 on `codex/launch-update-recovery`; this is not a new release.
 
@@ -82,6 +82,13 @@ or measurement before it is worth the extra state:
   thread).
 
 ## Compatibility
+
+**2026-11-18, manifest 1110 / Lua v36:** the installed runtime still matches the supported
+1106 binary tuple. Lua v36 added one constant to `ConstDefine` and two callbacks to
+`CSharpCallLuaInterface`, which changed their hashes and blocked launch at preflight.
+Policy 5 admits the exact v36 package with that runtime and its own four anchor hashes.
+Prior admitted package combinations remain supported. See the
+[qualification note](design-notes/2026-11-18-launch-lua-v36.md).
 
 **2026-11-04, manifest 1106 / Lua v31:** the official update changed LastWar.exe,
 xlua.dll and Assembly-CSharp.rdl together. Policy 4 admits this exact coherent runtime

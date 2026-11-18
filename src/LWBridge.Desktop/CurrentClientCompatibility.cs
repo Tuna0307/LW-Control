@@ -7,11 +7,16 @@ namespace LWBridge.Desktop;
 // critical Lua anchor below remains exact. Core/critical changes fail closed.
 internal static class CurrentClientCompatibility
 {
-    internal const string Policy = "lwbridge-current-client-critical-anchors-4";
+    internal const string Policy = "lwbridge-current-client-critical-anchors-5";
     internal const string ExpectedGameSha256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d";
     internal const string ExpectedXluaSha256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45";
     internal const string ExpectedAssemblyCSharpSha256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e";
     internal const string ExpectedLuaEntrySha256 = "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137";
+    private const string V36PackageSha256 = "1f468c90d3a6918df3b3c3f80c613df8ace50f16d12e649a36a249474f70fe13";
+    private static readonly (string, string, string) Runtime1106 =
+        ("4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
+         "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
+         "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9");
 
     private static readonly IReadOnlyDictionary<string, string> CriticalEntries =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -22,6 +27,13 @@ internal static class CurrentClientCompatibility
             ["UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac"] = "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
         };
 
+    private static readonly IReadOnlyDictionary<string, string> V36CriticalEntries =
+        new Dictionary<string, string>(CriticalEntries, StringComparer.Ordinal)
+        {
+            ["Global/ConstDefine.luac"] = "c733d10341290e52265da1a1266fca8e90b675ac8447e18bd5131158f3ebe314",
+            ["Util/CSharpCallLuaInterface.luac"] = "d3d3ad22fa0c6fd3cf09fd2639de99dcbf0bd27b19656651d55d8af22de778c0",
+        };
+
     internal static string ValidateCurrentClient(JsonElement current)
     {
         if (current.ValueKind != JsonValueKind.Object)
@@ -30,9 +42,7 @@ internal static class CurrentClientCompatibility
         var runtime = (RequiredSha256(current, "gameSha256"),
             RequiredSha256(current, "xluaSha256"), RequiredSha256(current, "assemblyCSharpSha256"));
         if (runtime != (ExpectedGameSha256, ExpectedXluaSha256, ExpectedAssemblyCSharpSha256) &&
-            runtime != ("4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
-                "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
-                "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9"))
+            runtime != Runtime1106)
             throw new BridgeCommandException("GAME_UPDATE_UNSUPPORTED",
                 "Last War installed a runtime update that needs compatibility qualification.",
                 new { gameSha256 = runtime.Item1, xluaSha256 = runtime.Item2, assemblyCSharpSha256 = runtime.Item3 });
@@ -56,7 +66,9 @@ internal static class CurrentClientCompatibility
         string packageSha256 = RequiredSha256(current, "packageSha256");
         if (!current.TryGetProperty("criticalEntries", out JsonElement entries) || entries.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("Current-client critical-entry evidence is missing.");
-        foreach ((string name, string expected) in CriticalEntries)
+        var expectedEntries = runtime == Runtime1106 && parsedContentVersion == 36 && packageSha256 == V36PackageSha256
+            ? V36CriticalEntries : CriticalEntries;
+        foreach ((string name, string expected) in expectedEntries)
         {
             RequireString(entries, name, expected);
         }
