@@ -47,9 +47,10 @@
           BeforeTargets="BeforeBuild"
           Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipCanonicalProductionUiBuild)' != 'true'">
     <Message Importance="high" Text="Building canonical LWBridge.UI-0.3.17 production frontend" />
-    <Exec Command="npm.cmd --prefix &quot;$(CanonicalUiProjectDir)&quot; ci --no-audit --no-fund" />
-    <Exec Command="npm.cmd --prefix &quot;$(CanonicalUiProjectDir)&quot; run build -- --outDir &quot;$(CanonicalUiIntermediateDir)&quot;" />
-    <Exec Command="node &quot;$(CanonicalUiProjectDir)\scripts\check-production-build.mjs&quot; &quot;$(CanonicalUiIntermediateDir)&quot;" />
+    <!-- Run npm here so it identifies the root package correctly through Windows junctions. -->
+    <Exec WorkingDirectory="$(CanonicalUiProjectDir)" Command="npm.cmd ci --no-audit --no-fund" />
+    <Exec WorkingDirectory="$(CanonicalUiProjectDir)" Command="npm.cmd run build -- --outDir &quot;$(CanonicalUiIntermediateDir)&quot;" />
+    <Exec WorkingDirectory="$(CanonicalUiProjectDir)" Command="node scripts\check-production-build.mjs &quot;$(CanonicalUiIntermediateDir)&quot;" />
     <RemoveDir Directories="$(OutDir)ProductionUi" Condition="Exists('$(OutDir)ProductionUi')" />
     <ItemGroup>
       <_CanonicalUiFiles Include="$(CanonicalUiIntermediateDir)\**\*" />

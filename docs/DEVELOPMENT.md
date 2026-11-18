@@ -14,8 +14,9 @@
 dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release
 ```
 
-The build first runs `npm ci` and `npm run build` in `src/LWBridge.UI-0.3.17`
-(`-p:SkipCanonicalProductionUiBuild=true` skips this). It also copies every
+The build first runs `npm ci` and `npm run build` with `src/LWBridge.UI-0.3.17` as the
+working directory. This also supports checkouts opened through a Windows junction.
+Use `-p:SkipCanonicalProductionUiBuild=true` to skip the UI build. The Desktop build copies every
 `src/LWBridge.GameScripts/*` file listed in the csproj to `OverviewBridge/` /
 `LiveResourceProbe/` in the output.
 

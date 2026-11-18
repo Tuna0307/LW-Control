@@ -89,6 +89,8 @@ or measurement before it is worth the extra state:
 Policy 5 admits the exact v36 package with that runtime and its own four anchor hashes.
 Prior admitted package combinations remain supported. See the
 [qualification note](design-notes/2026-11-18-launch-lua-v36.md).
+The Release rebuild also runs npm from the UI project directory so the QuickAccess
+Windows junction works with the checked-in lockfile.
 
 **2026-11-04, manifest 1106 / Lua v31:** the official update changed LastWar.exe,
 xlua.dll and Assembly-CSharp.rdl together. Policy 4 admits this exact coherent runtime
