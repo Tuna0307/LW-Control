@@ -14,8 +14,9 @@
 dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release
 ```
 
-The build first runs `npm ci` and `npm run build` in `src/LWBridge.UI-0.3.17`
-(`-p:SkipCanonicalProductionUiBuild=true` skips this). It also copies every
+The build first runs `npm ci` and `npm run build` with `src/LWBridge.UI-0.3.17` as the
+working directory. This also supports checkouts opened through a Windows junction.
+Use `-p:SkipCanonicalProductionUiBuild=true` to skip the UI build. The Desktop build copies every
 `src/LWBridge.GameScripts/*` file listed in the csproj to `OverviewBridge/` /
 `LiveResourceProbe/` in the output.
 
@@ -60,7 +61,27 @@ Baseline on 2026-10-27, Linux:
 
 The app refuses to inject into an unknown client. To support a new game build:
 
-1. Record the new hashes for the files checked in `src/LWBridge.Desktop/CurrentClientCompatibility.cs`
+Compatible Lua-content updates recover automatically on every launch route (manual Launch,
+startup, reconnect and repair). If a pending official delta rejects the injected package,
+the failed helper restores its exact originals, the app invalidates its cached settlement,
+and the untouched official launcher finishes updating before one bridge retry. Stop/Close
+remains effective throughout. The compatibility policy allows new package identities when
+the runtime and all four critical Lua hashes match a supported combination. The actual
+package hash still identifies the settlement and its originals. See the
+[launch repair note](design-notes/2026-10-29-launch-update-recovery.md) and the
+[v37 compatibility note](design-notes/2026-11-20-launch-compatible-content-updates.md).
+
+For a launch failure, inspect the newest `overview-evidence/<session>/helper-start-error.json`
+and `helper-start-cleanup.json` under the app data root, plus `Launcher.log` in the selected
+game installation. Keep raw logs in ignored `artifacts/`. A Lua delta CRC failure is an updater
+input problem; do not change compatibility hashes, erase script files or discard a pending
+recovery journal to work around it. If automatic recovery fails, confirm owned-process cleanup
+and original-file restoration before another launch. A changed runtime/critical anchor needs
+the qualification below.
+
+1. Qualify and add the coherent game/xlua/assembly hash tuple together, retaining older supported
+   tuples; never accept independent mixtures or automatically trust newly observed hashes.
+   Record the new hashes for the files checked in `src/LWBridge.Desktop/CurrentClientCompatibility.cs`
    and `src/LWBridge.GameScripts/current_client_compat.py` (LuaEntry and the other pinned `.luac` files).
 2. Re-check the game Lua interfaces that the `feature018_*.lua` and probe modules call. The
    inspection helpers in `tools/research/map_009_offline/` (`inspect_current.py`,

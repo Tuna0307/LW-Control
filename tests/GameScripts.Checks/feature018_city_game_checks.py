@@ -60,6 +60,14 @@ BuildingUtils = {
         return radius == 50
     end,
     CanMoveBuild = function(itemId)
+        -- The game caller supplies the level-specific ID. Fixture templates
+        -- below are keyed by base ID; resolve the selected fixture building.
+        for _, building in pairs(DataCenter.BuildManager.allBuilding) do
+            if building.itemId + building.level == itemId then
+                itemId = building.itemId
+                break
+            end
+        end
         if itemId == BuildingTypes.FUN_BUILD_MAIN then return false end
         local gates = DataCenter.BuildManager:GetBuildingDatasByBuildingId(BuildingTypes.LW_BUILD_GATE)
         local gate = gates[1]

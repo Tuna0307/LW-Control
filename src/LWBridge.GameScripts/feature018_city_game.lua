@@ -333,11 +333,16 @@ local function snapshot()
                 end
             end
             sorted(occupied)
-            -- Source CanMoveBuild rejects FUN_BUILD_MAIN, requires a built
-            -- LW_BUILD_GATE (level >= 1), then uses template:CanMove().
-            -- Call the game's complete rule so these conditions stay together.
+            -- CityBuilding.OnBeginLongTap passes build_Id + _level to
+            -- CSharpCallLuaInterface.CanMoveBuild. The base itemId alone selects
+            -- the level-zero template and incorrectly fixes ordinary buildings.
+            local item_id, level = tonumber(building.itemId), tonumber(building.level)
+            if not item_id or item_id ~= math.floor(item_id) or not level or
+                level < 0 or level ~= math.floor(level) or item_id + level > 2147483647 then
+                return nil, 'City building movement identity or level is invalid'
+            end
             local eligible, move_result = pcall(
-                ctx.buildingUtils.CanMoveBuild, building.itemId)
+                ctx.buildingUtils.CanMoveBuild, item_id + level)
             if not eligible or type(move_result) ~= 'boolean' then
                 return nil, 'Current game building movement rule is unavailable'
             end

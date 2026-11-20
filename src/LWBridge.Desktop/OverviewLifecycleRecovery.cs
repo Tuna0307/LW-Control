@@ -155,33 +155,8 @@ internal sealed partial class OverviewLifecycleService
 
     // game_lifecycle_start (0x11157c) sets desired-running and resets the recovery status to idle (0x41ad16)
     // before launching. Recovery relaunches call StartAsync directly and never reset their own status.
-    private async Task<object?> StartCommandAsync(bool closeUnmanaged, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await StartAsync(cancellationToken, closeUnmanaged,
-                resetManualRecoveryStatus: true).ConfigureAwait(false);
-        }
-        catch (BridgeCommandException error) when (IsOfficialLuaUpdateFailure(error) && testHooks is null)
-        {
-            // OWN_DESIGN (R30, 2026-10-21): a new official game update was waiting. The launcher
-            // cannot patch the bridge's installed scripts, so the start was aborted and the
-            // originals restored. Let the unmodified official launcher finish the update once,
-            // then start exactly one more time. A second failure is reported as usual.
-            string? root;
-            lock (stateGate) root = gameRoot;
-            if (root is null) throw;
-            long deadline = checked(RecoveryClockMilliseconds() + (long)OfficialClientSettleTimeout.TotalMilliseconds);
-            await EnsureOfficialClientSettledAsync(root, cancellationToken, deadline,
-                forceOfficialSettle: true).ConfigureAwait(false);
-            return await StartAsync(cancellationToken, closeUnmanaged,
-                resetManualRecoveryStatus: true).ConfigureAwait(false);
-        }
-    }
-
-    internal static bool IsOfficialLuaUpdateFailure(BridgeCommandException error) =>
-        string.Equals(error.Code, "LAUNCH_FAILED", StringComparison.Ordinal) &&
-        System.Text.Json.JsonSerializer.Serialize(error.Details).Contains("official_lua_update_failed", StringComparison.Ordinal);
+    private Task<object?> StartCommandAsync(bool closeUnmanaged, CancellationToken cancellationToken) =>
+        StartAsync(cancellationToken, closeUnmanaged, resetManualRecoveryStatus: true);
 
     // HOME 009 R1 C. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
     // 0x1d5009: `closeUnmanaged` (0x207784) gates 0x1d6548. Unmanaged = LastWar processes of <root>\Game\LastWar.exe

@@ -9,16 +9,30 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-POLICY = "lwbridge-current-client-critical-anchors-3"
+POLICY = "lwbridge-current-client-critical-anchors-6"
 EXPECTED_FILE_VERSION = 3
 EXPECTED_GAME_SHA256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d"
 EXPECTED_XLUA_SHA256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
 EXPECTED_ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
+RUNTIME_1106 = (
+    "4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
+    "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
+    "dec38a33a63ab2d29e02adbfa2032c4ab3f7f910443cba62a1f8895b809e80d9",
+)
+SUPPORTED_RUNTIMES = {
+    (EXPECTED_GAME_SHA256, EXPECTED_XLUA_SHA256, EXPECTED_ASSEMBLY_SHA256),
+    RUNTIME_1106,
+}
 CRITICAL_ENTRIES = {
     "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
     "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
     "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e",
     "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+}
+V36_CRITICAL_ENTRIES = {
+    **CRITICAL_ENTRIES,
+    "Global/ConstDefine.luac": "c733d10341290e52265da1a1266fca8e90b675ac8447e18bd5131158f3ebe314",
+    "Util/CSharpCallLuaInterface.luac": "d3d3ad22fa0c6fd3cf09fd2639de99dcbf0bd27b19656651d55d8af22de778c0",
 }
 
 
@@ -51,12 +65,9 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
     game_hash = lr.sha256_file(p["game"])
     xlua_hash = lr.sha256_file(p["xlua"])
     assembly_hash = lr.sha256_file(p["assembly"])
-    if game_hash != EXPECTED_GAME_SHA256:
-        problems.append("LastWar.exe changed from the recovered supported build")
-    if xlua_hash != EXPECTED_XLUA_SHA256:
-        problems.append("xlua.dll changed from the recovered LENC contract")
-    if assembly_hash != EXPECTED_ASSEMBLY_SHA256:
-        problems.append("Assembly-CSharp.rdl changed from the recovered map/runtime contract")
+    runtime = (game_hash, xlua_hash, assembly_hash)
+    if runtime not in SUPPORTED_RUNTIMES:
+        problems.append("unsupported runtime combination: LastWar.exe, xlua.dll and Assembly-CSharp.rdl require qualification together")
 
     file_version, content_version, entries = lr.read_lwlf(p["data"])
     mapped = dict(entries)
@@ -67,17 +78,21 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
     if lr.ORIGINAL_LUA_ENTRY in mapped:
         problems.append("script package already contains the LWBridge preserved-entry marker")
 
-    critical_hashes: dict[str, str | None] = {}
-    for name, expected in CRITICAL_ENTRIES.items():
-        value = mapped.get(name)
-        actual = _sha256_bytes(value) if value is not None else None
-        critical_hashes[name] = actual
-        if actual != expected:
-            problems.append(f"critical Lua entry changed: {name}")
-
     package_size = p["data"].stat().st_size
     package_crc = lr.crc32_file(p["data"])
     package_hash = lr.sha256_file(p["data"])
+    critical_hashes: dict[str, str | None] = {}
+    for name in CRITICAL_ENTRIES:
+        value = mapped.get(name)
+        critical_hashes[name] = _sha256_bytes(value) if value is not None else None
+    v36_family_matches = (
+        runtime == RUNTIME_1106 and content_version >= 36 and critical_hashes == V36_CRITICAL_ENTRIES
+    )
+    if not v36_family_matches:
+        for name, expected in CRITICAL_ENTRIES.items():
+            if critical_hashes[name] != expected:
+                problems.append(f"critical Lua entry changed: {name}")
+
     metadata = p["metadata"].read_text(encoding="utf-8-sig").strip()
     version_text = p["version"].read_text(encoding="utf-8-sig").strip()
     if metadata != f"{package_size}|{package_crc}":
