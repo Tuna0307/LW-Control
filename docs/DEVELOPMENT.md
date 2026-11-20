@@ -65,8 +65,11 @@ Compatible Lua-content updates recover automatically on every launch route (manu
 startup, reconnect and repair). If a pending official delta rejects the injected package,
 the failed helper restores its exact originals, the app invalidates its cached settlement,
 and the untouched official launcher finishes updating before one bridge retry. Stop/Close
-remains effective throughout; a second failure is reported. Runtime and critical-Lua hash
-checks still apply. See [the launch repair note](design-notes/2026-10-29-launch-update-recovery.md).
+remains effective throughout. The compatibility policy allows new package identities when
+the runtime and all four critical Lua hashes match a supported combination. The actual
+package hash still identifies the settlement and its originals. See the
+[launch repair note](design-notes/2026-10-29-launch-update-recovery.md) and the
+[v37 compatibility note](design-notes/2026-11-20-launch-compatible-content-updates.md).
 
 For a launch failure, inspect the newest `overview-evidence/<session>/helper-start-error.json`
 and `helper-start-cleanup.json` under the app data root, plus `Launcher.log` in the selected

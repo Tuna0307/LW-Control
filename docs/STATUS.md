@@ -1,6 +1,6 @@
 # Product status
 
-Last updated 2026-11-18. Latest release: **lw-control-v1.2-2026-10-27** (product source
+Last updated 2026-11-20. Latest release: **lw-control-v1.2-2026-10-27** (product source
 `f93c3b9a`, merged to `main` through PR #17). Launch update recovery is ready for review
 on `codex/launch-update-recovery`; this is not a new release.
 
@@ -82,6 +82,13 @@ or measurement before it is worth the extra state:
   thread).
 
 ## Compatibility
+
+**2026-11-20, Lua v37:** the v36 whole-package pin blocked the official v37 update despite
+identical runtime and critical Lua hashes. Policy 6 accepts v36 and later content versions
+with that exact runtime and all four matching critical entries. Package integrity, exact
+settlement and original-file restoration still use each installed package's actual identity.
+The installed v37 preflight and candidate roundtrip passed offline. See the
+[design note](design-notes/2026-11-20-launch-compatible-content-updates.md).
 
 **2026-11-18, manifest 1110 / Lua v36:** the installed runtime still matches the supported
 1106 binary tuple. Lua v36 added one constant to `ConstDefine` and two callbacks to

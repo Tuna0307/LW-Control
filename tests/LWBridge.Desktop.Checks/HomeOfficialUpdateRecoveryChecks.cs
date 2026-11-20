@@ -15,7 +15,7 @@ internal static class HomeOfficialUpdateRecoveryChecks
     internal static async Task RunAsync()
     {
         CheckRuntimeCombinations();
-        CheckV36PackageAdmission();
+        CheckV36FamilyAdmission();
         await AutomaticStartupRepairsInsideOneTransaction();
         await SecondDeltaFailsWithoutAnotherRepair();
         await UnrelatedFailuresDoNotRepair();
@@ -56,7 +56,7 @@ internal static class HomeOfficialUpdateRecoveryChecks
         }
     }
 
-    private static void CheckV36PackageAdmission()
+    private static void CheckV36FamilyAdmission()
     {
         const string package = "1f468c90d3a6918df3b3c3f80c613df8ace50f16d12e649a36a249474f70fe13";
         const string v36Constants = "c733d10341290e52265da1a1266fca8e90b675ac8447e18bd5131158f3ebe314";
@@ -81,9 +81,12 @@ internal static class HomeOfficialUpdateRecoveryChecks
             });
         Require(CurrentClientCompatibility.ValidateCurrentClient(Evidence(package, v36Constants)) == package,
             "verified v36 package must be admitted");
+        string updatedPackage = new('a', 64);
+        Require(CurrentClientCompatibility.ValidateCurrentClient(Evidence(updatedPackage, v36Constants, 37)) == updatedPackage,
+            "compatible content updates must keep the new package hash for settlement and restore");
         foreach (var invalid in new[]
         {
-            Evidence(new string('0', 64), v36Constants),
+            Evidence("invalid-digest", v36Constants),
             Evidence(package, previousConstants),
             Evidence(package, v36Constants, 35),
         })

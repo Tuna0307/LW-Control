@@ -12,7 +12,7 @@ import current_client_compat as compat
 
 
 class RuntimeChecks(unittest.TestCase):
-    def test_v36_admission_is_bound_to_exact_package_runtime_and_anchors(self):
+    def test_v36_family_allows_content_updates_with_matching_runtime_and_anchors(self):
         with tempfile.TemporaryDirectory() as folder:
             paths = {name: Path(folder) / name for name in
                      ('launcher', 'game', 'xlua', 'assembly', 'data', 'metadata', 'version')}
@@ -20,23 +20,32 @@ class RuntimeChecks(unittest.TestCase):
                 path.write_bytes(b'data')
             paths['metadata'].write_text('4|0')
             paths['version'].write_text('36')
-            digests = dict(zip(
-                (paths['game'], paths['xlua'], paths['assembly'], paths['data']),
-                (*compat.RUNTIME_1106, compat.V36_PACKAGE_SHA256)))
+            keys = (paths['game'], paths['xlua'], paths['assembly'])
+            digests = dict(zip(keys, compat.RUNTIME_1106))
+            digests[paths['data']] = '1' * 64
             entries = [(name, bytes.fromhex(digest)) for name, digest in compat.V36_CRITICAL_ENTRIES.items()]
             reader = SimpleNamespace(ORIGINAL_LUA_ENTRY='preserved-marker', sha256_file=digests.__getitem__,
                 crc32_file=lambda _: 0, read_lwlf=lambda _: (3, 36, entries))
             with patch.object(compat, '_sha256_bytes', bytes.hex):
                 self.assertTrue(compat.inspect_current(reader, paths)['ok'])
-                digests[paths['data']] = '0' * 64
+                # Official updates can change the package hash and leave the marker behind.
+                digests[paths['data']] = '2' * 64
+                reader.read_lwlf = lambda _: (3, 37, entries)
+                updated = compat.inspect_current(reader, paths)
+                self.assertTrue(updated['ok'], updated['problems'])
+                self.assertEqual(updated['observed']['packageSha256'], '2' * 64)
+                self.assertEqual(updated['observed']['versionMarker'], 36)
+                self.assertFalse(updated['observed']['versionMarkerMatchesContentVersion'])
+                paths['metadata'].write_text('4|1')
                 self.assertFalse(compat.inspect_current(reader, paths)['ok'])
-                digests[paths['data']] = compat.V36_PACKAGE_SHA256
+                paths['metadata'].write_text('4|0')
+                paths['version'].write_text('38')
+                self.assertFalse(compat.inspect_current(reader, paths)['ok'])
                 paths['version'].write_text('35')
                 reader.read_lwlf = lambda _: (3, 35, entries)
                 self.assertFalse(compat.inspect_current(reader, paths)['ok'])
                 paths['version'].write_text('36')
                 reader.read_lwlf = lambda _: (3, 36, entries)
-                keys = (paths['game'], paths['xlua'], paths['assembly'])
                 digests.update(zip(keys, (compat.EXPECTED_GAME_SHA256, compat.EXPECTED_XLUA_SHA256,
                                           compat.EXPECTED_ASSEMBLY_SHA256)))
                 self.assertFalse(compat.inspect_current(reader, paths)['ok'])

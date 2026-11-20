@@ -7,12 +7,11 @@ namespace LWBridge.Desktop;
 // critical Lua anchor below remains exact. Core/critical changes fail closed.
 internal static class CurrentClientCompatibility
 {
-    internal const string Policy = "lwbridge-current-client-critical-anchors-5";
+    internal const string Policy = "lwbridge-current-client-critical-anchors-6";
     internal const string ExpectedGameSha256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d";
     internal const string ExpectedXluaSha256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45";
     internal const string ExpectedAssemblyCSharpSha256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e";
     internal const string ExpectedLuaEntrySha256 = "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137";
-    private const string V36PackageSha256 = "1f468c90d3a6918df3b3c3f80c613df8ace50f16d12e649a36a249474f70fe13";
     private static readonly (string, string, string) Runtime1106 =
         ("4bd47493eb3fda5d806c0df973839a96c41f8807596505762b54af7391009666",
          "43c33c9311570bb4161d1e61aefd0ff04148709e365332e8f7dd45d39a920a09",
@@ -66,9 +65,10 @@ internal static class CurrentClientCompatibility
         string packageSha256 = RequiredSha256(current, "packageSha256");
         if (!current.TryGetProperty("criticalEntries", out JsonElement entries) || entries.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("Current-client critical-entry evidence is missing.");
-        var expectedEntries = runtime == Runtime1106 && parsedContentVersion == 36 && packageSha256 == V36PackageSha256
-            ? V36CriticalEntries : CriticalEntries;
-        foreach ((string name, string expected) in expectedEntries)
+        if (runtime == Runtime1106 && parsedContentVersion >= 36 &&
+            V36CriticalEntries.All(entry => MatchesString(entries, entry.Key, entry.Value)))
+            return packageSha256;
+        foreach ((string name, string expected) in CriticalEntries)
         {
             RequireString(entries, name, expected);
         }
@@ -99,8 +99,11 @@ internal static class CurrentClientCompatibility
 
     private static void RequireString(JsonElement root, string name, string expected)
     {
-        if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind != JsonValueKind.String ||
-            !string.Equals(value.GetString(), expected, StringComparison.OrdinalIgnoreCase))
+        if (!MatchesString(root, name, expected))
             throw new InvalidDataException($"Compatibility field '{name}' changed from the recovered supported value.");
     }
+
+    private static bool MatchesString(JsonElement root, string name, string expected) =>
+        root.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String &&
+        string.Equals(value.GetString(), expected, StringComparison.OrdinalIgnoreCase);
 }

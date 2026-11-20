@@ -4,13 +4,14 @@ Read this first. It is the single entry point for any AI (Claude, Codex, …) or
 Keep it short and current: replace outdated lines instead of appending a log. History belongs in
 [docs/HISTORY.md](docs/HISTORY.md) and in git.
 
-## Current state (2026-11-18)
+## Current state (2026-11-20)
 
 - Latest release is **v1.2**. `main` also includes repository cleanup through 2026-10-28.
   `codex/launch-update-recovery` repairs pending official Lua updates across all launch routes;
   it also admits runtime 1106 for verified Home launch. Gameplay qualification on that update
-  remains incomplete. The City movement fix is in draft PR #23. The Lua v36 launch
-  compatibility update is on `codex/launch-lua-v36`. See STATUS.md for validation.
+  remains incomplete. The City movement fix is in draft PR #23. Draft PR #24
+  handles Lua v36 and later updates with the same verified launch components.
+  See STATUS.md for validation.
 - What works, what has only been tested offline, and what is pending: [docs/STATUS.md](docs/STATUS.md).
   The owner will test Treasure live; Chat claims and the Alliance Drill join still need a live
   opportunity.

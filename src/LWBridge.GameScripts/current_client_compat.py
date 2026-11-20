@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-POLICY = "lwbridge-current-client-critical-anchors-5"
+POLICY = "lwbridge-current-client-critical-anchors-6"
 EXPECTED_FILE_VERSION = 3
 EXPECTED_GAME_SHA256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d"
 EXPECTED_XLUA_SHA256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
@@ -29,7 +29,6 @@ CRITICAL_ENTRIES = {
     "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e",
     "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
 }
-V36_PACKAGE_SHA256 = "1f468c90d3a6918df3b3c3f80c613df8ace50f16d12e649a36a249474f70fe13"
 V36_CRITICAL_ENTRIES = {
     **CRITICAL_ENTRIES,
     "Global/ConstDefine.luac": "c733d10341290e52265da1a1266fca8e90b675ac8447e18bd5131158f3ebe314",
@@ -82,16 +81,17 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
     package_size = p["data"].stat().st_size
     package_crc = lr.crc32_file(p["data"])
     package_hash = lr.sha256_file(p["data"])
-    expected_entries = CRITICAL_ENTRIES
-    if runtime == RUNTIME_1106 and content_version == 36 and package_hash == V36_PACKAGE_SHA256:
-        expected_entries = V36_CRITICAL_ENTRIES
     critical_hashes: dict[str, str | None] = {}
-    for name, expected in expected_entries.items():
+    for name in CRITICAL_ENTRIES:
         value = mapped.get(name)
-        actual = _sha256_bytes(value) if value is not None else None
-        critical_hashes[name] = actual
-        if actual != expected:
-            problems.append(f"critical Lua entry changed: {name}")
+        critical_hashes[name] = _sha256_bytes(value) if value is not None else None
+    v36_family_matches = (
+        runtime == RUNTIME_1106 and content_version >= 36 and critical_hashes == V36_CRITICAL_ENTRIES
+    )
+    if not v36_family_matches:
+        for name, expected in CRITICAL_ENTRIES.items():
+            if critical_hashes[name] != expected:
+                problems.append(f"critical Lua entry changed: {name}")
 
     metadata = p["metadata"].read_text(encoding="utf-8-sig").strip()
     version_text = p["version"].read_text(encoding="utf-8-sig").strip()
